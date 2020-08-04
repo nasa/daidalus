@@ -1,0 +1,1 @@
+java -cp lib/DAIDALUS2.jar:src DrawMultiBands "$@"
