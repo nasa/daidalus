@@ -1,0 +1,12 @@
+.DS_Store
+*.o
+*.class
+*~
+*.old
+.*
+tmp/
+mold/
+tests/
+C++/DaidalusExample
+C++/DaidalusAlerting
+C++/DaidalusBatch

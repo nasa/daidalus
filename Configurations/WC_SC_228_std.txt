@@ -1,0 +1,80 @@
+# V-1.0.1
+# Bands Parameters
+lookahead_time = 180.000000 [s]
+left_trk = 180.000000 [deg]
+right_trk = 180.000000 [deg]
+min_gs = 10.000000 [knot]
+max_gs = 700.000000 [knot]
+min_vs = -6000.000000 [fpm]
+max_vs = 6000.000000 [fpm]
+min_alt = 100.000000 [ft]
+max_alt = 50000.000000 [ft]
+# Kinematic Parameters
+trk_step = 1.000000 [deg]
+gs_step = 5.000000 [knot]
+vs_step = 100.000000 [fpm]
+alt_step = 100.000000 [ft]
+horizontal_accel = 0.000000 [m/s^2]
+vertical_accel = 0.000000 [G]
+turn_rate = 0.000000 [deg/s]
+bank_angle = 0.000000 [deg]
+vertical_rate = 0.000000 [fpm]
+# Recovery Bands Parameters
+recovery_stability_time = 0.000000 [s]
+min_horizontal_recovery = 0.660000 [nmi]
+min_vertical_recovery = 450.000000 [ft]
+recovery_trk = true
+recovery_gs = true
+recovery_vs = true
+recovery_alt = true
+# Collision Avoidance Bands Parameters
+ca_bands = false
+ca_factor = 0.200000
+horizontal_nmac = 500.000000 [ft]
+vertical_nmac = 100.000000 [ft]
+# Implicit Coordination Parameters
+conflict_crit = false
+recovery_crit = false
+# Horizontal Contour Threshold
+contour_thr = 180.000000 [deg]
+# Alert Levels
+alert_1_alerting_time = 55.000000 [s]
+alert_1_detector = det_1
+alert_1_early_alerting_time = 75.000000 [s]
+alert_1_region = NONE
+alert_1_spread_alt = 0.000000 [ft]
+alert_1_spread_gs = 0.000000 [knot]
+alert_1_spread_trk = 0.000000 [deg]
+alert_1_spread_vs = 0.000000 [fpm]
+alert_2_alerting_time = 55.000000 [s]
+alert_2_detector = det_2
+alert_2_early_alerting_time = 75.000000 [s]
+alert_2_region = MID
+alert_2_spread_alt = 0.000000 [ft]
+alert_2_spread_gs = 0.000000 [knot]
+alert_2_spread_trk = 0.000000 [deg]
+alert_2_spread_vs = 0.000000 [fpm]
+alert_3_alerting_time = 25.000000 [s]
+alert_3_detector = det_3
+alert_3_early_alerting_time = 55.000000 [s]
+alert_3_region = NEAR
+alert_3_spread_alt = 0.000000 [ft]
+alert_3_spread_gs = 0.000000 [knot]
+alert_3_spread_trk = 0.000000 [deg]
+alert_3_spread_vs = 0.000000 [fpm]
+conflict_level = 2
+det_1_WCV_DTHR = 0.660000 [nmi]
+det_1_WCV_TCOA = 0.000000 [s]
+det_1_WCV_TTHR = 35.000000 [s]
+det_1_WCV_ZTHR = 700.000000 [ft]
+det_2_WCV_DTHR = 0.660000 [nmi]
+det_2_WCV_TCOA = 0.000000 [s]
+det_2_WCV_TTHR = 35.000000 [s]
+det_2_WCV_ZTHR = 450.000000 [ft]
+det_3_WCV_DTHR = 0.660000 [nmi]
+det_3_WCV_TCOA = 0.000000 [s]
+det_3_WCV_TTHR = 35.000000 [s]
+det_3_WCV_ZTHR = 450.000000 [ft]
+load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD

@@ -1,0 +1,19 @@
+Processing TCASII. Writing output to file summaries/TCASII.summary
+Logging PVS information in summaries/TCASII.log
+Grand Totals: 142 proofs, 142 attempted, 142 succeeded (244.87 s)
+
+Processing WellClear. Writing output to file summaries/WellClear.summary
+Logging PVS information in summaries/WellClear.log
+Grand Totals: 243 proofs, 243 attempted, 243 succeeded (162.00 s)
+
+Processing DAIDALUS. Writing output to file summaries/DAIDALUS.summary
+Logging PVS information in summaries/DAIDALUS.log
+Grand Totals: 609 proofs, 609 attempted, 609 succeeded (337.35 s)
+
+PVS_LIBRARY_PATH=/Users/cmunoz/src/WellClear.git/PVS:/Users/cmunoz/local/PVS/nasalib:/Users/cmunoz/local/PVS/pvs-experimental
+TCASII                   [OK: 142 proofs]
+WellClear                [OK: 243 proofs]
+DAIDALUS                 [OK: 609 proofs]
+
+*** Grand Totals: 994 proofs / 994 formulas. Missed: 0 formulas.
+*** Number of libraries: 3

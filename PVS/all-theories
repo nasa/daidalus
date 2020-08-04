@@ -1,0 +1,7 @@
+: --log --dir summaries
+# A simplified version of the TCAS II Traffic Alert (TA) and Resolution Advisory (RA) logics
+TCASII  
+# Well-Clear concept
+WellClear
+# Detect and Avoid Alerting Logic for Unmanned Systems (DAIDALUS)
+DAIDALUS

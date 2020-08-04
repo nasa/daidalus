@@ -1,0 +1,190 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+get_kinematic_bands : THEORY
+
+  BEGIN
+
+  IMPORTING kinematic_core,
+  	    get_kinematic_bands_util, 
+  	    get_generic_bands,
+	    format_bands, 
+	    alertor
+
+  CacheComp: TYPE = [# ttvs: [bool,list[[nat, TTVL]]],
+  	     	       trk_pre: [bool, [bool, list[[nat,BandsOut]]]], 
+		       vs_pre:  [bool, [bool, list[[nat,BandsOut]]]], 
+		       gs_pre:  [bool, [bool, list[[nat,BandsOut]]]], 
+		       alt_pre: [bool, [bool, list[[nat,BandsOut]]]] #]
+
+  defCache:CacheComp = (# ttvs:= (FALSE,null[[nat, TTVL]]),
+  	     	       trk_pre:= (FALSE, (FALSE, null[[nat,BandsOut]])), 
+		       vs_pre:=  (FALSE, (FALSE, null[[nat,BandsOut]])), 
+		       gs_pre:=  (FALSE, (FALSE, null[[nat,BandsOut]])), 
+		       alt_pre:= (FALSE, (FALSE, null[[nat,BandsOut]])) #)
+
+  skip_first(pre: list[[nat,BandsOut]]): list[[nat,BandsOut]] = 
+    IF null?(pre) THEN pre ELSE cdr[[nat,BandsOut]](pre) ENDIF
+  
+  nth?(pre: list[[nat,BandsOut]] , ind: int) : list[RealBand] = 
+    IF ind >=0 AND ind<length[[nat,BandsOut]](pre) THEN  
+    nth[[nat,BandsOut]](pre, ind)`2`bands
+    ELSE null[RealBand]
+    ENDIF
+
+  recovery_map(ttvs:list[[nat, TTVL]]): [int->Region] =
+    recovery_region_map(def_region_map(alert_from_ttvs(ttvs))) 
+    	     
+ 
+     
+  %% function for scaling by a unit, with early exit for scaling by 1.
+   scale_band_unit(unit:posreal)(band: RealBand):
+   RealBand = (#lb:= band`lb/unit, ub:= band`ub/unit #)
+
+   scale_bands_unit(bands:list[RealBand], unit:posreal):  list[RealBand] = 
+   IF unit=1 THEN bands 
+   ELSE map(scale_band_unit(unit))(bands)
+   ENDIF  
+
+        
+  get_kinematic_trk_pre(par:Parameters)((ucore: UpdatedCore | pc_comp(ucore, par))):
+    [bool, list[[nat,BandsOut]]] =
+    LET any_red = any_trk_red(ucore`turn_rate, par`left_trk, par`right_trk, par`trk_step),
+        bands_init = trk_bands_init(ucore`turn_rate, par`left_trk, par`right_trk, par`trk_step)
+	             (ucore`epsH, ucore`epsV, ucore`conflict_crit, ucore`recovery_crit),
+        recovery = get_recovery(par`recovery_stability_time, ucore`min_horizontal_recovery, ucore`min_vertical_recovery, 
+	           par`ca_factor, par`ca_bands) IN
+    get_bands(any_red, bands_init)(par`alertor)(ucore`cd2, recovery, par`recovery_trk, par`turn_rate/=0)(ucore`ownship, ucore`conf_traffic_split)
+    
+  get_kinematic_trk(par:Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), cache: CacheComp): [list[RealBand],list[Region]] =
+    LET trk_pre = IF cache`trk_pre`1 THEN cache`trk_pre`2 ELSE get_kinematic_trk_pre(par)(ucore) ENDIF,
+        bin_list = IF trk_pre`1 THEN binarize(0, 2*pi, nth?(trk_pre`2, par`alertor`1-1), 1)
+       		   ELSE merge_list(map(lambda(item:[nat, BandsOut]): binarize(0,2*pi,item`2`bands, item`1))(skip_first(trk_pre`2)))
+  		   ENDIF, 
+      cut_list = IF par`left_trk/=pi OR par`right_trk/=pi  THEN 
+                    LET trk = trk(ucore`ownship`v), 
+  		    	lowc = to2pi(trk-par`left_trk), 
+  	 	 	upc = to2pi(trk+par`right_trk) IN
+   	            cutoff(0, 2*pi, lowc, upc, bin_list)
+  		 ELSE bin_list
+  		 ENDIF 
+		 IN
+      format_merged(cut_list, IF trk_pre`1 THEN 
+                    recovery_map(IF cache`ttvs`1 THEN cache`ttvs`2 ELSE 
+  	  	       ac_ttv_lists(par`alertor, par`lookahead_time, ucore`ownship, ucore`traffic) ENDIF ) 
+  	            ELSE param_region_map(par) ENDIF, 0)
+      
+		    
+           
+
+  get_kinematic_vs_pre(par:Parameters)((ucore: UpdatedCore | pc_comp(ucore, par))):
+    [bool, list[[nat,BandsOut]]] =
+    LET any_red = any_vs_red(par`vertical_accel, par`min_vs, par`max_vs, par`vs_step),
+        bands_init = vs_bands_init(par`vertical_accel, par`min_vs, par`max_vs, par`vs_step)
+	             (ucore`epsH, ucore`epsV, ucore`conflict_crit, ucore`recovery_crit),
+        recovery = get_recovery(par`recovery_stability_time, ucore`min_horizontal_recovery, ucore`min_vertical_recovery, 
+	           par`ca_factor, par`ca_bands) IN
+    get_bands(any_red, bands_init)(par`alertor)(ucore`cd2, recovery, par`recovery_vs, par`vertical_accel/=0)(ucore`ownship, ucore`conf_traffic_split)
+    
+  get_kinematic_vs(par:Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), cache: CacheComp ): [list[RealBand],list[Region]] =
+     LET bnd_pre = IF cache`vs_pre`1 THEN cache`vs_pre`2 ELSE get_kinematic_vs_pre(par)(ucore) ENDIF,
+     	 %debug = printf("~a", nth(bnd_pre`2, par`alertor`1-1)`2`periph), 
+         bin_list = IF bnd_pre`1 THEN binarize(par`min_vs, par`max_vs, nth?(bnd_pre`2, par`alertor`1-1), 1)
+	   	    ELSE merge_list(map(lambda(item:[nat, BandsOut]): binarize(par`min_vs, par`max_vs,item`2`bands, item`1))(skip_first(bnd_pre`2))) 
+		    ENDIF IN
+         format_merged(bin_list, IF bnd_pre`1 THEN   
+                       recovery_map(IF cache`ttvs`1 THEN cache`ttvs`2 ELSE 
+	  	         ac_ttv_lists(par`alertor, par`lookahead_time, ucore`ownship, ucore`traffic) ENDIF ) 
+	               ELSE param_region_map(par) ENDIF, par`min_vs)
+         
+  
+  get_kinematic_gs_pre(par:Parameters)((ucore: UpdatedCore | pc_comp(ucore, par))):
+    [bool, list[[nat,BandsOut]]] =
+    LET any_red = any_gs_red(par`horizontal_accel, par`min_gs, par`max_gs, par`gs_step),
+        bands_init = gs_bands_init(par`horizontal_accel, par`min_gs, par`max_gs, par`gs_step)
+	             (ucore`epsH, ucore`epsV, ucore`conflict_crit, ucore`recovery_crit),
+        recovery = get_recovery(par`recovery_stability_time, ucore`min_horizontal_recovery, ucore`min_vertical_recovery, 
+	           par`ca_factor, par`ca_bands) IN
+    get_bands(any_red, bands_init)(par`alertor)(ucore`cd2, recovery, par`recovery_gs, par`horizontal_accel/=0)(ucore`ownship, ucore`conf_traffic_split)
+    
+  get_kinematic_gs(par:Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), cache: CacheComp ): [list[RealBand],list[Region]] =
+     LET bnd_pre = IF cache`gs_pre`1 THEN cache`gs_pre`2 ELSE get_kinematic_gs_pre(par)(ucore) ENDIF, 
+         bin_list = IF bnd_pre`1 THEN binarize(par`min_gs, par`max_gs, nth?(bnd_pre`2, par`alertor`1-1), 1)
+	   	    ELSE merge_list(map(lambda(item:[nat, BandsOut]): binarize(par`min_gs, par`max_gs,item`2`bands, item`1))(skip_first(bnd_pre`2))) 
+		    ENDIF IN
+         format_merged(bin_list, IF bnd_pre`1 THEN  
+                    recovery_map(IF cache`ttvs`1 THEN cache`ttvs`2 ELSE 
+	  	       ac_ttv_lists(par`alertor, par`lookahead_time, ucore`ownship, ucore`traffic) ENDIF ) 
+	            ELSE param_region_map(par) ENDIF, par`min_gs)
+
+  get_kinematic_alt_pre(par:Parameters)((ucore: UpdatedCore | pc_comp(ucore, par))):
+    [bool, list[[nat,BandsOut]]] =
+    LET any_red = any_alt_red(par`vertical_accel, par`min_alt, par`max_alt, par`alt_step, par`vertical_rate),
+        bands_init = alt_bands_init(par`vertical_accel, par`min_alt, par`max_alt, par`alt_step,par`vertical_rate)
+	             (ucore`epsH, ucore`epsV, ucore`conflict_crit, ucore`recovery_crit),
+        recovery = get_recovery(par`recovery_stability_time, ucore`min_horizontal_recovery, ucore`min_vertical_recovery, 
+	           par`ca_factor, par`ca_bands) IN
+    get_bands(any_red, bands_init)(par`alertor)(ucore`cd2, recovery, par`recovery_alt, par`vertical_rate/=0)(ucore`ownship, ucore`conf_traffic_split)
+    
+  get_kinematic_alt(par:Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), cache: CacheComp ): [list[RealBand],list[Region]] =
+     LET bnd_pre = IF cache`alt_pre`1 THEN cache`alt_pre`2 ELSE get_kinematic_alt_pre(par)(ucore) ENDIF, 
+     	 %prnt = printf("~a", nth(bnd_pre`2, par`alertor`1-1)`2`bands),
+         bin_list = IF bnd_pre`1 THEN binarize(par`min_alt, par`max_alt, nth?(bnd_pre`2, par`alertor`1-1), 1)
+	   	    ELSE merge_list(map(lambda(item:[nat, BandsOut]): binarize(par`min_alt, par`max_alt,item`2`bands, item`1))(skip_first(bnd_pre`2))) 
+		    ENDIF IN
+         format_merged(bin_list, IF bnd_pre`1 THEN  
+                    recovery_map(IF cache`ttvs`1 THEN cache`ttvs`2 ELSE 
+	  	       ac_ttv_lists(par`alertor, par`lookahead_time, ucore`ownship, ucore`traffic) ENDIF ) 
+	            ELSE param_region_map(par) ENDIF, par`min_alt)
+
+
+  current_region(bands:list[RealBand], (regions: list[Region] | length(regions) = length(bands) AND cons?(regions)), current: real, trk?: bool) : Region = 
+   LET band_index = first_band_contains(current, bands) IN 
+       IF band_index = length(bands) THEN UNKNOWN
+       ELSE LET bnd = nth(bands, band_index) IN
+         IF current> bnd`lb THEN 
+	    IF current <bnd`ub OR band_index = length(bands)-1 THEN 
+               nth(regions, band_index)
+	    ELSE better_region( nth(regions, band_index), nth(regions, band_index+1))
+	    ENDIF
+	 ELSIF (trk? AND current = 0) THEN
+	    better_region(car(regions), nth(regions, length(regions)-1))
+	 ELSIF band_index = 0 THEN 
+	    nth(regions, band_index)
+	 ELSE better_region( nth(regions, band_index), nth(regions, band_index-1))
+	 ENDIF
+       ENDIF 
+       
+ 
+  END get_kinematic_bands
