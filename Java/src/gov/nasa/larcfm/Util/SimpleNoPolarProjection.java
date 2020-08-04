@@ -133,17 +133,6 @@ public final class SimpleNoPolarProjection implements EuclideanProjection {
 		return si;
 	}
 
-    /** Return a projection of a Position in Euclidean 3-space (if already in Euclidian coordinate, this is the identity function) */
-	public Point projectPoint(Position sip) {
-		Vect3 si;
-		if (sip.isLatLon()) {
-			si = project(sip.lla());
-		} else {
-			si = sip.vect3();
-		}
-		return Point.mk(si);
-	}
-
     
     /** Return a LatLonAlt value corresponding to the given Euclidean position */
     public LatLonAlt inverse(Vect3 xyz) {
@@ -217,9 +206,9 @@ public final class SimpleNoPolarProjection implements EuclideanProjection {
       */
     public Pair<Position,Velocity> inverse(Vect3 p, Velocity v, boolean toLatLon) {
     	if (toLatLon) {
-    	  return new Pair<Position,Velocity>(new Position(inverse(p)),inverseVelocity(p,v,true));
+    	  return new Pair<Position,Velocity>(Position.make(inverse(p)),inverseVelocity(p,v,true));
     	} else {
-    		return new Pair<Position,Velocity>(new Position(p),v);
+    		return new Pair<Position,Velocity>(Position.make(p),v);
     	}
     }
     

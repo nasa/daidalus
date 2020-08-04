@@ -132,7 +132,7 @@ public final class Projection {
 		  	case SIMPLE: projection = new SimpleProjection(0,0,0); break;
 		  	case SIMPLE_NO_POLAR: projection = new SimpleNoPolarProjection(0,0,0); break;
 		  	case ENU: projection = new ENUProjection(0,0,0); break;
-		  	case AZIEQUI: projection = new AziEquiProjection(0,0,0); break;
+		  	case AZIEQUI: projection = AziEquiProjection.mk(0,0,0); break;
 		  	case FLATEARTH: projection = new FlatEarthProjection(0,0,0); break;
 		  	case ORTHO: projection = new OrthographicProjection(0,0,0); break;
 		  	case STEREO: //projection = new StereographicProjection(0,0,0); break; // NOT WORKING

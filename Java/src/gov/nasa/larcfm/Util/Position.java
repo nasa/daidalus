@@ -15,6 +15,8 @@ package gov.nasa.larcfm.Util;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
+
 import java.util.ArrayList;
 
 /**
@@ -35,7 +37,7 @@ public final class Position implements OutputList {
 	// This class is a disjoint union on LatLonAlt and Point
 	private final boolean latlon;    // indicates whether point is geodesic or Euclidean
 	private final LatLonAlt ll;      // only valid if latlon = true
-	private final Point s3;          // only valid if latlon = false
+	private final Vect3 s3;          // only valid if latlon = false
 
 	/** Construct a new Position object from a LatLonAlt object. The position will be a Lat/Lon position. 
 	 * 
@@ -43,14 +45,8 @@ public final class Position implements OutputList {
 	 * */
 	public Position(LatLonAlt lla) {
 		ll = lla;
-		s3 = Point.mk(lla.lon(), lla.lat(), lla.alt());
+		s3 = null; //Vect3.mk(lla.lon(), lla.lat(), lla.alt());
 		latlon = true;
-	}
-
-	private Position(double x, double y, double z) {
-		s3 = Point.mk(x, y, z);
-		ll = LatLonAlt.mk(y, x, z);
-		latlon = false;
 	}
 
 	/** Construct a new Position object from a Vect3 object. This method
@@ -58,37 +54,45 @@ public final class Position implements OutputList {
 	 * @param v three dimensional vector
 	 */
 	public Position(Vect3 v) {
-		s3 = Point.mk(v);
-		ll = LatLonAlt.mk(v.y, v.x, v.z);
-		latlon = false;
-	}
-
-	/** Construct a new Position object from a Point object.  The position will be a Euclidean position. 
-	 * @param v a Point object
-	 * */
-	public Position(Point v) {
 		s3 = v;
-		ll = LatLonAlt.mk(v.y, v.x, v.z);
+		ll = null; //LatLonAlt.mk(v.y, v.x, v.z);
 		latlon = false;
-	}
-
-	/** Copy this Position object 
-	 * @return a copy of this Position object
-	 * */
-	public Position copy() {
-		if (latlon) return new Position(ll);
-		else return new Position(s3);
 	}
 
 	/** A zero position in lat/lon */
-	public static final Position ZERO_LL = new Position(LatLonAlt.ZERO);
+	public static final Position ZERO_LL = make(LatLonAlt.ZERO);
 	/** A zero position in Euclidean */
-	public static final Position ZERO_XYZ = new Position(Point.mk(Vect3.Zero()));  
+	public static final Position ZERO_XYZ = make(Vect3.Zero());  
 	/** An invalid position.  Note that this is not necessarily equal to other invalid positions -- use the isInvalid() test instead. */
-	public static final Position INVALID = new Position(Point.mk(Vect3.INVALID));
+	public static final Position INVALID = make(Vect3.INVALID);
 
 	public static final double minDist = 1E-9;    // TODO:  this should probably go into GreatCircle.initial_course, and should probably be increased, as something like 4E-9 causes problems in PlanTest.test_UAM_nel3
 
+	
+	/** Construct a new Position object from a LatLonAlt object. The position will be a Lat/Lon position. 
+	 * 
+	 * @param lla a latitude/longitude/altitude object
+	 * @return new Position object
+	 * */
+	public static Position make(LatLonAlt lla) {
+		if (lla == null) {
+			return INVALID;
+		}
+		return new Position(lla);
+	}
+	
+	/** Construct a new Position object from a Vect3 object. This method
+	 * assumes the Vect3 is in internal units. 
+	 * @param v three dimensional vector
+	 * @return new Position object
+	 */
+	public static Position make(Vect3 p) {
+		if (p == null) {
+			return INVALID;
+		}
+		return new Position(p);
+	}
+	
 	/**
 	 * Creates a new lat/lon position with coordinates (<code>lat</code>,<code>lon</code>,<code>alt</code>).
 	 * 
@@ -139,7 +143,7 @@ public final class Position implements OutputList {
 	 * @return new position
 	 */
 	public static Position makeXYZ(double x, double y, double z) {
-		return new Position(Units.from(Units.NM, x), Units.from(Units.NM, y), Units.from(Units.ft,z));
+		return mkXYZ(Units.from(Units.NM, x), Units.from(Units.NM, y), Units.from(Units.ft,z));
 	}
 
 
@@ -152,7 +156,7 @@ public final class Position implements OutputList {
 	 * @return new position
 	 */
 	public static Position mkXYZ(double x, double y, double z) {
-		return new Position(x,y,z);
+		return make(Vect3.mk(x,y,z));
 	}
 
 	/**
@@ -167,7 +171,7 @@ public final class Position implements OutputList {
 	 * @return new position
 	 */
 	public static Position makeXYZ(double x, double x_unit, double y, double y_unit, double z, double z_unit) {
-		return new Position(Units.from(x_unit, x), Units.from(y_unit, y), Units.from(z_unit,z));
+		return mkXYZ(Units.from(x_unit, x), Units.from(y_unit, y), Units.from(z_unit,z));
 	}
 
 	/**
@@ -182,10 +186,21 @@ public final class Position implements OutputList {
 	 * @return new position
 	 */
 	public static Position makeXYZ(double x, String x_unit, double y, String y_unit, double z, String z_unit) {
-		return new Position(Units.from(x_unit, x), Units.from(y_unit, y), Units.from(z_unit,z));
+		return mkXYZ(Units.from(x_unit, x), Units.from(y_unit, y), Units.from(z_unit,z));
 	}
 
-
+	private class PositionDebug implements Supplier<String> {
+		Position p1;
+		Position p2;
+		String msg1;
+		String msg2;
+		@Override
+		public String get() {
+			return msg1+p1.toString()+msg2+p2.toString();
+		}
+	}
+	private final PositionDebug pd = new PositionDebug();
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -198,8 +213,6 @@ public final class Position implements OutputList {
 
 	@Override
 	public boolean equals(Object obj) {
-		//f.pln(" $$$ equals: this = "+this+" obj = "+obj);
-		//Debug.halt();
 		if (this == INVALID) return false; // because C++ conventions for testing NaN
 		if (this == obj)
 			return true;
@@ -233,11 +246,31 @@ public final class Position implements OutputList {
 	 * to <code>v</code>.
 	 */
 	public boolean almostEquals(Position pp) {
+		if (this == INVALID || pp == INVALID) return false;
 		if (latlon) {
 			return GreatCircle.almostEquals(lla(),pp.lla());
 		} else
 			return Constants.almost_equals_xy(s3.x,s3.y,pp.s3.x,pp.s3.y) 
 					&& Constants.almost_equals_alt(s3.z,pp.s3.z);
+	}
+
+	
+	/**
+	 * Checks if two Positions are almost the same -- it does not compare altitudes
+	 * This is based on values in gov.nasa.larcfm.Constants
+	 * 
+	 * @param pp Position for comparison
+	 * 
+	 * @return <code>true</code>, if <code>this</code> Position is almost equal 
+	 * to <code>v</code>.
+	 */
+	public boolean almostEquals2D(Position pp) {
+		if (this == INVALID || pp == INVALID) return false;
+		if (latlon) {
+			return GreatCircle.almost_equals(pp.lla().lat(), pp.lla().lon(), lla().lat(), lla().lon());
+			
+		} else
+			return Constants.almost_equals_xy(s3.x,s3.y,pp.s3.x,pp.s3.y); 
 	}
 
 
@@ -252,6 +285,7 @@ public final class Position implements OutputList {
 	 * to <code>v</code>.
 	 */
 	public boolean almostEquals(Position pp, double epsilon_horiz, double epsilon_vert) {
+		if (this == INVALID || pp == INVALID) return false;
 		if (latlon) {
 			return GreatCircle.almostEquals(lla(), pp.lla(),epsilon_horiz,epsilon_vert);
 		} else {
@@ -260,11 +294,26 @@ public final class Position implements OutputList {
 	}
 
 
+	/**
+	 * 
+	 * @param pp
+	 * @param epsilon_horiz max distance in meters
+	 * @return
+	 */
 	public boolean almostEquals2D(Position pp, double epsilon_horiz) {
+		if (this == INVALID || pp == INVALID) return false;
 		if (latlon) {
 			return GreatCircle.almostEquals2D(lla(), pp.lla(), epsilon_horiz);
 		} else {
 			return s3.almostEquals2D(pp.vect3(),epsilon_horiz);
+		}
+	}
+
+	public boolean equals2D(Position pp) {
+		if (latlon) {
+			return this.lla().equals2D(pp.lla());
+		} else {
+			return this.vect2().equals(pp.vect2());
 		}
 	}
 
@@ -273,104 +322,143 @@ public final class Position implements OutputList {
 	 * @return 2D vector
 	 * */
 	public Vect2 vect2() {
-		return new Vect2(s3.x,s3.y);
+		if (latlon) {
+			return new Vect2(ll.lon(), ll.lat());
+		} else {
+			return new Vect2(s3.x,s3.y);
+		}
 	}
 
 	/** Return the three dimensional position vector.  This returns either (x,y,z), or, equivalently, (lon,lat,alt). 
 	 * @return 3D vector
 	 * */
-	public Point vect3() {
-		return s3;
+	public Vect3 vect3() {
+//		if (latlon) {
+//			Debug.error("Position.vect3",true);
+//		}
+		if (latlon) {
+			return Vect3.mk(ll.lon(), ll.lat(), ll.alt());			
+		} else {
+			return s3;
+		}
 	}
 
 	/** Return the associated LatLonAlt object 
 	 * @return LatLonAlt object
 	 * */
 	public LatLonAlt lla() {
-		return ll;
+		if (latlon) {
+			return ll;			
+		} else {
+			return LatLonAlt.mk(s3.y, s3.x, s3.z);
+		}
 	}
 
 	/** Return the x coordinate 
 	 * @return x coordinate
 	 * */
 	public double x() {
-		return s3.x;
+		if (latlon) {
+			return ll.lon();
+		} else {
+			return s3.x;
+		}
 	}
 
 	/** Return the y coordinate 
 	 * @return y coordinate
 	 * */
 	public double y() {
-		return s3.y;
+		if (latlon) {
+			return ll.lat();
+		} else {
+			return s3.y;
+		}
 	}
 
 	/** Return the z coordinate 
 	 * @return z coordinate
 	 * */
 	public double z() {
-		return s3.z;
+		if (latlon) {
+			return ll.alt();
+		} else {
+			return s3.z;
+		}
 	}
 
 	/** Return the latitude 
 	 * @return latitude [internal]
 	 * */
 	public double lat() {
-		return ll.lat();
+		if (latlon) {
+			return ll.lat();			
+		} else {
+			return s3.y;
+		}
 	}
 
 	/** Return the longitude 
 	 * @return longitude [internal]
 	 * */
 	public double lon() {
-		return ll.lon();
+		if (latlon) {
+			return ll.lon();
+		} else {
+			return s3.x;
+		}
 	}
 
 	/** Return the altitude
 	 * @return altitude [internal] */
 	public double alt() {
-		return ll.alt();
+		if (latlon) {
+			return ll.alt();			
+		} else {
+			return s3.z;
+		}
 	}
 
 	/** Return the latitude in degrees north 
 	 * @return latitude
 	 * */
 	public double latitude() {
-		return ll.latitude();
+		return Units.to(Units.deg, lat());
 	}
 
 	/** Return the longitude in degrees east 
 	 * @return longitude
 	 * */
 	public double longitude() {
-		return ll.longitude();
+		return Units.to(Units.deg, lon());
 	}
 
 	/** Return the altitude in feet 
 	 * @return altitude [ft]
 	 * */
 	public double altitude() {
-		return ll.altitude();
+		return Units.to(Units.ft, alt());
 	}
 
 	/** Return the x coordinate in [NM] 
 	 * @return x coordinate [NM]
 	 * */ 
 	public double xCoordinate() {
-		return Units.to(Units.NM, s3.x);
+		return Units.to(Units.NM, x());
 	}
 
 	/** Return the y coordinate in [NM] 
 	 * @return y coordinate [NM]
 	 * */
 	public double yCoordinate() {
-		return Units.to(Units.NM, s3.y);
+		return Units.to(Units.NM, y());
 	}
 
 	/** Return the z coordinate in [ft] 
 	 * @return z coordinate [ft]
 	 * */
 	public double zCoordinate() {
-		return Units.to(Units.ft, s3.z);
+		return Units.to(Units.ft, z());
 	}
 
 
@@ -385,7 +473,12 @@ public final class Position implements OutputList {
 	 * @return true, if invalid position
 	 * */
 	public boolean isInvalid() {
-		return s3.isInvalid() || ll.isInvalid();
+		if (latlon) {
+			return ll.isInvalid();
+		} else {
+			return s3.isInvalid();			
+		}
+		//return s3.isInvalid() || ll.isInvalid();
 	}
 
 	/** Make a new Position from the current one with the X coordinate changed 
@@ -394,9 +487,9 @@ public final class Position implements OutputList {
 	 * */
 	public Position mkX(double x) {
 		if (latlon) {
-			return new Position(LatLonAlt.mk(ll.lat(), x, ll.alt()));
+			return make(LatLonAlt.mk(ll.lat(), x, ll.alt()));
 		} else {
-			return new Position(x, s3.y, s3.z);
+			return mkXYZ(x, s3.y, s3.z);
 		}
 	}
 
@@ -414,9 +507,9 @@ public final class Position implements OutputList {
 	 */
 	public Position mkY(double y) {
 		if (latlon) {
-			return new Position(LatLonAlt.mk(y, ll.lon(), ll.alt()));
+			return make(LatLonAlt.mk(y, ll.lon(), ll.alt()));
 		} else {
-			return new Position(s3.x, y, s3.z);
+			return mkXYZ(s3.x, y, s3.z);
 		}
 	}
 
@@ -434,9 +527,9 @@ public final class Position implements OutputList {
 	 * */
 	public Position mkZ(double z) {
 		if (latlon) {
-			return new Position(LatLonAlt.mk(ll.lat(), ll.lon(), z));
+			return make(LatLonAlt.mk(ll.lat(), ll.lon(), z));
 		} else {
-			return new Position(s3.x, s3.y, z);
+			return mkXYZ(s3.x, s3.y, z);
 		}
 	}
 
@@ -460,10 +553,12 @@ public final class Position implements OutputList {
 	 * @return horizontal distance
 	 * */
 	public double distanceH(Position p) {
-		if (latlon) {
+		if (latlon && p.latlon) {
 			return GreatCircle.distance(ll,p.ll);
-		} else {
+		} else if (!latlon && !p.latlon) {
 			return s3.vect2().Sub(p.vect2()).norm(); 
+		} else {
+			return Double.MAX_VALUE;
 		}
 	}
 
@@ -473,18 +568,18 @@ public final class Position implements OutputList {
 	 * @return vertical distance (absolute distance)
 	 */
 	public double distanceV(Position p) {
-		return Math.abs(s3.z - p.s3.z);
+		return Math.abs(z() - p.z());
 	}
 
-	/** Return the vertical distance between the current Position and the given Position. Positive values mean 
-	 * the current Position is above the given Position 
-	 * 
-	 * @param p another position
-	 * @return vertical distance (positive values mean current position is above the given position
-	 */
-	public double signedDistanceV(Position p) {
-		return s3.z - p.s3.z;
-	}
+//	/** Return the vertical distance between the current Position and the given Position. Positive values mean 
+//	 * the current Position is above the given Position 
+//	 * 
+//	 * @param p another position
+//	 * @return vertical distance (positive values mean current position is above the given position
+//	 */
+//	public double signedDistanceV(Position p) {
+//		return z() - p.z();
+//	}
 
 	//  /**
 	//   * Return a quickly calculated approximation for the distance between two points.  
@@ -518,12 +613,12 @@ public final class Position implements OutputList {
 	 */
 	public Position linear(Velocity v, double time) {
 		if (time == 0 || v.isZero()) {
-			return latlon ? new Position(ll) : new Position(s3);
+			return latlon ? make(ll) : make(s3);
 		}
 		if (latlon) {
-			return new Position(GreatCircle.linear_initial(ll,v,time));
+			return make(GreatCircle.linear_initial(ll,v,time));
 		} else {
-			return new Position(s3.linear(v, time)); 
+			return make(s3.linear(v, time)); 
 		}
 	}
 
@@ -536,9 +631,9 @@ public final class Position implements OutputList {
 	public Position linearEst(double dn, double de) {
 		Position newNP;
 		if (latlon) {
-			newNP = new Position(lla().linearEst(dn,de));		
+			newNP = make(lla().linearEst(dn,de));		
 		} else {
-			return new Position(Point.mk(s3.x + de, s3.y + dn, s3.z));
+			return mkXYZ(s3.x + de, s3.y + dn, s3.z);
 		}
 		return newNP;
 	}
@@ -554,51 +649,20 @@ public final class Position implements OutputList {
 	public Position linearDist2D(double track, double d) {
 		if (latlon) {
 			LatLonAlt sEnd = GreatCircle.linear_initial(ll,track,d);
-			return new Position(sEnd);
+			return make(sEnd);
 		} else {
 			Vect3 sEnd = s3.linearByDist2D(track, d);
-			return new Position(sEnd);
+			return make(sEnd);
 		}
 	}
 
 
 
-	//  /** 
-	//   * This computes the horizontal (2D) position that is a distance (d) away from
-	//   * the this position along the track angle from the given velocity (v). 
-	//   * Neither the ground speed nor the vertical speed of the returned velocity is computed.
-	//   * 
-	//   * @param v    velocity (only track angle is used)
-	//   * @param d    distance
-	//   * @return pair representing the position and velocity
-	//   */
-	//  public Pair<Position,Velocity> linearDist2D(Velocity v, double d) {
-	//	  double track = v.trk();
-	//	  //f.pln(" $$$$$$+++++++++++++++++++++++++ ENTER linearDist: v = "+v);
-	//	  if (latlon) {
-	//		  LatLonAlt sEnd = GreatCircle.linear_initial(ll,track,d);
-	//		  //sEnd = sEnd.mkAlt(altAtd);
-	//		  double finalTrk = track;
-	//		  if (d > minDist) {  // final course has problems if no distance between points (USE 1E-9), 1E-10 NOT GOOD
-	//		     finalTrk = GreatCircle.final_course(ll, sEnd);
-	//		  }
-	//		  //f.pln(" $$$$$$+++++++++++++++++++++++++++ linearDist: v = "+v+" finalTrk = "+Units.str("deg",finalTrk)+" d = "+Units.str("ft",d));
-	//		  Velocity vEnd = v.mkTrk(finalTrk);
-	//		  //f.pln(" $$$$$$+++++++++++++++++++++++++++ linearDist: vEnd = "+vEnd);
-	//		  return new Pair<Position,Velocity>(new Position(sEnd),vEnd);
-	//	  } else {
-	//		  //Velocity vEnd = Velocity.mkTrkGsVs(track,fakeGs,0.0);
-	//		  //f.pln(" $$$$$$$$ linearDist: v = "+v);
-	//		  Vect3 sNew = s3.linearByDist2D(track,d);
-	//		  //sNew = sNew.mkZ(altAtd);
-	//		  return new Pair<Position,Velocity>(new Position(sNew),v); 
-	//	  }
-	//  }  
-
 	/** 
 	 * This computes the horizontal (2D) position that is a distance (d) away from
 	 * this position along the track angle from the given track. 
 	 * Neither the ground speed nor the vertical speed of the returned velocity is computed.
+	 * As a convenience, this also computes the velocity at the destination.
 	 * 
 	 * @param track    track angle at start
 	 * @param d        distance
@@ -606,23 +670,19 @@ public final class Position implements OutputList {
 	 * @return pair    representing the 2D position and 2D velocity
 	 */
 	public Pair<Position,Velocity> linearDist2D(double track, double d, double gsAt_d) {
-		//f.pln("$$ Position.linearDist2D: track="+Util.to_2pi(track)+" d="+d+" gsAt_d="+gsAt_d);		
-		//f.pln(" $$$$$$+++++++++++++++++++++++++ ENTER linearDist: v = "+v);
 		if (latlon) {
 			LatLonAlt sNew = lla();
-			//f.pln("$$ Position.linearDist2D: this="+this.lat()+" "+this.lon()+" snew="+sNew.lat()+" "+sNew.lon());			
 			double finalTrk = track;
 			if (d > minDist) {  // final course has problems if no distance between points (USE 1E-9), 1E-10 NOT GOOD -- should probably be increased
 				sNew = GreatCircle.linear_initial(ll,track,d);
 				finalTrk = GreatCircle.final_course(ll, sNew); // we use final course here because we are advancing to the new point
 			}
 			Velocity vNew = Velocity.mkTrkGsVs(finalTrk,gsAt_d,0.0);
-			//f.pln("$$ Position.linearDist2D: vNew = "+vNew+" finalTrk = "+Util.to_2pi(finalTrk)+" d = "+Units.str("ft",d));
-			return new Pair<Position,Velocity>(new Position(sNew),vNew);
+			return new Pair<Position,Velocity>(make(sNew),vNew);
 		} else {
 			Vect3 sNew = s3.linearByDist2D(track,d);
 			Velocity vNew = Velocity.mkTrkGsVs(track,gsAt_d,0.0);
-			return new Pair<Position,Velocity>(new Position(sNew),vNew); 
+			return new Pair<Position,Velocity>(make(sNew),vNew); 
 		}
 	}
 
@@ -662,25 +722,25 @@ public final class Position implements OutputList {
 	 */
 	public Position midPoint(Position p2) {
 		if (latlon) {
-			return new Position(GreatCircle.interpolate(ll,p2.lla(),0.5));
+			return make(GreatCircle.interpolate(ll,p2.lla(),0.5));
 		} else {
-			return new Position(Point.mk(VectFuns.midPoint(s3,Point.mk(p2.vect3())))); 
+			return make(VectFuns.midPoint(s3,p2.vect3())); 
 		}
 	}
 
 	public Position interpolate(Position p2, double f) {
 		if (latlon) {
-			return new Position(GreatCircle.interpolate(ll,p2.lla(),f));
+			return make(GreatCircle.interpolate(ll,p2.lla(),f));
 		} else {
-			return new Position(Point.mk(VectFuns.interpolate(s3,Point.mk(p2.vect3()),f))); 
+			return make(VectFuns.interpolate(s3,p2.vect3(),f)); 
 		}
 	}
 
 	public Position interpolateEst(Position p2, double f) {
 		if (latlon) {
-			return new Position(GreatCircle.interpolate(ll,p2.lla(),f));
+			return make(GreatCircle.interpolate(ll,p2.lla(),f));
 		} else {
-			return new Position(Point.mk(VectFuns.interpolate(s3,Point.mk(p2.vect3()),f))); 
+			return make(VectFuns.interpolate(s3,p2.vect3(),f)); 
 		}
 	}
 
@@ -690,7 +750,11 @@ public final class Position implements OutputList {
 	 * @return track angle within [0..2PI]
 	 * */
 	public double track(Position p) {  
-		Debug.checkError(p.latlon == latlon, "Position.track call given an inconsistent argument: "+toString()+" "+p.toString());	
+		pd.msg1 = "Position.track call given an inconsistent argument: ";
+		pd.p1 = this;
+		pd.msg2 = " ";
+		pd.p2 = p;
+		Debug.checkErrorLazy(p.latlon == latlon, pd);	
 		if (latlon) {
 			return GreatCircle.initial_course(ll,p.ll);
 		} else {
@@ -717,6 +781,14 @@ public final class Position implements OutputList {
 		}
 	}
 
+	public double trk(Position p) {
+		if (isLatLon()) {
+			return GreatCircle.initial_course(lla(), p.lla());
+		} else {
+			return Velocity.make((p.vect3().Sub(vect3()))).trk();
+		}
+	}
+	
 	/** return the velocity going from this to p over dt seconds.
 	 * Returns a ZERO velocity if dt &lt;= 0 
 	 * @param p another position
@@ -740,8 +812,12 @@ public final class Position implements OutputList {
 	 * @param p another position
 	 * @return representative course
 	 * */
-	public double representativeTrack(Position p) {  
-		Debug.checkError(p.latlon == latlon, "Position.representativeTrack call given an inconsistent argument.");	
+	public double representativeTrack(Position p) { 
+		pd.msg1 = "Position.representativeTrack call given an inconsistent argument ";
+		pd.p1 = this;
+		pd.msg2 = " ";
+		pd.p2 = p;
+		Debug.checkErrorLazy(p.latlon == latlon, pd);	
 		if (latlon) {
 			return GreatCircle.representative_course(ll,p.ll);
 		} else {
@@ -766,19 +842,20 @@ public final class Position implements OutputList {
 		}
 		if (so.latlon) {
 			Pair<LatLonAlt,Double> pgc = GreatCircle.intersection(so.lla(),vo, si.lla(),vi);
-			return new Pair<Position,Double>(new Position(pgc.first),pgc.second );
+			return new Pair<Position,Double>(make(pgc.first),pgc.second );
 		} else {
 			Pair<Vect3,Double> pvt = VectFuns.intersection(so.vect3(),vo,si.vect3(),vi);
-			return new Pair<Position,Double>(new Position(pvt.first),pvt.second );
+			return new Pair<Position,Double>(make(pvt.first),pvt.second );
 		}
 	}
 
-	/** Returns intersection point 
+	/** Returns intersection point between two lines defined by the four positions.  If the Postions are LatLonAlt
+	 * then the lines are Great Circle lines, otherwise they are infinite lines in Euclidean space. 
 	 * @param so     first point of infinite line A 
 	 * @param so2    second point of infinite line A 
 	 * @param si     first point of infinite line B
 	 * @param si2    second point of infinite line B 
-	 * @return       the intersection point,  if parallel returns INVALID
+	 * @return       the intersection point.  If parallel, return INVALID
 	 */
 	public static Position intersection2D(Position so, Position so2, Position si, Position si2) {
 		if (so.latlon != si.latlon && so2.latlon != si2.latlon && so.latlon != so2.latlon) {
@@ -787,11 +864,11 @@ public final class Position implements OutputList {
 		}
 		if (so.latlon) {
 			LatLonAlt lgc = GreatCircle.intersection(so.lla(),so2.lla(), si.lla(), si2.lla());
-			return new Position(lgc);
+			return make(lgc);
 		} else {
 			Pair<Vect2,Double> pvt = VectFuns.intersection2D(so.vect2(),so2.vect2(),1.0,si.vect2(),si2.vect2());
 			Vect3 p3 = new Vect3(pvt.first,so.z());
-			return new Position(p3);
+			return make(p3);
 		}
 	}
 
@@ -809,11 +886,11 @@ public final class Position implements OutputList {
 		}
 		if (so.latlon) {
 			LatLonAlt interSec = GreatCircle.intersectSegments(so.lla(), so2.lla(), si.lla(), si2.lla());
-			return new Position(interSec);
+			return make(interSec);
 		} else {
 			Pair<Vect2,Double> pvt = VectFuns.intersectSegments(so.vect2(),so2.vect2(),si.vect2(),si2.vect2());
 			Vect3 p3 = new Vect3(pvt.first,so.z());
-			return new Position(p3);
+			return make(p3);
 		}
 	}
 
@@ -887,10 +964,10 @@ public final class Position implements OutputList {
 		}
 		if (so.latlon) {
 			Pair<LatLonAlt,Double> lgc = GreatCircle.intersectionAvgAlt(so.lla(),so2.lla(), dto, si.lla(), si2.lla());
-			return new Pair<Position,Double>(new Position(lgc.first),lgc.second);
+			return new Pair<Position,Double>(make(lgc.first),lgc.second);
 		} else {
 			Pair<Vect3,Double> pvt = VectFuns.intersectionAvgZ(so.vect3(),so2.vect3(),dto,si.vect3(),si2.vect3());
-			return new Pair<Position,Double>(new Position(pvt.first),pvt.second );
+			return new Pair<Position,Double>(make(pvt.first),pvt.second );
 		}
 	}
 
@@ -1008,7 +1085,6 @@ public final class Position implements OutputList {
 		}
 	}
 
-
 	/** Return a string representation */
 	public String toString() {
 		return toString(Constants.get_output_precision());
@@ -1052,15 +1128,6 @@ public final class Position implements OutputList {
 	}
 
 	/**
-	 * Return a string representation using the given unit conversions (latitude and longitude, if 
-	 * appropriate, are always in degrees, so only the z unit is used in that case)
-	 * @return string representation
-	 */
-	public String toStringUnits() {
-		return toStringUnits("NM", "NM", "ft");
-	}
-
-	/**
 	 * Return a string representation using the given unit conversions (latitude and longitude, if appropriate, are always in degrees, 
 	 * so only the z unit is used in that case).
 	 * 
@@ -1076,15 +1143,15 @@ public final class Position implements OutputList {
 			return "("+Units.str(xUnits,s3.x)+", "+Units.str(yUnits,s3.y)+", "+Units.str(zUnits,s3.z)+")";
 	}
 
-	/** Return a string representation, with a user-specified digits of precision (0-15) without parentheses.
+	/** Return a string representation, with a user-specified digits of precision (0-15) without units or parentheses.
 	 * @param precision digits of precision 
 	 * @return string representation
 	 * */
 	public String toStringNP(int precision) {
 		if (latlon) {
-			return ll.toString(precision); // use internal units
+			return ll.toString(precision); 
 		} else {
-			return s3.toStringNP(precision);
+			return f.sStrNP(s3, precision); //s3.toStringNP(precision);
 		}
 	}
 
@@ -1095,7 +1162,9 @@ public final class Position implements OutputList {
 		return toStringNP(Constants.get_output_precision());
 	}
 
-	/** Return a string representation, for Euclidean use the units [NM,NM,ft] and for LatLon use the units [deg,deg,ft] */
+	/** Return a string representation, for Euclidean use the units [NM,NM,ft] and for 
+	 * LatLon use the units [deg,deg,ft] */
+	@Override
 	public List<String> toStringList() {
 		ArrayList<String> ret = new ArrayList<String>(3);
 		if (isInvalid()) {
@@ -1120,17 +1189,38 @@ public final class Position implements OutputList {
 	 * @param precision the number of digits to display
 	 * @return a string representation of the position
 	 */
+	@Override
 	public List<String> toStringList(int precision) {
-		return toStringList(precision, 0, false);
+		return toStringList(precision, 0, false, false);
 	}
-	
+
 	public List<String> toStringList(int precision, int latLonExtraPrecision, boolean internalUnits) {
+		return toStringList(precision, latLonExtraPrecision, internalUnits, false);
+	}
+
+	/**
+	 * Product a formatted list of strings representing this position.  The list will have three elements, 
+	 * representing Lat/Lon/Alt or X/Y/Z.
+	 * 
+	 * @param precision number of digits of precision
+	 * @param latLonExtraPrecision number of extra digits of precision for latitude and longitude.  Often,
+	 *        these quantities need more precision
+	 * @param internalUnits  if true, then use natural units (for LatLon use [deg,deg,ft] or 
+	 *        Euclidean use [NM,NM,ft]), instead of internal units that are SI.
+	 * @param emptyStr if true and position is invalid, then output an empty string, else output a dash.
+	 * @return a list of strings
+	 */
+	public List<String> toStringList(int precision, int latLonExtraPrecision, boolean internalUnits, boolean emptyStr) {
 		ArrayList<String> ret = new ArrayList<String>(3);
+		String no_str = "-";
+		if (emptyStr) {
+			no_str = "";
+		}
 		int extra = Math.max(0, latLonExtraPrecision);
 		if (isInvalid()) {
-			ret.add("-");
-			ret.add("-");
-			ret.add("-");
+			ret.add(no_str);
+			ret.add(no_str);
+			ret.add(no_str);
 		} else if (latlon) {
 			if (internalUnits) {
 				ret.add(f.FmPrecision(ll.lat(),precision+extra));
@@ -1171,8 +1261,8 @@ public final class Position implements OutputList {
 	 * @return position
 	 */
 	public static Position parseXYZ(String s) {
-		Point v = Point.parse(s);
-		return new Position(v);
+		Vect3 v = VectFuns.parse(s);
+		return make(v);
 	}
 
 	/**

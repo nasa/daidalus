@@ -7,6 +7,7 @@
 
 package gov.nasa.larcfm.IO;
 
+import gov.nasa.larcfm.Util.Debug;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
@@ -15,6 +16,8 @@ import gov.nasa.larcfm.Util.ParameterReader;
 import gov.nasa.larcfm.Util.Units;
 
 import java.io.Reader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -23,9 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
+ * <p>
  * This object will read in and store a set of configuration parameters.  The parameters can be listed 
  * in the conventional way, such as: <code>param = 10 [NM]</code>.  In addition, the parameters can
- * be listed in a table format: <br>
+ * be listed in a table format: </p>
  * <pre>
  * param1 param2 param3
  * 1      5      100
@@ -34,13 +38,14 @@ import java.util.Arrays;
  * 4      10     97
  * 5      5      96
  * </pre>
- * If the parameters are stored in this way, then every call to the "next()" method will update the parameters
- * (for this example, the parameters: param1, param2, and param3) with the next values in the file. <p>
+ * 
+ * <p>If the parameters are stored in this way, then every call to the "next()" method will update the parameters
+ * (for this example, the parameters: param1, param2, and param3) with the next values in the file. </p>
  *   
- * Instead of next(), the nextIterate() method can be called which will return all of the param1 values with
+ * <p>Instead of next(), the nextIterate() method can be called which will return all of the param1 values with
  * each of the param2 values, and so on.  In this case the parameters may require different numbers of
  * values; so, the columns of values should be augmented with an invalid value that will
- * be ignored, for example
+ * be ignored, for example</p>
  * <pre>
  * param1 param2 param3
  * 1      5      100
@@ -50,12 +55,15 @@ import java.util.Arrays;
  * 5      x      x
  * </pre>
  * 
- * <p>
- * A special set parameters will be stripped and processed immediately.  Parameters starting with the string "includeConfigFile"
- * will launch a temporary ConfigReader that will recursively attempt to read any parameters in the indicated file and add them
- * it this reader.  Parameters read from secondary files will not overwrite parameters set in their parent files.
+ * <p>A special parameter called "importConfigFile = file.cfg"
+ * will read the parameters from that file and include those parameters as if they were parameters in this file.
+ * The file may also have an "importConfigFile" option.
+ * Only one importConfigFile option is allowed per file.
+ * Parameters read from secondary files will not overwrite parameters set in their parent files.</p>
  */
 public final class ConfigReader implements ParameterReader, ParameterProvider, ErrorReporter {
+	private static final String INCLUDE_FILE = "importConfigFile";
+	
 	private ErrorLog error;
 	private String param_var[];
 	private boolean param_isValue[];
@@ -79,7 +87,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		count_itr = new int[0];
 		count = 0;
 		caseSensitive = false;
-		pd = new ParameterData();
+		pd = ParameterData.make();
 		preambleImage = "";
 	}
 
@@ -87,8 +95,8 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	 * Read a new file into an existing ConfigReader.  
 	 * Parameters are preserved if they are not specified in the file.
 	 * 
-	 *  @param filename file name
-	 * */
+	 * @param filename file name
+	 */
 	public void open(String filename) {
 		if (filename == null || filename.equals("")) {
 			error.addError("No filename given");
@@ -185,8 +193,29 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		if ( ! hasRead) {
 			pd.copy(input.getParametersRef(), true);
 		}
+		loadIncludeFile(pd.getString(INCLUDE_FILE));
 		preambleImage = input.getPreambleImage();
 		
+	}
+	
+	private void loadIncludeFile(String file) {
+		if (file == null || file.isEmpty()) return;
+		ConfigReader cr = new ConfigReader();
+		cr.open(file);
+		if (cr.hasError()) {
+			error.addError(cr.getMessage());
+		}
+		if (cr.hasMessage()) {
+			error.addWarning(cr.getMessage());
+		}
+		ParameterData p = cr.getParameters();
+		pd.copy(p,false);
+		if (p.contains(INCLUDE_FILE)) {
+			String file2 = pd.getString(INCLUDE_FILE);
+			if ( ! file.equals(file2)) {
+				loadIncludeFile(file2);
+			}
+		}
 	}
 
 	public boolean isCaseSensitive() {
@@ -215,7 +244,6 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	 * @return Returns true, if the end of file has been reached. 
 	 */
 	public boolean next() {
-		//f.pln("Next "+count+" "+param_val.size());
 		if (count < param_val.size()) {
 			String[] values = param_val.get(count);
 			for (int i = 0; i < values.length; i++) {

@@ -13,6 +13,8 @@ public interface ParameterAcceptor extends ParameterProvider {
 
 	/**
 	 * Modify this object's parameters to match the given ParameterData object.  Unrecognized keys are ignored.
+	 * Any parameters in this object that are not in the given ParameterData object are left untouched.
+	 * 
 	 * @param p database of parameters
 	 */
 	public void setParameters(ParameterData p);

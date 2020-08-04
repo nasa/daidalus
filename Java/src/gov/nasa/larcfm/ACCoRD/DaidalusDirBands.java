@@ -15,77 +15,65 @@ import gov.nasa.larcfm.Util.Velocity;
 
 public class DaidalusDirBands extends DaidalusRealBands {
 
-	private double turn_rate_;     
-	private double bank_angle_; // Only used when turn_rate is set to 0  
-
 	// min/max is left/right relative to ownship's direction
-	public DaidalusDirBands(DaidalusParameters parameters) {
+	public DaidalusDirBands() {
 		super(2*Math.PI);
-		setDaidalusParameters(parameters);
 	}
 
 	public DaidalusDirBands(DaidalusDirBands b) {
 		super(b);
-		turn_rate_ = b.turn_rate_;
-		bank_angle_ = b.bank_angle_;
 	}
 
-	/**
-	 * Set DaidalusParmaeters 
-	 */
-	public void setDaidalusParameters(DaidalusParameters parameters) {
-		set_step(parameters.getHorizontalDirectionStep());  
-		set_recovery(parameters.isEnabledRecoveryHorizontalDirectionBands());
-		set_min_rel(parameters.getLeftHorizontalDirection());
-		set_max_rel(parameters.getRightHorizontalDirection());
-		set_turn_rate(parameters.getTurnRate()); 
-		set_bank_angle(parameters.getBankAngle()); 
-	}
-		
-	public boolean instantaneous_bands() {
-		return turn_rate_ == 0 && bank_angle_ == 0;
+	public boolean get_recovery(DaidalusParameters parameters) {
+		return parameters.isEnabledRecoveryHorizontalDirectionBands();
 	}
 
-	public double get_turn_rate() {
-		return turn_rate_;
+	public double get_step(DaidalusParameters parameters) {
+		return parameters.getHorizontalDirectionStep();
 	}
 
-	public void set_turn_rate(double val) {
-		if (val != turn_rate_) {
-			turn_rate_ = val;
-			stale(true);
-		}
+	public double get_min(DaidalusParameters parameters) {
+		return 0;
 	}
 
-	public double get_bank_angle() {
-		return bank_angle_;
+	public double get_max(DaidalusParameters parameters) {
+		return get_mod();
 	}
 
-	public void set_bank_angle(double val) {
-		if (val != bank_angle_) {
-			bank_angle_ = val;
-			stale(true);
-		}
+	public double get_min_rel(DaidalusParameters parameters) {
+		return parameters.getLeftHorizontalDirection();
+	}
+
+	public double get_max_rel(DaidalusParameters parameters) {
+		return parameters.getRightHorizontalDirection();
+	}
+
+	public boolean saturate_corrective_bands(DaidalusParameters parameters, int dta_status) {
+		return dta_status > 0 && parameters.getDTALogic() < 0;
+	}
+
+	public boolean instantaneous_bands(DaidalusParameters parameters) {
+		return parameters.getTurnRate() == 0 && parameters.getBankAngle() == 0;
 	}
 
 	public double own_val(TrafficState ownship) {
 		return ownship.velocityXYZ().compassAngle();
 	}
 
-	public double time_step(TrafficState ownship) {
+	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
 		double gso = ownship.velocityXYZ().gs();
-		double omega = turn_rate_ == 0 ? Kinematics.turnRate(gso,bank_angle_) : turn_rate_;
-		return get_step()/omega;
+		double omega = parameters.getTurnRate() == 0 ? Kinematics.turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
+		return get_step(parameters)/omega;
 	}
 
-	public Pair<Vect3, Velocity> trajectory(TrafficState ownship, double time, boolean dir) {  
+	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir) {  
 		Pair<Position,Velocity> posvel;
-		if (instantaneous_bands()) {
-			double trk = ownship.velocityXYZ().compassAngle()+(dir?1:-1)*j_step_*get_step(); 
+		if (instantaneous_bands(parameters)) {
+			double trk = ownship.velocityXYZ().compassAngle()+(dir?1:-1)*j_step_*get_step(parameters); 
 			posvel = Pair.make(ownship.positionXYZ(),ownship.velocityXYZ().mkTrk(trk));
 		} else {
 			double gso = ownship.velocityXYZ().gs();
-			double bank = turn_rate_ == 0 ? bank_angle_ : Math.abs(Kinematics.bankAngle(gso,turn_rate_));
+			double bank = parameters.getTurnRate() == 0 ? parameters.getBankAngle() : Math.abs(Kinematics.bankAngle(gso,parameters.getTurnRate()));
 			double R = Kinematics.turnRadius(gso,bank);
 			posvel = ProjectedKinematics.turn(ownship.positionXYZ(),ownship.velocityXYZ(),time,R,dir);
 		}
@@ -95,5 +83,5 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	public double max_delta_resolution(DaidalusParameters parameters) {
 		return parameters.getPersistencePreferredHorizontalDirectionResolution();
 	}
-	
+
 }

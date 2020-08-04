@@ -122,7 +122,7 @@ final public class f {
 	 * @return a string representation
 	 */
 	public static String sStr8(Vect3 s) {
-		return "(" + Units.str("nmi",s.x,8) + " ," + Units.str("nmi",s.y,8) + " ," 	+ Units.str("ft",s.z,8) + ")";
+		return "(" + Units.str("nmi",s.x,8) + ", " + Units.str("nmi",s.y,8) + ", " 	+ Units.str("ft",s.z,8) + ")";
 	}
 
 	/** Format a position vector as a Euclidean position 
@@ -133,6 +133,15 @@ final public class f {
 	public static String sStrNP(Vect3 s) {
 		return Fm4(Units.to("NM", s.x)) + " " + Fm4(Units.to("NM", s.y)) + " " 	+ Fm4(Units.to("ft", s.z));
 	}
+	
+	/** Format a position vector as a Euclidean position using default units of [NM,NM,ft]
+	 * 
+	 * @param v a vector
+	 * @return a string representation
+	 */
+	public static String sStrNP(Vect3 v, int prec) {
+		return list2str(toStringList(v,"NM","NM","ft",prec,false),", ");
+	}
 
 	/** Format a position vector as a Euclidean position 
 	 * 
@@ -140,7 +149,8 @@ final public class f {
 	 * @return a string representation
 	 */
 	public static String sStr8NP(Vect3 s) {
-		return Fm8(Units.to("NM", s.x)) + " " + Fm8(Units.to("NM", s.y)) + " " 	+ Fm8(Units.to("ft", s.z));
+		return sStrNP(s,8);
+		//return Fm8(Units.to("NM", s.x)) + " " + Fm8(Units.to("NM", s.y)) + " " 	+ Fm8(Units.to("ft", s.z));
 	}
 
 	/** Format a position vector as a Euclidean position 
@@ -149,9 +159,28 @@ final public class f {
 	 * @return a string representation
 	 */
 	public static String sStr15NP(Vect3 s) {
-		return Fm16(Units.to("NM", s.x)) + " " + Fm16(Units.to("NM", s.y)) + " " 	+ Fm16(Units.to("ft", s.z));
+		return sStrNP(s,15);
+		//return Fm16(Units.to("NM", s.x)) + " " + Fm16(Units.to("NM", s.y)) + " " 	+ Fm16(Units.to("ft", s.z));
 	}
 
+	
+	public static List<String> toStringList(Vect3 v, String unitx, String unity, String unitz, int precision, boolean units) {
+		ArrayList<String> ret = new ArrayList<String>(3);
+		if (units) {
+			ret.add(Units.str(unitx, v.x, precision));
+			ret.add(Units.str(unity, v.y, precision)); 
+			ret.add(Units.str(unitz, v.z, precision));
+		} else {
+			ret.add(FmPrecision(Units.to(unitx, v.x), precision));
+			ret.add(FmPrecision(Units.to(unity, v.y), precision)); 
+			ret.add(FmPrecision(Units.to(unitz, v.z), precision));
+		}
+		return ret;
+	}
+
+	public static List<String> toStringList(Vect3 v, String unitx, String unity, String unitz, boolean units) {
+		return toStringList(v,unitx,unity,unitz,6,units);
+	}
 
 	private static double fm_nz(double v, int precision) {
 		if (v < 0.0 && Math.ceil(v*Math.pow(10,precision)-0.5) == 0.0) 
@@ -680,7 +709,7 @@ final public class f {
 	 * @return a string
 	 */
 	public static String list2str(List<String> l, String delimiter) {
-		StringBuffer sb = new StringBuffer(100);
+		StringBuffer sb = new StringBuffer(l.size() * 30); // an estimate of initial size
 		Iterator<String> i = l.iterator();
 		if (i.hasNext()) {
 			sb.append(i.next());

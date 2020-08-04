@@ -257,4 +257,9 @@ public final class ErrorLog implements ErrorReporter {
   public String getMessageNoClear() {
     return message.toString();
   }
+  
+  public void setName(String logname) {
+	  name = logname;
+  }
+  
 }

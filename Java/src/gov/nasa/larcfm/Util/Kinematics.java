@@ -2450,11 +2450,6 @@ public final class Kinematics {
 		if (qV.first < 0) return -1;
 		else return qV.third;
 	}
-
-	
-	public static double vsLevelOutTime(Pair<Vect3,Velocity> sv0, double climbRate, double targetAlt, double a) {
-          return vsLevelOutTime(sv0, climbRate, targetAlt, a, true);
-	}
 	
 	
 	

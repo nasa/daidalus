@@ -16,7 +16,9 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * This class stores a database of parameters. In addition, it performs various
@@ -37,7 +39,8 @@ public class ParameterData {
 	private Map<String, ParameterEntry> parameters;
 
 
-	/** A database of parameters.  A parameter can be a string, double value, or a boolean value.
+	/** A database of parameters.  The database is initially empty.  A parameter can be a string, 
+	 * double value, or a boolean value.
 	 * Units are also stored with each parameter.
 	 */
 	public ParameterData() {
@@ -46,12 +49,11 @@ public class ParameterData {
 		listPatternStr = Constants.wsPatternBase;
 		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
 	}
-
-	public ParameterData(boolean originalOrder) {
-		preserveUnits = false;
-		unitCompatibility = true;
-		listPatternStr = Constants.wsPatternBase;
-		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
+	
+	/** A database of parameters.  The database is initially empty.
+	 */
+	public static ParameterData make() {
+		return new ParameterData();
 	}
 	
 	/**
@@ -74,13 +76,29 @@ public class ParameterData {
 	 * @return copy of ParameterData with changes
 	 */
 	public ParameterData copyWithPrefix(String prefix) {
-		ParameterData p = new ParameterData();
+		ParameterData p = ParameterData.make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
 		for (String key : parameters.keySet()) {
 			p.parameters.put(prefix+key, new ParameterEntry(parameters.get(key))); // make sure this is a copy
 		}
 		return p;
+	}
+	
+	/**
+	 * Make a new ParameterData database with one entry, the represented by the given key.
+	 * 
+	 * @param key name of parameter to copy to new database
+	 * @return new parameter database
+	 */
+	public ParameterData makeKey(String key) {
+		ParameterData p = make();
+		ParameterEntry pe = parameters.get(key);
+		
+		if (pe != null) {
+			p.parameters.put(key, new ParameterEntry(pe));
+		}
+		return p;		
 	}
 
 	/**
@@ -94,7 +112,7 @@ public class ParameterData {
 	 */
 	public ParameterData extractPrefix(String prefix) {
 		String prefixlc = prefix.toLowerCase();
-		ParameterData p = new ParameterData();
+		ParameterData p = ParameterData.make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
 		for (String key : parameters.keySet()) {
@@ -112,9 +130,9 @@ public class ParameterData {
 	 * @param prefix the prefix to look for
 	 * @return copy of ParameterData without matching keys
 	 */
-	public ParameterData removeKeysWithPrefix(String prefix) {
+	public ParameterData makeRemoveKeysWithPrefix(String prefix) {
 		String prefixlc = prefix.toLowerCase();
-		ParameterData p = new ParameterData();
+		ParameterData p = ParameterData.make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
 		for (String key : parameters.keySet()) {
@@ -124,7 +142,6 @@ public class ParameterData {
 			}
 		}
 		return p;		
-		
 	}
 
 	/**
@@ -134,33 +151,20 @@ public class ParameterData {
 	 * @param keylist list of keys to be included
 	 * @return new ParameterData object that is a subset of this object
 	 */
-	public ParameterData subset(Collection<String> keylist) {
-		ParameterData p = new ParameterData();
+	public ParameterData makeSubset(Collection<String> keylist) {
+		ParameterData p = make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
 		for (String key : keylist) {
-			if (contains(key)) {
-				p.parameters.put(key, parameters.get(key));
+			ParameterEntry pe = parameters.get(key);
+		
+			if (pe != null) {
+				p.parameters.put(key, new ParameterEntry(pe));
 			}
 		}
 		return p;		
 	}
 
-	/**
-	 * Return a new ParameterData object that is a subset of this object, only containing the element of this object that matches key
-	 * If key is not in this object, they will not be included in the returned subset.
-	 * @param key the key to be included
-	 * @return new ParameterData object that is a subset of this object
-	 */
-	public ParameterData subset(String key) {
-		ParameterData p = new ParameterData();
-		p.preserveUnits = preserveUnits;
-		p.unitCompatibility = unitCompatibility;
-		if (contains(key)) {
-			p.parameters.put(key, parameters.get(key));
-		}
-		return p;		
-	}
 
 
 	/**
@@ -293,11 +297,16 @@ public class ParameterData {
 	 * @return list of parameter key names
 	 */
 	public List<String> getListFull() {
+		StringBuilder sb = new StringBuilder(100);
 		List<String> list = getKeyList();
 		ListIterator<String> li = list.listIterator();
 		while (li.hasNext()) {
 			String p = li.next();
-			li.set(p + " = " + getString(p));
+			sb.setLength(0);
+			sb.append(p);
+			sb.append(" = ");
+			sb.append(getString(p));
+			li.set(sb.toString());
 		}
 		return list;
 	}
@@ -727,16 +736,27 @@ public class ParameterData {
 	 * Copy parameter entries from list of keys 
 	 * @param p database
 	 * @param plist list of keys
-	 * @param overwrite if a parameter key exists in both this object and p, if overwrite is true then p's value will be used, otherwise this object's value will be used
+	 * @param overwrite if a parameter key exists in both this object and p, if overwrite is true 
+	 * 	then p's value will be used, otherwise this object's value will be used
+	 * @param merge if true, then if the comment or units fields are blank in p, they are replaced with values in this object
 	 */
-	public void listCopy(ParameterData p, List<String> plist, boolean overwrite) {
+	private void listCopy(ParameterData p, List<String> plist, boolean overwrite, boolean merge) {
 		for (String key: plist) {
 			if (overwrite || ! contains(key)) {
 				ParameterEntry entry = p.parameters.get(key);
 				if (entry != null) {
 					ParameterEntry en2 = new ParameterEntry(entry);
 					if (parameters.containsKey(key)) {
-						en2.order = parameters.get(key).order; // preserve original entry ordering
+						ParameterEntry entryOrig = parameters.get(key);
+						en2.order = entryOrig.order; // preserve original entry ordering
+						if (merge) {
+							if (en2.comment.equals("")) {
+								en2.comment = entryOrig.comment;
+							}
+							if (en2.units.equals("unspecified")) {
+								en2.units = entryOrig.units;
+							}
+						}
 					}
 					parameters.put(key, en2);
 				}
@@ -747,10 +767,20 @@ public class ParameterData {
 	/**
 	 * Copy a ParameterData object into this object.  That is, A.copy(B,true) means A &lt;--- B.
 	 * @param p source ParameterData
-	 * @param overwrite if a parameter key exists in both this object and p, if overwrite is true then p's value will be used, otherwise this object's value will be used
+	 * @param overwrite if true and a key exists in both this object and p, then use p's value, otherwise keep the original value
 	 */
 	public void copy(ParameterData p, boolean overwrite) {
-		listCopy(p,p.getKeyListEntryOrder(),overwrite); // preserve entry ordering (if necessary)
+		copy(p,overwrite,false); 
+	}
+
+	/**
+	 * Copy a ParameterData object into this object with an optional merge.  That is, A.copy(B,true,false) means A &lt;--- B.
+	 * @param p source ParameterData
+	 * @param overwrite if true and a key exists in both this object and p, then use p's value, otherwise keep the original value
+	 * @param merge if true, then if the comment or units fields are blank in p, they are replaced with values in this object
+	 */	
+	public void copy(ParameterData p, boolean overwrite, boolean merge) {
+		listCopy(p,p.getKeyListEntryOrder(),overwrite, merge); // preserve entry ordering (if necessary)
 	}
 
 	/**
@@ -1072,23 +1102,24 @@ public class ParameterData {
 
 	/**
 	* Return this ParameterData as a single line string that can subsequently be parsed by parseLine()
-	* @param separator A unique (to the key and value set) character string to separate each entry.  If this is null or the empty string, use the defaultEntrySeparator string instead.
-	* @return Single-line string representation of this ParameterData object, possibly empty, or null if the separator is a substring of any key/value entry.
 	* 
-	* Note that the delimiter will be included after each entry, including the last one.  
+	* @param separator A unique (to the key and value set) character string to separate each entry.  If this 
+	* is null or the empty string, use the defaultEntrySeparator string instead.
+	* @return Single-line string representation of this ParameterData object, possibly empty, or null 
+	* if the separator is a substring of any key/value entry. 
 	*/
 	public String toParameterList(String separator) {
 		if (separator == null || separator.length() < 1) {
 			separator = defaultEntrySeparator;
-		}
-		String ret = "";
-		for (String def : getListFull()) {
+		} 
+		
+		List<String>l = getListFull();
+		for (String def : l) {
 			if (def.contains(separator)) {
 				return null;
 			}
-			ret += def+separator;
 		}
-		return ret;
+        return f.list2str(l, separator);
 	}
 
 	/**

@@ -127,7 +127,7 @@ public class Triple<L, C, R> {
     
     @Override
     public String toString() {
-    	return "("+first.toString()+"; "+second.toString()+"; "+third.toString()+")";
+    	return "("+first+"; "+second+"; "+third+")";
     }
     
 }

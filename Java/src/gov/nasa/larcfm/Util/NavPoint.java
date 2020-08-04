@@ -13,7 +13,7 @@
 package gov.nasa.larcfm.Util;
 
 /** 
- * An immutable class representing a position at a time. In addition a label (or name) can be attached 
+ * An immutable class representing a position at a time. In addition a name (or label) can be attached 
  * to one of these NavPoints.
  */
 public class NavPoint {
@@ -34,13 +34,13 @@ public class NavPoint {
 	 * 
 	 * @param p position of new NavPoint
 	 * @param t time of new NavPoint
-	 * @param label string label of new NavPoint
+	 * @param name string name (or label) of new NavPoint
 	 */
-	public NavPoint(Position p, double t, String label) {
+	public NavPoint(Position p, double t, String name) {
 		super();
 		this.p = p;
 		this.t = t;
-		this.name = label;
+		this.name = name;
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class NavPoint {
 	/** Return the three dimensional position vector 
 	 * @return a Point object (essentially a Vect3 with more natural units)
 	 * */
-	public Point vect3() {
+	public Vect3 vect3() {
 		return p.vect3();
 	}
 
@@ -344,36 +344,45 @@ public class NavPoint {
 	}
 
 	/** Make a new NavPoint from the current with the given name 
-	 * @param label new string label
+	 * @param name new string label
 	 * @return a new NavPoint
 	 * */
-	public NavPoint makeName(String label) {
-		if (label.equals(this.name)) return this;
-		return new NavPoint(this.p, this.t, label); 
+	public NavPoint makeName(String name) {
+		if (name == null) return this;
+		if (name.equals(this.name)) return this;
+		return new NavPoint(this.p, this.t, name); 
 	}
 
+	/**
+	 * Return true if point has a name.
+	 * @return true, if has a name
+	 */
 	public boolean isNamedWayPoint() {
 		if (name.equals("")) return false;
 		return true;
 	}
 
-	public NavPoint appendName(String label) {
-		if (label.equals("")) return this; // do nothing
-		return new NavPoint(this.p, this.t, this.name+label);
+	/**
+	 * Add the given name to this point's name
+	 * @param name addition to name
+	 * @return a new NavPoint
+	 */
+	public NavPoint appendName(String name) {
+		if (name == null) return this;
+		if (name.equals("")) return this; // do nothing
+		return new NavPoint(this.p, this.t, this.name+name);
 	}
 	
-	public NavPoint appendNameNoDuplication(String label) {	
-		if (this.name.equals(label)) return this; // do nothing if this string is already equal to the existing label (e.g. A added to CAT should work...)
-//		if (label.contains("$virtual")) {  // do not add virtual labels 
-//			//Debug.halt();
-//			return this;
-//		}
-//		if ((!this.name.startsWith("$") && this.name.length()==4)) {		// e.g. do nothing if this is a 4-character airport label
-//			f.pln("NavPoint.appendNameNotDuplication: suspicious name = "+name+" without $");
-//			//Debug.halt();
-//			return this;
-//		}
-		return appendName(label);
+	/**
+	 * Add the given name to this point's name, if this name does not equal the 
+	 * existing name
+	 * @param name addition to name
+	 * @return a new NavPoint
+	 */
+	public NavPoint appendNameNoDuplication(String name) {	
+		if (name == null) return this;
+		if (this.name.equals(name)) return this; // do nothing if this string is already equal to the existing label (e.g. A added to CAT should work...)
+		return appendName(name);
 	}
 
 
@@ -385,7 +394,8 @@ public class NavPoint {
 	 * */
 	public NavPoint makePosition(Position p) {
 		if (p.equals(this.p)) return this;
-		return new NavPoint(p, this.t, this.name); 	}
+		return new NavPoint(p, this.t, this.name); 	
+	}
 
 
 	/** 

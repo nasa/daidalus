@@ -1,12 +1,41 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.f-FormalATM-v2.7.4 (Apr-3-2020)
+Release:  v2.0.g-FormalATM-v2.7.4 (June-8-2020)
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2014 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.
+
+Release DAIDALUS-v2.0.g:
+------------------
+* DTA logic is fully implemented. When DTA lat,lon, radius, and height
+   is provided, DAIDALUS automatically uses dta_alerter accordingly
+   to either ownship or intruder centric alerting. When DTA is active,
+   special bands are computed when an alert higher than corrective,
+   i.e., warning, is issued. The behavior of the special bands is
+   controlled by the dta_logic value. When the value is positive,
+   vertical bands block the down side. When the value is negative,
+   vertical bands block the down side and horizontal direction bands
+   saturate. When the value of dta is zero, DTA logic is disabled.
+* DTA can be manually activated by setting the DTA alerter of the
+  ownship, when ownship-centric alerting logic, or intruder, when
+  intruder-centric alerting logic, to dta_alerter.
+  
+* Winds in v2.0.g are sticky. Once they are set they remain set until
+  explicitly set to a different value or the are disable using the
+  method setNoWind() in the Daidalus class.
+
+* Conflict bands, the ones in front of an aircraft, are computed until
+  lookahead time. In some encounter, this will provide wider bands.
+
+* When hysteresis is enabled, e.g., after the first alert of a given
+  level, the subsequent alerts and maneuver guidance for the same
+  alerting aircraft are computed using early alerting time instead of
+  alerting time. Therefore, when ownship implements the resolutions
+  bands are still accurate even if the conflict moved beyond the
+  alerting time.
 
 Release DAIDALUS-v2.0.f:
 ------------------

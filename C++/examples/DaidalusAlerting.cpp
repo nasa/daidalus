@@ -168,7 +168,13 @@ int main(int argc, char* argv[]) {
   std::ofstream out(output_file.c_str(), std::ios_base::out);
 
   out << " Time, Ownship, Traffic, Alerter, Alert Level";
+  if (!daa.isDisabledDTALogic()) {
+    out << ", DTA Active, DTA Guidance, Distance to DTA";
+  }
   std::string line_units = "[s],,,,";
+  if (!daa.isDisabledDTALogic()) {
+    line_units += ",,, [nmi]";
+  }
   for (int level=1; level <= max_alert_level;++level) {
     out << ", Time to Volume of Alert(" << level << ")";
     line_units += ", [s]";
@@ -199,7 +205,18 @@ int main(int argc, char* argv[]) {
       out << ", " << daa.getAircraftStateAt(ac).getId();
       out << ", " << alerter_idx;
       int alert = daa.alertLevel(ac);
-      out << ", " << alert;
+      out << ", " << Fmi(alert);
+      if (!daa.isDisabledDTALogic()) {
+        out << ", " << Fmb(daa.isActiveDTALogic());
+        out << ", " << Fmb(daa.isActiveDTASpecialManeuverGuidance());
+        if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
+          out << ", ";
+        } else {
+          double dh = (daa.isAlertingLogicOwnshipCentric()?
+              daa.getOwnshipState():daa.getAircraftStateAt(ac)).getPosition().distanceH(daa.getDTAPosition());
+          out << ", " << FmPrecision(Units::to("nmi",dh));
+        }
+      }
       ConflictData det;
       bool one=false;
       for (int level=1; level <= max_alert_level; ++level) {

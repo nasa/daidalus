@@ -227,7 +227,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/**
-	 * @return first alert level whose region is equal to given one. Returns 0 if none.
+	 * @return first alert level whose region is equal to given region. Returns 0 if none.
 	 */   
 	public int alertLevelForRegion(BandsRegion region) {  
 		for (int i=0; i < levels_.size(); ++i) {

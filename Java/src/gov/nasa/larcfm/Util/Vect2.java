@@ -12,8 +12,12 @@
 package gov.nasa.larcfm.Util;
 
 /**
- * 2-Dimensional mathematical vectors.
- */
+ * <p>2-Dimensional mathematical vectors.  Vect2 is immutable.  Once these objects are created they can never
+ * be changed so multiple references to the same object will never cause problems.  However, it does
+ * mean that for most vector operations new objects are created.  Methods that start with a capital 
+ * letter create a new object, just as a reminder of this behavior.</p>
+ * 
+ */ 
 public /*final*/ class Vect2 {
 
 	/** The x-component */
@@ -43,6 +47,10 @@ public /*final*/ class Vect2 {
 	public Vect2(double x, double y) {
 		this.x = x;
 		this.y = y;
+	}
+	
+	public static Vect2 mk(double x, double y) {
+		return new Vect2(x,y);
 	}
 
 	/**

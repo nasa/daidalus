@@ -516,7 +516,9 @@ public final class SeparatedOutput implements ErrorReporter {
     	}
     	writer.print(vals.get(0));
     	for (int i = 1; i < vals.size(); i++) {
-    		writer.print(delim+space+vals.get(i));
+    		writer.print(delim);
+    		writer.print(space);
+    		writer.print(vals.get(i));
     	}
     	writer.println();
     	size++;

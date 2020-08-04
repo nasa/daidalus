@@ -22,6 +22,7 @@ import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterAcceptor;
 import gov.nasa.larcfm.Util.ParameterData;
+import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
@@ -32,7 +33,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.f";
+	public static final String VERSION = "2.0.g";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
@@ -128,6 +129,27 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	// Contours
 	private double contour_thr_; // Horizontal threshold, specified as an angle to the left/right of current aircraft direction,
 	// for computing horizontal contours. A value of 0 means only conflict contours. A value of pi means all contours.
+
+	// DAA Terminal Area (DTA)
+
+	/**
+	 * DTA Logic:
+	 * 0: Disabled
+	 * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+	 * but vertical recovery blocks down resolutions when alert is higher than corrective.
+	 * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
+	 * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+	 * NOTE:
+	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
+	 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
+	 * intruder-centric logic).
+	 */
+	private int dta_logic_; 
+	private double dta_latitude_;
+	private double dta_longitude_;
+	private double dta_radius_;
+	private double dta_height_;
+	private int dta_alerter_;
 
 	// Alerting logic
 	private boolean ownship_centric_alerting_; // When true, alerting logic is ownship-centric. 
@@ -313,8 +335,19 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			contour_thr_ = Units.from("deg",180.0);
 			units_.put("contour_thr","deg");
 
-			// Alerting logic
+			// DAA Terminal Area (DTA)
+			dta_logic_ = 0;
+			dta_latitude_ = 0.0;
+			units_.put("dta_latitude","deg");
+			dta_longitude_ = 0.0;
+			units_.put("dta_longitude","deg");
+			dta_radius_ = 0.0;
+			units_.put("dta_radius","nmi");
+			dta_height_ = 0.0;
+			units_.put("dta_height","ft");
+			dta_alerter_  = 0;
 
+			// Alerting logic
 			ownship_centric_alerting_ = true;
 
 			corrective_region_ = BandsRegion.NEAR;
@@ -407,6 +440,14 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 			// Contours
 			contour_thr_ = parameters.contour_thr_;	
+
+			// DAA Terminal Area (DTA)
+			dta_logic_ = parameters.dta_logic_;
+			dta_latitude_ = parameters.dta_latitude_;
+			dta_longitude_ = parameters.dta_longitude_;
+			dta_radius_ = parameters.dta_radius_;
+			dta_height_ = parameters.dta_height_;
+			dta_alerter_ = parameters.dta_alerter_;
 
 			// Alerting logic
 			ownship_centric_alerting_ = parameters.ownship_centric_alerting_;
@@ -1399,7 +1440,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 */
 		public boolean setHorizontalDirectionStep(double val, String u) {
 			if (setHorizontalDirectionStep(Units.from(u,val))) {
-				units_.put("step_hdir",u);;
+				units_.put("step_hdir",u);
 				return true;
 			}
 			return false;
@@ -2254,6 +2295,156 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/**
+		 * DTA Logic:
+		 * 0: Disabled
+		 * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+		 * but vertical recovery blocks down resolutions when alert is higher than corrective.
+		 * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
+		 * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+		 * NOTE:
+		 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
+		 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
+		 * intruder-centric logic).
+		 */
+		public int getDTALogic() {
+			return dta_logic_;
+		}
+
+		/**
+		 * DTA Logic:
+		 * 0: Disabled
+		 * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+		 * but vertical recovery blocks down resolutions when alert is higher than corrective.
+		 * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
+		 * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+		 * NOTE:
+		 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
+		 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
+		 * intruder-centric logic).
+		 */
+		public void setDTALogic(int dta_logic) {
+			dta_logic_ = Util.signTriple(dta_logic);
+		}
+
+		/** 
+		 * Get DAA Terminal Area (DTA) position (lat/lon)
+		 */ 
+		public Position getDTAPosition() {
+			String ulat = getUnitsOf("dta_latitude");
+			String ulon = getUnitsOf("dta_longitude");
+			if (Units.isCompatible(ulat,ulon)) {
+				if (Units.isCompatible("m",ulat)) {
+					return Position.mkXYZ(dta_latitude_,dta_longitude_,0.0);
+				} else if (Units.isCompatible("deg",ulat)) {
+					return Position.mkLatLonAlt(dta_latitude_,dta_longitude_,0.0);
+				}
+			}
+			return Position.INVALID;
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) latitude (internal units)
+		 */ 
+		public void setDTALatitude(double lat) {
+			dta_latitude_ = lat;
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) latitude in given units
+		 */ 
+		public void setDTALatitude(double lat, String ulat) {
+			setDTALatitude(Units.from(ulat,lat));
+			units_.put("dta_latitude",ulat);
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) longitude (internal units)
+		 */ 
+		public void setDTALongitude(double lon) {
+			dta_longitude_ = lon;
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) longitude in given units
+		 */ 
+		public void setDTALongitude(double lon, String ulon) {
+			setDTALongitude(Units.from(ulon,lon));
+			units_.put("dta_longitude",ulon);
+		}
+
+		/** 
+		 * Get DAA Terminal Area (DTA) radius (internal units)
+		 */ 
+		public double getDTARadius() {
+			return dta_radius_;
+		}
+
+		/** 
+		 * Get DAA Terminal Area (DTA) radius in given units
+		 */ 
+		public double getDTARadius(String u) {
+			return Units.to(u,dta_radius_);
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) radius (internal units)
+		 */ 
+		public void setDTARadius(double val) {
+			dta_radius_ = val;
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) radius in given units
+		 */ 
+		public void setDTARadius(double val, String u) {
+			setDTARadius(Units.from(u,val));
+			units_.put("dta_radius",u);
+		}
+
+		/** 
+		 * Get DAA Terminal Area (DTA) height (internal units)
+		 */ 
+		public double getDTAHeight() {
+			return dta_height_;
+		}
+
+		/** 
+		 * Get DAA Terminal Area (DTA) height in given units
+		 */ 
+		public double getDTAHeight(String u) {
+			return Units.to(u,dta_height_);
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) height (internal units)
+		 */ 
+		public void setDTAHeight(double val) {
+			dta_height_ = val;
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) height in given units
+		 */ 
+		public void setDTAHeight(double val, String u) {
+			setDTAHeight(Units.from(u,val));
+			units_.put("dta_height",u);
+		}
+
+		/** 
+		 * Get DAA Terminal Area (DTA) alerter
+		 */ 
+		public int getDTAAlerter() {
+			return dta_alerter_;
+		}
+
+		/** 
+		 * Set DAA Terminal Area (DTA) alerter
+		 */ 
+		public void setDTAAlerter(int alerter) {
+			dta_alerter_ = alerter;
+		}
+
+		/**
 		 * Set alerting logic to the value indicated by ownship_centric.
 		 * If ownship_centric is true, alerting and guidance logic will use the alerter in ownship. Alerter 
 		 * in every intruder will be disregarded.
@@ -2483,6 +2674,12 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			s+="v_pos_z_score := "+f.FmPrecision(v_pos_z_score_)+", ";
 			s+="v_vel_z_score := "+f.FmPrecision(v_vel_z_score_)+", ";
 			s+="contour_thr := "+f.FmPrecision(contour_thr_)+", ";
+			s+="dta_logic := "+f.Fmi(dta_logic_)+", ";
+			s+="dta_latitude := "+f.FmPrecision(dta_latitude_)+", ";
+			s+="dta_longitude := "+f.FmPrecision(dta_longitude_)+", ";
+			s+="dta_radius := "+f.FmPrecision(dta_radius_)+", ";
+			s+="dta_height := "+f.FmPrecision(dta_height_)+", ";
+			s+="dta_alerter := "+f.Fmi(dta_alerter_)+", ";
 			s+="ownship_centric_alerting := "+ownship_centric_alerting_+", ";
 			s+="corrective_region := "+corrective_region_.toString()+", ";
 			s+="alerters := "+Alerter.listToPVS(alerters_);
@@ -2591,6 +2788,15 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			// Horizontal Contour Threshold
 			p.setInternal("contour_thr", contour_thr_, getUnitsOf("contour_thr"));
 			p.updateComment("contour_thr","Horizontal Contour Threshold");
+
+			// DAA Terminal Area (DTA)
+			p.setInt("dta_logic", dta_logic_);
+			p.updateComment("dta_logic","DAA Terminal Area (DTA)");
+			p.setInternal("dta_latitude", dta_latitude_, getUnitsOf("dta_latitude"));
+			p.setInternal("dta_longitude", dta_longitude_, getUnitsOf("dta_longitude"));
+			p.setInternal("dta_radius", dta_radius_, getUnitsOf("dta_radius"));
+			p.setInternal("dta_height", dta_height_, getUnitsOf("dta_height"));
+			p.setInt("dta_alerter", dta_alerter_);
 
 			// Alerting logic
 			p.setBool("ownship_centric_alerting",ownship_centric_alerting_);
@@ -2927,6 +3133,35 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 				setHorizontalContourThreshold(getValue(p,"contour_thr"));
 				units_.put("contour_thr",getUnit(p,"contour_thr"));
 				setit = true;
+			}
+			// DAA Terminal Area (DTA)
+			if (contains(p,"dta_logic")) {
+				setDTALogic(getInt(p,"dta_logic"));
+				setit = true;				
+			}
+			if (contains(p,"dta_latitude")) {
+				setDTALatitude(getValue(p,"dta_latitude"));
+				units_.put("dta_latitude",getUnit(p,"dta_latitude"));
+				setit = true;				
+			}
+			if (contains(p,"dta_longitude")) {
+				setDTALongitude(getValue(p,"dta_longitude"));
+				units_.put("dta_longitude",getUnit(p,"dta_longitude"));
+				setit = true;				
+			}
+			if (contains(p,"dta_radius")) {
+				setDTARadius(getValue(p,"dta_radius"));
+				units_.put("dta_radius",getUnit(p,"dta_radius"));
+				setit = true;				
+			}
+			if (contains(p,"dta_height")) {
+				setDTAHeight(getValue(p,"dta_height"));
+				units_.put("dta_height",getUnit(p,"dta_height"));
+				setit = true;				
+			}
+			if (contains(p,"dta_alerter")) {
+				setDTAAlerter(getInt(p,"dta_alerter"));
+				setit = true;				
 			}
 			// Alerting logic
 			if (contains(p,"ownship_centric_alerting")) {

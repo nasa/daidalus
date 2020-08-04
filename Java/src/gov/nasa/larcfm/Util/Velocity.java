@@ -138,7 +138,7 @@ public final class Velocity extends Vect3 implements OutputList {
    * @return the velocity
    */
   public static Velocity makeTrkGsVs(double trk, double gs, double vs) {
-    return mkTrkGsVs(Units.from("deg",trk), Units.from("knot",gs), Units.from("fpm",vs));
+    return mkTrkGsVs(Units.from(Units.deg,trk), Units.from(Units.knot,gs), Units.from(Units.fpm,vs));
   }
 
 
@@ -442,6 +442,19 @@ public final class Velocity extends Vect3 implements OutputList {
 
   // Utilities
 
+	/**
+	 * Difference of vectors, then scale result.  Compute: <code>k*(v1 - v2)</code>
+	 * 
+	 * @param k real value
+	 * @param v1 vector
+	 * @param v2 vector
+	 * 
+	 * @return <code>k*(v1 - v2)</code>
+	 */
+	public static Velocity Diff_Scal(Vect3 v1, Vect3 v2, double k) {
+		return new Velocity(k*(v1.x-v2.x), k*(v1.y-v2.y), k*(v1.z-v2.z));
+	}
+	
   /** Return the x component of velocity given the track and ground
    * speed.  The track angle is assumed to use the radians from true
    * North-clockwise convention.

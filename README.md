@@ -60,7 +60,7 @@ repository, visit https://shemesh.larc.nasa.gov/fm/DAIDALUS.
 
 ### Current Pre-Release
 
-Java 2.0.f, April 3, 2020
+Java 2.0.g, June 8, 2020
 
 ### License
 

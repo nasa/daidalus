@@ -30,8 +30,10 @@ public final class AziEquiProjection implements EuclideanProjection {
 
     private final double projAlt;
  	private final Vect3 ref;
+ 	private final Vect3 refHat;
+ 	private final Vect3 refOrthoHat;
+ 	private final Vect3 refZMult;
  	private final LatLonAlt llaRef;
-
     
     /** Create a projection around the given reference point.
  	 * 
@@ -40,31 +42,30 @@ public final class AziEquiProjection implements EuclideanProjection {
     public AziEquiProjection(LatLonAlt lla) {
         projAlt = lla.alt();
         ref = spherical2xyz(lla.lat(), lla.lon());
+        refHat = ref.Hat();
+        refOrthoHat = vect3_orthog_toy(ref).Hat();
+       	refZMult = refHat.cross(refOrthoHat);   // since refHat and refOrthoHat are both unit vectors, the cross is one too
+
         llaRef = lla;
     }
- 
-    /** Create a projection around the given reference point.
-     * 
-     * @param lat latitude of reference point
-     * @param lon longitude of reference point
-     * @param alt altitude of reference point
-     */
-    public AziEquiProjection(double lat, double lon, double alt) {
-        projAlt = alt;
-        ref = spherical2xyz(lat, lon);
-        llaRef = LatLonAlt.mk(lat, lon, alt);
-    }
-    
     
     /** Return a new projection with the given reference point */
     public EuclideanProjection makeNew(LatLonAlt lla) {
-        return new AziEquiProjection(lla);
+        return make(lla);
     }
  
     /** Return a new projection with the given reference point */
     public EuclideanProjection makeNew(double lat, double lon, double alt) {
-        return new AziEquiProjection(lat, lon, alt);
+        return mk(lat, lon, alt);
     }    
+    
+    public static EuclideanProjection make(LatLonAlt lla) {
+    	return new AziEquiProjection(lla);
+    }
+    
+    public static EuclideanProjection mk(double lat, double lon, double alt) {
+    	return make(LatLonAlt.mk(lat,lon,alt));
+    }
     
     public double conflictRange(double lat, double accuracy) {
 //    	if (accuracy < Units.from(_NM, 0.01)) { //~0.001 nm accuracy
@@ -107,12 +108,14 @@ public final class AziEquiProjection implements EuclideanProjection {
     
     /** Return a projection of a lat/lon(/alt) point in Euclidean 2-space */
     public Vect2 project2(LatLonAlt lla) {
-		Vect2 p = sphere_to_plane(ref, spherical2xyz(lla.lat(),lla.lon()));
-		if (p.norm() <= 0.0) {
+    	Vect3 p2 = spherical2xyz(lla.lat(),lla.lon());
+    	Vect2 p = new Vect2(refOrthoHat.dot(p2), -refZMult.dot(p2));
+		
+		double n = p.norm();
+		if (n <= 0.0) {
 			return Vect2.ZERO;
-		}
-		else {
-			return p.Scal(GreatCircle.distance(lla, llaRef)/p.norm()); // scale into projection
+		} else {
+			return p.Scal(GreatCircle.distance(lla, llaRef)/n); // scale into projection
 		}
     }
     
@@ -134,17 +137,6 @@ public final class AziEquiProjection implements EuclideanProjection {
 		return si;
 	}
 
-    /** Return a projection of a Position in Euclidean 3-space (if already in Euclidian coordinate, this is the identity function) */
-	public Point projectPoint(Position sip) {
-		Vect3 si;
-		if (sip.isLatLon()) {
-			si = project(sip.lla());
-		} else {
-			si = sip.vect3();
-		}
-		return Point.mk(si);
-	}
-
     /** Return a LatLonAlt value corresponding to the given Euclidean position */
     public LatLonAlt inverse(Vect3 xyz) {
     	return inverse(xyz.vect2(), xyz.z);
@@ -154,20 +146,20 @@ public final class AziEquiProjection implements EuclideanProjection {
     /** Return a LatLonAlt value corresponding to the given Euclidean position */
     public LatLonAlt inverse(Vect2 xy, double alt) {
 		double d = Math.sin(GreatCircle.angle_from_distance(xy.norm(), 0.0))*GreatCircle.spherical_earth_radius; // scale out of projection
-		return xyz2spherical(equator_map_inv(ref, plane_to_sphere(xy.Hat().Scal(d))), alt + projAlt);
+		return xyz2spherical(equator_map_inv(plane_to_sphere(xy.Hat().Scal(d))), alt + projAlt);
     }
 
 	
-    private static final double TIME_STEP = 10.0;
+    private static final double TIME_STEP = 10.0; // s
       
     /** Given a velocity from a point in geodetic coordinates, return a projection of this velocity in Euclidean 3-space */
     public Velocity projectVelocity(LatLonAlt lla, Velocity v) {
    	    LatLonAlt ll2 = GreatCircle.linear_initial(lla,v,TIME_STEP);
 	    Vect3 se = project(lla);
 	    Vect3 s2 = project(ll2);
-//System.out.println("lla="+lla+" v="+v+" ll2="+ll2+" se="+se+" s2="+s2);	    
-	    Vect3 vn = s2.Sub(se).Scal(1/TIME_STEP);
-	    return Velocity.make(vn);
+	    //Vect3 vn = s2.Sub(se).Scal(1/TIME_STEP);
+	    Velocity vn = Velocity.Diff_Scal(s2,se,1/TIME_STEP); 
+	    return vn;
     }
     
     /** Given a velocity from a point, return a projection of this velocity in Euclidean 3-space  (if already in Euclidian coordinate, this is the identity function) */
@@ -189,14 +181,6 @@ public final class AziEquiProjection implements EuclideanProjection {
     	}
     }
     
-    /**
-     * Transforms a lat/lon position to a point on in R3 (on a sphere)
-     * From Wikipedia http://en.wikipedia.org/wiki/Curvilinear_coordinates
-     * We take a standard radius of the earth as defined in GreatCircle, and treat altitude as 0. 
-     * @param lat Latitude
-     * @param lon Longitude
-     * @return point in R3
-     */
     private static Vect3 spherical2xyz(double lat, double lon) {
     	double r = GreatCircle.spherical_earth_radius;
     	// convert latitude to 0-PI
@@ -226,19 +210,24 @@ public final class AziEquiProjection implements EuclideanProjection {
     	}
     }
 
-    // takes a reference point in R3 that is on the sphere (at radius r) and rotates it to (r, 0, 0), with point p rotated relatively
-    private static Vect3 equator_map(Vect3 ref, Vect3 p) {
-    	Vect3 xmult = ref.Hat();
-    	Vect3 ymult = vect3_orthog_toy(ref).Hat();
-    	Vect3 zmult = ref.cross(vect3_orthog_toy(ref)).Hat();
-    	return new Vect3(xmult.dot(p), ymult.dot(p), zmult.dot(p));
-    }
-    
-    // projects points near (r,0,0) onto tangent plane
-    private static Vect2 sphere_to_plane(Vect3 ref, Vect3 p) {
-    	Vect3 v = equator_map(ref,p);
-    	return new Vect2(v.y, -v.z);
-    }
+//    // takes a reference point in R3 that is on the sphere (at radius r) and rotates it to (r, 0, 0), with point p rotated relatively
+//    private Vect3 equator_map(Vect3 p) {
+//    	//Vect3 xmult = ref.Hat();
+//    	//Vect3 ymult = vect3_orthog_toy(ref).Hat();
+//    	//Vect3 zmult = ref.cross(vect3_orthog_toy(ref)).Hat();
+//    	//return new Vect3(xmult.dot(p), ymult.dot(p), zmult.dot(p));
+//    	
+//    	Vect3 xmult = refHat;
+//    	Vect3 ymult = vect3_orthog_toy(ref).Hat(); // since refHat is a unit vector this is a unit vector.
+//    	Vect3 zmult = refHat.cross(ymult);      // since refHat and ymult are both unit vectors, the cross is one too
+//    	return new Vect3(xmult.dot(p), ymult.dot(p), zmult.dot(p));
+//    }
+//    
+//    // projects points near (r,0,0) onto tangent plane
+//    private Vect2 sphere_to_plane(Vect3 p) {
+//    	Vect3 v = equator_map(p);
+//    	return new Vect2(v.y, -v.z);
+//    }
     
     // projects points on plane onto a sphere in the region of (r,0,0)
     private Vect3 plane_to_sphere(Vect2 v) {
@@ -248,10 +237,10 @@ public final class AziEquiProjection implements EuclideanProjection {
     }
     
     // rotate sphere back to original position
-    private static Vect3 equator_map_inv(Vect3 ref, Vect3 p) {
-    	Vect3 xmult = ref.Hat();
-    	Vect3 ymult = vect3_orthog_toy(ref).Hat();
-    	Vect3 zmult = ref.cross(vect3_orthog_toy(ref)).Hat();
+    private Vect3 equator_map_inv(Vect3 p) {
+    	Vect3 xmult = refHat;
+    	Vect3 ymult = refOrthoHat; //vect3_orthog_toy(ref).Hat();
+    	Vect3 zmult = refHat.cross(ymult); //.Hat();
     	Vect3 xmultInv = new Vect3(xmult.x, ymult.x, zmult.x);
     	Vect3 ymultInv = new Vect3(xmult.y, ymult.y, zmult.y);
     	Vect3 zmultInv = new Vect3(xmult.z, ymult.z, zmult.z);
@@ -264,17 +253,25 @@ public final class AziEquiProjection implements EuclideanProjection {
      * Project both a position and a velocity at that position into a Euclidean reference frame 
      */
     public Pair<Vect3,Velocity> project(Position p, Velocity v) {
-    	return new Pair<Vect3,Velocity>(project(p),projectVelocity(p,v));
+		if (p.isLatLon()) {
+			return project(p.lla(), v);
+		} else {
+			return Pair.make(p.vect3(), v);
+		}
     }
+//    public Pair<Vect3,Velocity> project(Position p, Velocity v) {
+//    	return new Pair<Vect3,Velocity>(project(p),projectVelocity(p,v));
+//    }
 
-    // combine the two calls to be slightly more efficient
+    @Override
     public Pair<Vect3,Velocity> project(LatLonAlt lla, Velocity v) {
-    	Vect3 vec3 = new Vect3(project2(lla),lla.alt() - projAlt); // this would normally be calculated twice
-   	    LatLonAlt ll2 = GreatCircle.linear_initial(lla,v,TIME_STEP);
-	    Vect3 s2 = project(ll2);
-	    Vect3 vn = s2.Sub(vec3).Scal(1/TIME_STEP);
-	    Velocity vel3 = Velocity.make(vn);
-    	return new Pair<Vect3,Velocity>(vec3, vel3);
+	    //Vect3 vec3 = project(lla);
+    	Vect3 s3 = project(lla); // by calling project() and projectVelocity() separately, the called would performed twice
+   	    LatLonAlt nlla = GreatCircle.linear_initial(lla,v,TIME_STEP);
+	    Vect3 ns3 = project(nlla);
+	    //Vect3 nv3 = s2.Sub(vec3).Scal(1/TIME_STEP);
+	    Velocity nv3 = Velocity.Diff_Scal(ns3,s3,1.0/TIME_STEP);
+    	return new Pair<Vect3,Velocity>(s3, nv3);
     }
 
      /**
@@ -282,15 +279,15 @@ public final class AziEquiProjection implements EuclideanProjection {
       */
     public Pair<Position,Velocity> inverse(Vect3 p, Velocity v, boolean toLatLon) {
     	if (toLatLon) {
-    		return new Pair<Position,Velocity>(new Position(inverse(p)),inverseVelocity(p,v,true));
+    		return new Pair<Position,Velocity>(Position.make(inverse(p)),inverseVelocity(p,v,true));
     	} else {
-    		return new Pair<Position,Velocity>(new Position(p),v);
+    		return new Pair<Position,Velocity>(Position.make(p),v);
     	}
     }
     
     /** String representation */
     public String toString() {
-    	return "AziEquiProjection "+projAlt+" "+ref;
+    	return "AziEquiProjection: projAlt = "+Units.str("ft",projAlt)+" refHat = "+refHat;
     }
 
     

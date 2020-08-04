@@ -1,5 +1,5 @@
 /*
- * Implementation of alerting hysteresis logic that includes MofN and persistence.
+ * Implementation of hysteresis logic that includes MofN and persistence.
  * Contact: Cesar A. Munoz
  * Organization: NASA/Langley Research Center
  *
@@ -9,53 +9,49 @@
  * Rights Reserved.
  */
 
-#ifndef ALERTINGHYSTERESIS_H_
-#define ALERTINGHYSTERESIS_H_
+#ifndef HYSTERESISDATA_H_
+#define HYSTERESISDATA_H_
 
 #include "MofN.h"
 #include <deque>
 
 namespace larcfm {
 
-class AlertingHysteresis {
+class HysteresisData {
 public:
   /*
    * Creates an empty object
    */
-  AlertingHysteresis();
+  HysteresisData();
 
   /*
    * Creates an object for given values of hysteresis, persistence time, and M of N parameters
    */
-  AlertingHysteresis(double hysteresis_time, double persistence_time, int m, int n);
+  HysteresisData(double hysteresis_time, double persistence_time, int m, int n);
 
-  /*
-   * Sets hysteresis and persistence time
-   */
-  void setHysteresisPersistence(double hysteresis_time, double persistence_time);
+  void outdateIfCurrentTime(double current_time);
+
+  bool isUpdatedAtCurrentTime(double current_time) const;
+
+  double getInitTime() const;
 
   double getLastTime() const;
 
-  int getLastAlert() const;
+  int getLastValue() const;
 
   /*
    * Reset object with given M of N value
    */
-  void reset(int val=-1);
-
-  /*
-   * Reset object if current_time is less than or equal to last_time
-   */
-  void resetIfCurrentTime(double current_time);
+  void reset(int val);
 
   std::string toString() const;
 
   /*
    * In addition of m_of_n, this function applies persistence logic
    */
-  int alertingHysteresis(int alert_level, double current_time);
+  int applyHysteresisLogic(int current_value, double current_time);
 
-  virtual ~AlertingHysteresis() {};
+  virtual ~HysteresisData() {};
 
 private:
   MofN   mofn_;
@@ -63,10 +59,13 @@ private:
   double persistence_time_;
   double init_time_;
   double last_time_;
-  int    last_alert_;
+  int    last_value_;
+  // When this flag is true, setting a value at current time
+  // resets hysteresis values
+  bool outdated_;
 
 };
 
 } /* namespace larcfm */
 
-#endif /* ALERTINGHYSTERESIS_H_ */
+#endif /* HYSTERESISDATA_H_ */

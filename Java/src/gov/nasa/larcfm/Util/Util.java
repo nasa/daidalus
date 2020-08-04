@@ -567,7 +567,7 @@ public final class Util {
 	 * Computes the modulo of val and mod. The returned value is in the range [0,mod)
 	 * 
 	 * @param val numerator
-	 * @param mod denominator
+	 * @param mod denominator, assumed/required to be non-zero
 	 * @return modulo value
 	 */
 	public static double modulo(double val, double mod) {
@@ -790,7 +790,7 @@ public final class Util {
 		try {
 			double v = Double.parseDouble(s);
 			return v <= v;  // strange, but this filters out NaN's
-		} catch (NumberFormatException e) {
+		} catch (Exception e) { // both NullPointerException and NumberFormatException
 			return false;
 		}
 	}
@@ -807,7 +807,7 @@ public final class Util {
 	public static double parse_double(String s) {
 		try {
 			return Double.parseDouble(s);
-		} catch (NumberFormatException e) {
+		} catch (Exception e) { // both NullPointerException and NumberFormatException
 			return 0.0;
 		}
 	}

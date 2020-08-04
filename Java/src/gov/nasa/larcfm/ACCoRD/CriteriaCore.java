@@ -213,7 +213,7 @@ public class CriteriaCore {
 
 	// Compute an absolute repulsive vertical direction
 	private static int losr_vs_dir(Vect3 s, Vect3 vo, Vect3 vi, double caD, double caH, String ownship, String traffic){
-		int rtn = breakSymmetry(vertical_decision_vect(s,vo,vi,caD,caH),ownship,traffic);;
+		int rtn = breakSymmetry(vertical_decision_vect(s,vo,vi,caD,caH),ownship,traffic);
 		return rtn;
 	}
 

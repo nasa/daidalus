@@ -23,9 +23,9 @@ public final class PositionUtil {
 	// f should be between 0 and 1 to interpolate
 	public static Position interpolate(Position v1, Position v2, double f) {
 		if (v1.isLatLon()) {
-			return new Position(GreatCircle.interpolate(v1.lla(), v2.lla(), f));
+			return Position.make(GreatCircle.interpolate(v1.lla(), v2.lla(), f));
 		} else {
-			return new Position(VectFuns.interpolate(v1.vect3(), v2.vect3(), f));
+			return Position.make(VectFuns.interpolate(v1.vect3(), v2.vect3(), f));
 		}
 	}
 	
@@ -62,10 +62,10 @@ public final class PositionUtil {
 	public static Pair<Position,Double> intersection(Position so, Velocity vo, Position si, Velocity vi) {
 		if (so.isLatLon()) {
 			Pair<LatLonAlt, Double> p = GreatCircle.intersection(so.lla(), vo, si.lla(), vi);
-			return Pair.make(new Position(p.first), p.second);
+			return Pair.make(Position.make(p.first), p.second);
 		} else {
 			Pair<Vect3, Double> p = VectFuns.intersection(so.vect3(), vo, si.vect3(), vi);
-			return Pair.make(new Position(p.first), p.second);
+			return Pair.make(Position.make(p.first), p.second);
 		}
 	}
 
@@ -86,10 +86,10 @@ public final class PositionUtil {
 	public static Pair<Position,Double> intersection(Position so1, Position so2, double dto, Position si1, Position si2) {
 		if (so1.isLatLon()) {
 			Pair<LatLonAlt, Double> p = GreatCircle.intersectionAvgAlt(so1.lla(), so2.lla(), dto, si1.lla(), si2.lla());
-			return Pair.make(new Position(p.first), p.second);
+			return Pair.make(Position.make(p.first), p.second);
 		} else {
 			Pair<Vect3, Double> p = VectFuns.intersectionAvgZ(so1.vect3(), so2.vect3(), dto, si1.vect3(), si2.vect3());
-			return Pair.make(new Position(p.first), p.second);
+			return Pair.make(Position.make(p.first), p.second);
 		}
 	}
 	
@@ -105,10 +105,10 @@ public final class PositionUtil {
 	public static Position intersectionSegments(Position a1, Position a2, Position b1, Position b2) {
 		if (a1.isLatLon()) {
 			LatLonAlt i = GreatCircle.intersectSegments(a1.lla(), a2.lla(), b1.lla(), b2.lla());
-			return new Position(i);
+			return Position.make(i);
 		} else {
 			Vect2 i = VectFuns.intersectSegments(a1.vect2(), a2.vect2(), b1.vect2(), b2.vect2()).first;
-			return new Position(new Vect3(i, (a1.alt()+a2.alt())/2));
+			return Position.make(new Vect3(i, (a1.alt()+a2.alt())/2));
 		}
 	}
 	
@@ -143,26 +143,26 @@ public final class PositionUtil {
 	
 	public static Position closestPoint(Position a, Position b, Position x) {
 		if (a.isLatLon()) {
-			return new Position(GreatCircle.closest_point_circle(a.lla(), b.lla(), x.lla()));
+			return Position.make(GreatCircle.closest_point_circle(a.lla(), b.lla(), x.lla()));
 		} else {
-			return new Position(VectFuns.closestPoint(a.vect3(), b.vect3(), x.vect3()));
+			return Position.make(VectFuns.closestPoint(a.vect3(), b.vect3(), x.vect3()));
 		}
 	}
 	
 	
 	public static Position closestPointOnSegment(Position a, Position b, Position x) {
 		if (a.isLatLon()) {
-			return new Position(GreatCircle.closest_point_segment(a.lla(), b.lla(), x.lla()));
+			return Position.make(GreatCircle.closest_point_segment(a.lla(), b.lla(), x.lla()));
 		} else {
-			return new Position(VectFuns.closestPointOnSegment(a.vect3(), b.vect3(), x.vect3()));
+			return Position.make(VectFuns.closestPointOnSegment(a.vect3(), b.vect3(), x.vect3()));
 		}
 	}
 
 	public static Position behind(Position a, Position b, Position x) {
 		if (a.isLatLon()) {
-			return new Position(GreatCircle.closest_point_segment(a.lla(), b.lla(), x.lla()));
+			return Position.make(GreatCircle.closest_point_segment(a.lla(), b.lla(), x.lla()));
 		} else {
-			return new Position(VectFuns.closestPointOnSegment(a.vect3(), b.vect3(), x.vect3()));
+			return Position.make(VectFuns.closestPointOnSegment(a.vect3(), b.vect3(), x.vect3()));
 		}
 	}
 

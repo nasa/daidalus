@@ -1,5 +1,5 @@
 /*
- * Implementation of alerting hysteresis logic that includes MofN and persistence.
+ * Implementation of hysteresis logic that includes MofN and persistence.
  * Contact: Cesar A. Munoz
  * Organization: NASA/Langley Research Center
  *
@@ -9,7 +9,7 @@
  * Rights Reserved.
  */
 
-#include "AlertingHysteresis.h"
+#include "HysteresisData.h"
 
 #include "Util.h"
 #include "format.h"
@@ -21,102 +21,101 @@ namespace larcfm {
 /*
  * Creates an empty object
  */
-AlertingHysteresis::AlertingHysteresis() {
+HysteresisData::HysteresisData() {
   hysteresis_time_ = 0;
   persistence_time_ = 0;
   init_time_ = NaN;
   last_time_ = NaN;
-  last_alert_ = -1;
+  last_value_ = -1;
+  outdated_ = true;
 }
 
 /*
  * Creates an object for given values of hysteresis, persistence time, and M of N parameters
  */
-AlertingHysteresis::AlertingHysteresis(double hysteresis_time, double persistence_time, int m, int n) {
+HysteresisData::HysteresisData(double hysteresis_time, double persistence_time, int m, int n) {
   mofn_.setMofN(m,n);
   hysteresis_time_ = hysteresis_time;
   persistence_time_ = persistence_time;
   init_time_ = NaN;
   last_time_ = NaN;
-  last_alert_ = -1;
+  last_value_ = -1;
+  outdated_ = true;
 }
 
-/*
- * Sets hysteresis and persistence time
- */
-void AlertingHysteresis::setHysteresisPersistence(double hysteresis_time, double persistence_time) {
-  hysteresis_time_ = hysteresis_time;
-  persistence_time_ = persistence_time;
-  reset();
+void HysteresisData::outdateIfCurrentTime(double current_time) {
+  if (!ISNAN(last_time_) && last_time_ >= current_time) {
+    outdated_ = true;
+  }
 }
 
-double AlertingHysteresis::getLastTime() const {
+bool HysteresisData::isUpdatedAtCurrentTime(double current_time) const {
+  return last_time_ == current_time && !outdated_;
+}
+
+double HysteresisData::getInitTime() const {
+  return init_time_;
+}
+
+
+double HysteresisData::getLastTime() const {
   return last_time_;
 }
 
-int AlertingHysteresis::getLastAlert() const {
-  return last_alert_;
+int HysteresisData::getLastValue() const {
+  return last_value_;
 }
 
 /*
  * Reset object with given M of N value
  */
-void AlertingHysteresis::reset(int val) {
+void HysteresisData::reset(int val) {
   mofn_.reset(val);
   init_time_ = NaN;
   last_time_ = NaN;
-  last_alert_ = -1;
+  last_value_ = -1;
+  outdated_   = true;
 }
 
 /*
- * Reset object if current_time is less than or equal to last_time
- */
-void AlertingHysteresis::resetIfCurrentTime(double current_time) {
-  if (ISNAN(last_time_) ||
-      current_time <= last_time_ ||
-      current_time-last_time_ > hysteresis_time_) {
-    reset(-1);
-  }
-}
-
-/*
- * Return value for a given alert level at a current time.
  * In addition of m_of_n, this also applies hysteresis and persistence
  */
-int AlertingHysteresis::alertingHysteresis(int alert_level, double current_time) {
+int HysteresisData::applyHysteresisLogic(int current_value, double current_time) {
   if (ISNAN(last_time_) ||
       current_time <= last_time_ || current_time-last_time_ > hysteresis_time_) {
     // Reset hysteresis if current_time is in the past of later than deadline
-    reset(alert_level);
+    reset(current_value);
   }
-  // Add alert level into M of N logic even if negative
-  int alert_mofn = mofn_.m_of_n(alert_level);
-  if (alert_mofn < 0) {
+  // Add current value into M of N logic even if negative
+  int value_mofn = mofn_.m_of_n(current_value);
+  if (value_mofn < 0) {
     // Return invalid output since input is invalid (negative)
-    last_alert_ = alert_level;
+    last_value_ = current_value;
     init_time_ = NaN;
-  } else if (!ISNAN(init_time_) && last_alert_ > 0 && alert_mofn < last_alert_ &&
+  } else if (!ISNAN(init_time_) && last_value_ > 0 && value_mofn < last_value_ &&
       current_time >= init_time_ &&
       current_time-init_time_ < persistence_time_) {
-    // Do nothing. Keep the previous alert_
+    // Do nothing. Keep the previous value (persistence logic prevails)
   } else {
-    if (alert_mofn > 0 && alert_mofn > last_alert_) {
+    if (value_mofn > 0 && value_mofn > last_value_) {
       init_time_ = current_time;
     }
     // Return a valid output (i.e., >= 0), since input is valid
-    last_alert_ = Util::max(0,alert_mofn);
+    last_value_ = Util::max(0,value_mofn);
   }
   last_time_ = current_time;
-  return last_alert_;
+  outdated_ = false;
+  return last_value_;
 }
 
-std::string AlertingHysteresis::toString() const {
+std::string HysteresisData::toString() const {
   std::string s = "<";
   s += "hysteresis_time: "+FmPrecision(hysteresis_time_);
   s += ", persistence_time: "+FmPrecision(persistence_time_);
   s += ", init_time: "+FmPrecision(init_time_);
   s += ", last_time: "+FmPrecision(last_time_);
-  s += ", last_alert: "+Fmi(last_alert_);
+  s += ", last_value: "+Fmi(last_value_);
+  s += ", outdated: "+Fmb(outdated_);
   s += ", "+mofn_.toString();
   s += ">";
   return s;

@@ -14,7 +14,10 @@ package gov.nasa.larcfm.Util;
 import java.util.Arrays;
 
 /**
- * 3-Dimensional mathematical vectors.
+ * <p>3-Dimensional mathematical vectors. Vect3 is immutable.  Once these objects are created they can never
+ * be changed so multiple references to the same object will never cause problems.  However, it does
+ * mean that for most vector operations new objects are created.  Methods that start with a capital 
+ * letter create a new object, just as a reminder of this behavior.</p>
  */
 public class Vect3 {
 
@@ -86,6 +89,18 @@ public class Vect3 {
 	 * @return a new vector 
 	 */
 	public static Vect3 mkXYZ(double x, double y, double z) {
+		return new Vect3(x,y,z);
+	}
+	
+	/**
+	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in internal units.
+	 * 
+	 * @param x Real value [internal units]
+	 * @param y Real value [internal units]
+	 * @param z Real value [internal units]
+	 * @return a new vector 
+	 */
+	public static Vect3 mk(double x, double y, double z) {
 		return new Vect3(x,y,z);
 	}
 
@@ -360,7 +375,7 @@ public class Vect3 {
 	}
 
 	/**
-	 * Addition and scalar multiplication.  Compute: this + k*<code>v</code>;
+	 * Addition and scalar multiplication.  Compute: <code>this + k*v</code>;
 	 * 
 	 * @param k real value
 	 * @param v vector
@@ -370,6 +385,7 @@ public class Vect3 {
 	public Vect3 AddScal(double k, Vect3 v) {
 		return new Vect3(x+k*v.x, y+k*v.y, z+k*v.z);
 	}
+	
 
 	/**
 	 * Right perpendicular, z-component set to 0

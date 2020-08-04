@@ -69,10 +69,6 @@ public final class StateVector implements OutputList {
 		return s;
 	}
 
-	public Point point() {
-		return Point.mk(s);
-	}
-
 	public Velocity v() {
 		return v;
 	}
@@ -96,7 +92,7 @@ public final class StateVector implements OutputList {
 
 	public List<String> toStringList() {
 		ArrayList<String> ret = new ArrayList<String>(7);
-		ret.addAll(Point.mk(s).toStringList());
+		ret.addAll(f.toStringList(s,"NM","NM","ft",false));
 		ret.addAll(v.toStringList());
 		ret.add(Double.toString(Units.to("s", t)));
 		return ret;
@@ -104,7 +100,7 @@ public final class StateVector implements OutputList {
 	
 	public List<String> toStringList(int precision) {
 		ArrayList<String> ret = new ArrayList<String>(7);
-		ret.addAll(Point.mk(s).toStringList(precision));
+		ret.addAll(f.toStringList(s,"NM","NM","ft",precision,false));
 		ret.addAll(v.toStringList(precision));
 		ret.add(f.FmPrecision(Units.to("s", t),precision));
 		return ret;

@@ -28,7 +28,7 @@ public class ParameterDataUtil {
 	 * @return The corresponding ParameterData object
 	 */
 	public static ParameterData getInferredParameters(Object obj) {
-		ParameterData pd = new ParameterData();
+		ParameterData pd = ParameterData.make();
 		if (obj != null) {
 			if (obj instanceof ParameterProvider) {
 				// easy!

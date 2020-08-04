@@ -266,11 +266,11 @@ public class SequenceReader extends StateReader {
 
 			// the values are in the default units.
 			if (latlon) {
-				ss = new Position(LatLonAlt.mk(input.getColumn(head.get(LAT_SX), "deg"), 
+				ss = Position.make(LatLonAlt.mk(input.getColumn(head.get(LAT_SX), "deg"), 
 						input.getColumn(head.get(LON_SY), "deg"), 
 						input.getColumn(head.get(ALT_SZ), "ft")));
 			} else {
-				ss = new Position(new Vect3(
+				ss = Position.make(new Vect3(
 						input.getColumn(head.get(LAT_SX), "nmi"), 
 						input.getColumn(head.get(LON_SY), "nmi"), 
 						input.getColumn(head.get(ALT_SZ), "ft")));

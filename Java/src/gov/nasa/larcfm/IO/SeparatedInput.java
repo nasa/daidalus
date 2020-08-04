@@ -131,7 +131,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		header = false;
 		bunits = false;
 		error = new ErrorLog("SeparatedInput");
-		parameters = new ParameterData();
+		parameters = ParameterData.make();
 		caseSensitive = true;
 		quoteCharacter = null;
 		patternStr = Constants.wsPatternBase;
@@ -150,7 +150,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		header = false;
 		bunits = false;
 		error = new ErrorLog("SeparatedInput(Reader)");
-		parameters = new ParameterData();
+		parameters = ParameterData.make();
 		caseSensitive = true;
 		quoteCharacter = null;
 		patternStr = Constants.wsPatternBase;

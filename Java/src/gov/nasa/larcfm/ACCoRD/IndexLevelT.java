@@ -11,18 +11,20 @@ import java.util.List;
 import gov.nasa.larcfm.Util.f;
 
 public class IndexLevelT {
-	public final int index_; // Aircraft 0-Index
-	public final int level_; // Alert level
-	public final double T_;  // Lookahead time
+	public final int index; // Aircraft 0-Index
+	public final int level; // Alert level
+	public final double time_horizon;  
+	// Time horizon for computation of bands, either lookahead time for conflict bands
+	// or alerting time for peripheral bands
 
-	public IndexLevelT(int index, int level, double T) {
-		index_ = index;
-		level_ = level;
-		T_ = T;
+	public IndexLevelT(int idx, int lvl, double th) {
+		index = idx;
+		level = lvl;
+		time_horizon = th;
 	}
 
 	public String toString() {
-		String s="(index: "+index_+", level: "+level_+", T: "+f.FmPrecision(T_)+")";
+		String s="(index: "+index+", level: "+level+", time_horizon: "+f.FmPrecision(time_horizon)+")";
 		return s;
 	}
 
@@ -32,7 +34,7 @@ public class IndexLevelT {
 	public static void toStringList(List<String> acs, List<IndexLevelT> idxs, List<TrafficState> traffic) {
 		acs.clear();
 		for (IndexLevelT ilt : idxs) {
-			acs.add(traffic.get(ilt.index_).getId());
+			acs.add(traffic.get(ilt.index).getId());
 		}
 	}
 

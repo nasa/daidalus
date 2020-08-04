@@ -20,16 +20,12 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	/*** PRIVATE VARIABLES */
 
 	private double mod_;  // If mod_ > 0, bands are circular modulo this value
-	private double step_; // Value step
-	private double min_param_; // Min value in parameters
-	private double max_param_; // Max value in parameters
+	// When the following values are different from 0, they overwrite the values in the
+	// parameters.
 	// min_rel (max_rel) is the positive distance from current value to minimum (maximum) value. 
-	// When mod_ > 0, min_rel, max_rel in [0,mod_/2]	
-	private double min_rel_param_; // Relative min value in parameters. A negative value represents val-min
-	private double max_rel_param_; // Relative max value in parameters. A negative value represents max-val
-
-	/* Parameters for recovery bands */
-	private boolean recovery_; 
+	// When mod_ > 0, min_rel, max_rel in [0,mod_/2]		
+	private double min_rel_; // Relative min value. A negative value represents val-min, i.e., from val to min 
+	private double max_rel_; // Relative max value. A negative value represents max-val, i.e., from val to max
 
 	/**** CACHED VARIABLES ****/
 
@@ -79,12 +75,8 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	public DaidalusRealBands(double mod) {	
 		// Private variables are initialized
 		mod_ = Math.abs(mod);
-		step_ = 0;
-		min_param_ = 0;
-		max_param_ = 0;
-		min_rel_param_ = 0;
-		max_rel_param_ = 0;
-		recovery_ = false;
+		min_rel_ = 0;
+		max_rel_ = 0;
 
 		// Cached arrays_ are initialized
 		acs_peripheral_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
@@ -99,7 +91,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 
 		// Cached_ variables are cleared
 		outdated_ = false; // Force stale
-		stale(true);
+		stale();
 	}
 
 	public DaidalusRealBands() {
@@ -110,12 +102,8 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 
 		// Private variables are copied
 		mod_ = b.mod_;
-		step_ = b.step_;
-		min_param_ = b.min_param_;
-		max_param_ = b.max_param_;
-		min_rel_param_ = b.min_rel_param_;
-		max_rel_param_ = b.max_rel_param_;
-		recovery_ = b.recovery_;
+		min_rel_ = b.min_rel_;
+		max_rel_ = b.max_rel_;
 
 		// Cached arrays_ are initialized
 		acs_peripheral_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
@@ -130,127 +118,102 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 
 		// Cached_ variables are cleared
 		outdated_ = false; // Force stale
-		stale(true);
+		stale();
 	}
 
-	abstract public void setDaidalusParameters(DaidalusParameters parameters);
+	abstract public boolean get_recovery(DaidalusParameters parameters);
+
+	abstract public double get_step(DaidalusParameters parameters);
+
+	abstract public double get_min(DaidalusParameters parameters);
+
+	abstract public double get_max(DaidalusParameters parameters);
+
+	abstract public double get_min_rel(DaidalusParameters parameters);
+
+	abstract public double get_max_rel(DaidalusParameters parameters);
 
 	abstract public double own_val(TrafficState ownship);
 
-	abstract public double time_step(TrafficState ownship);
+	abstract public double time_step(DaidalusParameters parameters, TrafficState ownship);
 
-	abstract public boolean instantaneous_bands();
+	abstract public boolean instantaneous_bands(DaidalusParameters parameters);
 
 	abstract public double max_delta_resolution(DaidalusParameters parameters);
 
-	protected double get_min_val_() {
-		return min_val_;
-	}
-
-	protected double getmax_val_() {
-		return max_val_;
-	}
-
-	protected double get_mod() {
-		return mod_;
-	}
-
-	public double get_step() {
-		return step_;
-	}
-
-	public boolean get_recovery() {
-		return recovery_;
-	}
-
-	public void set_step(double val) {
-		if (val > 0 && val != step_) {
-			step_ = val;
-			stale(true);
+	private double min_rel(DaidalusParameters parameters) {
+		if (min_rel_ == 0 && max_rel_ == 0) {
+			return get_min_rel(parameters);
+		} else {
+			return min_rel_;
 		}
 	}
 
-	public void set_recovery(boolean flag) {
-		if (flag != recovery_) {
-			recovery_ = flag;
-			stale(true);
+	private double max_rel(DaidalusParameters parameters) {
+		if (min_rel_ == 0 && max_rel_ == 0) {
+			return get_max_rel(parameters);
+		} else {
+			return max_rel_;
 		}
 	}
 	
-	/**
-	 * Set min_rel. When mod_ > 0, requires min_rel to be in [0,mod/2]. Otherwise, a
-	 * negative value represents min.
-	 */
-	public void set_min_rel(double min_rel) {
-		if (min_rel_param_ != min_rel) {
-			min_rel_param_ = min_rel;
-			stale(true);
-		}
+	public boolean saturate_corrective_bands(DaidalusParameters parameters, int dta_status) {
+		return false;
+	}
+
+	public void set_special_configuration(DaidalusParameters parameters, int dta_status) {	
+		// If necessary to be defined by the subclasses
+	}
+
+	public double get_min_val_() {
+		return min_val_;
+	}
+
+	public double get_max_val_() {
+		return max_val_;
+	}
+
+	public double get_mod() {
+		return mod_;
 	}
 
 	/**
-	 * Set min_rel. When mod_ > 0, requires max_rel to be in [0,mod/2]. Otherwise, a
-	 * negative value represents max.
+	 * Overwrite relative values from those in the parameters. When mod_ > 0, requires min_rel and max_rel 
+	 * to be in [0,mod/2]. When mod_ == 0, a negative min_rel value represents val-min and a negative value 
+	 * max_rel value represents max-val.
 	 */
-	public void set_max_rel(double max_rel) {
-		if (max_rel_param_ != max_rel) {
-			max_rel_param_ = max_rel;
-			stale(true);
-		}
+	public void set_min_max_rel(double min_rel, double max_rel) {
+		min_rel_ = min_rel;
+		max_rel_ = max_rel;
+		// This method doesn't stale data. Use with care.
 	}
 
-	// Set min when mod == 0. 
-	public void set_min_nomod(double min) {
-		if (mod_ == 0 && min_param_ != min) {
-			min_param_ = min;
-			stale(true);
-		}
-	}
-
-	// Set max when mod == 0.
-	public void set_max_nomod(double max) {
-		if (mod_ == 0 && max_param_ != max) {
-			max_param_ = max;
-			stale(true);
-		}
-	}
-
-	// Set min and max when mod_ > 0. Requires min_val and max_val to be in range [0,mod)
-	public void set_minmax_mod(double min, double max) {
-		if (mod_ > 0 && (min_param_ != min || max_param_ != max)) {
-			min_param_ = min;
-			max_param_ = max;
-			min_rel_param_ = 0;
-			max_rel_param_ = 0;
-			stale(true);
-		}
-	}
-
-	private boolean check_input(TrafficState ownship) {
+	private boolean set_input(DaidalusParameters parameters, TrafficState ownship, int dta_status) {
 		if (checked_ < 0) {
 			checked_ = 0;
-			if (ownship.isValid() && step_ > 0) { 
+			set_special_configuration(parameters,dta_status);
+			if (ownship.isValid() && get_step(parameters) > 0) { 
 				double val = own_val(ownship);
 				// When mod_ == 0, min_val <= max_val. When mod_ > 0, min_val, max_val in [0,mod_]. 
 				// In the later case, min_val may be greater than max_val. Furthermore, min_val = max_val means 
 				// a range of values from 0 to mod, i.e., a circular band.
-				if (min_rel_param_ == 0 && max_rel_param_ == 0) {
-					min_val_ = min_param_;
-					max_val_ = max_param_;
+				if (min_rel(parameters) == 0 && max_rel(parameters) == 0) {
+					min_val_ = get_min(parameters);
+					max_val_ = get_max(parameters);
 				} else {
-					if (min_rel_param_ >= 0) {
-						min_val_ = Util.safe_modulo(val-min_rel_param_,mod_);
+					if (min_rel(parameters) >= 0) {
+						min_val_ = Util.safe_modulo(val-min_rel(parameters),mod_);
 					} else {
-						min_val_ = min_param_;
+						min_val_ = get_min(parameters);
 					} 
-					if (max_rel_param_ >= 0) {
-						max_val_ = Util.safe_modulo(val+max_rel_param_,mod_);
+					if (max_rel(parameters) >= 0) {
+						max_val_ = Util.safe_modulo(val+max_rel(parameters),mod_);
 					} else {
-						max_val_ = max_param_;
+						max_val_ = get_max(parameters);
 					} 
 					if (mod_ == 0) {
-						min_val_ = Util.max(min_val_,min_param_);
-						max_val_ = Util.min(max_val_,max_param_);
+						min_val_ = Util.max(min_val_,get_min(parameters));
+						max_val_ = Util.min(max_val_,get_max(parameters));
 					}
 				}
 				circular_ = mod_ > 0 && Util.almost_equals(min_val_,max_val_,DaidalusParameters.ALMOST_);
@@ -258,13 +221,13 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 					min_relative_ = mod_/2.0;
 					max_relative_ = mod_/2.0;
 				} else {
-					if (min_rel_param_ > 0) {
-						min_relative_ = min_rel_param_;
+					if (min_rel(parameters) > 0) {
+						min_relative_ = min_rel(parameters);
 					} else {
 						min_relative_ = Util.safe_modulo(val-min_val_,mod_);
 					} 
-					if (max_rel_param_ > 0) {
-						max_relative_ = max_rel_param_;
+					if (max_rel(parameters) > 0) {
+						max_relative_ = max_rel(parameters);
 					} else {
 						max_relative_ = Util.safe_modulo(max_val_-val,mod_);
 					}
@@ -279,10 +242,11 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		return checked_ > 0;
 	}
 
-	public boolean kinematic_conflict(TrafficState ownship, TrafficState traffic, 
-			Detection3D detector, int epsh, int epsv, double alerting_time) {
-		return check_input(ownship) && 
-				any_red(detector,Detection3D.NoDetector,epsh,epsv,0.0,alerting_time,ownship,traffic);
+	public boolean kinematic_conflict(DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
+			Detection3D detector, int epsh, int epsv, double alerting_time,
+			int dta_status) {
+		return set_input(parameters,ownship,dta_status) && 
+				any_red(detector,Detection3D.NoDetector,epsh,epsv,0.0,alerting_time,parameters,ownship,traffic);
 	}
 
 	public int length(DaidalusCore core) {   
@@ -309,7 +273,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 * Return index in ranges_ where val is found, -1 if invalid input or not found 
 	 */
 	public int indexOf(DaidalusCore core, double val) {
-		if (check_input(core.ownship)) {
+		if (set_input(core.parameters,core.ownship,core.DTAStatus())) {
 			refresh(core);
 			return BandsRange.index_of(ranges_,val,mod_);
 		} else {
@@ -320,7 +284,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	/**
 	 * Set cached values to stale conditions as they are no longer fresh 
 	 */
-	public void stale(boolean hysteresis) {
+	public void stale() {
 		if (!outdated_) {
 			outdated_ = true;
 			checked_ = -1;
@@ -333,29 +297,24 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 			recovery_nfactor_ = -1;
 			recovery_horizontal_distance_ = Double.NaN;
 			recovery_vertical_distance_ = Double.NaN;
+			min_rel_ = 0;
+			max_rel_ = 0;
 			min_val_ = 0;
 			max_val_ = 0;
 			min_relative_ = 0;
 			max_relative_ = 0;
 			circular_ = false;
 		}
-		if (hysteresis) {
-			bands_hysteresis_.reset();
-		}
 	}
-
+	
 	/**
-	 * stale hysteresis depending on current_time and hysteresis_time
+	 * clear hysteresis 
 	 */
-	public void reset_hysteresis(double current_time, double hysteresis_time) {
-		double last_time = bands_hysteresis_.getLastTime();
-		if (Double.isNaN(last_time) ||
-				current_time <= last_time ||
-				current_time-last_time > hysteresis_time) { 	
-			bands_hysteresis_.reset();	
-		}
+	public void clear_hysteresis() {
+		bands_hysteresis_.reset();
+		stale();
 	}
-
+	
 	/**
 	 * Returns true is object is fresh
 	 */
@@ -368,14 +327,14 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 */
 	public void refresh(DaidalusCore core) {
 		if (outdated_) {
-			for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-				acs_bands_.get(conflict_region).addAll(core.acs_conflict_bands(conflict_region));
-				if (core.bands_for(conflict_region)) {
-					peripheral_aircraft(core,conflict_region);
-					acs_bands_.get(conflict_region).addAll(acs_peripheral_bands_.get(conflict_region));
+			if (set_input(core.parameters,core.ownship,core.DTAStatus())) {
+				for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
+					acs_bands_.get(conflict_region).addAll(core.acs_conflict_bands(conflict_region));
+					if (core.bands_for(conflict_region)) {
+						peripheral_aircraft(core,conflict_region);
+						acs_bands_.get(conflict_region).addAll(acs_peripheral_bands_.get(conflict_region));
+					}
 				}
-			}
-			if (check_input(core.ownship)) {
 				compute(core);
 			} 
 			outdated_ = false;
@@ -386,7 +345,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 *  Force computation of kinematic bands
 	 */
 	public void force_compute(DaidalusCore core) {
-		stale(true);
+		stale();
 		refresh(core);
 	}
 
@@ -398,20 +357,24 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		// Iterate on all traffic aircraft
 		for (int ac = 0; ac < core.traffic.size(); ++ac) {
 			TrafficState intruder = core.traffic.get(ac);
-			Alerter alerter = core.alerter_of(ac);
-			// Assumes that thresholds of severe alerts are included in the volume of less severe alerts
-			BandsRegion region = BandsRegion.regionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
-			int alert_level = alerter.alertLevelForRegion(region);
-			if (alert_level > 0) {
-				Detection3D detector = alerter.getLevel(alert_level).getCoreDetection();
-				double alerting_time = Util.min(core.parameters.getLookaheadTime(),
-						alerter.getLevel(alert_level).getAlertingTime());
-				ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,alerting_time);
-				if (!det.conflict() && kinematic_conflict(core.ownship,intruder,detector,
-						core.epsilonH(false,intruder),core.epsilonV(false,intruder),alerting_time)) {
-					acs_peripheral_bands_.get(conflict_region).add(new IndexLevelT(ac,alert_level,alerting_time));
-				}
-			}	
+			int alerter_idx = core.alerter_index_of(intruder);
+			if (1 <= alerter_idx && alerter_idx <= core.parameters.numberOfAlerters()) {
+				Alerter alerter = core.parameters.getAlerterAt(alerter_idx);
+				// Assumes that thresholds of severe alerts are included in the volume of less severe alerts
+				BandsRegion region = BandsRegion.regionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
+				int alert_level = alerter.alertLevelForRegion(region);
+				if (alert_level > 0) {
+					Detection3D detector = alerter.getLevel(alert_level).getCoreDetection();
+					double alerting_time = Util.min(core.parameters.getLookaheadTime(),
+							alerter.getLevel(alert_level).getAlertingTime());
+					ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,alerting_time);
+					if (!det.conflict() && kinematic_conflict(core.parameters,core.ownship,intruder,detector,
+							core.epsilonH(false,intruder),core.epsilonV(false,intruder),alerting_time,
+							core.DTAStatus())) {
+						acs_peripheral_bands_.get(conflict_region).add(new IndexLevelT(ac,alert_level,alerting_time));
+					}
+				}	
+			}
 		}
 	}
 
@@ -449,7 +412,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	private void color_values(List<ColorValue> lcvs, IntervalSet[] none_sets, DaidalusCore core, boolean recovery,
 			int last_region) {
 		if (mod_ == 0) {
-			ColorValue.init(lcvs,min_param_,max_param_,min_val_,max_val_,BandsRegion.NONE); 
+			ColorValue.init(lcvs,get_min(core.parameters),get_max(core.parameters),min_val_,max_val_,BandsRegion.NONE); 
 		} else {
 			ColorValue.init_with_mod(lcvs,min_val_,max_val_,mod_,BandsRegion.NONE);
 		}
@@ -498,25 +461,28 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		saturateNoneIntervalSet(none_set_region);
 		// Compute bands for given region
 		for (IndexLevelT ilt : ilts) {
-			TrafficState intruder = core.traffic.get(ilt.index_);
-			Alerter alerter = core.alerter_of(ilt.index_);
-			if (alerter.isValid()) {
-				Detection3D detector = det.orElse(alerter.getLevel(ilt.level_).getCoreDetection());
+			TrafficState intruder = core.traffic.get(ilt.index);
+			int alerter_idx = core.alerter_index_of(intruder);
+			if (1 <= alerter_idx && alerter_idx <= core.parameters.numberOfAlerters()) {
+				Alerter alerter = core.parameters.getAlerterAt(alerter_idx);
+				Detection3D detector = det.orElse(alerter.getLevel(ilt.level).getCoreDetection());
 				IntervalSet noneset2 = new IntervalSet();
-				double T = ilt.T_;
+				double T = ilt.time_horizon;
 				if (B > T) {
 					// This case corresponds to recovery bands, where B is a recovery time.
 					// If recovery time is greater than lookahead time for aircraft, then only
 					// the internal cylinder is checked until this time.
 					if (recovery.isPresent()) {
 						none_bands(noneset2,recovery.get(),Detection3D.NoDetector,
-								core.epsilonH(recovery_case,intruder),core.epsilonV(recovery_case,intruder),0,T,core.ownship,intruder);
+								core.epsilonH(recovery_case,intruder),core.epsilonV(recovery_case,intruder),0,T,
+								core.parameters,core.ownship,intruder);
 					} else {
 						saturateNoneIntervalSet(noneset2);
 					}
 				} else if (B <= T) {
 					none_bands(noneset2,detector,recovery,
-							core.epsilonH(recovery_case,intruder),core.epsilonV(recovery_case,intruder),B,T,core.ownship,intruder);
+							core.epsilonH(recovery_case,intruder),core.epsilonV(recovery_case,intruder),B,T,
+							core.parameters,core.ownship,intruder);
 				} 
 				none_set_region.almost_intersect(noneset2,DaidalusParameters.ALMOST_);
 				if (none_set_region.isEmpty()) {
@@ -605,14 +571,18 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 */
 	private boolean compute_region(IntervalSet[] none_sets, int conflict_region, int corrective_region,
 			DaidalusCore core) {  
+		if (saturate_corrective_bands(core.parameters,core.DTAStatus()) && conflict_region <= corrective_region) {
+			none_sets[conflict_region].clear();
+			return false;
+		}
 		compute_none_bands(none_sets[conflict_region],acs_bands_.get(conflict_region),
 				Detection3D.NoDetector,Detection3D.NoDetector,false,0.0,core);
-		if (recovery_) {
+		if (get_recovery(core.parameters)) {
 			if  (none_sets[conflict_region].isEmpty() && conflict_region <= corrective_region) {
 				// Compute recovery bands
 				compute_recovery_bands(none_sets[corrective_region],acs_bands_.get(corrective_region),core);
 				return true;
-			} else if (instantaneous_bands() && conflict_region == corrective_region &&
+			} else if (instantaneous_bands(core.parameters) && conflict_region == corrective_region &&
 					core.tiov(conflict_region).low == 0) {
 				// Recovery bands for instantaneous bands saturate when internal volume is violated
 				recovery_time_ = 0;
@@ -702,19 +672,19 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 
 	/**
 	 * Return last time to maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft at ac_idx for conflict alert level. Return NaN if the ownship is not in conflict with aircraft within 
-	 * early alerting time. Return negative infinity if there is no time to maneuver.
+	 * aircraft at ac_idx for conflict alert level. Return NaN if the ownship is not 
+	 * in conflict with aircraft within lookahead time. Return negative infinity if 
+	 * there is no time to maneuver.
 	 * Note: 1 <= alert_level <= alerter.size()
 	 */
 	public double last_time_to_maneuver(DaidalusCore core, TrafficState intruder) {
-		int alert_idx = core.parameters.isAlertingLogicOwnshipCentric() ? core.ownship.getAlerterIndex() : intruder.getAlerterIndex();
+		int alert_idx = core.alerter_index_of(intruder);
 		int alert_level = core.parameters.correctiveAlertLevel(alert_idx);
-		TrafficState ownship = core.ownship;
-		if (check_input(ownship) && alert_level > 0) {
+		if (set_input(core.parameters,core.ownship,core.DTAStatus()) && alert_level > 0) {
 			AlertThresholds alertthr = core.parameters.getAlerterAt(alert_idx).getLevel(alert_level);
 			Detection3D detector = alertthr.getCoreDetection();
 			double T = Util.min(core.parameters.getLookaheadTime(),alertthr.getEarlyAlertingTime());
-			ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0.0,T);
+			ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,T);
 			if (det.conflict()) {
 				double pivot_red = det.getTimeIn();
 				if (pivot_red == 0) {
@@ -723,10 +693,11 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 				double pivot_green = 0;
 				double pivot = pivot_green;    
 				while ((pivot_red-pivot_green) > 0.5) {
-					TrafficState ownship_at_pivot  = ownship.linearProjection(pivot); 
+					TrafficState ownship_at_pivot  = core.ownship.linearProjection(pivot); 
 					TrafficState intruder_at_pivot = intruder.linearProjection(pivot);
 					if (detector.violationAtWithTrafficState(ownship_at_pivot,intruder_at_pivot,0.0) ||
-							all_red(detector,Detection3D.NoDetector,0,0,0.0,T,ownship_at_pivot,intruder_at_pivot)) {
+							all_red(detector,Detection3D.NoDetector,0,0,0.0,T,
+									core.parameters,ownship_at_pivot,intruder_at_pivot)) {
 						pivot_red = pivot;
 					} else {
 						pivot_green = pivot;
@@ -743,17 +714,17 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		return Double.NaN;
 	}
 
-	private int maxdown(TrafficState ownship) {
-		int down = (int)Math.ceil(min_relative_/get_step());
-		if (mod_ > 0 && Util.almost_greater(down*get_step(),mod_/2.0,DaidalusParameters.ALMOST_)) {
+	private int maxdown(DaidalusParameters parameters, TrafficState ownship) {
+		int down = (int)Math.ceil(min_relative_/get_step(parameters));
+		if (mod_ > 0 && Util.almost_greater(down*get_step(parameters),mod_/2.0,DaidalusParameters.ALMOST_)) {
 			--down;
 		}
 		return down;
 	}
 
-	private int maxup(TrafficState ownship) {
-		int up = (int)Math.ceil(max_relative_/get_step());
-		if (mod_ > 0 && Util.almost_greater(up*get_step(),mod_/2.0,DaidalusParameters.ALMOST_)) {
+	private int maxup(DaidalusParameters parameters, TrafficState ownship) {
+		int up = (int)Math.ceil(max_relative_/get_step(parameters));
+		if (mod_ > 0 && Util.almost_greater(up*get_step(parameters),mod_/2.0,DaidalusParameters.ALMOST_)) {
 			--up;
 		}    
 		return up;
@@ -832,46 +803,46 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 * values (or [0,mod] in the case of circular bands, i.e., when mod == 0).
 	 */
 	public void none_bands(IntervalSet noneset, Detection3D conflict_det, Optional<Detection3D> recovery_det, 
-			int epsh, int epsv, double B, double T, TrafficState ownship, TrafficState traffic) {
+			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
 		List<Integerval> bands_int = new ArrayList<Integerval>();
-		int mino = maxdown(ownship);
-		int maxo = maxup(ownship);
-		if (instantaneous_bands()) {
+		int mino = maxdown(parameters,ownship);
+		int maxo = maxup(parameters,ownship);
+		if (instantaneous_bands(parameters)) {
 			instantaneous_bands_combine(bands_int,conflict_det,recovery_det,B,T,0.0,B,
-					mino,maxo,ownship,traffic,epsh,epsv); 
+					mino,maxo,parameters,ownship,traffic,epsh,epsv); 
 		} else {
-			kinematic_bands_combine(bands_int,conflict_det,recovery_det,time_step(ownship),B,T,0.0,B,
-					mino,maxo,ownship,traffic,epsh,epsv); 
+			kinematic_bands_combine(bands_int,conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
+					mino,maxo,parameters,ownship,traffic,epsh,epsv); 
 		}		
-		toIntervalSet(noneset,bands_int,get_step(),own_val(ownship));
+		toIntervalSet(noneset,bands_int,get_step(parameters),own_val(ownship));
 	}
 
 	public boolean any_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
-			int epsh, int epsv, double B, double T, TrafficState ownship, TrafficState traffic) {
-		return instantaneous_bands() ? 
+			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
+		return instantaneous_bands(parameters) ? 
 				any_instantaneous_red(conflict_det,recovery_det,B,T,0.0,B,
-						maxdown(ownship),maxup(ownship),ownship,traffic,epsh,epsv,0):
-							any_int_red(conflict_det,recovery_det,time_step(ownship),B,T,0.0,B,
-									maxdown(ownship),maxup(ownship),ownship,traffic,epsh,epsv,0);
+						maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0):
+							any_int_red(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
+									maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0);
 	}
 
 	public boolean all_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
-			int epsh, int epsv, double B, double T, TrafficState ownship, TrafficState traffic) {
-		return instantaneous_bands() ? 
+			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
+		return instantaneous_bands(parameters) ? 
 				all_instantaneous_red(conflict_det,recovery_det,B,T,0,B,
-						maxdown(ownship),maxup(ownship),ownship,traffic,epsh,epsv,0):
-							all_int_red(conflict_det,recovery_det,time_step(ownship),B,T,0.0,B,
-									maxdown(ownship),maxup(ownship),ownship,traffic,epsh,epsv,0);
+						maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0):
+							all_int_red(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
+									maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0);
 	}
 
 	public boolean all_green(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
-			int epsh, int epsv, double B, double T, TrafficState ownship, TrafficState traffic) {
-		return !any_red(conflict_det,recovery_det,epsh,epsv,B,T,ownship,traffic);
+			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
+		return !any_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
 	}
 
 	public boolean any_green(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
-			int epsh, int epsv, double B, double T, TrafficState ownship, TrafficState traffic) {
-		return !all_red(conflict_det,recovery_det,epsh,epsv,B,T,ownship,traffic);
+			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
+		return !all_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
 	}
 
 	/**
@@ -881,25 +852,25 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 * The value dir=false is down and dir=true is up. 
 	 */
 	public double resolution(Detection3D conflict_det, Optional<Detection3D> recovery_det, TrafficState repac, 
-			int epsh, int epsv, double B, double T, TrafficState ownship, TrafficState traffic, 
+			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
 			boolean dir) {
 		int maxn;
 		int sign;
 		if (dir) {
-			maxn = maxup(ownship);
+			maxn = maxup(parameters,ownship);
 			sign = 1;
 		} else {
-			maxn = maxdown(ownship);
+			maxn = maxdown(parameters,ownship);
 			sign = -1;
 		}
-		int ires = first_green(conflict_det,recovery_det,time_step(ownship),B,T,0.0,B,
-				dir,maxn,ownship,traffic,epsh,epsv);
+		int ires = first_green(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
+				dir,maxn,parameters,ownship,traffic,epsh,epsv);
 		if (ires == 0) {
 			return Double.NaN;
 		} else if (ires < 0) {
 			return sign*Double.POSITIVE_INFINITY;
 		} else {
-			return Util.safe_modulo(own_val(ownship)+sign*ires*get_step(),mod_);
+			return Util.safe_modulo(own_val(ownship)+sign*ires*get_step(parameters),mod_);
 		}
 	}
 
@@ -907,12 +878,8 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		String s = "";
 		s+="# Private variables\n";
 		s+="mod_ = "+f.FmPrecision(mod_)+"\n";
-		s+="step_ = "+f.FmPrecision(step_)+"\n";
-		s+="min_param_ = "+f.FmPrecision(min_param_)+"\n";
-		s+="max_param_ = "+f.FmPrecision(max_param_)+"\n";
-		s+="min_rel_param_ = "+f.FmPrecision(min_rel_param_)+"\n";
-		s+="max_rel_param_ = "+f.FmPrecision(max_rel_param_)+"\n";
-		s+="recovery_ = "+recovery_+"\n";
+		s+="min_rel_ = "+f.FmPrecision(min_rel_)+"\n";
+		s+="max_rel_ = "+f.FmPrecision(max_rel_)+"\n";
 		s+="# Cached variables\n";
 		s+="outdated_ = "+outdated_+"\n";		
 		s+="checked_ = "+f.Fmi(checked_)+"\n";		

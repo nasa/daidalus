@@ -18,11 +18,10 @@ import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.ParameterProvider;
 import gov.nasa.larcfm.Util.ParameterReader;
-import gov.nasa.larcfm.Util.Point;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Triple;
-import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
+import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
@@ -275,11 +274,11 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 
 			// the values are in the default units.
 			if (latlon) {
-				ss = new Position(LatLonAlt.mk(input.getColumn(head.get(LAT_SX), "deg"), 
+				ss = Position.make(LatLonAlt.mk(input.getColumn(head.get(LAT_SX), "deg"), 
 						input.getColumn(head.get(LON_SY), "deg"), 
 						input.getColumn(head.get(ALT_SZ), "ft")));
 			} else {
-				ss = new Position(Point.mk(
+				ss = Position.make(Vect3.mk(
 						input.getColumn(head.get(LAT_SX), "NM"), 
 						input.getColumn(head.get(LON_SY), "NM"), 
 						input.getColumn(head.get(ALT_SZ), "ft")));

@@ -2003,7 +2003,9 @@ public final class Units {
 	 * More formally, if the string to parse contains a unit, then the value is understood in terms of that unit.  If no
 	 * unit is specified in the string, then the unit in "defautlUnitsFrom" is used.
 	 * This version will be able to parse numbers in exponential notation (C++ does not)
-	 * @param defaultUnitsFrom the default units to convert the value from (if no text unit is specified) 
+	 * @param defaultUnitsFrom the default units to convert the value from (if no text unit is specified).  Warning.  An assumption
+	 *                         of this method is that this parameter is a correct unit, it was set by the programmer, not something
+	 *                         that came from the user.  Exceptions will be thrown if this is not a valid unit.
 	 * @param str string to parse
 	 * @param defaultValue the default value is the parameter 'str' is invalid. The units used are the defaultUnitsFrom. 
 	 * @return converted value
@@ -2011,6 +2013,7 @@ public final class Units {
 	public static double parse(String defaultUnitsFrom, String str, double defaultValue) {
 		double dbl;
 		double dv = from(defaultUnitsFrom,defaultValue);
+		if (str == null) return dv;
 		String unit;
 		Matcher m = numre.matcher(str);
 		if (m.matches()) { 

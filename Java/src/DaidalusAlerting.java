@@ -51,6 +51,7 @@ import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.ACCoRD.Detection3D;
 import gov.nasa.larcfm.ACCoRD.WCV_tvar;
 import gov.nasa.larcfm.Util.ParameterData;
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.f;
 
 public class DaidalusAlerting {
@@ -178,7 +179,13 @@ public class DaidalusAlerting {
 		String uvs = daa.getUnitsOf("step_vs");
 
 		out.print(" Time, Ownship, Traffic, Alerter, Alert Level");
+		if (!daa.isDisabledDTALogic()) {
+			out.print(", DTA Active, DTA Guidance, Distance to DTA");
+		}
 		String line_units = "[s],,,,";
+		if (!daa.isDisabledDTALogic()) {
+			line_units += ",,, [nmi]";
+		}
 		for (int level=1; level <= max_alert_level;++level) {
 			out.print(", Time to Volume of Alert("+level+")");
 			line_units += ", [s]";
@@ -210,6 +217,17 @@ public class DaidalusAlerting {
 				out.print(", "+alerter_idx);
 				int alert = daa.alertLevel(ac);
 				out.print(", "+alert);
+				if (!daa.isDisabledDTALogic()) {
+					out.print(", "+daa.isActiveDTALogic());
+					out.print(", "+daa.isActiveDTASpecialManeuverGuidance());
+					if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
+						out.print(", ");
+					} else {
+						double dh = (daa.isAlertingLogicOwnshipCentric()?
+								daa.getOwnshipState():daa.getAircraftStateAt(ac)).getPosition().distanceH(daa.getDTAPosition());
+						out.print(", "+f.FmPrecision(Units.to("nmi",dh)));
+					}
+				}
 				ConflictData det=null;
 				for (int level=1; level <= max_alert_level; ++level) {
 					out.print(", ");

@@ -10,11 +10,17 @@
  */
 package gov.nasa.larcfm.Util;
 
+import java.util.function.Supplier;
+
 /**
  * <p>This class contains a small set of tools to help in debugging.  First is a set of tools to instrument the code
  * each type of instrumentation attempts to address a different type of bug.  Any messages go to the Standard output channel.
  * messages come out in the format "<code>&lt;tag&gt; message</code>" so they can easily be found. For errors, the tag
  * is pre-populated with "ERROR!", for warnings the tag is user specified.  For Status messages, the tag is optional.</p>
+ * 
+ * <p>Unfortunately, this implementation every Debug method added still costs execution time, regardless if
+ * the given verbosity level means no message will be produced.  So Debug.pln(lvl, big-complicated-string-operation)
+ * means the big string operation will be computed every time, even when the Debug.pln is never triggered.</p>
  * 
  *  <p>Each of these debugging messages approximately means</p>
  * <ul>
@@ -63,9 +69,9 @@ package gov.nasa.larcfm.Util;
 public class Debug {
 
 	public static final boolean FAIL_FAST = true;  //!!!!! set this to false for distribution; true for local debugging
-	private static int VERBOSE = 1;     // this is false for distribution; true for local debugging.  However, this is not final.  
+	private static int VERBOSE = 1;     // this is 0 for distribution, 1 for general development, 2 for local debugging.  However, this is not final.  
 //	private static final boolean INCLUDE_METHOD_NAME = false; // if set to true, this will look at the current stack trace and include the calling method's name
-	
+	private static StringBuffer buffer = null;
 	
 	/**
 	 * Set the verbosity level for debuggging
@@ -83,6 +89,20 @@ public class Debug {
 		VERBOSE = level;
 	}
 
+	public static void setBuffer(boolean use) {
+		if (use) {
+			buffer = new StringBuffer(1024);
+		} else {
+			buffer = null;
+		}
+	}
+	
+	public static String getBuffer() {
+		String ret = buffer.toString();
+		buffer.setLength(0);
+		return ret;
+	}
+	
 	/**
 	 * Return the verbosity level
 	 * <ul>
@@ -116,9 +136,22 @@ public class Debug {
 		String[] lines = msg.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
 			if ( ! tag.isEmpty()) {
-				System.out.print("<"+tag+"> ");
+				if (buffer == null) {
+					System.out.print("<");
+					System.out.print(tag);
+					System.out.print("> ");					
+				} else {
+					buffer.append("<");
+					buffer.append(tag);
+					buffer.append("> ");
+				}
 			}
-			System.out.println(lines[i]);
+			if (buffer == null) {
+				System.out.println(lines[i]);
+			} else {
+				buffer.append(lines[i]);
+				buffer.append(System.lineSeparator());
+			}
 		}
 	}
 	
@@ -166,6 +199,12 @@ public class Debug {
 		}
 	}
 
+	public static void checkErrorLazy(boolean condition, Supplier<String> f) {
+		if (! condition) {
+			error(f.get());
+		}
+	}
+	
 	/**
 	 * Potentially output the <i>msg>/i> to the console with the prepended <i>tag</i>.  This method
 	 * is not subject to either the FAIL_FAST or the VERBOSE flag (see notes for Debug).
@@ -204,7 +243,7 @@ public class Debug {
 	
 	/**
 	 * Print out a status message <i>msg</i>, with each line prepended with tag.
-	 * The output will only come out if Debug is in "verbose" mode.  
+	 * The output will only if "verbose" is true.  
 	 * 
 	 * @param tag the tag to indicate the location of this debug message.
 	 * @param msg the status message
@@ -217,6 +256,34 @@ public class Debug {
 	}
 
 	/**
+	 * <p>Print out a status message <i>msg</i>, with each line prepended with tag.
+	 * The output will only come out if "verbose" is true.  This version is lazy, in that the message
+	 * captured in the supplier is only evaluated if the verbose flag is true.
+	 * This should be used when constructing the string message is a complicated
+	 * operation unto itself AND it is executed in a part of the code where
+	 * the extra trouble of building a supplier object is worth the trouble.</p>
+	 * 
+	 * <p>A supplier object should look like:</p>
+	 * <code>
+	 * class MyClass implements Supplier<String> {
+	 *   @override
+	 *   public String get() {
+	 *     return complex_string_construction_operation_here();
+	 *   }
+	 * }
+	 * </code>
+	 * 
+	 * @param tag the tag to indicate the location of this debug message.
+	 * @param f a supplier object that contains the status message
+	 * @param verbose if true, then display status message
+	 */
+	public static void plnLazy(String tag, Supplier<String> f, boolean verbose) {
+		if (verbose) {
+			output(tag, f.get());
+		}
+	}
+	
+	/**
 	 * Print out a status message <i>msg</i>.
 	 * The output will only come out if Debug is in "verbose" mode.  
 	 * 
@@ -224,6 +291,7 @@ public class Debug {
 	 * @param verbose if true, the display status message
 	 */
 	public static void pln(String msg, boolean verbose) {
+		//f.pln(" $$$$$$$$$$$ HERE I AM verbose = "+verbose+" msg = "+msg);
 		pln("", msg, verbose);
 	}
 	
@@ -242,7 +310,7 @@ public class Debug {
 
 	/**
 	 * Print out a status message <i>msg</i>.
-	 * The output will only come out if Debug is in "verbose" mode. Note: 
+	 * The output will only come out if 2 is below the Debug verbosity level. Note: 
 	 * There is a (small) performance penalty for every call, even if the VERBOSE level
 	 * indicates no message will come out.
 	 * 
@@ -254,7 +322,7 @@ public class Debug {
 
 	/**
 	 * Print out a status message <i>msg</i>, with each line prepended with tag as a specified error level.
-	 * The output will only come out if Debug is in "verbose" mode. Note: 
+	 * The output will only come out if level is below the Debug verbosity level. Note: 
 	 * There is a (small) performance penalty for every call, even if the VERBOSE level
 	 * indicates no message will come out.
 	 * 
@@ -268,8 +336,34 @@ public class Debug {
 	}
 
 	/**
+	 * <p>Print out a status message <i>msg</i>, with each line prepended with tag.
+	 * The output will only come out if level is below the Debug verbosity level.  This version is lazy, in that the message
+	 * captured in the supplier is only evaluated if the verbose level is low enough.
+	 * This should be used when constructing the string message is a complicated
+	 * operation unto itself AND it is executed in a part of the code where
+	 * the extra trouble of building a supplier object is worth the trouble.</p>
+	 * 
+	 * <p>A supplier object should look like:</p>
+	 * <code style="display:block; white-space:pre-wrap">
+	 * class MyClass implements Supplier<String> { <br>
+	 *   public String get() { <br>
+	 *     return complex_string_construction_operation_here(); <br>
+	 *   }<br>
+	 * }<br>
+	 * </code>
+	 * 
+	 * @param level verbosity level
+	 * @param tag the tag to indicate the location of this debug message.
+	 * @param f a supplier object that contains the status message
+	 */
+	public static void plnLazy(int level, String tag, Supplier<String> f) {
+		plnLazy(tag, f, VERBOSE > 1 && VERBOSE >= level);
+		
+	}
+	
+	/**
 	 * Print out a message <i>msg</i> at a user-specified error level.
-	 * The output will only come out if Debug is in "verbose" mode. Note: 
+	 * The output will only come out if level is below the Debug verbosity level. Note: 
 	 * There is a (small) performance penalty for every call, even if the VERBOSE level
 	 * indicates no message will come out.
 	 * 
@@ -280,6 +374,31 @@ public class Debug {
 		pln(level, "", msg);
 	}
 
+	/**
+	 * <p>Print out a status message <i>msg</i>.
+	 * The output will only be displayed if level is below the Debug verbosity level.  This version is lazy, in that the message
+	 * captured in the supplier is only evaluated if the verbose level is low enough.
+	 * This should be used when constructing the string message is a complicated
+	 * operation unto itself AND it is executed in a part of the code where
+	 * the extra trouble of building a supplier object is worth the trouble.</p>
+	 * 
+	 * <p>A supplier object should look like:</p>
+	 * <code>
+	 * class MyClass implements Supplier<String> {
+	 *   @override
+	 *   public String get() {
+	 *     return complex_string_construction_operation_here();
+	 *   }
+	 * }
+	 * </code>
+	 * 
+	 * @param f a supplier object that contains the status message
+	 * @param level verbosity level
+	 */
+	public static void plnLazy(int level, Supplier<String> f) {
+		plnLazy(level, "", f);
+		
+	}
 
 	/**
 	 * Indicate than something bad has happened and the program to needs to end now.  On some platforms, print backtrace.

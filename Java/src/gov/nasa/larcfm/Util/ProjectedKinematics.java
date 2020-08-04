@@ -20,21 +20,21 @@ public final class ProjectedKinematics {
 
 
 	public static Pair<Position,Velocity> linear(Pair<Position,Velocity> p, double t) {
-		return linear(p.first, p.second, t);
+		Position so = p.first;
+		Velocity vo = p.second;
+		Vect3 s3;
+		if (so.isLatLon()) {
+			EuclideanProjection proj = Projection.createProjection(so.lla().zeroAlt());
+			s3 = proj.project(so); 
+			Vect3 ns = s3.linear(vo,t);
+			return proj.inverse(ns,vo,true);
+		} else {
+			s3 = so.vect3();
+			Vect3 ns = s3.linear(vo,t);
+			return new Pair<Position,Velocity>(Position.make(ns),vo);  
+		}
 	}
 
-	public static Pair<Position,Velocity> linear(Position so ,Velocity vo, double t) {
-		Vect3 s3 = so.vect3();
-		if (so.isLatLon()) {
-			s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
-		}
-		Vect3 ns = s3.linear(vo,t);
-		if (so.isLatLon()) {
-			return Projection.createProjection(so.lla().zeroAlt()).inverse(ns,vo,true);
-		} else {
-			return new Pair<Position,Velocity>(new Position(ns),vo);  
-		}
-	}
 
 	/**
 	 * Calculate the angle of a constant-radius turn from two points and the radius
@@ -95,9 +95,11 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> turn(Position so, Velocity vo, double t, double R,  boolean turnRight) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+        s3 = so.vect3();    	
     }
     Pair<Vect3,Velocity> resp = Kinematics.turn(s3,vo,t,R,turnRight);
     Vect3 pres = resp.first;
@@ -106,7 +108,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -122,10 +124,11 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> turnOmega(Position so, Velocity vo, double t, double omega, EuclideanProjection proj) {
-    Vect3 s3 = so.vect3();
-    //Velocity vo3 = vo;
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = proj.project(so); 
+    	s3 = proj.project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Pair<Vect3,Velocity> resp = Kinematics.turnOmega(s3,vo,t,omega);
     Vect3 pres = resp.first;
@@ -134,7 +137,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return proj.inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -150,9 +153,11 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> turnOmega(Position so, Velocity vo, double t, double omega) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     //f.pln("ProjectedKinematics.turnOmega t = "+t+" s3 = "+s3+" omega = "+Units.str("deg/s",omega));	  
     Pair<Vect3,Velocity> resp = Kinematics.turnOmega(s3,vo,t,omega);
@@ -162,7 +167,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -193,12 +198,12 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> turnUntil(Position so, Velocity vo, double t, double goalTrack, double bankAngle) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
-    //Vect3 pres = Kinematics.turnUntilPosition(s3,vo,goalTrack, bankAngle,t,turnRight);
-    //Velocity vres = Kinematics.turnUntilVelocity(vo,goalTrack, bankAngle,t,turnRight);
     Pair<Vect3,Velocity> svres = Kinematics.turnUntil(s3, vo, t, goalTrack, bankAngle);
     Vect3 pres = svres.first;
     Velocity vres = svres.second;
@@ -206,7 +211,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -226,12 +231,12 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> turnUntilTimeOmega(Position so, Velocity vo, double t, double goalTrack, double bankAngle) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
-    //Vect3 pres = Kinematics.turnUntilTimeOmegaPosition(s3,vo,goalTrack, bankAngle,t,turnRight);
-    //Velocity vres = Kinematics.turnUntilTimeOmegaVelocity(vo,goalTrack, bankAngle,t,turnRight);
     Pair<Vect3,Velocity> svres = Kinematics.turnUntilTimeOmega(s3, vo, t, goalTrack, bankAngle);
     Vect3 pres = svres.first;
     Velocity vres = svres.second;
@@ -239,7 +244,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -260,9 +265,11 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> turnUntilTime(Position so, Velocity vo, double t, double turnTime, double R, boolean turnRight) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Pair<Vect3,Velocity> svres = Kinematics.turnUntilTimeRadius(new Pair<Vect3,Velocity>(s3, vo), t, turnTime, R, turnRight);
     Vect3 pres = svres.first;
@@ -270,7 +277,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -290,11 +297,11 @@ public final class ProjectedKinematics {
    */
   public static Pair<Position,Velocity> turnUntilWithRoll(Position so, Velocity vo, double t, double goalTrack, double bankAngle, 
       double rollTime) {
-    //f.pln("Kin.turnProjection so = "+so+" vo = "+vo+" t = "+t+" goalTrack=  "+Units.str("deg",goalTrack)
-    //	+" bankAngle=  "+Units.str("deg",bankAngle)+" rollRate = "+rollRate);	  
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Pair<Vect3,Velocity> svres = Kinematics.turnUntilWithRoll(s3,vo,t, goalTrack, bankAngle,rollTime);
     Vect3 pres = svres.first;
@@ -303,7 +310,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -312,31 +319,35 @@ public final class ProjectedKinematics {
 
   // if this fails, it returns a NaN time
   public static Pair<Position,Double> intersection(Position so, Velocity vo, Position si, Velocity vi) {
-    Vect3 so3 = so.vect3();
-    Vect3 si3 = si.vect3();
-    EuclideanProjection proj = Projection.createProjection(so.lla().zeroAlt()); 
+    Vect3 so3;
+    Vect3 si3;
     if (so.isLatLon()) {
-      so3 = proj.project(so); 
-      si3 = proj.project(si); 
-    }
-    Pair<Vect3,Double> intersect = VectFuns.intersection(so3, vo, si3, vi);
-    if (so.isLatLon()) {
-      return new Pair<Position,Double>(new Position(proj.inverse(intersect.first)),intersect.second);
+        EuclideanProjection proj = Projection.createProjection(so.lla().zeroAlt()); 
+    	so3 = proj.project(so); 
+    	si3 = proj.project(si); 
+        Pair<Vect3,Double> intersect = VectFuns.intersection(so3, vo, si3, vi);
+        return new Pair<Position,Double>(Position.make(proj.inverse(intersect.first)),intersect.second);
     } else {
-      return new Pair<Position,Double>(new Position(intersect.first),intersect.second);  
+    	so3 = so.vect3();
+    	si3 = si.vect3();
+        Pair<Vect3,Double> intersect = VectFuns.intersection(so3, vo, si3, vi);
+        return new Pair<Position,Double>(Position.make(intersect.first),intersect.second);  
     }
   }
 
 
   public static double timeOfintersection(Position so, Velocity vo, Position si, Velocity vi) {
-    Vect3 so3 = so.vect3();
-    Vect3 si3 = si.vect3();
-    EuclideanProjection proj = Projection.createProjection(so.lla().zeroAlt()); 
+    Vect3 so3;
+    Vect3 si3;
     if (so.isLatLon()) {
-      so3 = proj.project(so); 
-      si3 = proj.project(si); 
+        EuclideanProjection proj = Projection.createProjection(so.lla().zeroAlt()); 
+    	so3 = proj.project(so); 
+    	si3 = proj.project(si); 
+    } else {
+        so3 = so.vect3();
+        si3 = si.vect3();
     }
-    double  intersectTime = VectFuns.timeOfIntersection(so3, vo, si3, vi);
+    double intersectTime = VectFuns.timeOfIntersection(so3, vo, si3, vi);
     return intersectTime;
   }
 
@@ -356,20 +367,23 @@ public final class ProjectedKinematics {
    *  If no result is possible (for example the point lies within the given turn radius), this will return a negative time.*
    */
   public static Quad<Position,Velocity,Double,Integer> directToPoint(Position so, Velocity vo, Position wp, double R) {
-    Vect3 s3 = so.vect3();
-    Vect3 g3 = wp.vect3();
+    Vect3 s3;
+    Vect3 g3;
     EuclideanProjection proj = null;
     if (so.isLatLon()) {
-      proj = Projection.createProjection(so.lla().zeroAlt());
-      s3 = proj.project(so);
-      g3 = proj.project(wp);
+    	proj = Projection.createProjection(so.lla().zeroAlt());
+    	s3 = proj.project(so);
+    	g3 = proj.project(wp);
+    } else {
+        s3 = so.vect3();
+        g3 = wp.vect3();    	
     }
     Quad<Vect3,Velocity,Double,Integer> dtp = Kinematics.directToPoint(s3,vo,g3,R);
     Pair<Position,Velocity> pv;
     if (so.isLatLon()) {
       pv = proj.inverse(dtp.first,dtp.second,true);
     } else {
-      pv = new Pair<Position,Velocity>(new Position(dtp.first), dtp.second);  
+      pv = new Pair<Position,Velocity>(Position.make(dtp.first), dtp.second);  
     }
     return new Quad<Position,Velocity,Double,Integer> (pv.first, pv.second, dtp.third,dtp.fourth);
   }
@@ -386,13 +400,16 @@ public final class ProjectedKinematics {
    *  If no result is possible this will return an invalid position and negative times.
    */
   public static Triple<Position,Double,Double> genDirectToVertex(Position sop, Velocity vo, Position wpp, double bankAngle, double timeBeforeTurn) {
-    Vect3 s3 = sop.vect3();
-    Vect3 g3 = wpp.vect3();
+    Vect3 s3;
+    Vect3 g3;
     EuclideanProjection proj = null;
     if (sop.isLatLon()) {
-      proj = Projection.createProjection(sop.lla().zeroAlt());
-      s3 = proj.project(sop);
-      g3 = proj.project(wpp);
+    	proj = Projection.createProjection(sop.lla().zeroAlt());
+    	s3 = proj.project(sop);
+    	g3 = proj.project(wpp);
+    } else {
+    	s3 = sop.vect3();
+    	g3 = wpp.vect3();
     }
     Triple<Vect3,Double,Double> vertTriple = Kinematics.genDirectToVertex(s3,vo,g3,bankAngle,timeBeforeTurn);
     if (vertTriple.third < 0) {
@@ -403,10 +420,10 @@ public final class ProjectedKinematics {
     //Vect3 eot = vertTriple.third;
     Position pp;
     if (sop.isLatLon()) {
-      pp = new Position(proj.inverse(vertex));
+      pp = Position.make(proj.inverse(vertex));
       //eotp = new Position(proj.inverse(eot));
     } else {
-      pp = new Position(vertex);  
+      pp = Position.make(vertex);  
       //eotp = new Position(eot); 
     }
     //  f.pln("ProjectedKinematics.genDirectToVertex ipPair="+vertTriple);
@@ -419,23 +436,26 @@ public final class ProjectedKinematics {
   }
 
   static ArrayList<Pair<Position,Double>> genDirectToVertexList(Position so, Velocity vo, Position wp, double bankAngle, double timeBeforeTurn, double timeBetweenPieces) {
-    Vect3 s3 = so.vect3();
-    Vect3 g3 = wp.vect3();
+    Vect3 s3;
+    Vect3 g3;
     EuclideanProjection proj = null;
     if (so.isLatLon()) {
-      proj = Projection.createProjection(so.lla().zeroAlt());
-      s3 = proj.project(so);
-      g3 = proj.project(wp);
+    	proj = Projection.createProjection(so.lla().zeroAlt());
+    	s3 = proj.project(so);
+    	g3 = proj.project(wp);
+    } else {
+        s3 = so.vect3();
+        g3 = wp.vect3();    	
     }
     ArrayList<Pair<Vect3, Double>> vertTriple = Kinematics.genDirectToVertexList(s3,vo,g3,bankAngle,timeBeforeTurn, timeBetweenPieces);
 
     ArrayList<Pair<Position,Double>> ptriple = new ArrayList<Pair<Position,Double>>();
     for (int i = 0; i < vertTriple.size(); i++) {
       if (so.isLatLon()) {
-        Position pp = new Position(proj.inverse(vertTriple.get(i).first));
+        Position pp = Position.make(proj.inverse(vertTriple.get(i).first));
         ptriple.add(new Pair<Position,Double>(pp, vertTriple.get(i).second));  
       } else {
-        ptriple.add(new Pair<Position,Double>(new Position(vertTriple.get(i).first), vertTriple.get(i).second));  
+        ptriple.add(new Pair<Position,Double>(Position.make(vertTriple.get(i).first), vertTriple.get(i).second));  
       }
 
     }
@@ -453,16 +473,18 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> gsAccel(Position so, Velocity vo, double t, double a) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Vect3 pres = Kinematics.gsAccelPos(s3,vo,t, a);
     Velocity vres = Velocity.mkTrkGsVs(vo.trk(),vo.gs()+a*t,vo.vs());
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -480,9 +502,11 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> gsAccelUntil(Position so, Velocity vo, double t, double goalGs, double a) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Pair<Vect3,Velocity> gat = Kinematics.gsAccelUntil(s3,vo,t,goalGs,a);
     Vect3 pres = gat.first;
@@ -491,7 +515,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -507,9 +531,11 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> vsAccel(Position so, Velocity vo, double t, double a) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Vect3 pres = Kinematics.vsAccelPos(s3,vo,t,a);
     Velocity vres = Velocity.mkVxyz(vo.x, vo.y, vo.z+a*t);
@@ -517,7 +543,7 @@ public final class ProjectedKinematics {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
       //f.pln(" $$$ vsAccel: s3 = "+s3+" vo = "+vo+" t = "+t+" a = "+a+" pres = "+pres);
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -533,16 +559,18 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> vsAccelUntil(Position so, Velocity vo, double t, double goalVs, double a) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Vect3 pres = Kinematics.vsAccelUntil(s3,vo,t,goalVs,a).first;
     Velocity vres = Kinematics.vsAccelUntil(s3,vo,t,goalVs,a).second;
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
@@ -558,23 +586,25 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> vsAccelUntilWithRampUp(Position so, Velocity vo, double t, double goalVs, double a, double tRamp) {
-    Vect3 s3 = so.vect3();
+    Vect3 s3;
     if (so.isLatLon()) {
-      s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+    } else {
+    	s3 = so.vect3();
     }
     Vect3 pres = Kinematics.vsAccelUntilWithRampUp(s3,vo,t,goalVs,a,tRamp).first;
     Velocity vres = Kinematics.vsAccelUntilWithRampUp(s3,vo,t,goalVs,a,tRamp).second;
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(pres), vres);  
+      return new Pair<Position,Velocity>(Position.make(pres), vres);  
     }
   }
 
   public static double vsLevelOutTime(Position so, Velocity vo, double climbRate, double targetAlt, double a) {
-    Pair<Vect3, Velocity> sv = new Pair<Vect3, Velocity>(so.vect3(),vo);
+    Pair<Vect3, Velocity> sv = Pair.make(new Vect3(0,0,so.alt()),vo);
     // we don't need horizontal components, so don't need to project
-    return Kinematics.vsLevelOutTime(sv, climbRate, targetAlt, a); 
+    return Kinematics.vsLevelOutTime(sv, climbRate, targetAlt, a, true); 
   }
 
   /**
@@ -590,48 +620,54 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> vsLevelOut(Position so, Velocity vo, double t, double climbRate, double targetAlt, double a, boolean allowClimbRateReduction) {
-    Pair<Vect3, Velocity> sv = new Pair<Vect3, Velocity>(so.vect3(),vo);
+    Pair<Vect3, Velocity> sv;
     if (so.isLatLon()) {
-      sv = Projection.createProjection(so.lla().zeroAlt()).project(so, vo);
+    	sv = Projection.createProjection(so.lla().zeroAlt()).project(so, vo);
+    } else {
+        sv = new Pair<Vect3, Velocity>(so.vect3(),vo);    	
     }
     Pair<Vect3,Velocity> vat = Kinematics.vsLevelOut(sv, t, climbRate, targetAlt, a, allowClimbRateReduction); 
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(vat.first,vat.second,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(vat.first), vat.second);  
+      return new Pair<Position,Velocity>(Position.make(vat.first), vat.second);  
     }
   }
 
   public static Pair<Position,Velocity> vsLevelOut(Position so, Velocity vo, double t, double climbRate, double targetAlt, double a) {
-    Pair<Vect3, Velocity> sv = new Pair<Vect3, Velocity>(so.vect3(),vo);
+    Pair<Vect3, Velocity> sv;
     if (so.isLatLon()) {
-      sv = Projection.createProjection(so.lla().zeroAlt()).project(so, vo);
+    	sv = Projection.createProjection(so.lla().zeroAlt()).project(so, vo);
+    } else {
+        sv = new Pair<Vect3, Velocity>(so.vect3(),vo);    	
     }
     Pair<Vect3,Velocity> vat = Kinematics.vsLevelOut(sv, t, climbRate, targetAlt, a); 
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(vat.first,vat.second,true);
     } else {
-      return new Pair<Position,Velocity>(new Position(vat.first), vat.second);  
+      return new Pair<Position,Velocity>(Position.make(vat.first), vat.second);  
     }
   }
 
   public static Triple<Position,Velocity,Double> vsLevelOutFinal(Position so, Velocity vo, double climbRate, double targetAlt, double a) {
-    if (climbRate == 0) {
-      return new Triple<Position,Velocity,Double>(so.mkZ(targetAlt),vo.mkVs(0),0.0);
-    } else {
-      Pair<Vect3, Velocity> sv = new Pair<Vect3, Velocity>(so.vect3(),vo);
-      if (so.isLatLon()) {
-        sv = Projection.createProjection(so.lla().zeroAlt()).project(so, vo);
-      }
-      StateVector vat = Kinematics.vsLevelOutFinal(sv, climbRate, targetAlt, a);
-      if (vat.t < 0) return new Triple<Position,Velocity,Double>(Position.INVALID, Velocity.INVALID, vat.t);
-      if (so.isLatLon()) {
-        Pair<Position,Velocity>p = Projection.createProjection(so.lla().zeroAlt()).inverse(vat.s,vat.v,true);
-        return new Triple<Position,Velocity,Double>(p.first, p.second, vat.t);
-      } else {
-        return new Triple<Position,Velocity,Double>(new Position(vat.s), vat.v, vat.t);
-      }
-    }
+	  if (climbRate == 0) {
+		  return new Triple<Position,Velocity,Double>(so.mkZ(targetAlt),vo.mkVs(0),0.0);
+	  } else {
+		  Pair<Vect3, Velocity> sv;
+		  if (so.isLatLon()) {
+			  sv = Projection.createProjection(so.lla().zeroAlt()).project(so, vo);
+		  } else {
+			  sv = new Pair<Vect3, Velocity>(so.vect3(),vo);			  
+		  }
+		  StateVector vat = Kinematics.vsLevelOutFinal(sv, climbRate, targetAlt, a);
+		  if (vat.t < 0) return new Triple<Position,Velocity,Double>(Position.INVALID, Velocity.INVALID, vat.t);
+		  if (so.isLatLon()) {
+			  Pair<Position,Velocity>p = Projection.createProjection(so.lla().zeroAlt()).inverse(vat.s,vat.v,true);
+			  return new Triple<Position,Velocity,Double>(p.first, p.second, vat.t);
+		  } else {
+			  return new Triple<Position,Velocity,Double>(Position.make(vat.s), vat.v, vat.t);
+		  }
+	  }
   }
   
   /**

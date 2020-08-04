@@ -82,7 +82,7 @@ public class TrafficState {
 		if (pos.isLatLon()) {
 			sxyz_ = eprj.project(pos);
 			Velocity v = eprj.projectVelocity(pos,vel);
-			posxyz_ = new Position(sxyz_);
+			posxyz_ = Position.make(sxyz_);
 			velxyz_ = Velocity.make(v);
 		} else {
 			posxyz_ = pos;
@@ -130,7 +130,7 @@ public class TrafficState {
 		if (pos_.isLatLon()) {
 			sxyz_ = eprj_.project(pos_);
 			Velocity v = eprj_.projectVelocity(pos_,avel_);
-			posxyz_ = new Position(sxyz_);	
+			posxyz_ = Position.make(sxyz_);	
 			velxyz_ = Velocity.make(v);
 		} else {
 			posxyz_ = pos_;

@@ -107,7 +107,7 @@ public final class GreatCircle {
 	 * @param lon1 longitude of point 1
 	 * @param lat2 latitude of point 2
 	 * @param lon2 longitude of point 2
-	 * @param epsilon maximum difference
+	 * @param epsilon maximum difference in meters
 	 * @return true, if almost equals
 	 */
 	public static boolean almost_equals(double lat1, double lon1, double lat2,
@@ -119,7 +119,7 @@ public final class GreatCircle {
 	 * 
 	 * @param b LatLonAlt object
 	 * @param a LatLonAlt object
-	 * @param horizEps horizontal epsilon
+	 * @param horizEps horizontal epsilon in meters
 	 * @return true if the two are almost equals horizontally
 	 */
 	public static boolean almostEquals2D(LatLonAlt b, LatLonAlt a, double horizEps) {
@@ -231,7 +231,7 @@ public final class GreatCircle {
 	 * @param lon1 longitude of point 1
 	 * @param lat2 latitude of point 2
 	 * @param lon2 longitude of point 2
-	 * @return distance
+	 * @return distance in meters
 	 */
 	public static double distance(double lat1, double lon1, double lat2,
 			double lon2) {
@@ -248,7 +248,6 @@ public final class GreatCircle {
 	 * @return angular distance
 	 */
 	public static double distance(LatLonAlt p1, LatLonAlt p2) {
-		// return distance_from_angle(angular_distance(p1, p2),(p1.alt() + p2.alt())/2.0);
 		return distance_from_angle(angular_distance(p1.lat(), p1.lon(), p2.lat(), p2.lon()), 0.0);
 	}
 
@@ -335,15 +334,15 @@ public final class GreatCircle {
 	}
 
 	/**
-	 * The initial true course (course relative to true north) at point #1 on
+	 * <p>The initial true course (course relative to true north) at point #1 on
 	 * the great circle route from point #1 to point #2. The value is in
 	 * internal units of angles (radians), and is a compass angle [0..2*Pi]:
 	 * clockwise from true north.
-	 * <p>
+	 * </p>
 	 * 
-	 * Usage Note: If point #1 and #2 are close to each other, then the initial
+	 * <p>Usage Note: If point #1 and #2 are close to each other, then the 
 	 * course may become unstable. In the extreme case when point #1 equals
-	 * point #2, then the initial course is undefined.
+	 * point #2, then the course is undefined.</p>
 	 * 
 	 * @param p1 a point
 	 * @param p2 another point
@@ -355,6 +354,19 @@ public final class GreatCircle {
 		return initial_course_impl1(p1, p2); //, d);
 	}
 
+	/**
+	 * <p>Course of the great circle coming in from point #1 to point #2.  This
+	 * value is NOT a compass angle (in the 0 to 2 Pi range), but is in radians 
+	 * from clockwise from true north.</p>
+	 * 
+	 * <p>Usage Note: If point #1 and #2 are close to each other, then the 
+	 * course may become unstable. In the extreme case when point #1 equals
+	 * point #2, then the course is undefined.</p>
+	 * 
+	 * @param p1 point #1
+	 * @param p2 point #2
+	 * @return final course
+	 */
 	public static double final_course(LatLonAlt p1, LatLonAlt p2) {
 		return initial_course(p2, p1)+Math.PI;
 	}
@@ -1094,8 +1106,8 @@ public final class GreatCircle {
 	 */
 	public static double cross_track_distance(LatLonAlt p1, LatLonAlt p2, LatLonAlt offCircle) {
 		double dist_p1oc = angular_distance(p1,offCircle);
-		//double trk_p1oc = initial_course_impl(p1,offCircle,dist_p1oc);
-		double trk_p1oc = initial_course_impl1(p1,offCircle); //,dist_p1oc);
+		//double trk_p1oc = initial_course_impl(p1,offCircle,dist_p1oc);  // removed because it introduced some numerical instabilities
+		double trk_p1oc = initial_course_impl1(p1,offCircle); 
 		double trk_p1p2 = initial_course_impl1(p1,p2);
 		// This is a direct application of the "spherical law of sines"
 		return distance_from_angle(Util.asin_safe(Math.sin(dist_p1oc)*Math.sin(trk_p1oc-trk_p1p2)), (p1.alt()+p2.alt()+offCircle.alt())/3.0);
@@ -1111,6 +1123,13 @@ public final class GreatCircle {
 	 * @return true, if the three points are collinear
 	 */
 	public static boolean collinear(LatLonAlt p1, LatLonAlt p2, LatLonAlt p3, double epsilon) {
+//		if (Util.within_epsilon(cross_track_distance(p1,p2,p3),epsilon)) {
+//			f.pln("dist "+cross_track_distance(p1,p2,p3));
+//			f.pln("ad "+angular_distance(p1,p3));
+//			f.pln("ic "+initial_course_impl1(p1,p3)); 
+//			f.pln("ic "+initial_course_impl1(p1,p2));
+//			f.pln("asin "+Util.asin_safe(Math.sin(angular_distance(p1,p3))*Math.sin(0.0)));
+//		}
 		return Util.within_epsilon(cross_track_distance(p1,p2,p3),epsilon);
 	}
 
@@ -1119,10 +1138,10 @@ public final class GreatCircle {
 	 * @param p1 One point
 	 * @param p2 Second point
 	 * @param p3 Third point
-	 * @return true, if the three points are collinear
+	 * @return true, if the three points are collinear (2d)
 	 */
 	public static boolean collinear(LatLonAlt p1, LatLonAlt p2, LatLonAlt p3) {
-		double epsilon = 1E-7;
+		double epsilon = 1E-7; // meters
 		return collinear(p1,p2,p3,epsilon);
 	}
 
@@ -1225,6 +1244,8 @@ public final class GreatCircle {
 	 * This assumes that the arc distance between a1,a2 &lt; 90 and b1,b2 &lt; 90
 	 * The altitude of the return value is equal to a1.alt()
 	 * This returns an INVALID value if both segments are collinear or there is no intersection
+	 * 
+	 * Note: This is very slow compared to the equivalent Vect3 method.
 	 * 
 	 * @param so  starting point of segment [so,so2]
 	 * @param so2 ending point of segment [so,so2]
@@ -1516,25 +1537,21 @@ public final class GreatCircle {
 		// negative time is moving from p1 away from p2
 		if (Math.abs(t) < minDt || Util.almost_equals(Math.abs(t) + minDt, minDt, Util.PRECISION7)) {
 			// time is negative or very small (less than 1 ms)
-			//f.pln("GC case 1");
 			return Velocity.ZERO;
 		}
 		double d = angular_distance(p1, p2);
 		if (Constants.almost_equals_radian(d)) {
 			if (Constants.almost_equals_alt(p1.alt(), p2.alt())) {
 				// If the two points are about 1 meter apart, then count them as  the same.
-				//f.pln("GC case 2");
 				return Velocity.ZERO;
 			} else {
-				//f.pln("GC case 3");
 				return Velocity.ZERO.mkVs((p2.alt() - p1.alt()) / t);
 			}
 		}
 		double gs = distance_from_angle(d, 0.0) / t;
 		//double crs = initial_course_impl2(p1, p2, d);
-		double crs = initial_course_impl1(p1, p2); //, d);
+		double crs = initial_course_impl1(p1, p2); //, d);  // d removed because of numerical errors introduced
 		Velocity v = Velocity.mkTrkGsVs(crs, gs, (p2.alt() - p1.alt()) / t);
-		//f.pln(" $$ velocity_initial: crs = "+crs+" v = "+v);
 		return v;
 	}
 

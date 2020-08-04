@@ -14,61 +14,63 @@ import gov.nasa.larcfm.Util.Velocity;
 
 public class DaidalusVsBands extends DaidalusRealBands {
 
-	private double vertical_accel_; // Climb/descend acceleration
-
-	public DaidalusVsBands(DaidalusParameters parameters) {
-		setDaidalusParameters(parameters);
+	public DaidalusVsBands() {
 	}
 
 	public DaidalusVsBands(DaidalusVsBands b) {
 		super(b);
-		vertical_accel_ = b.vertical_accel_;
 	}
 
-	/**
-	 * Set DaidalusParmaeters 
-	 */
-	public void setDaidalusParameters(DaidalusParameters parameters) {
-		set_step(parameters.getVerticalSpeedStep()); 
-		set_recovery(parameters.isEnabledRecoveryVerticalSpeedBands());   
-		set_min_rel(parameters.getBelowRelativeVerticalSpeed());
-		set_max_rel(parameters.getAboveRelativeVerticalSpeed());
-		set_min_nomod(parameters.getMinVerticalSpeed());
-		set_max_nomod(parameters.getMaxVerticalSpeed());
-		set_vertical_accel(parameters.getVerticalAcceleration());
+	public boolean get_recovery(DaidalusParameters parameters) {
+		return parameters.isEnabledRecoveryVerticalSpeedBands();
 	}
 
-	public boolean instantaneous_bands() {
-		return vertical_accel_ == 0;
+	public double get_step(DaidalusParameters parameters) {
+		return parameters.getVerticalSpeedStep();
 	}
 
-	public double get_vertical_accel() {
-		return vertical_accel_;
+	public double get_min(DaidalusParameters parameters) {
+		return parameters.getMinVerticalSpeed();
 	}
 
-	public void set_vertical_accel(double val) {
-		if (val != vertical_accel_) {
-			vertical_accel_ = val;
-			stale(true);
+	public double get_max(DaidalusParameters parameters) {
+		return parameters.getMaxVerticalSpeed();
+	}
+
+	public double get_min_rel(DaidalusParameters parameters) {
+		return parameters.getBelowRelativeVerticalSpeed();
+	}
+
+	public double get_max_rel(DaidalusParameters parameters) {
+		return parameters.getAboveRelativeVerticalSpeed();
+	}
+
+	public void set_special_configuration(DaidalusParameters parameters, int dta_status) {	
+		if (dta_status > 0) { 
+			set_min_max_rel(0,-1);
 		}
+	}
+
+	public boolean instantaneous_bands(DaidalusParameters parameters) {
+		return parameters.getVerticalAcceleration() == 0;
 	}
 
 	public double own_val(TrafficState ownship) {
 		return ownship.velocityXYZ().vs();
 	}
 
-	public double time_step(TrafficState ownship) {
-		return get_step()/vertical_accel_;
+	public double time_step(DaidalusParameters parameters,TrafficState ownship) {
+		return get_step(parameters)/parameters.getVerticalAcceleration();
 	}
 
-	public Pair<Vect3, Velocity> trajectory(TrafficState ownship, double time, boolean dir) {    
+	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir) {    
 		Pair<Position,Velocity> posvel;
-		if (instantaneous_bands()) {
-			double vs = ownship.velocityXYZ().vs()+(dir?1:-1)*j_step_*get_step(); 
+		if (instantaneous_bands(parameters)) {
+			double vs = ownship.velocityXYZ().vs()+(dir?1:-1)*j_step_*get_step(parameters); 
 			posvel = Pair.make(ownship.positionXYZ(),ownship.velocityXYZ().mkVs(vs));
 		} else {
 			posvel = ProjectedKinematics.vsAccel(ownship.positionXYZ(),
-					ownship.velocityXYZ(),time,(dir?1:-1)*vertical_accel_);
+					ownship.velocityXYZ(),time,(dir?1:-1)*parameters.getVerticalAcceleration());
 		}
 		return Pair.make(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
 	}

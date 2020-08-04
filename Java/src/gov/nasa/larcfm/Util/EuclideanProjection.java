@@ -105,12 +105,12 @@ public interface EuclideanProjection {
      */
 	public Vect3 project(Position sip);
 	
-    /** Return a projection of a Position in Euclidean 3-space (if already in Euclidian coordinate, this is the identity function) 
-	 * 
-	 * @param sip point in geodetic space
-	 * @return point in projected space
-	 */
-	public Point projectPoint(Position sip);
+//    /** Return a projection of a Position in Euclidean 3-space (if already in Euclidian coordinate, this is the identity function) 
+//	 * 
+//	 * @param sip point in geodetic space
+//	 * @return point in projected space
+//	 */
+//	public Point projectPoint(Position sip);
 	
     /** Given a velocity from a point in geodetic coordinates, return a projection of this velocity in Euclidean 3-space
 	 * 
@@ -120,7 +120,8 @@ public interface EuclideanProjection {
 	 */
     public Velocity projectVelocity(LatLonAlt lla, Velocity v);
     
-    /** Given a velocity from a point in geodetic coordinates, return a projection of this velocity in Euclidean 3-space
+    /** Given a velocity from a point in geodetic coordinates, return a projection of this velocity in Euclidean 3-space.
+     * If the position is already Euclidean, then this method should do nothing.
      * 
      * @param ss point in geodetic space
      * @param v velocity in geodetic space

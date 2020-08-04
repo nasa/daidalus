@@ -15,6 +15,7 @@
 package gov.nasa.larcfm.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public final class VectFuns {
 
@@ -272,7 +273,18 @@ public final class VectFuns {
 	}
 
 
-	 /**
+	/**
+	 * Distance between two points.  Effectively soA.Sub(soB).norm();
+	 * 
+	 * @param soA
+	 * @param soB
+	 * @return distance
+	 */
+	public static double distance(Vect2 soA, Vect2 soB) {
+		return Util.sqrt_safe((soA.x-soB.x)*(soA.x-soB.x)+(soA.y-soB.y)*(soA.y-soB.y));
+	}
+	
+   /**
     * Calculate the horizontal distance between two points.
     * 
     * @param soA   point A 
@@ -327,11 +339,13 @@ public final class VectFuns {
 	 */
 	public static Pair<Vect2,Double> intersection2D(Vect2 so, Vect2 vo, Vect2 si, Vect2 vi) {
 		Vect2 ds = si.Sub(so);
-		if (vo.det(vi) == 0) {
+		double det = vo.det(vi);
+		if (det == 0) {
 			return new Pair<Vect2,Double>(Vect2.ZERO, Double.NaN);
 		}
-		double tt = ds.det(vi)/vo.det(vi);
-		Vect2 intersec = so.Add(vo.Scal(tt));
+		double tt = ds.det(vi)/det;
+		//Vect2 intersec = so.Add(vo.Scal(tt));
+		Vect2 intersec = so.AddScal(tt,vo);
 		return new Pair<Vect2,Double>(intersec,tt);
 	}
 
@@ -839,6 +853,37 @@ public final class VectFuns {
 		ret.add(Pair.make(t1, t3));
 		ret.add(Pair.make(t2, t4));
 		return ret;
+	}
+
+	/** 
+	 * This parses a space or comma-separated string as a Vect3 (an inverse to the toString 
+	 * method).  If three bare values are present, then it is interpreted as the default units for 
+	 * a Vect3: [NM,NM,ft].  If there are 3 value/unit pairs then each values is interpreted with regard 
+	 * to the appropriate unit.  If the string cannot be parsed, an INVALID Vect3 is
+	 * returned. 
+	 * 
+	 * @param str string to parse
+	 * @return point
+	 */
+	public static Vect3 parse(String str) {
+		String[] fields = str.split(Constants.wsPatternParens);
+		if (fields[0].equals("")) {
+			fields = Arrays.copyOfRange(fields,1,fields.length);
+		}
+		try {
+			if (fields.length == 3) {
+				return Vect3.make(
+						Double.parseDouble(fields[0]),
+						Double.parseDouble(fields[1]),
+						Double.parseDouble(fields[2]));
+			} else if (fields.length == 6) {
+				return Vect3.makeXYZ(
+						Double.parseDouble(fields[0]), Units.clean(fields[1]),
+						Double.parseDouble(fields[2]), Units.clean(fields[3]),
+						Double.parseDouble(fields[4]), Units.clean(fields[5]));
+			}
+		} catch (Exception e) {}
+		return Vect3.INVALID;	
 	}
 
 
