@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018 United States Government as represented by
+ * Copyright (c) 2014-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Matrix2d {
 	public final int m, n;   // num of rows, num of columns
-	final double[][] d;
+	/*package*/ final double[][] d;
 	
 	/**
 	 * An MxN matrix, pre-populated with zeros.

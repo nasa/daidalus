@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 United States Government as represented by
+ * Copyright (c) 2012-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -9,8 +9,8 @@ package gov.nasa.larcfm.ACCoRD;
 
 import gov.nasa.larcfm.Util.*;
 
-public class TCAS3D extends Detection3DSUM {
-	String id = "";
+public class TCAS3D extends Detection3D {
+	private String id = "";
 
 	private TCASTable table_;
 
@@ -25,6 +25,12 @@ public class TCAS3D extends Detection3DSUM {
 		table_.set(table);
 	}
 
+	/**
+	 * @return one static TCAS3D
+	 */
+	public static final TCAS3D A_TCAS3D =
+			new TCAS3D();
+	
 	/** Make TCAS3D object with empty Table **/
 	public static TCAS3D make_Empty() {
 		TCAS3D tcas3d = new TCAS3D();
@@ -62,9 +68,8 @@ public class TCAS3D extends Detection3DSUM {
 		table_.set(table); 
 	}
 
-	public boolean violation(Vect3 so, Velocity vo, Vect3 si, Velocity vi) {
-		return TCASII_RA(so, vo, si, vi);
-	}
+	// The methods violation and conflict are inherited from Detection3DSum. This enable a uniform
+	// treatment of border cases in the generic bands algorithms
 
 	public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
 		return RA3D(so,vo,si,vi,B,T);
@@ -105,7 +110,7 @@ public class TCAS3D extends Detection3DSUM {
 	}
 
 	// if true, then ownship has a TCAS resolution advisory at current time
-	private boolean TCASII_RA(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi) {
+	public boolean TCASII_RA(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi) {
 
 		Vect2 so2 = so.vect2();
 		Vect2 si2 = si.vect2();
@@ -129,7 +134,7 @@ public class TCAS3D extends Detection3DSUM {
 	// if true, within lookahead time interval [B,T], the ownship has a TCAS resolution advisory (effectively conflict detection)
 	// B must be non-negative and B < T.
 
-	private ConflictData RA3D(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	public ConflictData RA3D(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
 
 		Vect3 s = so.Sub(si);
 		Velocity v = vo.Sub(vi);

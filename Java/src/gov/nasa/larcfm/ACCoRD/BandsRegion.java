@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -12,15 +12,17 @@ package gov.nasa.larcfm.ACCoRD;
  * region of conflict prevention information.
  */
 public enum BandsRegion { 
-	/* UNKNOWN : Invalid band
+
+	/* 
 	 * NONE: No band 
-	 * RECOVERY: Band for violation recovery
-	 * NEAR: Near conflict band 
-	 * MID: Mid conflict bands 
 	 * FAR: Far conflict band
+	 * MID: Mid conflict bands 
+	 * NEAR: Near conflict band 
+	 * RECOVERY: Band for violation recovery
+	 * UNKNOWN : Invalid band
 	 */
 
-	UNKNOWN("UNKNOWN"), NONE("NONE"), RECOVERY("RECOVERY"), NEAR("NEAR"), MID("MID"), FAR("FAR");
+	UNKNOWN("UNKNOWN"), NONE("NONE"), FAR("FAR"), MID("MID"), NEAR("NEAR"), RECOVERY("RECOVERY");
 
 	// Number of conflict bands (NEAR, MID, FAR)
 	public static final int NUMBER_OF_CONFLICT_BANDS = 3;
@@ -57,32 +59,42 @@ public enum BandsRegion {
 	}
 
 	/**
-	 * @return FAR -> 1, MID -> 2, NEAR -> 3, otherwise -> -1
+	 * @return NONE: 0, FAR: 1, MID: 2, NEAR: 3, RECOVERY: 4, UNKNOWN: -1
+	 */
+	public static int orderOfRegion(BandsRegion region) {
+		switch (region) {
+		case NONE: return 0;
+		case FAR: return 1;
+		case MID: return 2;
+		case NEAR: return 3;
+		case RECOVERY: return 4;
+		default: return -1;
+		}
+	}
+
+	/**
+	 * @return NONE/RECOVERY: 0, FAR: 1, MID: 2, NEAR: 3, UNKNOWN: -1
 	 */
 	public int orderOfConflictRegion() {
+		if (isConflictBand()) {
+			return orderOfRegion(this);
+		}
 		if (isResolutionBand()) {
 			return 0;
-		}
-		if (this == FAR) {
-			return 1;
-		}
-		if (this == MID) {
-			return 2;
-		}
-		if (this == NEAR) {
-			return 3;
 		}
 		return -1;
 	}
 
 	/**
-	 * @return 1 -> FAR, 2 -> MID, 3 -> NEAR, otherwise -> UNKNOWN
+	 * @return 0: NONE, 1: FAR, 2: MID, 3: NEAR, 4: RECOVERY, otherwise: UNKNOWN
 	 */
-	public static BandsRegion conflictRegionFromOrder(int i) {
+	public static BandsRegion regionFromOrder(int i) {
 		switch (i) {
+		case 0: return NONE;
 		case 1: return FAR;
 		case 2: return MID;
 		case 3: return NEAR;
+		case 4: return RECOVERY;
 		default: return UNKNOWN;
 		}
 	}

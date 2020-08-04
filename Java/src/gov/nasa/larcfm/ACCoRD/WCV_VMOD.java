@@ -1,5 +1,5 @@
 /*
-> * Copyright (c) 2012-2018 United States Government as represented by
+> * Copyright (c) 2012-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -44,5 +44,13 @@ public class WCV_VMOD implements WCV_Vertical {
     time_out = Util.min(T,texit);
     return new Interval(time_in,time_out);
   }
+	/**
+	 * Returns a deep copy of this WCV_Vertical object, including any results that have been calculated.  
+	 * This will duplicate parameter data, but will NOT
+	 * reference any external objects -- their data, if any, will be copied as well.
+	 */
+	public WCV_VMOD copy() {
+		return new WCV_VMOD();
+	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017 United States Government as represented by
+ * Copyright (c) 2014-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -47,6 +47,7 @@ public class LossData {
 
 	/**
 	 * Returns time to first loss in seconds.
+	 * Note: this returns positive infinity if there is not a conflict!
 	 */
 	public double getTimeIn() {
 		return conflict() ? time_in : Double.POSITIVE_INFINITY;
@@ -54,6 +55,7 @@ public class LossData {
 
 	/**
 	 * Returns time to last loss in seconds.
+	 * Note: this returns negative infinity if there is not a conflict!
 	 */
 	public double getTimeOut() {
 		return conflict() ? time_out : Double.NEGATIVE_INFINITY;

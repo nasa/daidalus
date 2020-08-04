@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 United States Government as represented by
+ * Copyright (c) 2015-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -78,38 +78,75 @@ public class Alerter implements ParameterAcceptor {
 		return id_;
 	}
 
+	/**
+	 * @return DO-365 HAZ preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft, 
+	 * TTHR=35s, TCOA=0, alerting time = 55s, early alerting time = 75s,
+	 * bands region = NONE
+	 */
+	public static final AlertThresholds DO_365_Phase_I_HAZ_preventive =
+			new AlertThresholds(WCV_TAUMOD.DO_365_Phase_I_preventive,55,75,BandsRegion.NONE);
+
+	/**
+	 * @return DO-365 HAZ corrective thresholds, i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * TTHR=35s, TCOA=0, alerting time = 55s, early alerting time = 75s, 
+	 * bands region = MID
+	 */
+	public static final AlertThresholds DO_365_Phase_I_HAZ_corrective =
+			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Phase_I,55,75,BandsRegion.MID);
+
+	/**
+	 * @return DO-365 HAZ warning thresholds, i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * TTHR=35s, TCOA=0, alerting time = 25s, early alerting time = 55s, 
+	 * bands region = NEAR
+	 */
+	public static final AlertThresholds DO_365_Phase_I_HAZ_warning =
+			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Phase_I,25,55,BandsRegion.NEAR);
+
 	/** 
 	 * @return alerting thresholds (unbuffered) as defined in RTCA DO-365.
 	 * Maneuver guidance logic produces multilevel bands:
 	 * MID: Corrective
 	 * NEAR: Warning
 	 */
-	static public Alerter DWC_Phase_I() {
-		WCVTable preventive = new WCVTable();
-		preventive.setDTHR(0.66,"nmi");
-		preventive.setZTHR(700,"ft");
-		preventive.setTTHR(35);
-		preventive.setTCOA(0);
-
-		WCVTable corrective = new WCVTable();
-		corrective.setDTHR(0.66,"nmi");
-		corrective.setZTHR(450,"ft");
-		corrective.setTTHR(35);
-		corrective.setTCOA(0);
-
-		WCVTable warning = new WCVTable();
-		warning.setDTHR(0.66,"nmi");
-		warning.setZTHR(450,"ft");
-		warning.setTTHR(35);
-		warning.setTCOA(0);
-
+	public static Alerter get_DWC_Phase_I() {
 		Alerter alerter = new Alerter("DWC_Phase_I");
-		alerter.addLevel(new AlertThresholds(new WCV_TAUMOD(preventive),55,75,BandsRegion.NONE)); 
-		alerter.addLevel(new AlertThresholds(new WCV_TAUMOD(corrective),55,75,BandsRegion.MID)); 
-		alerter.addLevel(new AlertThresholds(new WCV_TAUMOD(warning),25,55,BandsRegion.NEAR));
-
+		alerter.addLevel(DO_365_Phase_I_HAZ_preventive); 
+		alerter.addLevel(DO_365_Phase_I_HAZ_corrective); 
+		alerter.addLevel(DO_365_Phase_I_HAZ_warning);
 		return alerter;
 	}
+
+	/** 
+	 * @return alerting thresholds (unbuffered) as defined in RTCA DO-365.
+	 * Maneuver guidance logic produces multilevel bands:
+	 * MID: Corrective
+	 * NEAR: Warning
+	 */
+	public static final Alerter DWC_Phase_I = get_DWC_Phase_I();
+
+	/**
+	 * @return buffered HAZ preventive thresholds, i.e., DTHR=1nmi, ZTHR=750ft, 
+	 * TTHR=35s, TCOA=20s, alerting time = 60s, early alerting time = 75s,
+	 * bands region = NONE
+	 */
+	public static final AlertThresholds Buffered_Phase_I_HAZ_preventive =
+			new AlertThresholds(WCV_TAUMOD.Buffered_Phase_I_preventive,60,75,BandsRegion.NONE);
+
+	/**
+	 * @return buffered HAZ corrective thresholds, i.e., DTHR=1nmi, ZTHR=450ft, 
+	 * TTHR=35s, TCOA=20s, alerting time = 60s, early alerting time = 75s, 
+	 * bands region = MID
+	 */
+	public static final AlertThresholds Buffered_Phase_I_HAZ_corrective =
+			new AlertThresholds(WCV_TAUMOD.Buffered_DWC_Phase_I,60,75,BandsRegion.MID);
+
+	/**
+	 * @return buffered HAZ warning thresholds, i.e., DTHR=1nmi, ZTHR=450ft, 
+	 * TTHR=35s, TCOA=20s, alerting time = 30s, early alerting time = 55s, 
+	 * bands region = NEAR
+	 */
+	public static final AlertThresholds Buffered_Phase_I_HAZ_warning =
+			new AlertThresholds(WCV_TAUMOD.Buffered_DWC_Phase_I,30,55,BandsRegion.NEAR);
 
 	/** 
 	 * @return alerting thresholds (buffered) as defined in RTCA DO-365.
@@ -117,38 +154,22 @@ public class Alerter implements ParameterAcceptor {
 	 * MID: Corrective
 	 * NEAR: Warning
 	 */
-	static public Alerter Buffered_DWC_Phase_I() {
-		WCVTable preventive = new WCVTable();
-		preventive.setDTHR(1.0,"nmi");
-		preventive.setZTHR(750,"ft");
-		preventive.setTTHR(35);
-		preventive.setTCOA(20);
-
-		WCVTable corrective = new WCVTable();
-		corrective.setDTHR(1.0,"nmi");
-		corrective.setZTHR(450,"ft");
-		corrective.setTTHR(35);
-		corrective.setTCOA(20);
-
-		WCVTable warning = new WCVTable();
-		warning.setDTHR(1.0,"nmi");
-		warning.setZTHR(450,"ft");
-		warning.setTTHR(35);
-		warning.setTCOA(20);
-
+	public static Alerter get_Buffered_DWC_Phase_I() {
 		Alerter alerter = new Alerter("Buffered_DWC_Phase_I");
-		alerter.addLevel(new AlertThresholds(new WCV_TAUMOD(preventive),60,75,BandsRegion.NONE));
-		alerter.addLevel(new AlertThresholds(new WCV_TAUMOD(corrective),60,75,BandsRegion.MID));
-		alerter.addLevel(new AlertThresholds(new WCV_TAUMOD(warning),30,55,BandsRegion.NEAR));
-
+		alerter.addLevel(Buffered_Phase_I_HAZ_preventive); 
+		alerter.addLevel(Buffered_Phase_I_HAZ_corrective); 
+		alerter.addLevel(Buffered_Phase_I_HAZ_warning);
 		return alerter;
 	}
+
+	public static final Alerter Buffered_DWC_Phase_I =
+			get_Buffered_DWC_Phase_I();
 
 	/** 
 	 * @return alerting thresholds for single bands given by detector,
 	 * alerting time, and lookahead time. The single bands region is NEAR
 	 */
-	static public Alerter SingleBands(Detection3D detector, 
+	public static Alerter SingleBands(Detection3D detector, 
 			double alerting_time, double lookahead_time) {
 		Alerter alerter = new Alerter("");
 		alerter.addLevel(new AlertThresholds(detector,
@@ -158,13 +179,38 @@ public class Alerter implements ParameterAcceptor {
 
 	/** 
 	 * @return alerting thresholds for ACCoRD's CD3D, i.e.,
-	 * Separation is given by cylinder of 5nmi/1000ft. Lookahead time is 180s.
+	 * separation is given by cylinder of 5nmi/1000ft. Lookahead time is 180s.
 	 */
-	static public Alerter CD3D() {
-		Alerter alerter = Alerter.SingleBands(new CDCylinder(5,"nmi",1000,"ft"),180,180);
+	public static Alerter get_CD3D_SingleBands() {
+		Alerter alerter = SingleBands(CDCylinder.CD3DCylinder,180,180);
 		alerter.setId("CD3D");
 		return alerter;		
 	}
+
+	/** 
+	 * @return alerting thresholds for ACCoRD's CD3D, i.e.,
+	 * separation is given by cylinder of 5nmi/1000ft. Alerting time is 
+	 * 180s.
+	 */
+	public static final Alerter CD3D_SingleBands = get_CD3D_SingleBands();
+
+	/** 
+	 * @return alerting thresholds for DAIDALUS single bands WCV_TAUMOD , i.e.,
+	 * separation is given by cylinder of DTHR=0.66nmi, ZTHR=450ft, TTHR=35s, TCOA=0, 
+	 * alerting time = 55s, early alerting time = 75s.
+	 */
+	public static Alerter get_WCV_TAUMOD_SingleBands() {
+		Alerter alerter = SingleBands(WCV_TAUMOD.DO_365_DWC_Phase_I,55,75);
+		alerter.setId("WCV_TAUMOD");
+		return alerter;		
+	}
+
+	/** 
+	 * @return alerting thresholds for DAIDALUS single bands WCV_TAUMOD , i.e.,
+	 * separation is given by cylinder of DTHR=0.66nmi, ZTHR=450ft, TTHR=35s, TCOA=0, 
+	 * alerting time = 55s, early alerting time = 75s,
+	 */
+	public static final Alerter WCV_TAUMOD_SingleBands = get_WCV_TAUMOD_SingleBands();
 	
 	/** 
 	 * Clears alert levels
@@ -314,7 +360,7 @@ public class Alerter implements ParameterAcceptor {
 		}
 		return s+" :)";
 	}
-	
+
 	public static String listToPVS(List<Alerter> alerters) {
 		String s = "(: ";
 		boolean first = true;
@@ -326,7 +372,7 @@ public class Alerter implements ParameterAcceptor {
 			}
 			s += alerters.get(i).toPVS();
 		}
-		
+
 		return s+" :)";
 	}
 

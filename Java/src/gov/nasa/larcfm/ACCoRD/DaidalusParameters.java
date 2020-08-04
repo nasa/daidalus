@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 United States Government as represented by
+ * Copyright (c) 2015-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
@@ -31,7 +32,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.e";
+	public static final String VERSION = "2.0.f";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
@@ -66,7 +67,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	// relative to the current value. In general, if above >= 0 and below >= 0 the bands range is 
 	// [val-below,val+above], where val is current value. The following are special cases,
 	// if below < 0 && above >= 0 then [min,val+above]
-	// if below >=0 && above < = then [val-below,max]
+	// if below >=0 && above < 0  then [val-below,max]
 	// if below == 0 && above == 0] then [min,max]
 	private double below_relative_hs_;  
 	private double above_relative_hs_;  
@@ -461,12 +462,35 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 */
 		public int addAlerter(Alerter alerter) {
 			int i = getAlerterIndex(alerter.getId());
+			Alerter new_alerter = new Alerter(alerter);
+			set_alerter_with_SUM_parameters(new_alerter);
 			if (i == 0) {
-				alerters_.add(new Alerter(alerter));
+				alerters_.add(new_alerter);
 				return alerters_.size();
 			} else {
-				alerters_.set(i-1,new Alerter(alerter));
+				alerters_.set(i-1,new_alerter);
 				return i;
+			}
+		}
+
+		/** This method is needed because WCV_TAUMOD_SUM doesn't require the
+		 *  user to initialize SUM parameters, which may be specified globally. 
+		 */
+		private void set_alerter_with_SUM_parameters(Alerter alerter) {
+			for (int level=1; level <= alerter.mostSevereAlertLevel(); ++level) {
+				Optional<Detection3D> det = alerter.getDetector(level);
+				if (det.isPresent() && det.get() instanceof WCV_TAUMOD_SUM) {
+					((WCV_TAUMOD_SUM)det.get()).set_global_SUM_parameters(this);
+				}
+			}	
+		}
+
+		/** This method is needed because WCV_TAUMOD_SUM doesn't require the
+		 *  user to initialize SUM parameters, which may be specified globally. 
+		 */
+		private void set_alerters_with_SUM_parameters() {
+			for (int i=0; i < alerters_.size(); ++i) {
+				set_alerter_with_SUM_parameters(alerters_.get(i));
 			}
 		}
 
@@ -860,15 +884,15 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			return Units.to(u,getRecoveryStabilityTime());
 		}
 
-		/** 
+		/**
 		 * @return hysteresis time in seconds.
 		 */
 		public double getHysteresisTime() {
 			return hysteresis_time_;
 		}
 
-		/** 
-		 * @return hysteresis time in specified units [u].
+		/**
+		 * @return hysteresis time in specified units [u]
 		 */
 		public double getHysteresisTime(String u) {
 			return Units.to(u,getHysteresisTime());
@@ -2072,6 +2096,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		public boolean setHorizontalPositionZScore(double val) {
 			if (error.isNonNegative("setHorizontalPositionZScore",val)) {
 				h_pos_z_score_ = val;
+				set_alerters_with_SUM_parameters();
 				return true;
 			}
 			return false;
@@ -2090,6 +2115,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		public boolean setHorizontalVelocityZScoreMin(double val) {
 			if (error.isNonNegative("setHorizontalVelocityZScoreMin",val)) {
 				h_vel_z_score_min_ = val;
+				set_alerters_with_SUM_parameters();
 				return true;
 			}
 			return false;
@@ -2108,6 +2134,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		public boolean setHorizontalVelocityZScoreMax(double val) {
 			if (error.isNonNegative("setHorizontalVelocityZScoreMax",val)) {
 				h_vel_z_score_max_ = val;
+				set_alerters_with_SUM_parameters();
 				return true;
 			}
 			return false;
@@ -2126,6 +2153,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		public boolean setHorizontalVelocityZDistance(double val) {
 			if (error.isNonNegative("setHorizontalVelocityZDistance",val)) {
 				h_vel_z_distance_ = val;
+				set_alerters_with_SUM_parameters();
 				return true;
 			}
 			return false;
@@ -2162,6 +2190,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		public boolean setVerticalPositionZScore(double val) {
 			if (error.isNonNegative("setVerticalPositionZScore",val)) {
 				v_pos_z_score_ = val;
+				set_alerters_with_SUM_parameters();
 				return true;
 			}
 			return false;
@@ -2180,6 +2209,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		public boolean setVerticalSpeedZScore(double val) {
 			if (error.isNonNegative("setVerticalSpeedZScore",val)) {
 				v_vel_z_score_ = val;
+				set_alerters_with_SUM_parameters();
 				return true;
 			}
 			return false;
@@ -2299,11 +2329,11 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * @return maximum alert level for all alerters. Returns 0 if alerter list is empty.
 		 */
 		public int maxAlertLevel() {
-			int max_alert_level = 0;
+			int maxalert_level = 0;
 			for (int alerter_idx=1; alerter_idx <= alerters_.size(); ++alerter_idx) {
-				max_alert_level = Util.max(max_alert_level,alerters_.get(alerter_idx-1).mostSevereAlertLevel());
+				maxalert_level = Util.max(maxalert_level,alerters_.get(alerter_idx-1).mostSevereAlertLevel());
 			}
-			return max_alert_level;
+			return maxalert_level;
 		}
 
 		/** 
@@ -2470,7 +2500,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * Return a ParameterData suitable to be read by readAlerterList() based on the supplied Alerter instances. 
 		 * This is a cosmetic alteration to allow for the string representation to have parameters grouped together.
 		 */
-		public void writeAlerterList(ParameterData p) {
+		private void writeAlerterList(ParameterData p) {
 			List<String> names = new ArrayList<String>();
 			for (Alerter alerter : alerters_) {
 				names.add(alerter.getId());
@@ -2626,7 +2656,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * 
 		 * If verbose is false (default true), suppress all status messages except exceptions
 		 */
-		public void readAlerterList(List<String> alerter_list, ParameterData params) {
+		private void readAlerterList(List<String> alerter_list, ParameterData params) {
 			alerters_.clear();
 			for (String id : alerter_list) {
 				ParameterData aPd = params.extractPrefix(id+"_");
@@ -2930,6 +2960,9 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 					readAlerterList(alerter_list,p);
 					setit = true;
 				}
+			}
+			if (setit) {
+				set_alerters_with_SUM_parameters();
 			}
 			return setit;
 		}

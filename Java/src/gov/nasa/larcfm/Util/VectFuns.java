@@ -1,7 +1,12 @@
 /*
  * VectFuns.java 
  * 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Authors:  George Hagen              NASA Langley Research Center  
+ *           Ricky Butler              NASA Langley Research Center
+ *           Jeff Maddalon             NASA Langley Research Center
+ 
+ * 
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -436,8 +441,8 @@ public final class VectFuns {
 		return intersection2D(so1,vo,si1,vi);
 	}
 	
-	/** 2D intersection of two segments (finite length)
-	 * 
+	/** 2D intersection of two segments (finite length) at a single point
+	 * This treats overlapping segments as no intersection 
 	 * @param so    first point of line o 
 	 * @param so2    second point of line o
 	 * @param si    first point of line i
@@ -445,7 +450,6 @@ public final class VectFuns {
 	 * @return a pair: intersection point and the fraction of the distance from point "so" to the intersection.
 	 *                 Returns (INVALID,fractDist) if there is no intersection (or the lines are the same).
 	 */
-
 	public static Pair<Vect2,Double> intersectSegments(Vect2 so, Vect2 so2, Vect2 si, Vect2 si2) {
 		//Pair<Vect2,Double> int2D = intersection2D( so,  so2, dto,  si,  si2);
 		Vect2 vo = so2.Sub(so);
@@ -453,7 +457,7 @@ public final class VectFuns {
 		Pair<Vect2,Double> int2D = intersection2D(so,vo,si,vi);
 		double fractDist = int2D.second;
 		if (int2D.first.isInvalid()) return int2D;
-		if (fractDist < 0 || fractDist > 1.0) return new Pair<Vect2,Double>(Vect2.INVALID, fractDist);			
+		if (Double.isNaN(fractDist) || fractDist < 0 || fractDist > 1.0) return new Pair<Vect2,Double>(Vect2.INVALID, fractDist);			
 		Vect2 w = so.Sub(si);
 		double D = vo.det(vi);
 		double tI = vo.det(w)/D;
@@ -462,6 +466,44 @@ public final class VectFuns {
 		//f.pln(" $$$$ intersectSegments: alternate = "+so.Add(u.Scal(sI)));
 		return int2D;
 	}
+
+	
+	/**
+	 * Return true if, a,b,c, are collinear (assumed) and b is between a and c (inclusive) 
+	 */
+	private static boolean collinearBetween(Vect2 a, Vect2 b, Vect2 c) {
+//		if (!collinear(a,b,c)) return false;
+		return a.distance(b) <= a.distance(c) && c.distance(b) <= c.distance(a);
+	}
+	
+//	/**
+//	 * Experimental
+//	 * 2D intersection of two segments (finite length).  This returns information if there is an overlap in segments.
+//	 * @param so first point of seg 1
+//	 * @param so2 second point of seg 1
+//	 * @param si first point of seg 2
+//	 * @param si2 second point of seg 2
+//	 * @return intersection point and the fraction of the distance from point "so" to the intersection. (third part will be null)
+//	 *                 Returns (INVALID,fractDist, null) if there is no intersection.
+//	 *                 If there is an overlap, it returns (endpoint 1 of overlap, 0, endpoint 2 of overlap)
+//	 */
+//	public static Triple<Vect2,Double,Vect2> intersectSegmentsWithOverlap(Vect2 so, Vect2 so2, Vect2 si, Vect2 si2) {
+//		// potential overlap	
+//		if (VectFuns.collinear(so, so2, si) && VectFuns.collinear(so,  so2, si2)) {
+//			boolean acb = collinearBetween(so, si, so2);
+//			boolean adb = collinearBetween(so, si2, so2);
+//			boolean cad = collinearBetween(si, so, si2);
+//			boolean cbd = collinearBetween(si, so2, si2);
+//			if (acb && adb) return Triple.make(si, 0.0, si2); // 2 inside 1
+//			if (cad && cbd) return Triple.make(so, 0.0, so2); // 1 inside 2
+//			if (acb && cbd) return Triple.make(si, 0.0, so2); // 1 then 2
+//			if (acb && cad) return Triple.make(so, 0.0, si);  // 1 then 2
+//			if (adb && cbd) return Triple.make(so2, 0.0, si); // 2 then 1
+//			if (adb && cad) return Triple.make(so2, 0.0, si); // 2 then 1
+//		}
+//		Pair<Vect2,Double> int2D = intersectSegments(so,so2,si,si2);
+//		return Triple.make(int2D.first, int2D.second, null);
+//	}
 
 	/**
 	 * returns the perpendicular time and distance between line defined by s,v and point q.

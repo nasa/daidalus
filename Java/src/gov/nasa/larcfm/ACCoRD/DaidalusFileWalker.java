@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 United States Government as represented by
+ * Copyright (c) 2015-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -7,6 +7,7 @@
 package gov.nasa.larcfm.ACCoRD;
 
 import gov.nasa.larcfm.IO.SequenceReader;
+import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Velocity;
@@ -14,7 +15,7 @@ import gov.nasa.larcfm.Util.Velocity;
 import java.util.List;
 
 
-public class DaidalusFileWalker {
+public class DaidalusFileWalker implements ErrorReporter {
 
 	private SequenceReader sr_;
 	private ParameterData p_;
@@ -186,7 +187,7 @@ public class DaidalusFileWalker {
 	public void readState(Daidalus daa) {
 		if (p_.size() > 0) {
 			daa.setParameterData(p_);
-			daa.stale(true);
+			daa.reset();
 		}
 		for (int ac = 0; ac < sr_.size();++ac) {
 			String ida = sr_.getName(ac);
@@ -200,6 +201,22 @@ public class DaidalusFileWalker {
 			readExtraColumns(daa,sr_,ac);
 		}
 		goNext();
+	}
+
+	public boolean hasError() {
+		return sr_.hasError();
+	}
+
+	public boolean hasMessage() {
+		return sr_.hasMessage();
+	}
+
+	public String getMessage() {
+		return sr_.getMessage();
+	}
+
+	public String getMessageNoClear() {
+		return sr_.getMessageNoClear();
 	}
 
 }

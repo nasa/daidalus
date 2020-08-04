@@ -1,7 +1,7 @@
 /* 
  * SeparatedInput
  *
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -20,7 +20,8 @@ import gov.nasa.larcfm.Util.f;
 import java.io.Reader;
 import java.io.LineNumberReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -66,6 +67,7 @@ import java.util.regex.PatternSyntaxException;
  * If a unit type is specified, their values will be converted into internal units
  * and stored.  The end user is responsible for converting values if the unspecified
  * default units are something other than the internal ones.
+ * <li>This format essentially follows RFC 4180 (when using commas)   
  * </ul>
  * 
  * Parameters are essentially a "key/value" pair.  Once an parameter is entered
@@ -104,7 +106,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 
 	private boolean header;         // header line read in
 	private String[] header_str;    // header line raw string
-	private boolean units;          // units line read in
+	private boolean bunits;          // units line read in
 	private String[] units_str;     // Units type
 	private double[] units_factor;  // Units conversion value
 	private String[] line_str;      // raw line
@@ -115,9 +117,9 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	private boolean caseSensitive;
 
 	private Character quoteCharacter; 	// If a non-empty value, use that character to delimit complex string tokens
-	private HashMap<String,String> quoteSubstitutions; // map of substitutions.  Will recalculate if this is null.
 
 	private String patternStr;
+	private String defaultDelimiter;
 
 	private String preambleImage; // this is an image of all parameters and comments in the original preamble (not the column labels or units, if present)
 
@@ -127,16 +129,16 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	public SeparatedInput() {
 		reader = null;
 		header = false;
-		units = false;
+		bunits = false;
 		error = new ErrorLog("SeparatedInput");
 		parameters = new ParameterData();
 		caseSensitive = true;
 		quoteCharacter = null;
-		quoteSubstitutions = null;
 		patternStr = Constants.wsPatternBase;
 		fixed_width = false;
 		header_str = new String[0];
 		preambleImage = "";
+		defaultDelimiter = ",";
 	}
 
 	/** 
@@ -146,12 +148,11 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	public SeparatedInput(Reader r) {
 		reader = new LineNumberReader(r);
 		header = false;
-		units = false;
+		bunits = false;
 		error = new ErrorLog("SeparatedInput(Reader)");
 		parameters = new ParameterData();
 		caseSensitive = true;
 		quoteCharacter = null;
-		quoteSubstitutions = null;
 		patternStr = Constants.wsPatternBase;
 		fixed_width = false;
 		header_str = new String[0];
@@ -210,14 +211,14 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	 * @return unit
 	 */
 	public String getUnit(int i) {
-		if ( ! units || i < 0 || i >= units_str.length) {
+		if ( ! bunits || i < 0 || i >= units_str.length) {
 			return "unspecified";
 		}
 		return units_str[i];
 	}
 
 	private double getUnitFactor(int i) {
-		if ( ! units || i < 0 || i >= units_str.length) {
+		if ( ! bunits || i < 0 || i >= units_str.length) {
 			return Units.unspecified;
 		}
 		return units_factor[i];
@@ -228,7 +229,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	 * @return true means a units line exists
 	 */
 	public boolean unitFieldsDefined() {
-		return units;
+		return bunits;
 	}
 
 	/** If set to false, all read-in headers and parameters will be converted to lower case. 
@@ -247,65 +248,50 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	}  
 
 	/**
-	 * If set to a non-null value, this character will be used to delimit complex strings in a line, overriding the normal column delimiters.
-	 * This does not allow for nested quote delimiters.  
-	 * The specified character will stripped inside the stored string.
-	 * The user must also supply a string that is not a column delimiter and is known not to be contained within any quoted string. 
-	 * The default column delimiters are space, comma, semicolon, and tab.  
-	 * This will generate an error if some input is obviously nonsense.
-	 * This is not used for parameters or fixed-width columns.
+	 * <p>This sets the 'quote' character.  The quote character is a way to contain a delimiter within a field of the data.
+	 * So if the delimiter is a comma and ' is the quote character, then 'hello, folks' is a valid field.</p>
+	 * 
+	 * <p>A quote character does not need to be set, the default is null, meaning, don't use a quote characters.  
+	 * </p>
+	 * 
+	 * <p>A quote character can be put in the field by duplicating it.  So if the delimiter is a comma and ' is a quote character, then
+	 * ''hello'', fol''ks will be two fields: 'hello' and fol'ks.  Be careful with nested quotes 'a''b' is interpreted as a'b not as two 
+	 * quoted strings: a and b.  However, 'a' 'b' will be interpreted as the string: a b
+	 * </p>
+	 * 
+	 * Notes
+	 * <ul>
+	 * <li>Quotes do not apply to parameters
+	 * <li>This will generate an error if the quote character matches the delimiters
+	 * <li>This is not used for parameters or fixed-width columns.
+	 * </ul>
+	 * 
 	 * @param q quotation character, if set to null do not treat quote characters specially
-	 * @param delims array of column delimiter characters.  The default column delimiters are space, comma, semicolon, and tab.
-	 * @param sub unique short string to replace column delimiter characters at the same index.   Examples might be "!" or "__".
 	 */
-	public void setQuoteCharacter(Character q, Character[] delims, String sub) {
+	public void setQuoteCharacter(Character q) {
 		// the easy case
 		if (q == null) {
 			quoteCharacter = null;
 			return;
 		}
-		// there are a bunch of ways this can go wrong.
-		if (delims == null || sub == null || delims.length == 0 || sub.length() == 0) {
-			error.addError("setQuoteCharacter: substitution lists are null or empty");
-			return;
-		}
-		if (delims.length > 99) {
-			error.addError("setQuoteCharacter: exceeded 100 delimiter max");
-			return;
-		}
-		for (Character d : delims) {
-			if (d == q) {
-				error.addError("setQuoteCharacter: substitution delim list contains the quote character!");
-				return;				
-			}
-			if (d == null) {
-				error.addError("setQuoteCharacter: substitution delim list contains null character!");
-				return;								
-			}
-			if (!d.toString().matches(patternStr)) {
-				error.addError("setQuoteCharacter: substitution delim list does not match column delimiters!");
-				return;				
-			}
-		}
-		if (sub.indexOf(q) >= 0) {
-			error.addError("setQuoteCharacter: substitution contains the quote character!");
-			return;				
-		}
-		for (Character d : delims) {
-			if (sub.indexOf(d) >= 0) {
-				error.addError("setQuoteCharacter: substitution contains recursion!");
-				return;				
-			}				
-		}
-		if (sub.matches(patternStr) || sub.split(patternStr).length > 1) { //is there something that matches?
-			error.addError("setQuoteCharacter: substitution matches column delimiters!");
+		if (q.toString().matches(patternStr)) {
+			error.addError("setQuoteCharacter: quote character is in list of column delimiters.");
+			quoteCharacter = null; // ignore this setQuoteCharacter()
 			return;				
 		}
 		quoteCharacter = q;
-		quoteSubstitutions = new HashMap<String,String>();
-		for (int i = 0; i < delims.length; i++) {
-			quoteSubstitutions.put(delims[i].toString(), sub+f.FmLead(i,2));
-		}
+	}
+	
+	@Deprecated
+	/**
+	 * Don't use this.  Use the single parameter version.
+	 * @param q 
+	 * @param delims 
+	 * @param sub 
+	 * @deprecated
+	 */
+	public void setQuoteCharacter(Character q, Character[] delims, String sub) {
+		setQuoteCharacter(q);
 	}
 
     /**
@@ -400,20 +386,32 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		try {
 			@SuppressWarnings("unused")  // because we are just error checking the supplied parameter
 			String[] tokens = (new String("This is a test")).split(delim);
-			quoteSubstitutions = null; // recalculate these
 			patternStr = delim;
 		} catch (PatternSyntaxException e) {
 			error.addWarning("invalid delimiter string: "+delim+" retained original: "+patternStr);
 			// ignore the attempt to set an invalid delimiter string
 		}
 	}
-
+	
 	/**
 	 * Return the regular expression used to divide each line into columns.
 	 * @return pattern
 	 */
 	public String getColumnDelimiters() {
 		return patternStr;
+	}
+
+	/**
+	 * Sets this object to formally read comma-separated-value (CSV) input.  This format the 
+	 * delimiter is a comma and the quote character is a double-quote.  Any amount of 
+	 * whitespace before or after a comma is removed.
+	 * So the string a,  "b " ,c will be read three fields: a, b with a trailing space, and c.
+	 * Like any quote character, if you to put the quote in the field, duplicate it, so the 
+	 * line: a, b"", c will be three fields: a, b" and c. 
+	 */
+	public void setCsv() {
+		setColumnDelimiters("[ \t]*,[ \t]*");
+		setQuoteCharacter('"');
 	}
 
 	public void setFixedColumn(String widths, String nameList, String unitList) {
@@ -455,7 +453,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 
 			fixed_width = true;
 			header = true;
-			units = true;
+			bunits = true;
 		} catch (Exception e) {
 			error.addError(e.getMessage());
 		}
@@ -475,40 +473,53 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		}
 	}
 
-	// given a string, replace separation delimiters that occur within quoted strings
-	private String tokenizeQuotes(String str) {
-		String tmp = str;
-		int index = tmp.indexOf(quoteCharacter,0);
-		// only do replacements inside of quotes
-		while (index >= 0) {
-			int index2 = tmp.indexOf(quoteCharacter,index+1);
-			if (index2 > index) {
-				String s1 = tmp.substring(0, index); 
-				String s2 = tmp.substring(index+1, index2);
-				String s3 = "";
-				if (index2+1 < tmp.length()) {
-					s3 = tmp.substring(index2+1, tmp.length());
+	private List<String> processQuotes(String str) {
+		List<String> rtn = new ArrayList<String>();
+		String temp = "";
+		
+		if (quoteCharacter == null) return rtn;
+		boolean squote = true;  // true means the next quote character is a starting quote
+		String[] fields_i = str.split("["+quoteCharacter+"]["+quoteCharacter+"]");
+		for (int i=0; i<fields_i.length; i++) {
+		    String str_i = fields_i[i];
+			//f.pln("X"+str_i);
+			if ( ! str_i.isEmpty()) {
+				String[] fields_j = str_i.split("["+quoteCharacter+"]",-1);
+				for (int j=0; j<fields_j.length; j++) {
+					String str_j =fields_j[j];
+					//f.pln(" Y"+str_j+"Y");
+					if ( ! str_j.isEmpty()) {
+						if (! squote) {
+							//f.pln("  ZZ"+str_j+"ZZ");
+							temp = temp + str_j;
+						} else {
+							String[] fields_k = str_j.split(patternStr,-1);
+							for (int k=0; k<fields_k.length; k++) {
+								String str_k = fields_k[k];
+								temp = temp + str_k;
+								//f.pln("  Z"+str_k+"Z "+f.bool2str(squote)+" "+j);
+								if (fields_k.length - 1 != k) {
+									rtn.add(temp);
+									temp = "";
+								}
+							}
+						}						
+					}
+					if (fields_j.length>1 && fields_j.length - 1 != j) {
+						squote = ! squote;
+					}  
 				}
-				for (String ch : quoteSubstitutions.keySet()) {
-					s2 = s2.replace(ch, quoteSubstitutions.get(ch));
-				}
-				tmp = s1+s2+s3;
-				index2 = (s1+s2).length()-1;
 			}
-			index = tmp.indexOf(quoteCharacter,index2+1);
+			if (fields_i.length - 1 != i) {
+				temp = temp + quoteCharacter.toString();
+			}
 		}
-		return tmp;
-	}
-
-	// given a string that has gone through the above substitution, return the column delimiter characters
-	private String unTokenizeQuotes(String str) {
-		String tmp = str;
-		for (String ch : quoteSubstitutions.keySet()) {
-			tmp = tmp.replace(quoteSubstitutions.get(ch), ch);
+		if ( ! temp.isEmpty()) {
+			rtn.add(temp);
 		}
-		return tmp;
+		//f.pln("NEXT");
+		return rtn;
 	}
-
 
 	/**
 	 * Reads a line of the input.  The first call to readLine will read the column headings, units, etc.
@@ -518,7 +529,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	public boolean readLine() {
 		String str = null;
 		try {
-			while ((str = reader.readLine()) != null) {
+			while ((str = readFullLine(reader)) != null) {
 				String lineRead = str + System.lineSeparator();
 
 				// Remove comments from line
@@ -537,12 +548,12 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 					if (!header) {
 						preambleImage += lineRead;
 					}
-				} else if ( ! units) {
+				} else if ( ! bunits) {
 					try {
-						units = process_units(str);
+						bunits = process_units(str);
 					} catch (SeparatedInputException e) {
 						// use default units
-						units = false;
+						bunits = false;
 						process_line(str);
 						break;
 					}
@@ -561,6 +572,25 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		} else {
 			return false;
 		}
+	}
+	
+	private String readFullLine(LineNumberReader r) throws IOException {
+		String t1;
+		t1 = r.readLine();
+		if (t1 == null) return t1;
+		if (quoteCharacter != null) {
+			do {
+				int count = 0;
+				for (int i = 0; i < t1.length(); i++) {
+					if (t1.charAt(i) == quoteCharacter) count++;
+				}
+				if (count %2 == 0) break;
+				String t2 = r.readLine();
+				if (t2 == null) break;
+				t1 = t1 + System.lineSeparator() + t2;
+			} while (true);
+		}
+		return t1;
 	}
 
 	/** Returns the number of the most recently read in line 
@@ -649,16 +679,22 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			}
 		} else {
 			if (quoteCharacter != null) {
-				str = tokenizeQuotes(str);
-			}
-			fields = str.split(patternStr);
-			//f.pln(" $$ SeparatedInput.process_line: patternStr = "+patternStr);
-			for (int i = 0; i < fields.length; i++) {
-				fields[i] = fields[i].trim();
-				if (quoteCharacter != null) {
-					fields[i] = unTokenizeQuotes(fields[i]);
+				List<String> f = processQuotes(str);
+				fields = new String[f.size()];
+				int count = 0;
+				for (String s: f) {
+					fields[count++] = s;
 				}
-				//f.pln(" $$ SeparatedInput.process_line: fields["+i+"] = "+fields[i]);
+			} else {
+				fields = str.split(patternStr);
+				//f.pln(" $$ SeparatedInput.process_line: patternStr = "+patternStr);
+//				for (int i = 0; i < fields.length; i++) {
+//					//fields[i] = fields[i].trim();
+//					if (quoteCharacter != null) {
+//						fields[i] = unTokenizeQuotes(fields[i]);
+//					}
+//					//f.pln(" $$ SeparatedInput.process_line: fields["+i+"] = "+fields[i]);
+//				}
 			}
 		}		
 		line_str = fields;

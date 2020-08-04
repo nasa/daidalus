@@ -19,7 +19,7 @@
  * 
  *   D  : Diameter of the protected zone [d]
  *   H  : Height of the protected zone [d]
- *   B  : Lower bound of lookahed time interval [t] (B >= 0)
+ *   B  : Lower bound of lookahead time interval [t] (B >= 0)
  *   T  : Upper bound of lookahead time interval [t] (T < 0 means infinite lookahead time)
  *   s  : Relative 3-D position of the ownship [d,d,d]
  *   vo : Ownship velocity vector [d/t,d/t,d/t]
@@ -36,7 +36,7 @@
  * t_in  : Time to loss of separation
  * t_out : Time to recovery of loss of separation
  * 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -48,276 +48,317 @@
 
 package gov.nasa.larcfm.ACCoRD;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import gov.nasa.larcfm.Util.LossData;
 import gov.nasa.larcfm.Util.ParameterData;
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
+import gov.nasa.larcfm.Util.f;
 
-public class CDCylinder extends Detection3DSUM {
+public class CDCylinder extends Detection3D {
 
-  private CD3DTable table;
+	private double D_;
+	private double H_;
+	private Map<String,String> units_;
 
-  private String id = "";
+	private String id = "";
 
-  /**
-   * Instantiates a new CDCylinder object.
-   */
-  public CDCylinder() {
-    table = new CD3DTable();
-  }
+	/**
+	 * Instantiates a new CDCylinder object.
+	 */
+	public CDCylinder(String s) {
+		D_ = Units.from("nmi",5.0);
+		H_ = Units.from("ft",1000.0);
+		units_ = new HashMap<String,String>();
+		units_.put("D","nmi");
+		units_.put("H","ft");
+		id = s;
+	}
 
-  /**
-   * This specifies the internal table is a copy of the provided table
-   * @param tab
-   */
-  public CDCylinder(CD3DTable tab) {
-    table = tab.copy();
-  }
+	/**
+	 * Instantiates a new CDCylinder object.
+	 */
+	public CDCylinder() {
+		this("");
+	}
 
-  public CDCylinder(double d, String dunit, double h, String hunit) {
-    table = new CD3DTable(d,dunit,h,hunit);
-  }
+	public CDCylinder(CDCylinder cdc) {
+		D_ = cdc.D_;
+		H_ = cdc.H_;
+		units_ = new HashMap<String,String>();
+		units_.putAll(cdc.units_);
+		id = cdc.id;
+	}
 
-  /**
-   * Create a new state-based conflict detection object using specified units.
-   * 
-   * @param distance the minimum horizontal separation distance in specified units
-   * @param dUnits units for the distance
-   * @param height the minimum vertical separation height in specified units.
-   * @param hUnits units for the height
-   * @return 
-   */
-  public static CDCylinder make(double distance, String dUnits, double height, String hUnits) {
-    return new CDCylinder(distance,dUnits,height,hUnits);  
-  }
+	public CDCylinder(double d, double h) {
+		this(d,"m",h,"m");
+	}
 
-  /**
-   * Create a new state-based conflict detection object using internal units.
-   * 
-   * @param distance the minimum horizontal separation distance [m]
-   * @param height the minimum vertical separation height [m].
-   */
-  public static CDCylinder mk(double distance, double height) {
-    return new CDCylinder(distance, "m", height, "m");  
-  }
+	public CDCylinder(double d, String dunit, double h, String hunit) {
+		D_ = Units.from(dunit,Math.abs(d));
+		H_ = Units.from(hunit,Math.abs(h));
+		units_ = new HashMap<String,String>();
+		units_.put("D",dunit);
+		units_.put("H",hunit);
+		id = "";
+	}
 
-  /**
-   * Return a copy of this object's table
-   */
-  public CD3DTable getCD3DTable() {
-    return table.copy();
-  }
+	/**
+	 * Create a new state-based conflict detection object using specified units.
+	 * 
+	 * @param distance the minimum horizontal separation distance in specified units
+	 * @param dUnits units for the distance
+	 * @param height the minimum vertical separation height in specified units.
+	 * @param hUnits units for the height
+	 * @return 
+	 */
+	public static CDCylinder make(double distance, String dUnits, double height, String hUnits) {
+		return new CDCylinder(distance,dUnits,height,hUnits);  
+	}
 
-  /** Sets the internal table to be a copy of the supplied one */
-  public void setCD3DTable(CD3DTable tab) {
-    table = tab.copy();
-  }
+	/**
+	 * Create a new state-based conflict detection object using internal units.
+	 * 
+	 * @param distance the minimum horizontal separation distance [m]
+	 * @param height the minimum vertical separation height [m].
+	 */
+	public static CDCylinder mk(double distance, double height) {
+		return new CDCylinder(distance, "m", height, "m");  
+	}
 
-  public double getHorizontalSeparation() {
-    return table.getHorizontalSeparation();
-  }
+	/**
+	 * @return one static CDCylinder
+	 */
+	public static final CDCylinder A_CDCylinder =
+			new CDCylinder();
 
-  public double getVerticalSeparation() {
-    return table.getVerticalSeparation();
-  }
+	/**
+	 * @return CDCylinder thresholds, i.e., D=5nmi, H=1000ft.
+	 */
+	public static final CDCylinder CD3DCylinder = A_CDCylinder;
 
-  public void setHorizontalSeparation(double d) {
-    table.setHorizontalSeparation(d);
-  }
+	public String getUnits(String key) {
+		String u = units_.get(key);
+		if (u == null) {
+			return "unspecified";
+		}
+		return u;
+	}
 
-  public void setVerticalSeparation(double h) {
-    table.setVerticalSeparation(h);
-  }
+	public double getHorizontalSeparation() {
+		return D_;
+	}
 
-  public double getHorizontalSeparation(String unit) {
-    return table.getHorizontalSeparation(unit);
-  }
+	public void setHorizontalSeparation(double d) {
+		D_ = Math.abs(d);
+	}
 
-  public double getVerticalSeparation(String unit) {
-    return table.getVerticalSeparation(unit);
-  }
+	public double getVerticalSeparation() {
+		return H_;
+	}
 
-  public void setHorizontalSeparation(double d, String unit) {
-    table.setHorizontalSeparation(d, unit);
-  }
+	public void setVerticalSeparation(double h) {
+		H_ = Math.abs(h);
+	}
 
-  public void setVerticalSeparation(double h, String unit) {
-    table.setVerticalSeparation(h, unit);
-  }
+	public double getHorizontalSeparation(String u) {
+		return Units.to(u, D_);
+	}
 
-  /**
-   * Computes the conflict time interval in [B,T].
-   * 
-   * @param s the relative position of the aircraft
-   * @param vo the ownship's velocity
-   * @param vi the intruder's velocity
-   * @param D the minimum horizontal distance
-   * @param H the minimum vertical distance
-   * @param B the the lower bound of the lookahead time (B >= 0)
-   * @param T the upper bound of the lookahead time (B < T)
-   * 
-   * @return true, if the conflict time interval (t_in,t_out) is in [B,T].
-   */
-  public LossData detection(Vect3 s, Vect3 vo, Vect3 vi, double D, double H, double B, double T) { 
-    return CD3D.detection(s,vo,vi,D,H,B,T);
-  }
+	public void setHorizontalSeparation(double d, String u) {
+		setHorizontalSeparation(Units.from(u,d));
+		units_.put("D",u);
+	}
 
-  /**
-   * Computes the conflict time interval in [0,T].
-   * 
-   * @param s the relative position of the aircraft
-   * @param vo the ownship's velocity
-   * @param vi the intruder's velocity
-   * @param D the minimum horizontal distance
-   * @param H the minimum vertical distance
-   * @param T the the lookahead time (T > 0)
-   * 
-   * @return true, if the conflict time interval (t_in,t_out) is in [0,T].
-   */
-  public LossData detection(Vect3 s, Vect3 vo, Vect3 vi, double D, double H, double T) {
-    return detection(s,vo,vi,D,H,0,T);
-  }
+	public double getVerticalSeparation(String u) {
+		return Units.to(u, H_);
+	}
 
-  /**
-   * Computes the conflict time interval in [0,...).
-   * 
-   * @param s the relative position of the aircraft
-   * @param vo the ownship's velocity
-   * @param vi the intruder's velocity
-   * @param D the minimum horizontal distance
-   * @param H the minimum vertical distance
-   * 
-   * @return true, if the conflict time interval (t_in,t_out) is in [0,...)
-   */
-  public LossData detection(Vect3 s, Vect3 vo, Vect3 vi, double D, double H) {
-    return detection(s,vo,vi,D,H,0,Double.POSITIVE_INFINITY);
-  }
+	public void setVerticalSeparation(double h, String u) {
+		setVerticalSeparation(Units.from(u,h));
+		units_.put("H",u);
+	}
 
-  public String toString() {
-    return (id.equals("") ? "" : id+" : ")+getSimpleClassName()+" = {"+table.toString()+"}";
-  }
-  
-  public String toPVS() {
-    return getSimpleClassName()+"("+table.toPVS()+")";
-  }
+	/**
+	 * Computes the conflict time interval in [B,T].
+	 * 
+	 * @param s the relative position of the aircraft
+	 * @param vo the ownship's velocity
+	 * @param vi the intruder's velocity
+	 * @param D the minimum horizontal distance
+	 * @param H the minimum vertical distance
+	 * @param B the the lower bound of the lookahead time (B >= 0)
+	 * @param T the upper bound of the lookahead time (B < T)
+	 * 
+	 * @return true, if the conflict time interval (t_in,t_out) is in [B,T].
+	 */
+	public LossData detection(Vect3 s, Vect3 vo, Vect3 vi, double D, double H, double B, double T) { 
+		return CD3D.detection(s,vo,vi,D,H,B,T);
+	}
 
-  public boolean violation(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H) {
-    return CD3D.lossOfSep(so,si,D,H);
-  }
+	/**
+	 * Computes the conflict time interval in [0,T].
+	 * 
+	 * @param s the relative position of the aircraft
+	 * @param vo the ownship's velocity
+	 * @param vi the intruder's velocity
+	 * @param D the minimum horizontal distance
+	 * @param H the minimum vertical distance
+	 * @param T the the lookahead time (T > 0)
+	 * 
+	 * @return true, if the conflict time interval (t_in,t_out) is in [0,T].
+	 */
+	public LossData detection(Vect3 s, Vect3 vo, Vect3 vi, double D, double H, double T) {
+		return detection(s,vo,vi,D,H,0,T);
+	}
 
-  public boolean violation(Vect3 so, Velocity vo, Vect3 si, Velocity vi) {
-    return violation(so,vo,si,vi,table.getHorizontalSeparation(),table.getVerticalSeparation());
-  }
+	/**
+	 * Computes the conflict time interval in [0,...).
+	 * 
+	 * @param s the relative position of the aircraft
+	 * @param vo the ownship's velocity
+	 * @param vi the intruder's velocity
+	 * @param D the minimum horizontal distance
+	 * @param H the minimum vertical distance
+	 * 
+	 * @return true, if the conflict time interval (t_in,t_out) is in [0,...)
+	 */
+	public LossData detection(Vect3 s, Vect3 vo, Vect3 vi, double D, double H) {
+		return detection(s,vo,vi,D,H,0,Double.POSITIVE_INFINITY);
+	}
 
-  public boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
-    return CD3D.cd3d(so.Sub(si), vo, vi, D, H, B, T); 
-  }
+	public String toString() {
+		return (id.equals("") ? "" : id+" : ")+getSimpleClassName()+" = {D = "+
+				Units.str(getUnits("D"),D_)+", H = "+Units.str(getUnits("H"),H_)+"}";
+	}
 
-  public boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
-    return conflict(so, vo, si, vi, table.getHorizontalSeparation(), table.getVerticalSeparation(), B, T); 
-  }
+	public String toPVS() {
+		return getSimpleClassName()+"((# D:= "+f.FmPrecision(D_)+", H:= "+f.FmPrecision(H_)+" #))";
+	}
 
-  public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
-    Vect3 s = so.Sub(si);
-    Velocity v = Velocity.make(vo.Sub(vi));
-    double t_tca = CD3D.tccpa(s, vo, vi, D, H, B, T);
-    double dist_tca = s.linear(v,t_tca).cyl_norm(D, H);
-    LossData ld = CD3D.detection(s,vo,vi,D,H,B,T);
-    return new ConflictData(ld,t_tca,dist_tca,s,v);
-  }
+	@Deprecated
+	public static boolean violation(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H) {
+		return CD3D.lossOfSep(so,si,D,H);
+	}
 
-  public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
-    return conflictDetection(so,vo,si,vi,table.getHorizontalSeparation(), table.getVerticalSeparation(), B, T); 
-  }
+	@Deprecated
+	public static boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
+		return CD3D.cd3d(so.Sub(si), vo, vi, D, H, B, T); 
+	}
 
-  public double timeOfClosestApproach(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
-    return CD3D.tccpa(so.Sub(si), vo, vi, D, H, B, T);
-  }
+	// The non-static methods violation and conflict are
+	// inherited from Detection3DSum. This enable a uniform
+	// treatment of border cases in the generic bands algorithms
 
-  public double timeOfClosestApproach(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
-    return timeOfClosestApproach(so,vo,si,vi,table.getHorizontalSeparation(), table.getVerticalSeparation(), B, T); 
-  }
+	public static ConflictData conflict_detection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
+		Vect3 s = so.Sub(si);
+		Velocity v = Velocity.make(vo.Sub(vi));
+		double t_tca = CD3D.tccpa(s, vo, vi, D, H, B, T);
+		double dist_tca = s.linear(v,t_tca).cyl_norm(D, H);
+		LossData ld = CD3D.detection(s,vo,vi,D,H,B,T);
+		return new ConflictData(ld,t_tca,dist_tca,s,v);
+	}
 
-  public ParameterData getParameters() {
-    ParameterData p = new ParameterData();
-    updateParameterData(p);
-    return p;
-  }
+	public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+		return conflict_detection(so,vo,si,vi,D_,H_,B,T); 
+	}
 
-  public void updateParameterData(ParameterData p) {
-    table.updateParameterData(p);
-    p.set("id",id);
-  }
+	public static double time_of_closest_approach(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
+		return CD3D.tccpa(so.Sub(si),vo,vi,D,H,B,T);
+	}
 
-  public void setParameters(ParameterData p) {
-    table.setParameters(p);
-    if (p.contains("id")) {
-      id = p.getString("id");
-    }
-  }
+	public double timeOfClosestApproach(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+		return time_of_closest_approach(so,vo,si,vi,D_,H_,B,T); 
+	}
 
-  /**
-   * Returns a fresh instance of this type of Detection3D with default parameter data.
-   */
-  public CDCylinder make() {
-    return new CDCylinder();
-  }
+	public ParameterData getParameters() {
+		ParameterData p = new ParameterData();
+		updateParameterData(p);
+		return p;
+	}
 
-  /**
-   * Returns a deep copy of this CDCylinder object, including any results that have been calculated.  This will duplicate parameter data, but will NOT
-   * link any existing CD3DTable.  Call setCD3DTable() if linking is necessary.
-   */
-  public CDCylinder copy() {
-    CDCylinder ret = new CDCylinder();
-    ret.id = id;
-    ret.table = new CD3DTable(table);
-    return ret;
-  }
+	public void updateParameterData(ParameterData p) {
+		p.setInternal("D",D_,getUnits("D"));
+		p.setInternal("H",H_,getUnits("H"));
+		p.set("id",id);
+	}
 
-  public String getSimpleClassName() {
-    return getClass().getSimpleName();
-  }
-  
-  public String getCanonicalClassName() {
-    return getClass().getCanonicalName(); 
-  }
+	public void setParameters(ParameterData p) {
+		if (p.contains("D")) {
+			setHorizontalSeparation(p.getValue("D"));
+			units_.put("D",p.getUnit("D"));
+		}
+		if (p.contains("H")) {
+			setVerticalSeparation(p.getValue("H"));
+			units_.put("H",p.getUnit("H"));
+		}
+		if (p.contains("id")) {
+			id = p.getString("id");
+		}
+	}
 
-  public String getIdentifier() {
-    return id;
-  }
+	/**
+	 * Returns a fresh instance of this type of Detection3D with default parameter data.
+	 */
+	public CDCylinder make() {
+		return new CDCylinder();
+	}
 
-  public void setIdentifier(String s) {
-    id = s;
-  }
+	/**
+	 * Returns a deep copy of this CDCylinder object, including any results that have been calculated.  This will duplicate parameter data, but will NOT
+	 * link any existing CD3DTable.  Call setCD3DTable() if linking is necessary.
+	 */
+	public CDCylinder copy() {
+		CDCylinder cd = new CDCylinder(this);
+		return cd;
+	}
 
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
-      return true;
-    if (obj == null)
-      return false;
-    if (getClass() != obj.getClass())
-      return false;
-    CDCylinder other = (CDCylinder) obj;
-    if (id == null) {
-      if (other.id != null)
-        return false;
-    } else if (!id.equals(other.id))
-      return false;
-    if (table == null) {
-      if (other.table != null)
-        return false;
-    } else if (!table.equals(other.table))
-      return false;
-    return true;
-  }
+	public String getSimpleClassName() {
+		return getClass().getSimpleName();
+	}
 
-  public boolean contains(Detection3D cd) {
-    if (cd instanceof CDCylinder) {
-      CDCylinder d = (CDCylinder) cd;
-      return table.D >= d.table.D && table.H >= d.table.H; 
-    }
-    return false;
-  }
+	public String getCanonicalClassName() {
+		return getClass().getCanonicalName(); 
+	}
+
+	public String getIdentifier() {
+		return id;
+	}
+
+	public void setIdentifier(String s) {
+		id = s;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CDCylinder other = (CDCylinder) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (Double.doubleToLongBits(D_) != Double.doubleToLongBits(other.D_))
+			return false;
+		if (Double.doubleToLongBits(H_) != Double.doubleToLongBits(other.H_))
+			return false;
+		return true;
+	}
+
+	public boolean contains(Detection3D det) {
+		if (det instanceof CDCylinder) {
+			CDCylinder cd = (CDCylinder) det;
+			return D_ >= cd.D_ && H_ >= cd.H_; 
+		}
+		return false;
+	}
 
 }

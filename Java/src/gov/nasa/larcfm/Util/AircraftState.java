@@ -2,7 +2,7 @@
  * 
  * manages a history of aircraft state information
  *
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * regression approximation).  These predictions are available through the methods pred(t), and predLinear(t).
  * These are based on the Euclidean projected points.
  */
-public final class AircraftState /*implements ErrorReporter*/ {
+public final class AircraftState {
 
 	/** The default maximum number of history points stored in this object */
 	public static final int DEFAULT_BUFFER_SIZE = 10;
@@ -575,7 +575,7 @@ public final class AircraftState /*implements ErrorReporter*/ {
 	
 	// assumes that all arrays are the same length and have at least "length" elements
 	// assumes the arrays are sorted in increasing time order.
-	private void calc(Vect2 pos2[], double posH[], Vect2 vel2[], double velZ[], double timevar[], int length) {
+	private void calc(Vect2 vel2[], double velZ[], double timevar[], int length) {
 		if (regression_done) {
 			return;
 		}
@@ -667,7 +667,7 @@ public final class AircraftState /*implements ErrorReporter*/ {
 	 */
 	public StateVector pred(double t) {
 		updateProjection();
-		calc(projS2, projH, projV2, projVZ, projT, size());
+		calc(projV2, projVZ, projT, size());
 		return new StateVector(predS(t), predV(t),t);
 	}	
 
@@ -1194,8 +1194,8 @@ public final class AircraftState /*implements ErrorReporter*/ {
 	 * @return string
 	 */
 	public String toString() {
-		String rtn = "AircraftState("+id+"): size = "+size+" start = "+oldest+"sepData="+hasSeparationData()+"(d_d="+d_d+" d_h="+d_h+" r_d="+r_d+" r_h="+r_h+")\n";
-		rtn += " projection_initialized = "+projection_initialized+" projection_done = "+projection_done+"\n";
+		String rtn = "AircraftState("+id+"): size = "+size+" start = "+oldest+" sepData="+hasSeparationData()+", (d_d="+d_d+" d_h="+d_h+" r_d="+r_d+" r_h="+r_h+")\n";
+		//rtn += " projection_initialized = "+projection_initialized+" projection_done = "+projection_done+"\n";
 		for (int i = 0; i < size; i++){
 			rtn = rtn + "  ---   s = "+position(i)+"  v = "+velocity(i)+" t = "+time(i)+"\n";
 		}

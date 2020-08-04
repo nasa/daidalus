@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018 United States Government as represented by
+ * Copyright (c) 2013-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Collection;
@@ -1025,10 +1024,10 @@ public class ParameterData {
 	 * and the parameter is "x=10mm", that is, the parameter name "x" will be added
 	 * with a value of 10 millimeters. Any arguments that do not begin with the
 	 * command line designator are not included in this ParameterData object and are
-	 * instead returned, in order.
+	 * instead returned, in order.<p>
 	 * 
 	 * In other words, this strips the array of strings of recognized parameters and 
-	 * stores them, and returns the rest in a list.
+	 * stores them, and returns the rest in a list.<p>
 	 * 
 	 * @param prefix command line parameter designator
 	 * @param args the command line arguments
@@ -1038,7 +1037,12 @@ public class ParameterData {
 		List<String> l = new ArrayList<String>(args.length);
 		for (String a: args) {
 			if (a.startsWith(prefix)) {
-				set(a.substring(prefix.length()));
+				String name = a.substring(prefix.length());
+				if (name.contains("=")) { // handle special case when parameters is prefix+name, add an '=' so set will parse it
+					set(name);
+				} else {
+					set(name+"=");
+				}
 			} else {
 				l.add(a);
 			}
@@ -1179,7 +1183,7 @@ public class ParameterData {
 	 * @param pd parameter database
 	 * @return string listing differences, or the empty string if the contents are the same.
 	 */
-	public String diff(ParameterData pd) {
+	public String diffString(ParameterData pd) {
 		List<String> keys0 = new ArrayList<String>(); // list of keys in both objects
 		List<String> keys1 = new ArrayList<String>(); // list of keys only in this object
 		for (String key : getKeyList()) {
@@ -1225,4 +1229,29 @@ public class ParameterData {
 		return out;
 	}
 
+	/**
+	 * Compare this object with a base ParameterData object and return all parameters in this object that are different from parameters in the base object, 
+	 * either having different values or that are not present in the base.  (Parameters that are only in the base are not included.)  If the objects are 
+	 * the same, the result will be an empty ParameterData object. 
+	 * @param base "base" or "default" ParameterData to compare this object to
+	 * @return A ParameterData object containing all parameters that are in this object, but not in the base, or that are in both but have different values.  This return may be empty.
+	 */
+	public ParameterData delta(ParameterData base) {
+		ParameterData pd = new ParameterData();
+		for (String key : getKeyList()) {
+			if (!base.contains(key) || 
+					(isBoolean(key) && base.getBool(key) != getBool(key)) ||
+					(isNumber(key) && base.getValue(key) != getValue(key)) ||
+					!base.getString(key).equals(getString(key))) {
+				if (key.equals("coreDetectionData") || key.equals("useCdCylinderParameters")) {
+				} else {
+			    	//f.pln(" $$$$$$$$$ ParameterData.delta:::::::::::::; key = "+key+" getString(key) = "+getString(key));
+				    pd.set(key, getString(key));
+				}
+			}
+		}
+		return pd;
+	}
+
+	
 }

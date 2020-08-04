@@ -5,7 +5,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  *
  *
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -44,13 +44,13 @@ public final class Position implements OutputList {
 	public Position(LatLonAlt lla) {
 		ll = lla;
 		s3 = Point.mk(lla.lon(), lla.lat(), lla.alt());
-		this.latlon = true;
+		latlon = true;
 	}
 
 	private Position(double x, double y, double z) {
 		s3 = Point.mk(x, y, z);
 		ll = LatLonAlt.mk(y, x, z);
-		this.latlon = false;
+		latlon = false;
 	}
 
 	/** Construct a new Position object from a Vect3 object. This method
@@ -60,7 +60,7 @@ public final class Position implements OutputList {
 	public Position(Vect3 v) {
 		s3 = Point.mk(v);
 		ll = LatLonAlt.mk(v.y, v.x, v.z);
-		this.latlon = false;
+		latlon = false;
 	}
 
 	/** Construct a new Position object from a Point object.  The position will be a Euclidean position. 
@@ -69,7 +69,7 @@ public final class Position implements OutputList {
 	public Position(Point v) {
 		s3 = v;
 		ll = LatLonAlt.mk(v.y, v.x, v.z);
-		this.latlon = false;
+		latlon = false;
 	}
 
 	/** Copy this Position object 
@@ -800,7 +800,7 @@ public final class Position implements OutputList {
 	 * @param so2    second point of segment A 
 	 * @param si     first point of segment B
 	 * @param si2    second point of segment B 
-	 * @return       the intersection point,  if parallel returns INVALID
+	 * @return       the intersection point,  if parallel or no intersection returns INVALID
 	 */
 	public static Position intersectSegments2D(Position so, Position so2, Position si, Position si2) {
 		if (so.latlon != si.latlon && so2.latlon != si2.latlon && so.latlon != so2.latlon) {
@@ -993,7 +993,7 @@ public final class Position implements OutputList {
 	public String toUnitTest() {
 		if (latlon) {
 			return "Position.makeLatLonAlt("+ f.Fm12(Units.to("deg",lat()))
-			       +", "+f.Fm16(Units.to("deg",lon()))+", "+f.Fm12(Units.to("ft",alt()))+")";
+			       +", "+f.Fm12(Units.to("deg",lon()))+", "+f.Fm12(Units.to("ft",alt()))+")";
 		} else {
 			return "Position.makeXYZ("+(f.Fm8(Units.to("NM",x()))+", "+f.Fm8(Units.to("NM",y()))
 			       +", "	+f.Fm8(Units.to("ft",z()))+")");
@@ -1121,22 +1121,24 @@ public final class Position implements OutputList {
 	 * @return a string representation of the position
 	 */
 	public List<String> toStringList(int precision) {
-		return toStringList(precision, false);
+		return toStringList(precision, 0, false);
 	}
-	public List<String> toStringList(int precision, boolean internalUnits) {
+	
+	public List<String> toStringList(int precision, int latLonExtraPrecision, boolean internalUnits) {
 		ArrayList<String> ret = new ArrayList<String>(3);
+		int extra = Math.max(0, latLonExtraPrecision);
 		if (isInvalid()) {
 			ret.add("-");
 			ret.add("-");
 			ret.add("-");
 		} else if (latlon) {
 			if (internalUnits) {
-				ret.add(f.FmPrecision(ll.lat(),precision));
-				ret.add(f.FmPrecision(ll.lon(),precision));
+				ret.add(f.FmPrecision(ll.lat(),precision+extra));
+				ret.add(f.FmPrecision(ll.lon(),precision+extra));
 				ret.add(f.FmPrecision(ll.alt(),precision));
 			} else {
-				ret.add(f.FmPrecision(ll.latitude(),precision));
-				ret.add(f.FmPrecision(ll.longitude(),precision));
+				ret.add(f.FmPrecision(ll.latitude(),precision+extra));
+				ret.add(f.FmPrecision(ll.longitude(),precision+extra));
 				ret.add(f.FmPrecision(ll.altitude(),precision));
 			}
 		} else {

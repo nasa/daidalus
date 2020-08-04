@@ -1,7 +1,7 @@
 /*
  * ProjectedKinematics.java 
  * 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -345,6 +345,8 @@ public final class ProjectedKinematics {
 
   /** Wrapper around Kinematic.directToPoint()
    * 
+   * Calculate the turn necessary in order to be directly pointing at a given goal point.
+   * 
    *  @param so  current position
    *  @param vo  current velocity
    *  @param wp  the aircraft is turning to point to this point
@@ -371,7 +373,7 @@ public final class ProjectedKinematics {
     }
     return new Quad<Position,Velocity,Double,Integer> (pv.first, pv.second, dtp.third,dtp.fourth);
   }
-
+  
   /** Wrapper around Kinematic.genDirectToVertex
    *  Returns the vertex point (in a linear plan sense) between current point and directTo point.
    * 
@@ -633,7 +635,8 @@ public final class ProjectedKinematics {
   }
   
   /**
-   * Perform a turn delta calculation between trk1 and trk2, compensating for geodetic coordinates
+   * Perform a turn delta calculation between trk1 and trk2, compensating for geodetic coordinates.
+   * This is the change in track, and not the angle between segments.
    * @param so projection point
    * @param trk1 first track of interest
    * @param trk2 second track of interest
@@ -651,5 +654,7 @@ public final class ProjectedKinematics {
 	  }
 	  return Util.turnDelta(alpha, beta);
   }
+  
+  
   
 }

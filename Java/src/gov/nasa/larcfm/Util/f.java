@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -521,17 +521,25 @@ final public class f {
 			Iterator<Object> it = ks.iterator();
 			if (ks.size() > 0) {
 				Object k = it.next();
-				s += Fobj(k)+"->"+Fobj(h.get(k))+nl;
+				s += Fobj(k)+"->"+Fobj(h.get(k));
 			}
 			while (it.hasNext()) {
 				Object k = it.next();
-				s += ", "+Fobj(k)+"->"+Fobj(h.get(k))+nl;
+				s += ", "+nl+Fobj(k)+"->"+Fobj(h.get(k));
 			}
-			s+= "]";
+			s+= nl+"]";
 			return s;
 		}
 		if (o instanceof Object[]) {
 			Object[] a = (Object[])o;
+			return Arrays.toString(a);
+		}
+		if (o instanceof boolean[]) {
+			boolean[] a = (boolean[])o;
+			return Arrays.toString(a);
+		}
+		if (o instanceof byte[]) {
+			byte[] a = (byte[])o;
 			return Arrays.toString(a);
 		}
 		if (o instanceof int[]) {

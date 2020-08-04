@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 United States Government as represented by
+ * Copyright (c) 2015-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -8,14 +8,16 @@ package gov.nasa.larcfm.ACCoRD;
 
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Triple;
-import gov.nasa.larcfm.Util.f;
+//import gov.nasa.larcfm.Util.f;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * This class contains static methods to read in Detection3D instance definitions from a ParameterData object in a format consistent with a ParameterData object created by DetectionParameterWriter.
+ * This class contains static methods to read in Detection3D instance definitions from a 
+ * ParameterData object in a format consistent with a ParameterData object created by 
+ * DetectionParameterWriter.
  */
 public class Detection3DParameterReader {
 
@@ -31,17 +33,35 @@ public class Detection3DParameterReader {
 	 * 
 	 * The user still needs to assign these to the appropriate object(s).
 	 * If no alternates are loaded, return the empty list for the first part of the pair. 
-	 * If no det or res core detection is set, return null for the second and/or third part of the pair.
-	 * @param params
+	 * If no detection or resolution core detection is set, return null for the second and/or third part of the pair.
+	 * 
+	 * @param params parameters
 	 * @return triple of all Detection3D objects loaded, the "det" Detection3D object, and the "res" Detection3D object
 	 * Note that the "det" and "res" (if defined) will be references to list entries.
-	 * 
-	 * If verbose is false (default false), suppress all status messages except exceptions
 	 */
 	public static Triple<List<Detection3D>,Detection3D,Detection3D> readCoreDetection(ParameterData params) {
 		return readCoreDetection(params,false);
 	}
 
+	/**
+	 * This parses parameters involved with Detection3D objects (if present) and returns a list of Detection3D objects loaded, and the one chosen by set_det_core_detection and set_res_core_detection, 
+	 * if successfully specified.  The list will be sorted by the instance identifiers.
+	 * 
+	 * Specifically this looks for parameters:
+	 * load_core_detection_XXX : create a Detection3D instance of the specified class with label XXX
+	 * XXX_* : parameters associated with object with label XXX
+	 * set_det_core_detection : instance for return.second
+	 * set_res_core_detection : instance for return.third
+	 * 
+	 * The user still needs to assign these to the appropriate object(s).
+	 * If no alternates are loaded, return the empty list for the first part of the pair. 
+	 * If no detection or resolution core detection is set, return null for the second and/or third part of the pair.
+	 * 
+	 * @param params parameters
+	 * @param verbose if false, suppress all status messages except exceptions
+	 * @return triple of all Detection3D objects loaded, the "det" Detection3D object, and the "res" Detection3D object
+	 * Note that the "det" and "res" (if defined) will be references to list entries.
+	 */
 	public static Triple<List<Detection3D>,Detection3D,Detection3D> readCoreDetection(ParameterData params, boolean verbose) {
 		List<Detection3D> cdlist = new ArrayList<Detection3D>();
 		Detection3D chosenD = null;
@@ -52,7 +72,7 @@ public class Detection3DParameterReader {
 			String instanceName = pname.substring(20);
 			String dname = params.getString(pname);
 			try {
-				Object obj = Class.forName(dname).newInstance();
+				Object obj = Class.forName(dname).getDeclaredConstructor().newInstance();
 				if (obj instanceof Detection3D) {
 					Detection3D d = (Detection3D) obj;
 					if (verbose) System.out.println(">>>>> Core detection "+dname+" ("+instanceName+") loaded <<<<<");
@@ -67,12 +87,10 @@ public class Detection3DParameterReader {
 					}
 					if (params.contains("set_det_core_detection") && params.getString("set_det_core_detection").equalsIgnoreCase(instanceName)) {
 						chosenD = d;
-						//            if (verbose) System.out.println(">>>>> Core detection det set to "+pname+" <<<<<");
 
 					}
 					if (params.contains("set_res_core_detection") && params.getString("set_res_core_detection").equalsIgnoreCase(instanceName)) {
 						chosenR = d;
-						//            if (verbose) System.out.println(">>>>> Core detection res set to "+pname+" <<<<<");
 					}
 					cdlist.add(d);
 				} else {

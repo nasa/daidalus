@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -802,7 +802,7 @@ public class Bands implements GenericDHStateBands {
    * 
    */
   private static int find_first_implicit_none(double tolerance,
-      List<Interval> arraylist, List<BandsRegion> regions,      
+      List<Interval> arraylist,      
       double lb, double ub) {
     if (arraylist.size() == 0) {
       return 0;
@@ -835,7 +835,7 @@ public class Bands implements GenericDHStateBands {
       List<Interval> arraylist, List<BandsRegion> regions, 
       double lb, double ub) {
     if (conflictBands && br == BandsRegion.NONE && eq) {
-      return find_first_implicit_none(tolerance,arraylist,regions,lb,ub);
+      return find_first_implicit_none(tolerance,arraylist,lb,ub);
     } else {
       return find_first_explicit_band(eq,br,tolerance,arraylist,regions);
     }     

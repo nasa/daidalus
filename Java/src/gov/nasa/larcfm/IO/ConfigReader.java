@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This object will read in and store a set of configuration parameters.  The parameters can be listed 
@@ -310,6 +311,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	public void updateParameterData(ParameterData p) {
 		p.copy(pd,true);
 	}
+	
 	
 	// ErrorReporter Interface Methods
 

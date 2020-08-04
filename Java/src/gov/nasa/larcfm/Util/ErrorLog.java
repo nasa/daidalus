@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -15,7 +15,6 @@ public final class ErrorLog implements ErrorReporter {
   private String name;
   private StringBuffer message;
   private boolean has_error;
-  private boolean fail_fast;
   private boolean console_out;
   private static int limit = 25;
   private int size;
@@ -35,7 +34,6 @@ public final class ErrorLog implements ErrorReporter {
     this.name = name;
     message = new StringBuffer(256);
     has_error = false;
-    fail_fast = false;
     console_out = false;
     local_purge_flag = global_purge_flag;
     size = 0;
@@ -53,19 +51,11 @@ public final class ErrorLog implements ErrorReporter {
     this.name = new String(e.name);
     this.message = new StringBuffer(e.message);
     this.has_error = e.has_error;
-    this.fail_fast = e.fail_fast;
     this.console_out = e.console_out;
     this.local_purge_flag = e.local_purge_flag;
     this.size = e.size;
   }
 
-  /**
-   * If fail fast is true, then when an error is added, the program will terminate.
-   * @param ff true indicates that the program should terminate when an error is added.
-   */
-  public void setFailFast(boolean ff) {
-    fail_fast = ff;
-  }
 
   /**
    * Set this maximum number of messages that can be held in any given ErrorLog
@@ -110,12 +100,8 @@ public final class ErrorLog implements ErrorReporter {
     message.append(' ');
     message.append(msg);
     message.append(eol);
-    if (fail_fast) {
-      System.out.println(message.toString());
-      Debug.halt();
-    }
     if (console_out || global_console_out) {
-    	Debug.error(""+name+": "+msg);
+    	Debug.pln("ERROR!", name+": "+msg, true);
     }
     size++;
     if (size > limit) {

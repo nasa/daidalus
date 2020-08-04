@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -80,6 +80,11 @@ public final class StateVector implements OutputList {
 	public double t() {
 		return t;
 	}
+	public StateVector linear(double deltaTm) {
+		Vect3 sAtTm = s.linear(v,deltaTm);
+		return new StateVector(sAtTm,v,t+deltaTm);
+	}
+	                        
 
 	public String toString() {
 		return f.sStr(s)+" "+v.toString()+" "+f.Fm2(t);
@@ -104,4 +109,13 @@ public final class StateVector implements OutputList {
 		ret.add(f.FmPrecision(Units.to("s", t),precision));
 		return ret;
 	}
+	
+	public String toUnitTest(String postStr) {
+		String rtn = "";
+		rtn += "Vect3 s"+postStr+" = "+s.toUnitTest()+";\n";
+		rtn += "Velocity v"+postStr+" = "+v.toUnitTest()+";\n";
+		rtn += "double   t"+postStr+" = "+f.Fm4(t)+";\n";
+       return rtn;
+	}
+
 }

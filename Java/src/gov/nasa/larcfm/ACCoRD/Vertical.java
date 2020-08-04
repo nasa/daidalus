@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -19,10 +19,12 @@ import static gov.nasa.larcfm.ACCoRD.Consts.*;
 /** Vertical solution */
 public class Vertical {
 
-	public double   z = 0;
-	private boolean undef = true;
+	public double z;
+	private boolean undef;
 
 	Vertical() {
+		z = Double.NaN;
+		undef = true;
 	}
 
 	Vertical(double vz) {
@@ -106,7 +108,6 @@ public class Vertical {
 	 */
 	public static Vertical vs_circle(Vect3 s, Vect3 vo, Vect3 vi,
 			int eps, double D, double H) {
-		//f.pln("Vertical.vs_circle s="+s+" vo="+vo+" vi="+vi+" eps="+eps);    
 		Vect2 s2 = s.vect2();
 		Vect2 vo2 = vo.vect2();
 		Vect2 vi2 = vi.vect2();
@@ -122,54 +123,22 @@ public class Vertical {
 	/** */
 	public static Vertical vs_circle_at(double sz, double viz,
 			double t, int eps, int dir, double H) {
-		//f.pln("Vertical.vs_circle_at sz="+sz+" viz="+viz+" t="+t+" eps="+eps);    
 		if (t > 0 && dir*eps*sz <= dir*H) 
 			return vs_at(sz,t,eps,H).add_this(viz);
 		return NoVerticalSolution;
 	}
-
-	//
-	//  static int sign_vz(Vect3 s, double vz, String ownship, String traffic) {
-	//    if (s.z*vz >= 0 && !Util.almost_equals(vz,0.0)) 
-	//      return Util.sign(vz);
-	//    else
-	//      return CriteriaCore.breakSymmetry(s,ownship,traffic);
-	//  }
-
 
 	/** */
 	public static Vertical vs_los_recovery(Vect3 s, Vect3 vo, Vect3 vi, double H, double t, int epsv) {
 		if (t <= 0)
 			return NoVerticalSolution;
 		Vect3 v = vo.Sub(vi);
-		// int epsv = sign_vz(s,vo.z,vi.z,ownship,traffic)
 		double nvz = (epsv*H - s.z) / t;
-		//f.pln(" $$$$ vs_los_recovery =  nvz = "+Units.str("fpm",nvz) );
 		if (s.z*v.z >= 0 && Math.abs(v.z) >= Math.abs(nvz))
 			return new Vertical(vo.z);
 		else
 			return new Vertical(nvz+vi.z);
 	}
-
-
-
-	//  public static int verticalCoordination(Vect3 s, Vect3 v, double D, String ownship, String traffic) {
-	////f.pln("CR3D.verticalCoordination s="+s+" v="+v+" D="+D+" own="+ownship+" traf="+traffic);    
-	//    Vect2 s2 = s.vect2();
-	//    Vect2 v2 = v.vect2();
-	//    double a = v2.sqv();
-	//    double b = s2.dot(v2);
-	//    double c = s2.sqv()-Util.sq(D);
-	//    double d = Util.sq(b)-a*c;
-	//    if (Util.almost_equals(v.z,0) || v2.isZero() ||
-	//        d < 0 || eq(v.z,Util.sq(b)-a*c,s.z*a-v.z*b)) {
-	//      return CriteriaCore.breakSymmetry(s, ownship, traffic);
-	//    }
-	//    if (gt(v.z,Util.sq(b)-a*c,s.z*a-v.z*b)) {
-	//      return -1;
-	//    }
-	//    return 1;
-	//  }
 
 	public static boolean hasEpsilonCriticalPointVertical(Vect3 s, Velocity vo, Velocity vi, Double D) {
 		Vect2 s2 = s.vect2();
@@ -193,13 +162,10 @@ public class Vertical {
 		double theta = 0.0;
 		if (delta >= 0) {
 			theta = Horizontal.Theta_D(s2, v2, -1, D);   // entry time
-			//f.pln(" %%%% epsilonCriticalPointVertical: theta = "+theta+ " s.z = "+Units.str("ft",s.z));
 			return -s.z / theta;
 		} else
 			return 0;
 	}
-
-
 
 	public String toString() {
 		return "[ undef = "+undef+" z = "+f.FmPrecision(z)+"]";

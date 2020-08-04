@@ -1,7 +1,7 @@
 # Simple Makefile to build DAIDALUS library and example applications
 NAME=DAIDALUS
 MAJOR=2
-MINOR=e
+MINOR=f
 VERSION=$(NAME)$(MAJOR)
 RELEASE=$(NAME)$(MAJOR)$(MINOR)
 

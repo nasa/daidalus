@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -12,14 +12,12 @@ import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.LatLonAlt;
 import gov.nasa.larcfm.Util.Pair;
-import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Quad;
 import gov.nasa.larcfm.Util.Triple;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
-import gov.nasa.larcfm.Util.f;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,44 +31,44 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This reads in and stores a set of aircraft states, possibly over time, (and parameters) from a file
- * The Aircraft states are stored in an ArrayList&lt;AircraftState&gt;.<p>
+ * <p>This reads in and stores a set of aircraft states, possibly over time, (and parameters) from a file
+ * The Aircraft states are stored in an ArrayList&lt;AircraftState&gt;.</p>
  * 
- * This can read state/history files as well as sequence files (slight variations on history files).<p>
+ * <p>This can read state/history files as well as sequence files (slight variations on history files).</p>
  *
- * State files consist of comma or space-separated values, with one point per line.
+ * <p>State files consist of comma or space-separated values, with one point per line.
  * Required columns include aircraft name, 3 position columns (either x[nmi]/y[nmi]/z[ft] or latitude[deg]/longitude[deg]/altitude[ft]) and
- * 3 velocity columns (either vx[kn]/vy[kn]/vz[fpm] or track[deg]/gs[kn]/vs[fpm]).<p>
+ * 3 velocity columns (either vx[kn]/vy[kn]/vz[fpm] or track[deg]/gs[kn]/vs[fpm]).</p>
  *
- * An optional column is time [s].  If it is included, a "history" will be build if an aircraft has more than one entry.
- * If it is not included, only the last entry for an aircraft will be stored.<p>
+ * <p>An optional column is time [s].  If it is included, a "history" will be build if an aircraft has more than one entry.
+ * If it is not included, only the last entry for an aircraft will be stored.</p>
  *
- * It is necessary to include a header line that defines the column ordering.  The column definitions are not case sensitive.
+ * <p>It is necessary to include a header line that defines the column ordering.  The column definitions are not case sensitive.
  * There is also an optional header line, immediately following the column definition, that defines the unit type for each
- * column (the defaults are listed above).<p>
+ * column (the defaults are listed above).</p>
  *
- * If points are consecutive for the same aircraft, subsequent name fields may be replaced with a double quotation mark (&quot;).
- * The aircraft name is case sensitive, so US54A != Us54a != us54a.<p>
+ * <p>If points are consecutive for the same aircraft, subsequent name fields may be replaced with a double quotation mark (&quot;).
+ * The aircraft name is case sensitive, so US54A != Us54a != us54a.</p>
  *
- * Any empty line or any line starting with a hash sign (#) is ignored.<p>
+ * <p>Any empty line or any line starting with a hash sign (#) is ignored.</p>
  *
- * Files may also include parameter definitions prior to other data.  Parameter definitions are of the form &lt;key&gt; = &lt;value&gt;,
+ * <p>Files may also include parameter definitions prior to other data.  Parameter definitions are of the form &lt;key&gt; = &lt;value&gt;,
  * one per line, where &lt;key&gt; is a case-insensitive alphanumeric word and &lt;value&gt; is either a numeral or string.  The &lt;value&gt;
  * may include a unit, such as "dist = 50 [m]".  Note that parameters require a space on either side of the equals sign.
- * Note that it is possible to also update the stored parameter values (or store additional ones) through API calls.<p>
+ * Note that it is possible to also update the stored parameter values (or store additional ones) through API calls.</p>
  *
- * Parameters can be interpreted as double values, strings, or Boolean values, and the user is required to know which parameter is
- * interpreted as which type.<p>
+ * <p>Parameters can be interpreted as double values, strings, or Boolean values, and the user is required to know which parameter is
+ * interpreted as which type.</p>
  * 
- * If the optional parameter "filetype" is specified, its value must be "state", "history", or "sequence" for this reader
- * to accept the file without error.<p>
+ * <p>If the optional parameter "filetype" is specified, its value must be "state", "history", or "sequence" for this reader
+ * to accept the file without error.</p>
  * 
- * This allows for arbitrary additional user-defined columns. New columns' information may 
+ * <p>This allows for arbitrary additional user-defined columns. New columns' information may 
  * be accessed by the get getNewColumnValue(), getNewColumnBoolean(), or getNewColumnString() 
  * methods. The 2-parameter versions (index, column) inherited from StateReader will only 
  * return the last active values for a given aircraft (which may be blank).  To retrieve 
  * values at arbitrary times, use the 3-parameter versions (time, name, column). New columns 
- * are assumed unitless unless units are specified.
+ * are assumed unitless unless units are specified.</p>
  *
  */
 public class SequenceReader extends StateReader {
@@ -325,7 +323,8 @@ public class SequenceReader extends StateReader {
 	}
 
 
-	/** Return the number of sequence entries in the file */
+	/** Return the number of sequence entries in the file 
+	 * @return size*/
 	public int sequenceSize() {
 		return sequenceTable.size();
 	}
@@ -340,6 +339,7 @@ public class SequenceReader extends StateReader {
 
 	/**
 	 * Returns the current window size
+	 * @return size
 	 */
 	public int getWindowSize() {
 		return windowSize;
@@ -428,7 +428,8 @@ public class SequenceReader extends StateReader {
 
 
 	/**
-	 *  Returns a sorted list of all sequence keys (times)
+	 * Returns a sorted list of all sequence keys (times)
+	 * @return list of keys
 	 */
 	public ArrayList<Double> sequenceKeys() {
 		ArrayList<Double> arl = new ArrayList<Double>();
@@ -441,7 +442,11 @@ public class SequenceReader extends StateReader {
 		return arl;
 	}
 
-	/** a list of n &gt; 0 sequence keys, stopping at the given time (inclusive) */ 
+	/** A list of n &gt; 0 sequence keys, stopping at the given time (inclusive) 
+	 * @param n 
+	 * @param tm 
+	 * @return list of keys 
+	 * */ 
 	public ArrayList<Double> sequenceKeysUpTo(int n, double tm) {
 		ArrayList<Double> arl = new ArrayList<Double>();
 		for (Iterator<Double> e = sequenceTable.keySet().iterator(); e.hasNext();) {
@@ -457,17 +462,27 @@ public class SequenceReader extends StateReader {
 		return arl;
 	}
 
-	/** Return a list of aircraft names */
+	/** Return a list of aircraft names 
+	 * @return aircraft 
+	 * */
 	public ArrayList<String> getNameIndex() {
 		return new ArrayList<String>(nameIndex);
 	}
 
-	/** Returns true if an entry exists for the given name and time */
+	/** Returns true if an entry exists for the given name and time 
+	 * @param name 
+	 * @param time 
+	 * @return true, if aircraft exists
+	 * */
 	public boolean hasEntry(String name, double time) {
 		return sequenceTable.containsKey(time) && sequenceTable.get(time).containsKey(name);
 	}
 
-	/** Returns the Position entry for a given name and time.  If no entry for this name and time, returns a zero position and sets a warning. */
+	/** Returns the Position entry for a given name and time.  If no entry for this name and time, returns a zero position and sets a warning. 
+	 * @param name 
+	 * @param time 
+	 * @return position
+	 * */
 	public Position getSequencePosition(String name, double time) {
 		if (sequenceTable.containsKey(time) && sequenceTable.get(time).containsKey(name)) {
 			return sequenceTable.get(time).get(name).first;
@@ -477,7 +492,11 @@ public class SequenceReader extends StateReader {
 		}
 	}
 
-	/** Returns the Velocity entry for a given name and time.  If no entry for this name and time, returns a zero velocity and sets a warning. */
+	/** Returns the Velocity entry for a given name and time.  If no entry for this name and time, returns a zero velocity and sets a warning. 
+	 * @param name 
+	 * @param time 
+	 * @return velocity
+	 * */
 	public Velocity getSequenceVelocity(String name, double time) {
 		if (sequenceTable.containsKey(time) && sequenceTable.get(time).containsKey(name)) {
 			return sequenceTable.get(time).get(name).second;
@@ -487,12 +506,18 @@ public class SequenceReader extends StateReader {
 		}
 	}
 
-	/** Returns a list of all Aircraft ids in the sequence */
+	/** Returns a list of all Aircraft ids in the sequence 
+	 * @return aircraft ids
+	 * */
 	public ArrayList<String> getSequenceAircraftIdList() {
 		return new ArrayList<String>(names);
 	}
 
-	/** sets a particular entry without reading in from a file */
+	/** sets a particular entry without reading in from a file 
+	 * @param time 
+	 * @param name 
+	 * @param p 
+	 * @param v */
 	public void setEntry(double time, String name, Position p, Velocity v) {
 		if (!sequenceTable.containsKey(time)) {
 			sequenceTable.put(time, new Hashtable<String, Pair<Position, Velocity> >());
@@ -533,9 +558,10 @@ public class SequenceReader extends StateReader {
 
 	/**
 	 * Return true if the given aircraft has data for the indicated column at the inicated time.
-	 * @param ac
+	 * @param time 
+	 * @param acName
 	 * @param colname
-	 * @return
+	 * @return true, if extra data is available
 	 */
 	public boolean hasExtraColumnData(double time, String acName, String colname) {
 		int colnum = input.findHeading(colname); 		
@@ -545,6 +571,10 @@ public class SequenceReader extends StateReader {
 	
 	/**
 	 * Returns the column value associated with a given aircraft at a given time, interpreted as a double, or NaN if there is no info  
+	 * @param time 
+	 * @param acName 
+	 * @param colname 
+	 * @return information
 	 */
 	public double getExtraColumnValue(double time, String acName, String colname) {
 		int colnum = input.findHeading(colname); 		
@@ -558,6 +588,10 @@ public class SequenceReader extends StateReader {
 
 	/**
 	 * Returns the column value associated with a given aircraft at a given time, interpreted as a boolean, or false if there is no info  
+	 * @param time 
+	 * @param acName 
+	 * @param colname 
+	 * @return information
 	 */
 	public boolean getExtraColumnBool(double time, String acName, String colname) {
 		int colnum = input.findHeading(colname); 		
@@ -571,6 +605,10 @@ public class SequenceReader extends StateReader {
 
 	/**
 	 * Returns the column value associated with a given aircraft at a given time, interpreted as a string, or the empty string if there is no info  
+	 * @param time 
+	 * @param acName 
+	 * @param colname 
+	 * @return information
 	 */
 	public String getExtraColumnString(double time, String acName, String colname) {
 		int colnum = input.findHeading(colname); 		

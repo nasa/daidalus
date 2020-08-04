@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 United States Government as represented by
+ * Copyright (c) 2015-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -13,6 +13,7 @@ public interface ParameterAcceptor extends ParameterProvider {
 
 	/**
 	 * Modify this object's parameters to match the given ParameterData object.  Unrecognized keys are ignored.
+	 * @param p database of parameters
 	 */
 	public void setParameters(ParameterData p);
 	

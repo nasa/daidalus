@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -195,7 +195,7 @@ public class Interval {
    * Interval and the given Interval.  If the two regions do not
    * overlap, then an empty region is returned. 
    * @param r interval
-   * @return true if intersection
+   * @return intersection or empty
    */
   public Interval intersect(Interval r) {
     if ( equals(r) ) {
@@ -237,5 +237,14 @@ public class Interval {
 	  return low <= r.low && up >= r.up;
   }
     
+  /**
+   * Shift this interval by a given amount
+   * @param d amount to shift (add to both bounds)
+   * @return new interval
+   */
+  public Interval shift(double d) {
+	  return new Interval(low+d, up+d);
+  }
+  
 }
 

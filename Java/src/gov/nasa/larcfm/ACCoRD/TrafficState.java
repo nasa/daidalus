@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 United States Government as represented by
+ * Copyright (c) 2016-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -12,7 +12,6 @@ import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
@@ -21,8 +20,8 @@ import gov.nasa.larcfm.Util.f;
 public class TrafficState {
 
 	private final String id_;
-	private final Position pos_;
-	private final Velocity gvel_; // Ground velocity
+	private Position pos_;
+	private Velocity gvel_; // Ground velocity
 	private Velocity avel_;       // Air velocity
 	private EuclideanProjection eprj_; // Projection 
 	private int alerter_;         // Index to alert levels used by this aircraft
@@ -95,6 +94,7 @@ public class TrafficState {
 		sum_ = new SUMData();
 	}
 
+	// Make a copy of acc
 	public TrafficState(TrafficState ac) {
 		id_ = ac.id_;
 		pos_ = ac.pos_;
@@ -108,16 +108,37 @@ public class TrafficState {
 		sum_ = new SUMData(ac.sum_);
 	}
 
+	// Set air velocity to new_avel
+	public void setAirVelocity(Velocity new_avel) {
+		Velocity wind = windVector();
+		avel_ = new_avel;
+		gvel_ = new_avel.Add(wind);
+		applyEuclideanProjection();
+	}
+
+	// Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
+	// the resulting aircraft is considered as another intruder.
+	public void setPosition(Position new_pos) {
+		pos_ = new_pos;
+		applyEuclideanProjection();
+	}
+
 	/**
 	 * Apply Euclidean projection. Requires aircraft's position in lat/lon
 	 */
 	private void applyEuclideanProjection() {
-		sxyz_ = eprj_.project(pos_);
-		Velocity v = eprj_.projectVelocity(pos_,avel_);
-		posxyz_ = new Position(sxyz_);	
-		velxyz_ = Velocity.make(v);
-	}	
-
+		if (pos_.isLatLon()) {
+			sxyz_ = eprj_.project(pos_);
+			Velocity v = eprj_.projectVelocity(pos_,avel_);
+			posxyz_ = new Position(sxyz_);	
+			velxyz_ = Velocity.make(v);
+		} else {
+			posxyz_ = pos_;
+			sxyz_ = pos_.vect3();
+			velxyz_ = avel_;
+		}	
+	}
+	
 	/**
 	 * Set aircraft as ownship 
 	 */
@@ -241,13 +262,16 @@ public class TrafficState {
 	}
 
 	/**
-	 * Project aircraft state offset time, which can be positive or negative.
+	 * Project aircraft state offset time, which can be positive or negative, in the direction of the
+	 * air velocity. This methods doesn't change ownship, i.e., the resulting aircraft is considered as 
+	 * another intruder.
 	 * @param offset Offset time.
-	 * @return Projected aircraft, including wind velocities
+	 * @return Projected aircraft.
 	 */
 	public TrafficState linearProjection(double offset) {
-		TrafficState ac = new TrafficState(getId(),pos_.linear(gvel_,offset),gvel_,eprj_,alerter_);
-		ac.applyWindVector(windVector());
+		Position new_pos = pos_.linear(avel_,offset);
+		TrafficState ac = new TrafficState(this);
+		ac.setPosition(new_pos);
 		return ac;
 	}
 
@@ -280,15 +304,15 @@ public class TrafficState {
 		return s+"}";
 	}
 
-	public String formattedHeader(String uxy, String ualt, String ugs, String uvs) {
+	public String formattedHeader(String utrk, String uxy, String ualt, String ugs, String uvs) {
 		String s1="NAME";
 		String s2="[none]";
 		if (pos_.isLatLon()) {
 			s1 += " lat lon alt trk gs vs";
-			s2 += " [deg] [deg] ["+ualt+"] [deg] ["+ugs+"] ["+uvs+"]";
+			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"]";
 		} else {
 			s1 += " sx sy sz trk gs vs";
-			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] [deg] ["+ugs+"] ["+uvs+"]";
+			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"]";
 		}
 		s1 += " time alerter";
 		s2 += " [s] [none]";
@@ -297,14 +321,14 @@ public class TrafficState {
 		return s1+"\n"+s2+"\n";
 	}
 
-	public String formattedTrafficState(String uxy, String ualt, String ugs, String uvs, double time) {
+	public String formattedTrafficState(String utrk, String uxy, String ualt, String ugs, String uvs, double time) {
 		String s= getId();
 		if (pos_.isLatLon()) {
 			s += ", "+pos_.lla().toString("deg","deg",ualt);
 		} else {
 			s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt);
 		}
-		s += ", "+avel_.toStringNP("deg",ugs,uvs)+", "+f.FmPrecision(time);
+		s += ", "+avel_.toStringNP(utrk,ugs,uvs)+", "+f.FmPrecision(time);
 		s += ", "+alerter_;
 		s += ", "+f.FmPrecision(sum_.get_s_EW_std(uxy));
 		s += ", "+f.FmPrecision(sum_.get_s_NS_std(uxy));
@@ -318,27 +342,27 @@ public class TrafficState {
 	}
 
 	public static String formattedTrafficList(List<TrafficState> traffic, 
-			String uxy, String ualt, String ugs, String uvs, double time) {
+			String utrk, String uxy, String ualt, String ugs, String uvs, double time) {
 		String s="";
 		for (TrafficState ac : traffic) {
-			s += ac.formattedTrafficState(uxy, ualt, ugs, uvs, time);
+			s += ac.formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);
 		}
 		return s;
 	}
 
 	public String formattedTraffic(List<TrafficState> traffic,
-			String uxy, String ualt, String ugs, String uvs, double time) {
+			String utrk, String uxy, String ualt, String ugs, String uvs, double time) {
 		String s="";
-		s += formattedHeader(uxy,ualt,ugs,uvs);
-		s += formattedTrafficState(uxy,ualt,ugs,uvs,time);
-		s += formattedTrafficList(traffic,uxy,ualt,ugs,uvs,time);
+		s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
+		s += formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);
+		s += formattedTrafficList(traffic,utrk,uxy,ualt,ugs,uvs,time);
 		return s;
 	}
 
 	public String toPVS() {
 		return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
 				", v:= "+get_v().toPVS()+", alerter:= "+alerter_+
-				", s_EW_std:= "+f.FmPrecision(sum_.get_s_EW_std())+
+				", unc := (# s_EW_std:= "+f.FmPrecision(sum_.get_s_EW_std())+
 				", s_NS_std:= "+f.FmPrecision(sum_.get_s_NS_std())+
 				", s_EN_std:= "+f.FmPrecision(sum_.get_s_EN_std())+
 				", sz_std:= "+f.FmPrecision(sum_.get_sz_std())+
@@ -346,7 +370,7 @@ public class TrafficState {
 				", v_NS_std:= "+f.FmPrecision(sum_.get_v_NS_std())+
 				", v_EN_std:= "+f.FmPrecision(sum_.get_v_EN_std())+
 				", vz_std:= "+f.FmPrecision(sum_.get_vz_std())+
-				" #)";   
+				" #) #)";   
 	}
 
 	public String listToPVSAircraftList(List<TrafficState> traffic) {
@@ -542,46 +566,6 @@ public class TrafficState {
 	 */
 	void resetUncertainty() {
 		sum_.resetUncertainty();
-	}
-
-	public double relativeHorizontalPositionError(TrafficState ac, DaidalusParameters parameters) {
-		double min_error = parameters.getHorizontalNMAC()*0.1;
-		return Util.max(min_error,
-				parameters.getHorizontalPositionZScore()*
-				(sum().getHorizontalPositionError()+ac.sum().getHorizontalPositionError()));
-	}
-
-	public double relativeVerticalPositionError(TrafficState ac, DaidalusParameters parameters) {
-		double min_error = parameters.getHorizontalNMAC()*0.1;
-		return Util.max(min_error,
-				parameters.getVerticalPositionZScore()*
-				(sum().getVerticalPositionError()+ac.sum().getVerticalPositionError()));
-	}
-
-	private static double weighted_z_score(double range, DaidalusParameters parameters) {
-		if (range>=parameters.getHorizontalVelocityZDistance()) {
-			return parameters.getHorizontalVelocityZScoreMin();
-		} else { 
-			double perc = range/parameters.getHorizontalVelocityZDistance();
-			return (1-perc)*parameters.getHorizontalVelocityZScoreMax()+
-					perc*parameters.getHorizontalVelocityZScoreMin();
-		}
-	}
-
-	public double relativeHorizontalSpeedError(TrafficState ac, double s_err, DaidalusParameters parameters) {
-		double min_error = parameters.getHorizontalSpeedStep()*0.1;
-		double range = get_s().distanceH(ac.get_s());
-		double  z_score = weighted_z_score(Util.max(range-s_err,0.0),parameters);
-		return Util.max(min_error,
-				z_score*
-				(sum().getHorizontalSpeedError()+ac.sum().getHorizontalSpeedError()));
-	}
-
-	public double relativeVerticalSpeedError(TrafficState ac, DaidalusParameters parameters) {
-		double min_error = parameters.getVerticalSpeedStep()*0.1;
-		return Util.max(min_error,
-				parameters.getVerticalSpeedZScore()*
-				(sum().getVerticalSpeedError()+ac.sum().getVerticalSpeedError()));
 	}
 
 	public boolean sameId(TrafficState ac) {

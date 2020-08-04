@@ -1,5 +1,9 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by 
+ *  Author:  
+ *         Jeff Maddalon             NASA Langley Research Center
+ *
+ * 
+ * Copyright (c) 2011-2019 United States Government as represented by 
  * the National Aeronautics and Space Administration.  No copyright 
  * is claimed in the United States under Title 17, U.S.Code. All Other 
  * Rights Reserved.
@@ -8,8 +12,8 @@
 package gov.nasa.larcfm.Util;
 
 /**
- * <p>This class contains common formulas used for Great Circle calculations. All
- * of these calculations assume a spherical earth. Many of the formulas are based on the
+ * <p>This class contains common formulas used for modeling a spherical Earth, 
+ * in particular, Great Circle calculations. Many of the formulas are based on the
  * Aviation Formulary (v1.44) by Ed Williams.
  * </p>
  * 
@@ -21,7 +25,8 @@ package gov.nasa.larcfm.Util;
  * from true north.
  * <li>For any of these calculations that rely on a radius for the earth, the
  * value used is <code>GreatCircle.spherical_earth_radius</code>.
- * <li>Great circles cannot be defined by antipodal points
+ * <li>Great circles cannot be defined by antipodal points. (e.g., the north pole and the 
+ * south pole)
  * </ul>
  */
 public final class GreatCircle {
@@ -381,7 +386,7 @@ public final class GreatCircle {
 	}
 
 	/**
-	 * Find the maximum latitude of the great circle defined by the 
+	 * Estimate the maximum latitude of the great circle defined by the 
 	 * two points.
 	 * 
 	 * @param lat1 latitude of point 1
@@ -391,19 +396,27 @@ public final class GreatCircle {
 	 * @return maximum latitude
 	 */
 	public static double max_latitude_gc(double lat1, double lon1, double lat2, double lon2) {
-		return max_latitude_gc_course(lat1, lon1, lat2, lon2, initial_course(lat1,lon1,lat2,lon2));
+		return max_latitude_gc_course(lat1, initial_course(lat1,lon1,lat2,lon2));
 	}
 
-	private static double max_latitude_gc_course(double lat1, double lon1, double lat2, double lon2, double trk) {
+	private static double max_latitude_gc_course(double lat1, double trk) {
 		return Util.acos_safe(Math.abs(Math.sin(trk)*Math.cos(lat1)));
 	}
 
+	/**
+	 * Estimate the maximum latitude of the great circle defined by the 
+	 * two points.
+	 * 
+	 * @param p1 point 1
+	 * @param p2 point 2
+	 * @return maximum latitude
+	 */
 	public static double max_latitude_gc(LatLonAlt p1, LatLonAlt p2) {
 		return max_latitude_gc(p1.lat(), p1.lon(), p2.lat(), p2.lon());
 	}
 
 	/**
-	 * Find the minimum latitude of the great circle defined by the 
+	 * Estimate the minimum latitude of the great circle defined by the 
 	 * two points.
 	 * 
 	 * @param lat1 latitude of point 1
@@ -413,13 +426,21 @@ public final class GreatCircle {
 	 * @return minimum latitude
 	 */
 	public static double min_latitude_gc(double lat1, double lon1, double lat2, double lon2) {
-		return min_latitude_gc_course(lat1, lat2, lon1, lon2, initial_course(lat1,lon1,lat2,lon2));
+		return min_latitude_gc_course(lat1, initial_course(lat1,lon1,lat2,lon2));
 	}
 
-	private static double min_latitude_gc_course(double lat1, double lon1, double lat2, double lon2, double trk) {
+	private static double min_latitude_gc_course(double lat1, double trk) {
 		return -Util.acos_safe(Math.abs(Math.sin(trk)*Math.cos(lat1)));
 	}
 
+	/**
+	 * Estimate the minimum latitude of the great circle defined by the 
+	 * two points.
+	 * 
+	 * @param p1 point 1
+	 * @param p2 point 2
+	 * @return minimum latitude
+	 */
 	public static double min_latitude_gc(LatLonAlt p1, LatLonAlt p2) {
 		return min_latitude_gc(p1.lat(), p1.lon(), p2.lat(), p2.lon());
 	}
@@ -492,14 +513,14 @@ public final class GreatCircle {
 				if (lat1 < 0 && (trk <= 0.5*Math.PI || trk >= 1.5*Math.PI)) {
 					return lat1;
 				} else {
-					minLat = min_latitude_gc_course(lat1,lon1,lat2,lon2,trk);
+					minLat = min_latitude_gc_course(lat1,trk);
 				}
 			} else {
 				double trk = initial_course(lat2, lon2, lat1, lon1);
 				if (lat2 < 0 && (trk <= 0.5*Math.PI || trk >= 1.5*Math.PI)) {
 					return lat2;
 				} else {
-					minLat = min_latitude_gc_course(lat2,lon2,lat1,lon1,trk);
+					minLat = min_latitude_gc_course(lat2,trk);
 				}
 			}
 			// END BLOCK
@@ -543,14 +564,14 @@ public final class GreatCircle {
 				if (lat1 > 0 && (trk >= 0.5*Math.PI && trk <= 1.5*Math.PI)) {
 					return lat1;
 				} else {
-					maxLat = max_latitude_gc_course(lat1,lon1,lat2,lon2,trk);
+					maxLat = max_latitude_gc_course(lat1,trk);
 				}
 			} else {
 				double trk = initial_course(lat2, lon2, lat1, lon1);
 				if (lat2 > 0 && (trk >= 0.5*Math.PI && trk <= 1.5*Math.PI)) {
 					return lat2;
 				} else {
-					maxLat = max_latitude_gc_course(lat2,lon2,lat1,lon1,trk);
+					maxLat = max_latitude_gc_course(lat2,trk);
 				}
 			}
 			// END BLOCK
@@ -1131,13 +1152,13 @@ public final class GreatCircle {
 		// almost same point or antipode:
 		if ((Util.almost_equals(p1.lat(),p2.lat()) && Util.almost_equals(p1.lon(),p2.lon())) || 
 				(Util.almost_equals(p1.lat(),-p2.lat()) && Util.almost_equals(p1.lon(),Util.to_pi(p2.lon()+Math.PI)))) return x; 
-		Vect3 a = spherical2xyz(p1.lat(), p1.lon());
-		Vect3 b = spherical2xyz(p2.lat(), p2.lon());
+		Vect3 a = spherical2ecef_noalt(p1.lat(), p1.lon());
+		Vect3 b = spherical2ecef_noalt(p2.lat(), p2.lon());
 		Vect3 c = a.cross(b);
-		Vect3 p = spherical2xyz(x.lat(), x.lon());
+		Vect3 p = spherical2ecef_noalt(x.lat(), x.lon());
 		Vect3 g = p.Sub(c.Scal(p.dot(c)/c.sqv()));
 		double v = spherical_earth_radius/g.norm();
-		return xyz2spherical(g.Scal(v)).mkAlt(x.alt()); // return to x's altitude
+		return ecef_noalt2spherical(g.Scal(v)).mkAlt(x.alt()); // return to x's altitude
 	}
 
 	/**
@@ -1179,8 +1200,8 @@ public final class GreatCircle {
 	 */
 	public static LatLonAlt intersection(LatLonAlt a1, LatLonAlt a2, LatLonAlt b1, LatLonAlt b2) {
 		// define 2 planes based on the GCs
-		Vect3 va = spherical2xyz(a1.lat(), a1.lon()).cross(spherical2xyz(a2.lat(), a2.lon()));
-		Vect3 vb = spherical2xyz(b1.lat(), b1.lon()).cross(spherical2xyz(b2.lat(), b2.lon()));
+		Vect3 va = spherical2ecef_noalt(a1.lat(), a1.lon()).cross(spherical2ecef_noalt(a2.lat(), a2.lon()));
+		Vect3 vb = spherical2ecef_noalt(b1.lat(), b1.lon()).cross(spherical2ecef_noalt(b2.lat(), b2.lon()));
 		double r = GreatCircle.spherical_earth_radius;
 		Vect3 vavb = va.cross(vb);
 		if (vavb.almostEquals(Vect3.ZERO)) {
@@ -1189,8 +1210,8 @@ public final class GreatCircle {
 		// find the line of the intersection
 		Vect3 v1 = vavb.Scal(r / vavb.norm());
 		Vect3 v2 = vavb.Scal(-r / vavb.norm());
-		LatLonAlt x1 = xyz2spherical(v1).mkAlt(a1.alt());
-		LatLonAlt x2 = xyz2spherical(v2).mkAlt(a1.alt());
+		LatLonAlt x1 = ecef_noalt2spherical(v1).mkAlt(a1.alt());
+		LatLonAlt x2 = ecef_noalt2spherical(v2).mkAlt(a1.alt());
 		// return the closest point to a1
 		if (distance(a1,x1) < distance(a1,x2)) {
 			return x1;
@@ -1203,7 +1224,7 @@ public final class GreatCircle {
 	 * Given two great circle segments defined by a1,a2 and b1,b2, return the intersection point that is closest a1.  
 	 * This assumes that the arc distance between a1,a2 &lt; 90 and b1,b2 &lt; 90
 	 * The altitude of the return value is equal to a1.alt()
-	 * This returns an INVALID value if both segments are collinear
+	 * This returns an INVALID value if both segments are collinear or there is no intersection
 	 * 
 	 * @param so  starting point of segment [so,so2]
 	 * @param so2 ending point of segment [so,so2]
@@ -1241,6 +1262,41 @@ public final class GreatCircle {
 		LatLonAlt so2 = linear_initial(so,vo,T);
 		return intersectSegments(so, so2, si, si2);
 	}
+
+	
+	/**
+	 * Return true if, a,b,c, are collinear (assumed) and b is between a and c (inclusive) 
+	 */
+	private static boolean collinearBetween(LatLonAlt a, LatLonAlt b, LatLonAlt c) {
+//		if (!collinear(a,b,c)) return false;
+		return a.distanceH(b) <= a.distanceH(c) && c.distanceH(b) <= c.distanceH(a);
+	}
+
+//	/**
+//	 * EXPERIMENTAL
+//	 * @param T
+//	 * @param so
+//	 * @param vo
+//	 * @param si
+//	 * @param si2
+//	 * @return (lla1, lla2), where is lla1 is invalid, there is no intersection, if lla2 is null, there is a single point of intersection, if lla2 is not null, then there is an overlap in segments
+//	 */
+//	public static Pair<LatLonAlt,LatLonAlt> intersectSegmentsWithOverlap(LatLonAlt so, LatLonAlt so2, LatLonAlt si, LatLonAlt si2) {
+//		if (GreatCircle.collinear(so, so2, si) && GreatCircle.collinear(so,  so2, si2)) {
+//			boolean acb = collinearBetween(so, si, so2);
+//			boolean adb = collinearBetween(so, si2, so2);
+//			boolean cad = collinearBetween(si, so, si2);
+//			boolean cbd = collinearBetween(si, so2, si2);
+//			if (acb && adb) return Pair.make(si, si2); // 2 inside 1
+//			if (cad && cbd) return Pair.make(so, so2); // 1 inside 2
+//			if (acb && cbd) return Pair.make(si, so2); // 1 then 2
+//			if (acb && cad) return Pair.make(so, si);  // 1 then 2
+//			if (adb && cbd) return Pair.make(so2, si); // 2 then 1
+//			if (adb && cad) return Pair.make(so2, si); // 2 then 1
+//		}		
+//		LatLonAlt ret = intersectSegments(so, so2, si, si2);
+//		return Pair.make(ret, null);
+//	}
 
 	/**
 	 * Given two great circles defined by so, so2 and si, si2 return the intersection point that is closest to so.
@@ -1356,8 +1412,8 @@ public final class GreatCircle {
 	 * @return angle between two great circles
 	 */
 	public static double angleBetween(LatLonAlt a1, LatLonAlt a2, LatLonAlt b1, LatLonAlt b2) {
-		Vect3 va = spherical2xyz(a1.lat(), a1.lon()).cross(spherical2xyz(a2.lat(), a2.lon())).Hat(); // normal 1
-		Vect3 vb = spherical2xyz(b1.lat(), b1.lon()).cross(spherical2xyz(b2.lat(), b2.lon())).Hat(); // normal 2
+		Vect3 va = spherical2ecef_noalt(a1.lat(), a1.lon()).cross(spherical2ecef_noalt(a2.lat(), a2.lon())).Hat(); // normal 1
+		Vect3 vb = spherical2ecef_noalt(b1.lat(), b1.lon()).cross(spherical2ecef_noalt(b2.lat(), b2.lon())).Hat(); // normal 2
 		double cosx = va.dot(vb);
 		return Util.acos_safe(cosx);
 	}
@@ -1584,7 +1640,7 @@ public final class GreatCircle {
 	 * @param lon longitude
 	 * @return point in R3 on surface of the earth (zero altitude)
 	 */
-	public static Vect3 spherical2xyz(double lat, double lon) {
+	public static Vect3 spherical2ecef_noalt(double lat, double lon) {
 		//return unit_spherical2xyz(lat,lon).Scal(spherical_earth_radius);
 		double r = GreatCircle.spherical_earth_radius;
 		// convert latitude to 0-PI
@@ -1596,7 +1652,7 @@ public final class GreatCircle {
 		return new Vect3(x,y,z);
 	}
 
-	public static Vect3 unit_spherical2xyz(double lat, double lon) {
+	public static Vect3 unit_spherical2ecef(double lat, double lon) {
 		// convert latitude to 0-PI
 		double theta = Math.PI/2 - lat;
 		double phi = lon; //Math.PI + lon;
@@ -1608,20 +1664,6 @@ public final class GreatCircle {
 	
 	
 	/**
-	 * Transforms a lat/lon position to a point in R3 (on a sphere)
-	 * This is an Earth-Centered, Earth-Fixed translation (ECEF, assuming earth-surface altitude).
-	 * From Wikipedia: en.wikipedia.org/wiki/Curvilinear_coordinates (contents apparently moved to Geodetic datum entry)
-	 * 
-	 * The x-axis intersects the sphere of the earth at 0 latitude (the equator) and 0 longitude (Greenwich). 
-	 * 	
-	 * @param lla lattitude/longitude point
-	 * @return point in R3 on surface of the earth (zero altitude)
-	 */
-	public static Vect3 spherical2xyz(LatLonAlt lla) {
-		return spherical2xyz(lla.lat(), lla.lon());
-	}
-
-	/**
 	 * Transforms a R3 position on the earth surface into lat/lon coordinates
 	 * This is an Earth-Centered, Earth-Fixed translation (ECEF, assuming earth-surface altitude).
 	 * From Wikipedia: en.wikipedia.org/wiki/Curvilinear_coordinates (contents apparently moved to Geodetic datum entry)
@@ -1629,7 +1671,7 @@ public final class GreatCircle {
 	 * @param v position in R3, with ECEF origin
 	 * @return LatLonAlt point on surface of the earth (zero altitude)
 	 */
-	public static LatLonAlt xyz2spherical(Vect3 v) {
+	public static LatLonAlt ecef_noalt2spherical(Vect3 v) {
 		double r = GreatCircle.spherical_earth_radius;
 		double theta = Util.acos_safe(v.z/r);
 		double phi = Util.atan2_safe(v.y, v.x);
@@ -1638,7 +1680,7 @@ public final class GreatCircle {
 		return LatLonAlt.mk(lat, lon, 0.0);
 	}
 
-	public static LatLonAlt unit_xyz2spherical(Vect3 v) {
+	public static LatLonAlt unit_ecef2spherical(Vect3 v) {
 		double theta = Util.acos_safe(v.z);
 		double phi = Util.atan2_safe(v.y, v.x);
 		double lat = Math.PI/2 - theta;
@@ -1653,7 +1695,7 @@ public final class GreatCircle {
 	 * @return vector position
 	 */
 	public static Vect3 spherical2ecef(LatLonAlt lla) {
-		return unit_spherical2xyz(lla.lat(),lla.lon()).Scal(GreatCircle.spherical_earth_radius+lla.alt());
+		return unit_spherical2ecef(lla.lat(),lla.lon()).Scal(GreatCircle.spherical_earth_radius+lla.alt());
 	}
 	
 	/**
@@ -1665,21 +1707,21 @@ public final class GreatCircle {
 	public static LatLonAlt ecef2spherical(Vect3 v) {
 		double r = v.norm();
 		double alt = r - GreatCircle.spherical_earth_radius;
-		return unit_xyz2spherical(v.Scal(1.0/r)).mkAlt(alt);
+		return unit_ecef2spherical(v.Scal(1.0/r)).mkAlt(alt);
 	}
 
 	
 	/**
-	 * Return if point p is to the right or left of the line from A to B
+	 * Return if point P is to the right or left of the line from A to B
 	 * @param a point A
 	 * @param b point B
 	 * @param p point P
 	 * @return 1 if to the right or collinear, -1 if to the left.
 	 */	
 	public static int rightOfLinePoints(LatLonAlt a, LatLonAlt b, LatLonAlt p) {
-		Vect3 v1 = spherical2xyz(a);
-		Vect3 v2 = spherical2xyz(b);
-		Vect3 v3 = spherical2xyz(p);
+		Vect3 v1 = spherical2ecef_noalt(a.lat(),a.lon());
+		Vect3 v2 = spherical2ecef_noalt(b.lat(),b.lon());
+		Vect3 v3 = spherical2ecef_noalt(p.lat(),p.lon());
 		return -Util.sign(v3.dot(v1.cross(v2)));
 	}
 
@@ -1694,14 +1736,14 @@ public final class GreatCircle {
 	 * @return the chord distance
 	 */
 	public static double chord_distance(double lat1, double lon1, double lat2, double lon2) {
-		Vect3 v1 = spherical2xyz(lat1,lon1);
-		Vect3 v2 = spherical2xyz(lat2,lon2);
+		Vect3 v1 = spherical2ecef_noalt(lat1,lon1);
+		Vect3 v2 = spherical2ecef_noalt(lat2,lon2);
 		return v1.Sub(v2).norm();
 	}
 
-	public static double chord_distance(LatLonAlt lla1, LatLonAlt lla2) {
-		return chord_distance(lla1.lat(), lla1.lon(), lla2.lat(), lla2.lon());
-	}
+//	public static double chord_distance(LatLonAlt lla1, LatLonAlt lla2) {
+//		return chord_distance(lla1.lat(), lla1.lon(), lla2.lat(), lla2.lon());
+//	}
 
 	/**
 	 * Return the chord distance (through the earth) corresponding to a given surface distance (at the nominal earth radius).
@@ -1944,8 +1986,8 @@ public final class GreatCircle {
 		}
 		
 		// vectors representing points on unit sphere
-		Vect3 x1_0 = GreatCircle.unit_spherical2xyz(lla1.lat(), lla1.lon()); 
-		Vect3 x2_0 = GreatCircle.unit_spherical2xyz(lla2.lat(), lla2.lon()); 
+		Vect3 x1_0 = GreatCircle.unit_spherical2ecef(lla1.lat(), lla1.lon()); 
+		Vect3 x2_0 = GreatCircle.unit_spherical2ecef(lla2.lat(), lla2.lon()); 
 
 		// initial course vectors for each aircraft
 		Vect3 c1_0 = course_vector(lla1.lat(), lla1.lon(), v1.compassAngle()); 

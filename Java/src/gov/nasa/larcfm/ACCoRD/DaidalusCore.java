@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018 United States Government as represented by
+ * Copyright (c) 2015-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -10,6 +10,7 @@ import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.LossData;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
@@ -40,32 +41,33 @@ public class DaidalusCore {
 	public DaidalusParameters parameters;
 	public UrgencyStrategy urgency_strategy; // Strategy for most urgent aircraft
 
-	/**** CACHED VARIABLES__ ****/
+	/**** CACHED VARIABLES ****/
 
 	/* Variable to control re-computation of cached values */
-	private int cache__; // -1: outdated, 1:updated, 0: updated only most_urgent_ac and eps
+	private int cache_; // -1: outdated, 1:updated, 0: updated only most_urgent_ac and eps
 	/* Most urgent aircraft */
-	public TrafficState most_urgent_ac__; 
+	public TrafficState most_urgent_ac_; 
 	/* Cached horizontal epsilon for implicit coordination */
-	private int epsh__; 
+	private int epsh_; 
 	/* Cached vertical epsilon for implicit coordination */
-	private int epsv__; 
+	private int epsv_; 
 	/* Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral) 
 	 * band listed per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR */
-	private List<List<IndexLevelT>> acs_conflict_bands__; 
+	private List<List<IndexLevelT>> acs_conflict_bands_; 
 	/* Cached list of time to violation per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR */
-	private Interval[] tiov__; 
+	private Interval[] tiov_; 
 	/* Cached list of boolean alues indicating which bands should be computed, where 0th:NEAR, 1th:MID, 2th:FAR.
 	 * NaN means that bands are not computed for that region*/
-	private boolean[] bands4region__;
+	private boolean[] bands4region_;
 
-	/**** HYSTERESIS _VARIABLES_ ****/
-	//Alerting MofNs and times per aircraft's ids
-	private Map<String,AlertingMofN> _alerting_mofns_; 
+	/**** HYSTERESIS VARIABLES ****/
+	
+	// Alerting hysteresis per aircraft's ids
+	private Map<String,AlertingHysteresis> alerting_hysteresis_acs_; 
 
 	private void init() {
 
-		// Public variables_ are initialized
+		// Public variables are initialized
 		ownship = TrafficState.INVALID;
 		traffic = new ArrayList<TrafficState>(); 
 		current_time = 0;
@@ -73,20 +75,20 @@ public class DaidalusCore {
 		parameters = new DaidalusParameters();
 		urgency_strategy = NoneUrgencyStrategy.NONE_URGENCY_STRATEGY;
 
-		// Cached arrays__ are initialized
-		acs_conflict_bands__ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
+		// Cached arrays_ are initialized
+		acs_conflict_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-			acs_conflict_bands__.add(new ArrayList<IndexLevelT>());
+			acs_conflict_bands_.add(new ArrayList<IndexLevelT>());
 		}
-		tiov__ = new Interval[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
-		bands4region__ = new boolean[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
+		tiov_ = new Interval[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
+		bands4region_ = new boolean[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
 
 		// Hysteresis variables are initialized
-		_alerting_mofns_ = new HashMap<String,AlertingMofN>();
+		alerting_hysteresis_acs_ = new HashMap<String,AlertingHysteresis>();
 
-		// Cached__ variables are cleared
-		cache__ = -1; 
-		stale(true,true);
+		// Cached_ variables are cleared
+		cache_ = 0; 
+		stale(true);
 	}
 
 	public DaidalusCore() {
@@ -108,18 +110,18 @@ public class DaidalusCore {
 		// Public arrays are initialized
 		traffic = new ArrayList<TrafficState>(); 
 
-		// Cached arrays__ are initialized
-		acs_conflict_bands__ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
+		// Cached arrays_ are initialized
+		acs_conflict_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-			acs_conflict_bands__.add(new ArrayList<IndexLevelT>());
+			acs_conflict_bands_.add(new ArrayList<IndexLevelT>());
 		}
-		tiov__ = new Interval[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
-		bands4region__ = new boolean[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
+		tiov_ = new Interval[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
+		bands4region_ = new boolean[BandsRegion.NUMBER_OF_CONFLICT_BANDS];
 
 		// Hysteresis variables are initialized
-		_alerting_mofns_ = new HashMap<String,AlertingMofN>();
+		alerting_hysteresis_acs_ = new HashMap<String,AlertingHysteresis>();
 
-		// Public variables_ are copied
+		// Public variables are copied
 		ownship = core.ownship;
 		traffic.addAll(core.traffic);
 		current_time = core.current_time;
@@ -127,9 +129,9 @@ public class DaidalusCore {
 		parameters = new DaidalusParameters(core.parameters);
 		urgency_strategy = core.urgency_strategy.copy();
 
-		// Cached__ variables are cleared
-		cache__ = -1; 
-		stale(true,true);
+		// Cached_ variables are cleared
+		cache_ = 0; 
+		stale(true);
 	}
 
 	/**
@@ -147,74 +149,85 @@ public class DaidalusCore {
 	 * Set cached values to stale conditions as they are no longer fresh.
 	 * If hysteresis is true, it also clears hysteresis variables
 	 */
-	private void stale(boolean hysteresis,boolean forced) {
-		if (forced || cache__ >= 0) {
-			cache__ = -1;
-			most_urgent_ac__ = TrafficState.INVALID;
-			epsh__ = 0;
-			epsv__ = 0;
+	public void stale(boolean hysteresis) {
+		if (cache_ >= 0) {
+			cache_ = -1;
+			most_urgent_ac_ = TrafficState.INVALID;
+			epsh_ = 0;
+			epsv_ = 0;
 			for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-				acs_conflict_bands__.get(conflict_region).clear();
-				tiov__[conflict_region] = Interval.EMPTY;
-				bands4region__[conflict_region] = false;
+				acs_conflict_bands_.get(conflict_region).clear();
+				tiov_[conflict_region] = Interval.EMPTY;
+				bands4region_[conflict_region] = false;
 			}
 		}
 		if (hysteresis) {
-			_alerting_mofns_.clear();
+			alerting_hysteresis_acs_.clear();
 		}
 	}
-	
+
 	/**
-	 * Set cached values to stale conditions as they are no longer fresh.
-	 * If hysteresis is true, it also clears hysteresis variables
+	 * stale hysteresis of given aircraft index (1-based index, where 0 is ownship)
 	 */
-	public void stale(boolean hysteresis) {
-		stale(hysteresis,false);
+	public void reset_hysteresis(int ac_idx) {
+		if (ac_idx == 0) {
+			for (AlertingHysteresis alerting_hysteresis: alerting_hysteresis_acs_.values()) {
+				alerting_hysteresis.resetIfCurrentTime(current_time); 
+			}
+		} else if (1 <= ac_idx && ac_idx <= traffic.size()) {
+			TrafficState ac = traffic.get(ac_idx-1);
+			if (ac.isValid()) {
+				AlertingHysteresis mofn = alerting_hysteresis_acs_.get(ac.getId());
+				if (mofn != null) {
+					mofn.resetIfCurrentTime(current_time); 
+				}
+			}
+		}
 	}
 
 	/**
 	 * Returns true is object is fresh
 	 */
 	public boolean isFresh() {
-		return cache__ > 0;
+		return cache_ > 0;
 	}
 
 	/**
 	 *  Refresh cached values 
 	 */
 	public void refresh() {
-		if (cache__ <= 0) {
+		if (cache_ <= 0) {
 			for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 				conflict_aircraft(conflict_region);
-				BandsRegion region = BandsRegion.conflictRegionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
+				BandsRegion region = BandsRegion.regionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
 				for (int alerter_idx=1;  alerter_idx <= parameters.numberOfAlerters(); ++alerter_idx) {
 					Alerter alerter = parameters.getAlerterAt(parameters.isAlertingLogicOwnshipCentric() ? 
 							ownship.getAlerterIndex() :alerter_idx);
 					int alert_level = alerter.alertLevelForRegion(region);
 					if (alert_level > 0) {
-						bands4region__[conflict_region] = true;
+						bands4region_[conflict_region] = true;
 					}
 				}
 			}
 			refresh_mua_eps();
-			cache__ = 1;
+			cache_ = 1;
 		} 
 	}
 
 	private void refresh_mua_eps() {
-		if (cache__ < 0) {
+		if (cache_ < 0) {
 			int muac = -1;
 			if (!traffic.isEmpty()) {
 				muac = urgency_strategy.mostUrgentAircraft(ownship,traffic,parameters.getLookaheadTime());
 			} 
 			if (muac >= 0) {
-				most_urgent_ac__ = traffic.get(muac);
+				most_urgent_ac_ = traffic.get(muac);
 			} else {
-				most_urgent_ac__ = TrafficState.INVALID;
+				most_urgent_ac_ = TrafficState.INVALID;
 			}
-			epsh__ = epsilonH(ownship,most_urgent_ac__);
-			epsv__ = epsilonV(ownship,most_urgent_ac__);
-			cache__ = 0;
+			epsh_ = epsilonH(ownship,most_urgent_ac_);
+			epsv_ = epsilonV(ownship,most_urgent_ac_);
+			cache_ = 0;
 		}
 	}
 
@@ -223,7 +236,7 @@ public class DaidalusCore {
 	 */
 	public TrafficState mostUrgentAircraft() {
 		refresh_mua_eps();
-		return most_urgent_ac__;
+		return most_urgent_ac_;
 	}
 
 	/**
@@ -232,7 +245,7 @@ public class DaidalusCore {
 	 */
 	public int epsilonH() {
 		refresh_mua_eps();
-		return epsh__;
+		return epsh_;
 	}
 
 	/**
@@ -240,7 +253,7 @@ public class DaidalusCore {
 	 */
 	public int epsilonV() {
 		refresh_mua_eps();
-		return epsv__;
+		return epsv_;
 	}
 
 	/**
@@ -250,8 +263,8 @@ public class DaidalusCore {
 	public int epsilonH(boolean recovery_case, TrafficState traffic) {
 		refresh_mua_eps();
 		if ((recovery_case? parameters.isEnabledRecoveryCriteria() : parameters.isEnabledConflictCriteria()) &&
-				traffic.sameId(most_urgent_ac__)) {
-			return epsh__;
+				traffic.sameId(most_urgent_ac_)) {
+			return epsh_;
 		}
 		return 0;
 	}
@@ -262,8 +275,8 @@ public class DaidalusCore {
 	public int epsilonV(boolean recovery_case, TrafficState traffic) {
 		refresh_mua_eps();
 		if ((recovery_case? parameters.isEnabledRecoveryCriteria() : parameters.isEnabledConflictCriteria()) &&
-				traffic.sameId(most_urgent_ac__)) {
-			return epsv__;
+				traffic.sameId(most_urgent_ac_)) {
+			return epsv_;
 		}
 		return 0;
 	}
@@ -273,7 +286,7 @@ public class DaidalusCore {
 	 */
 	public boolean bands_for(int region) {
 		refresh();
-		return bands4region__[region];
+		return bands4region_[region];
 	}
 
 	/**
@@ -304,14 +317,35 @@ public class DaidalusCore {
 		current_time = time;
 	}
 
-	public int add_traffic_state(String id, Position pos, Velocity vel, double time) {
+	// Return 0-based index in traffic list (-1 if aircraft doesn't exist)
+	public int find_traffic_state(String id) {
+		for (int i = 0; i < traffic.size(); ++i) {
+			if (traffic.get(i).getId().equals(id)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	// Return 0-based index in traffic list where aircraft was added. Return -1 if 
+	// nothing is done (e.g., id is the same as ownship's)
+	public int set_traffic_state(String id, Position pos, Velocity vel, double time) {
+		if (ownship.isValid() && ownship.getId().equals(id)) {
+			return -1;
+		}
 		double dt = current_time-time;
 		Position pt = dt == 0 ? pos : pos.linear(vel,dt);    
 		TrafficState ac = ownship.makeIntruder(id,pt,vel);
 		if (ac.isValid()) {
 			ac.applyWindVector(wind_vector);
-			traffic.add(ac);
-			return traffic.size();
+			int idx = find_traffic_state(id);
+			if (idx >= 0) {
+				traffic.set(idx,ac);
+			} else {
+				idx = traffic.size();
+				traffic.add(ac);
+			}
+			return idx;
 		} else {
 			return -1;
 		}
@@ -385,8 +419,6 @@ public class DaidalusCore {
 					Deque<Position> vin = new ArrayDeque<Position>();
 					Position po = ownship.getPosition();
 					Velocity vo = ownship.getAirVelocity();
-					Vect3 si = intruder.get_s();
-					Velocity vi = intruder.get_v();
 					double current_trk = vo.trk();
 					Deque<Position> vout = new ArrayDeque<Position>();
 					/* First step: Computes conflict contour (contour in the current path of the aircraft).
@@ -395,15 +427,11 @@ public class DaidalusCore {
 					 */
 					double right = 0; // Contour conflict limit to the right relative to current direction  [0-2pi rad]
 					double two_pi = 2*Math.PI;
-					double s_err = intruder.relativeHorizontalPositionError(ownship,parameters);
-					double sz_err = intruder.relativeVerticalPositionError(ownship,parameters);
-					double v_err = intruder.relativeHorizontalSpeedError(ownship,s_err,parameters);
-					double vz_err = intruder.relativeVerticalSpeedError(ownship,parameters);
+					TrafficState own = new TrafficState(ownship);
 					for (; right < two_pi; right += parameters.getHorizontalDirectionStep()) {
 						Velocity vop = vo.mkTrk(current_trk+right);
-						LossData los = detector.get().conflictDetectionSUM(ownship.get_s(),ownship.vel_to_v(po,vop),si,vi,
-								0,parameters.getLookaheadTime(),
-								s_err,sz_err,v_err,vz_err);
+						own.setAirVelocity(vop);
+						LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
 						if ( !los.conflict() ) {
 							break;
 						}
@@ -420,9 +448,8 @@ public class DaidalusCore {
 						/* There is a conflict contour, but not a violation */
 						for (left = parameters.getHorizontalDirectionStep(); left < two_pi; left += parameters.getHorizontalDirectionStep()) {
 							Velocity vop = vo.mkTrk(current_trk-left);
-							LossData los = detector.get().conflictDetectionSUM(ownship.get_s(),ownship.vel_to_v(po,vop),si,vi,
-									0,parameters.getLookaheadTime(),
-									s_err,sz_err,v_err,vz_err);
+							own.setAirVelocity(vop);
+							LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
 							if ( !los.conflict() ) {
 								break;
 							}
@@ -435,9 +462,8 @@ public class DaidalusCore {
 					if (right < parameters.getHorizontalContourThreshold()) {
 						for (; right < two_pi-left; right += parameters.getHorizontalDirectionStep()) {
 							Velocity vop = vo.mkTrk(current_trk+right);
-							LossData los = detector.get().conflictDetectionSUM(ownship.get_s(),ownship.vel_to_v(po,vop),si,vi,
-									0,parameters.getLookaheadTime(),
-									s_err,sz_err,v_err,vz_err);
+							own.setAirVelocity(vop);
+							LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
 							if (los.conflict()) {
 								vin.addLast(po.linear(vop,los.getTimeIn()));
 								vout.addFirst(po.linear(vop,los.getTimeOut()));
@@ -454,9 +480,8 @@ public class DaidalusCore {
 					if (left < parameters.getHorizontalContourThreshold()) {
 						for (; left < two_pi-right; left += parameters.getHorizontalDirectionStep()) {
 							Velocity vop = vo.mkTrk(current_trk-left);
-							LossData los = detector.get().conflictDetectionSUM(ownship.get_s(),ownship.vel_to_v(po,vop),si,vi,
-									0,parameters.getLookaheadTime(),
-									s_err,sz_err,v_err,vz_err);
+							own.setAirVelocity(vop);
+							LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
 							if (los.conflict()) {
 								vin.addFirst(po.linear(vop,los.getTimeIn()));
 								vout.addLast(po.linear(vop,los.getTimeOut()));
@@ -495,7 +520,7 @@ public class DaidalusCore {
 			TrafficState intruder = traffic.get(ac);
 			Alerter alerter = alerter_of(ac);
 			// Assumes that thresholds of severe alerts are included in the volume of less severe alerts
-			BandsRegion region = BandsRegion.conflictRegionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
+			BandsRegion region = BandsRegion.regionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
 			int alert_level = alerter.alertLevelForRegion(region);
 			if (alert_level > 0) {
 				Detection3D detector = 	alerter.getLevel(alert_level).getCoreDetection();
@@ -503,25 +528,17 @@ public class DaidalusCore {
 						alerter.getLevel(alert_level).getAlertingTime());
 				double early_alerting_time = Util.min(parameters.getLookaheadTime(),
 						alerter.getLevel(alert_level).getEarlyAlertingTime());
-				double s_err = intruder.relativeHorizontalPositionError(ownship,parameters);
-				double sz_err = intruder.relativeVerticalPositionError(ownship,parameters);
-				double v_err = intruder.relativeHorizontalSpeedError(ownship,s_err,parameters);
-				double vz_err = intruder.relativeVerticalSpeedError(ownship,parameters);
-				ConflictData det = detector.conflictDetectionSUM(ownship.get_s(),ownship.get_v(),
-						intruder.get_s(),intruder.get_v(),0,parameters.getLookaheadTime(),
-						s_err,sz_err,v_err,vz_err);
-				boolean lowc = detector.violationSUMAt(ownship.get_s(),ownship.get_v(),intruder.get_s(),intruder.get_v(),
-						s_err,sz_err,v_err,vz_err,0.0);
-				if (lowc || det.conflict()) {
-					if (lowc || det.getTimeIn() < alerting_time) {
-						acs_conflict_bands__.get(conflict_region).add(new IndexLevelT(ac,alert_level,early_alerting_time,true));
+				ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0,parameters.getLookaheadTime());
+				if (det.conflict()) {
+					if (det.getTimeIn() == 0 || det.getTimeIn() < alerting_time) {
+						acs_conflict_bands_.get(conflict_region).add(new IndexLevelT(ac,alert_level,early_alerting_time));
 					} 
 					tin = Util.min(tin,det.getTimeIn());
 					tout = Util.max(tout,det.getTimeOut());
 				} 
 			}
 		}
-		tiov__[conflict_region]=new Interval(tin,tout);
+		tiov_[conflict_region]=new Interval(tin,tout);
 	}
 
 	/**
@@ -532,7 +549,7 @@ public class DaidalusCore {
 	 */
 	protected List<IndexLevelT> acs_conflict_bands(int conflict_region) {
 		refresh();
-		return acs_conflict_bands__.get(conflict_region);
+		return acs_conflict_bands_.get(conflict_region);
 	}
 
 	/**
@@ -542,7 +559,7 @@ public class DaidalusCore {
 	 */
 	protected Interval tiov(int conflict_region) {
 		refresh();
-		return tiov__[conflict_region];
+		return tiov_[conflict_region];
 	}
 
 	/**
@@ -606,23 +623,11 @@ public class DaidalusCore {
 	 */ 
 	private boolean check_alerting_thresholds(AlertThresholds athr, TrafficState intruder, int turning, int accelerating, int climbing) {
 		if (athr.isValid()) {
-			Vect3 so = ownship.get_s();
-			Velocity vo = ownship.get_v();
-			Vect3 si = intruder.get_s();
-			Velocity vi = intruder.get_v();
 			Detection3D detector = athr.getCoreDetection();	
 			double alerting_time = Util.min(parameters.getLookaheadTime(),athr.getAlertingTime());
 			int epsh = epsilonH(false,intruder);
 			int epsv = epsilonV(false,intruder);
-			double s_err = intruder.relativeHorizontalPositionError(ownship,parameters);
-			double sz_err = intruder.relativeVerticalPositionError(ownship,parameters);
-			double v_err = intruder.relativeHorizontalSpeedError(ownship,s_err,parameters);
-			double vz_err = intruder.relativeVerticalSpeedError(ownship,parameters);
-			if (detector.violationSUMAt(so,vo,si,vi,s_err,sz_err,v_err,vz_err,0.0)) {
-				return true;
-			}
-			ConflictData det = detector.conflictDetectionSUM(so,vo,si,vi,0,alerting_time,
-					s_err,sz_err,v_err,vz_err);
+			ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0,alerting_time);
 			if (det.conflict()) {
 				return true;
 			}
@@ -636,7 +641,7 @@ public class DaidalusCore {
 					dir_band.set_turn_rate(parameters.getTurnRate()); 
 					dir_band.set_bank_angle(parameters.getBankAngle()); 
 					dir_band.set_recovery(parameters.isEnabledRecoveryHorizontalDirectionBands());
-					if (dir_band.kinematic_conflict(ownship,intruder,parameters,detector,epsh,epsv,alerting_time)) {
+					if (dir_band.kinematic_conflict(ownship,intruder,detector,epsh,epsv,alerting_time)) {
 						return true;
 					}
 				}
@@ -647,7 +652,7 @@ public class DaidalusCore {
 					hs_band.set_step(parameters.getHorizontalSpeedStep());
 					hs_band.set_horizontal_accel(parameters.getHorizontalAcceleration()); 
 					hs_band.set_recovery(parameters.isEnabledRecoveryHorizontalSpeedBands());
-					if (hs_band.kinematic_conflict(ownship,intruder,parameters,detector,epsh,epsv,alerting_time)) {
+					if (hs_band.kinematic_conflict(ownship,intruder,detector,epsh,epsv,alerting_time)) {
 						return true;
 					}
 				}
@@ -658,7 +663,7 @@ public class DaidalusCore {
 					vs_band.set_step(parameters.getVerticalSpeedStep()); 
 					vs_band.set_vertical_accel(parameters.getVerticalAcceleration());
 					vs_band.set_recovery(parameters.isEnabledRecoveryVerticalSpeedBands());   
-					if (vs_band.kinematic_conflict(ownship,intruder,parameters,detector,epsh,epsv,alerting_time)) {
+					if (vs_band.kinematic_conflict(ownship,intruder,detector,epsh,epsv,alerting_time)) {
 						return true;
 					}
 				}
@@ -670,7 +675,7 @@ public class DaidalusCore {
 					alt_band.set_vertical_rate(parameters.getVerticalRate()); 
 					alt_band.set_vertical_accel(parameters.getVerticalAcceleration());
 					alt_band.set_recovery(parameters.isEnabledRecoveryAltitudeBands());  
-					if (alt_band.kinematic_conflict(ownship,intruder,parameters,detector,epsh,epsv,alerting_time)) {
+					if (alt_band.kinematic_conflict(ownship,intruder,detector,epsh,epsv,alerting_time)) {
 						return true;
 					}
 				}
@@ -702,18 +707,25 @@ public class DaidalusCore {
 			int alerter_idx = alerter_index_of(idx);
 			if (alerter_idx > 0) {
 				String id = intruder.getId();
-				AlertingMofN mofn = _alerting_mofns_.get(id);
+				AlertingHysteresis alerting_hysteresis = alerting_hysteresis_acs_.get(id);
+				if (alerting_hysteresis != null && 
+						!Double.isNaN(alerting_hysteresis.getLastTime()) &&
+						alerting_hysteresis.getLastTime() == current_time) {
+					return alerting_hysteresis.getLastAlert();
+				}
 				Alerter alerter = parameters.getAlerterAt(alerter_idx);
-				if (mofn == null) {
-					mofn = new AlertingMofN(parameters.getAlertingParameterM(),
-							parameters.getAlertingParameterN(),
+				int current_alert_level = alert_level(alerter,intruder,turning,accelerating,climbing);
+				if (alerting_hysteresis == null) {
+					alerting_hysteresis = new AlertingHysteresis(
 							parameters.getHysteresisTime(),
-							parameters.getPersistenceTime());
-					int alert = mofn.m_of_n(alert_level(alerter,intruder,turning,accelerating,climbing),current_time);
-					_alerting_mofns_.put(id,mofn);
+							parameters.getPersistenceTime(),
+							parameters.getAlertingParameterM(),
+							parameters.getAlertingParameterN());
+					int alert = alerting_hysteresis.alertingHysteresis(current_alert_level,current_time);
+					alerting_hysteresis_acs_.put(id,alerting_hysteresis);
 					return alert;
 				} else {
-					return mofn.m_of_n(alert_level(alerter,intruder,turning,accelerating,climbing),current_time);
+					return alerting_hysteresis.alertingHysteresis(current_alert_level,current_time);
 				}
 			} 
 		} 
@@ -730,51 +742,80 @@ public class DaidalusCore {
 		return 0;
 	}
 
-	public void setParameterData(ParameterData p) {
+	public boolean setParameterData(ParameterData p) {
 		if (parameters.setParameterData(p)) {
 			stale(true);
+			return true;
 		}
+		return false;
+	}
+
+	public String outputStringAircraftStates(boolean internal) {
+		String ualt = internal ? "m" : parameters.getUnitsOf("step_alt");
+		String uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
+		String uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
+		String uxy = "m";
+		String utrk = "deg";
+		if (!internal) {
+			if (Units.isCompatible(uhs,"knot")) {
+				uxy = "nmi";
+			} else if (Units.isCompatible(uhs,"fpm")) {
+				uxy = "ft";
+			} else if (Units.isCompatible(uhs,"kph")) {
+				uxy = "km";
+			}
+		} else {
+			utrk="rad";
+		}
+		return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time);
 	}
 
 	public String rawString() {
 		String s="## Daidalus Core\n"; 
 		s+="current_time = "+f.FmPrecision(current_time)+"\n";
-		s+="## DaidalusBandsCore Parameters\n";
+		s+="## Daidalus Parameters\n";
 		s+=parameters.toString();
-		s+="## Cached variables__\n";
-		s+="cache__ = "+f.Fmi(cache__)+"\n";		
-		s+="most_urgent_ac__ = "+most_urgent_ac__.getId()+"\n";
-		s+="epsh__ = "+f.Fmi(epsh__)+"\n";
-		s+="epsv__ = "+f.Fmi(epsv__)+"\n";		
+		s+="## Cached variables\n";
+		s+="cache_ = "+f.Fmi(cache_)+"\n";		
+		s+="most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
+		s+="epsh_ = "+f.Fmi(epsh_)+"\n";
+		s+="epsv_ = "+f.Fmi(epsv_)+"\n";		
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-			s+="acs_conflict_bands__["+conflict_region+"] = "+
-					IndexLevelT.toString(acs_conflict_bands__.get(conflict_region))+"\n";
+			s+="acs_conflict_bands_["+conflict_region+"] = "+
+					IndexLevelT.toString(acs_conflict_bands_.get(conflict_region))+"\n";
 		}
 		boolean comma=false;
-		s+="tiov__ = {";
+		s+="tiov_ = {";
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			if (comma) {
 				s += ", ";
 			} else {
 				comma = true;
 			}
-			s += tiov__[conflict_region].toString();
+			s += tiov_[conflict_region].toString();
 		}
 		s += "}\n";
 		comma=false;
-		s+="bands4region__ = {";
+		s+="bands4region_ = {";
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			if (comma) {
 				s += ", ";
 			} else {
 				comma = true;
 			}
-			s += bands4region__[conflict_region];
+			s += bands4region_[conflict_region];
 		}
 		s += "}\n";
+		for (Map.Entry<String,AlertingHysteresis> entry : alerting_hysteresis_acs_.entrySet()) {
+			s+="alerting_hysteresis_acs_["+entry.getKey()+"] = "+
+					entry.getValue().toString();
+		}
+		if (!alerting_hysteresis_acs_.isEmpty()) {
+			s+="\n";
+		}
 		s+="wind_vector = "+wind_vector.toString()+"\n";
 		s+="## Ownship and Traffic Relative to Wind\n";
-		ownship.formattedTraffic(traffic, "m","m","m/s","m/s",current_time);
+		s+=outputStringAircraftStates(true);
 		s+="##\n";
 		return s;
 	}

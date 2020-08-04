@@ -1,6 +1,6 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.e, February 15, 2020
+Release:  v2.0.f-FormalATM-v2.7.4 (Apr-3-2020)
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2014 United States Government as represented by 
@@ -8,7 +8,46 @@ the National Aeronautics and Space Administration.  No copyright
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.
 
-Release DAIDALUS-V2.0.e:
+Release DAIDALUS-v2.0.f:
+------------------
+April 3, 2020
+
+* Fixed bug in DaidalusRealBands, where boolean check
+"if (saturated)" should have been "if (recovery)".
+* Fixed resolution and preferred direction persistence logic.
+
+February 27, 2020
+
+* Implemented hysteresis logic (M of N and persistence) for maneuver
+  guidance. Bands persistance was experimentally implemented in v2d.
+  The implementation is v2f is different and more consistent with
+  alerting persistence.
+
+* Setting configuration parameters in a Daidalus object resets hysteresis. 
+
+* The method clean() in the class Daidalus resets hysteresis. In older
+versions of DAIDALUS, the method clean() was needed before adding the
+ownship. This is not needed anymore.
+
+* When SUM parameters are set to 0, the WCV_TAUMOD_SUM detector is
+equivalent to the WCV_TAUMOD detector. In previous versions, a 10% of
+value step error was always added to WCV_TAUMOD_SUM. However, if SUM
+is not required, it's recommended that the WCV_TAUMOD detector is
+used since WCV_TAUMOD_SUM will add a bit of computation overhead.
+
+* Eliminated CD3Table to avoid overhead.
+
+* In C++: Daidalus(Detection3D,double,double) constructor changed to
+Daidalus(Detection3D*,double,double) for efficiency reasons. This
+should only affect specialized users of DAIDALUS that use a
+programatic configuration.
+
+* In C++: The following static methods are now available
+CDCylinder::CD3DCylinder()
+WCV_TAUMOD::DO_365_DWC_Phase_I()
+The return structures that are safe for referencing with "&" operator
+
+Release DAIDALUS-v2.0.e:
 ------------------
 February 15, 2020
 * Corrected bug in C++, where reserve was used instead of resize. This
@@ -17,7 +56,7 @@ caused a segmentation fault in Visual Studio C++
 * Updated Makefile
 
 May 19, 2019
-* Fixed issue with intervals of lenght 0 (i.e, only one point). These
+* Fixed issue with intervals of length 0 (i.e, only one point). These
 intervals are now removed from the computations.
 * Fixed issue with getTimeIn and getTimeOut, where in case of
 no-conflict, their return value is undefined. These methods are now guarded
@@ -29,7 +68,7 @@ violation area.
 * Better use of cache information in DaidalusCore. Alerting doesn't
 trigger re-computation of banding core information.
 
-Release DAIDALUS-V2.0.2d:
+Release DAIDALUS-v2.0.2d:
 ------------------
 April 4, 2019
 
@@ -88,7 +127,7 @@ The methods minHorizontalSeparationAtRecovery and
 minVerticalSeparationAtRecovery in RecoveryInformation are now called
 recoveryHorizontalDistance and recoveryVerticalDistance.
 
-Release DAIDALUS-V2.0.2b:
+Release DAIDALUS-v2.0.2b:
 ------------------
 October 15, 2018
 
@@ -117,7 +156,7 @@ alerter, 2 means second alerter, etc. More precisely:
 
 5. If Ownship's alerter is set to a value different from 0, then the logic is "ownship-centric" and this is the alerter that is used for every traffic aircraft.
 
-Release DAIDALUS-V2.0.2a:
+Release DAIDALUS-v2.0.2a:
 ------------------
 October 4, 2018
 
@@ -178,7 +217,7 @@ etc.
 Misnomers
 ----------
 * In the configuration file, the prefix, postfix "trk" is now "hdir"
-and "gs" is now "hs". Furtrhermore, all of them are postfix, e.g.,
+and "gs" is now "hs". Furthermore, all of them are postfix, e.g.,
 "trk_step" is now "step_hdir". However, DAIDALUS-2 still recognizes
 the field names used in DAIDALUS-1.
 
@@ -230,7 +269,7 @@ In Daidalus:
 * timeToViolation -> timeToCorrectiveVolume
 
 Gotchas:
-* Spreaded bands will now compute UNKOWN bands, for ranges outside
+* Spread bands will now compute UNKOWN bands, for ranges outside
    min/max values. 
 * Check usage of method getUnits from DaidalusParameters as field
 names  have changed, e.g., "trk_step" is now "step_hs".
@@ -317,7 +356,7 @@ the ground speed step.
 * Fixed a border case problem when detection was computed at exactly late alerting time. The
 previous behavior always returned false in this case. The current behavior checks
 if there is a violation at that unique position in time.
-* Changed the beahvior of track resolution, when the returned values is greater than 180.
+* Changed the behavior of track resolution, when the returned values is greater than 180.
 In this release, the returned value is positive infinity, for the right resolution,
 and negative infinity, for the left resolution.
 * Fixed a problem in the characterization of regions in the case of recovery bands.
@@ -507,7 +546,7 @@ concept.
 
 * Implemented prototype interface of Stratway's well-clear recovery bands. Current
 implementation supports strategies for selecting most urgent aircraft
-based on DCPA and Time to Closest Point of Apporach (TCPA).
+based on DCPA and Time to Closest Point of Approach (TCPA).
 
 Release Stratway+ 1.8.4a, July, 2013
 -------------------------------
@@ -543,7 +582,7 @@ December 5 2012
 --------------
 Developed a software interface in Stratway to support Langley's SSA
 concept of integration. The software interface provides the following
-functionality: creation of Stratway objects for onwnship and traffic
+functionality: creation of Stratway objects for ownship and traffic
 aircraft, setting of configurable parameters such as time delays,
 lookahead times, and maximum aircraft performance values, checking if
 an aircraft is well-clear for TCAS-II RAs, and computing kinematics

@@ -1,5 +1,9 @@
 /*
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Authors:  George Hagen              NASA Langley Research Center  
+ *           Ricky Butler              NASA Langley Research Center
+ *           Jeff Maddalon             NASA Langley Research Center
+ *
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -11,8 +15,12 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * This class represents a 3-dimensional velocity vector.  The 
- * track angle is defined by the "true north, clockwise convention."
+ * This class represents a 3-dimensional velocity vector.  The components of 
+ * the vector represent East-North-Up (ENU) coordinates; thus x is positive
+ * in the east direction, y is positive in the north, and z is positive up.
+ * The other right handed coordinate system, East-North-Down can probably 
+ * be used without error, but this has not be tested very well. 
+ * The track angle is defined by the "true north, clockwise convention."
  *
  */
 public final class Velocity extends Vect3 implements OutputList {
@@ -129,7 +137,7 @@ public final class Velocity extends Vect3 implements OutputList {
    * 
    * @return the velocity
    */
-  public static Velocity makeTrkGsVs(double trk,double gs, double vs) {
+  public static Velocity makeTrkGsVs(double trk, double gs, double vs) {
     return mkTrkGsVs(Units.from("deg",trk), Units.from("knot",gs), Units.from("fpm",vs));
   }
 
@@ -470,8 +478,12 @@ public final class Velocity extends Vect3 implements OutputList {
     return new Vect2(trkgs2vx(trk,gs), trkgs2vy(trk,gs));
   }
 
-
 	public String toUnitTest() {
+		return "Velocity.makeTrkGsVs("  +f.Fm6(Units.to("deg",trk()))+", "+f.Fm6(Units.to("kn",gs()))+", "+f.Fm6(Units.to("fpm",vs()))+"); ";
+	}
+
+
+	public String toUnitTestSI() {
 		return "Velocity.mkTrkGsVs("  +f.Fm6(trk())+", "+f.Fm6(gs())+", "+f.Fm6(vs())+"); ";
 	}
 

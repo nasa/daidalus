@@ -133,7 +133,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 				out.println("# File: "+filename);
 				break;
 			case PVS:
-				daa.refresh();
 				out.println("%%% File:\n"+filename);
 				out.println("%%% Parameters:\n"+daa.getCore().parameters.toPVS());
 				break;

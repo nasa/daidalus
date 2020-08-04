@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 United States Government as represented by
+ * Copyright (c) 2016-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -10,7 +10,8 @@ package gov.nasa.larcfm.Util;
  * GreatCircle and VectFuns functions lifted to Positions
  */
 public final class PositionUtil {
-	
+
+	// 2D collinear
 	public static boolean collinear(Position p0, Position p1, Position p2) {
 		if (p0.isLatLon()) {
 			return GreatCircle.collinear(p0.lla(), p1.lla(), p2.lla());
@@ -18,7 +19,7 @@ public final class PositionUtil {
 			return VectFuns.collinear(p0.vect2(), p1.vect2(), p2.vect2());
 		}
 	}
-	
+
 	// f should be between 0 and 1 to interpolate
 	public static Position interpolate(Position v1, Position v2, double f) {
 		if (v1.isLatLon()) {
@@ -94,6 +95,7 @@ public final class PositionUtil {
 	
 	/**
 	 * Return the (2D) intersection point between two segments, or INVALID, if none exists
+	 * If one segment overlaps another, return INVALID
 	 * @param a1
 	 * @param a2
 	 * @param b1
@@ -102,11 +104,42 @@ public final class PositionUtil {
 	 */
 	public static Position intersectionSegments(Position a1, Position a2, Position b1, Position b2) {
 		if (a1.isLatLon()) {
-			return new Position(GreatCircle.intersectSegments(a1.lla(), a2.lla(), b1.lla(), b2.lla()));
+			LatLonAlt i = GreatCircle.intersectSegments(a1.lla(), a2.lla(), b1.lla(), b2.lla());
+			return new Position(i);
 		} else {
-			return new Position(new Vect3(VectFuns.intersectSegments(a1.vect2(), a2.vect2(), b1.vect2(), b2.vect2()).first, (a1.alt()+a2.alt())/2));
+			Vect2 i = VectFuns.intersectSegments(a1.vect2(), a2.vect2(), b1.vect2(), b2.vect2()).first;
+			return new Position(new Vect3(i, (a1.alt()+a2.alt())/2));
 		}
 	}
+	
+	
+//	/**
+//   * EXPERIMENTAL
+//	 * Return the (2D) intersection point between two segments, or INVALID, if none exists.  
+//	 * If there is an overlap between the segments, also return the other end of the overlap.
+//	 * @param a1
+//	 * @param a2
+//	 * @param b1
+//	 * @param b2
+//	 * @return
+//	 */
+//	public static Pair<Position,Position> intersectSegmentsWithOverlap(Position a1, Position a2, Position b1, Position b2) {
+//		if (a1.isLatLon()) {
+//			Pair<LatLonAlt,LatLonAlt> i = GreatCircle.intersectSegmentsWithOverlap(a1.lla(), a2.lla(), b1.lla(), b2.lla());
+//			if (i.second != null) {
+//				return Pair.make(new Position(i.first), new Position(i.second));
+//			} else {
+//				return Pair.make(new Position(i.first), null);
+//			}
+//		} else {
+//			Triple<Vect2,Double,Vect2> i = VectFuns.intersectSegmentsWithOverlap(a1.vect2(), a2.vect2(), b1.vect2(), b2.vect2());
+//			if (i.third != null) {
+//				return Pair.make(new Position(new Vect3(i.first, (a1.alt()+a2.alt())/2)), new Position(new Vect3(i.third, (a1.alt()+a2.alt())/2)));
+//			} else {
+//				return Pair.make(new Position(new Vect3(i.first, (a1.alt()+a2.alt())/2)), null);
+//			}
+//		}
+//	}
 	
 	public static Position closestPoint(Position a, Position b, Position x) {
 		if (a.isLatLon()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 United States Government as represented by
+ * Copyright (c) 2012-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -93,6 +93,33 @@ public class WCVTable implements ParameterTable {
 		units_.clear();
 		units_.putAll(tab.units_);
 	}
+
+	/**
+	 * @return DO-365 preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft, 
+	 * TTHR=35s, TCOA=0.
+	 */
+	public static final WCVTable DO_365_Phase_I_preventive = 
+			new WCVTable(0.66,"nmi",700,"ft",35,"s",0,"s");
+
+	/**
+	 * @return DO-365 Well-Clear thresholds, i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * TTHR=35s, TCOA=0.
+	 */
+	public static final WCVTable DO_365_DWC_Phase_I = new WCVTable();
+
+	/**
+	 * @return buffered preventive thresholds, i.e., DTHR=1.0nmi, ZTHR=750ft, 
+	 * TTHR=35s, TCOA=20.
+	 */
+	public static final WCVTable Buffered_Phase_I_preventive = 
+			new WCVTable(1.0,"nmi",750,"ft",35,"s",20,"s");
+
+	/**
+	 * @return buffered Well-Clear thresholds, i.e., DTHR=1.0nmi, ZTHR=450ft,
+	 * TTHR=35s, TCOA=20.
+	 */
+	public static final WCVTable Buffered_DWC_Phase_I = 
+			new WCVTable(1.0,"nmi",450,"ft",35,"s",20,"s");
 
 	/**
 	 * Return horizontal distance threshold DTHR in internal units
@@ -256,9 +283,13 @@ public class WCVTable implements ParameterTable {
 				", WCV_TCOA = "+Units.str(getUnits("WCV_TCOA"),TCOA);
 	}
 
+	protected String toPVS_() {
+		return "DTHR := "+f.FmPrecision(DTHR)+", ZTHR := "+f.FmPrecision(ZTHR)+
+				", TTHR := "+f.FmPrecision(TTHR)+", TCOA := "+f.FmPrecision(TCOA);
+	}
+
 	public String toPVS() {
-		return "(# DTHR := "+f.FmPrecision(DTHR)+", ZTHR := "+f.FmPrecision(ZTHR)+
-				", TTHR := "+f.FmPrecision(TTHR)+", TCOA := "+f.FmPrecision(TCOA)+" #)";
+		return "(# "+toPVS_()+" #)";
 	}
 
 	@Override

@@ -3,7 +3,7 @@
  * 
  * 3-D vectors.
  * 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -554,7 +554,15 @@ public class Vect3 {
 		return INVALID;
 	}
 
+	
+	public String toUnitTest() {
+		return "Vect3.make("+(f.Fm8(Units.to("NM",x()))+", "+f.Fm8(Units.to("NM",y())) +", "	+f.Fm8(Units.to("ft",z()))+")");
+	}
 
+	public String toUnitTestSI() {
+		return "Vect3.mkXYZ("+(f.Fm8(x())+", "+f.Fm8(y()) +", "	+f.Fm8(z())+")");
+	}
+	
 	/*
 	 * Two dimensional calculations on Vect3s.  z components will be ignored or set to zero.
 	 */

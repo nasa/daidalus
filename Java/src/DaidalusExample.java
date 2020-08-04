@@ -95,7 +95,7 @@ class DaidalusExample {
 		Velocity vo = Velocity.makeTrkGsVs(206.0,"deg", 151.0,"knot", 0.0,"fpm");
 		daa.setOwnshipState("ownship",so,vo,t);
 
-		// In case of SUM, set uncertainties of traffic aircraft
+		// In case of SUM, set uncertainties of ownhip aircraft
 		// daa.setHorizontalPositionUncertainty(0, s_EW, s_NS, s_EN, units);
 		// daa.setVerticalPositionUncertainty(0, sz, units);
 		// daa.setHorizontalVelocityUncertainty(0, v_EW, v_NS, v_EN, units);
@@ -111,7 +111,7 @@ class DaidalusExample {
 		Velocity vi = Velocity.makeTrkGsVs(0.0,"deg", 210.0,"knot", 0,"fpm"); 
 		int ac_idx = daa.addTrafficState("intruder",si,vi);
 
-		// In case of SUM, set uncertainties of traffic aircraft
+		// In case of SUM, set uncertainties of ac_idx'th traffic aircraft
 		// daa.setHorizontalPositionUncertainty(ac_idx, s_EW, s_NS, s_EN, units_string);
 		// daa.setVerticalPositionUncertainty(ac_idx, sz, units_string);
 		// daa.setHorizontalVelocityUncertainty(ac_idx, v_EW, v_NS, v_EN, units_string);
@@ -204,9 +204,10 @@ class DaidalusExample {
 		System.out.println();
 
 		List<String> acs = new ArrayList<String>();
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			daa.conflictBandsAircraft(acs,region);
-			System.out.println("Conflict Aircraft for Bands Region "+BandsRegion.conflictRegionFromOrder(region)+": "+
+			System.out.println("Conflict Aircraft for Bands Region "+region.toString()+": "+
 					TrafficState.listToString(acs));
 		}
 		System.out.println();
@@ -221,9 +222,10 @@ class DaidalusExample {
 			Interval ii = daa.horizontalDirectionIntervalAt(i,"deg");
 			System.out.println("  "+daa.horizontalDirectionRegionAt(i)+":\t"+ii.toString(2));
 		} 
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			daa.peripheralHorizontalDirectionBandsAircraft(acs,region);
-			System.out.println("Peripheral Aircraft for "+hdstr+" Bands Region "+BandsRegion.conflictRegionFromOrder(region)+": "+
+			System.out.println("Peripheral Aircraft for "+hdstr+" Bands Region "+region.toString()+": "+
 					TrafficState.listToString(acs));
 		}
 		System.out.println(hdstr+" Resolution (right): "+num2str(daa.horizontalDirectionResolution(true,"deg"),"deg"));
@@ -253,9 +255,10 @@ class DaidalusExample {
 			Interval ii = daa.horizontalSpeedIntervalAt(i,"knot");
 			System.out.println("  "+daa.horizontalSpeedRegionAt(i)+":\t"+ii.toString(2));
 		} 
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			daa.peripheralHorizontalSpeedBandsAircraft(acs,region);
-			System.out.println("Peripheral Aircraft for "+hsstr+" Bands Region "+BandsRegion.conflictRegionFromOrder(region)+": "+
+			System.out.println("Peripheral Aircraft for "+hsstr+" Bands Region "+region.toString()+": "+
 					TrafficState.listToString(acs));
 		}
 		System.out.println(hsstr+" Resolution (up): "+num2str(daa.horizontalSpeedResolution(true,"knot"),"knot"));
@@ -285,9 +288,10 @@ class DaidalusExample {
 			Interval ii = daa.verticalSpeedIntervalAt(i,"fpm");
 			System.out.println("  "+daa.verticalSpeedRegionAt(i)+":\t"+ii.toString(2));
 		} 
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			daa.peripheralVerticalSpeedBandsAircraft(acs,region);
-			System.out.println("Peripheral Aircraft for Vertical Speed Bands Region "+BandsRegion.conflictRegionFromOrder(region)+": "+
+			System.out.println("Peripheral Aircraft for Vertical Speed Bands Region "+region.toString()+": "+
 					TrafficState.listToString(acs));
 		}
 		System.out.println("Vertical Speed Resolution (up): "+num2str(daa.verticalSpeedResolution(true,"fpm"),"fpm"));
@@ -316,9 +320,10 @@ class DaidalusExample {
 			Interval ii = daa.altitudeIntervalAt(i,"ft");
 			System.out.println("  "+daa.altitudeRegionAt(i)+":\t"+ii.toString(2));
 		} 
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			daa.peripheralAltitudeBandsAircraft(acs,region);
-			System.out.println("Peripheral Aircraft for Altitude Bands Region "+BandsRegion.conflictRegionFromOrder(region)+": "+
+			System.out.println("Peripheral Aircraft for Altitude Bands Region "+region.toString()+": "+
 					TrafficState.listToString(acs));
 		}
 		System.out.println("Altitude Resolution (up): "+num2str(daa.altitudeResolution(true,"ft"),"ft"));

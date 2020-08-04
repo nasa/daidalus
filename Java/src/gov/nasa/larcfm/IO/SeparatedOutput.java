@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014-2018 United States Government as represented by
+ * Copyright (c) 2014-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -28,13 +28,16 @@ import java.util.ArrayList;
  * TODO Future: handle a memory buffer, standard output/error, file, socket?
  */
 public final class SeparatedOutput implements ErrorReporter {
+	private static final int DEFAULT_PRECISION = 1;
+	
 	private PrintWriter writer;
     private ErrorLog error;
 	
 	private boolean header;         // has header line been written? 
 	private ArrayList<String> header_str;    // header line 
-	private boolean units;          // Should units line be written?
+	private boolean bunits;          // Should units line be written?
 	private ArrayList<String> units_str;     // Units type
+	private ArrayList<Integer> precision;     // precision
 	private ArrayList<String> line_str;      // raw line
 	private long   size;
 	private int    column_count;
@@ -50,7 +53,7 @@ public final class SeparatedOutput implements ErrorReporter {
 
 	private void init() {
 		header = false;
-		units = false;
+		bunits = false;
         size = 0;
         column_count = -1;
         header_count = -1;
@@ -61,6 +64,7 @@ public final class SeparatedOutput implements ErrorReporter {
         comments = new ArrayList<String>();
         header_str = new ArrayList<String>();
         units_str = new ArrayList<String>();
+        precision = new ArrayList<Integer>();
         line_str = new ArrayList<String>();
         params = new ArrayList<String>();
 	}
@@ -80,7 +84,7 @@ public final class SeparatedOutput implements ErrorReporter {
 	 * @return heading 
 	 * */ 
 	public String getHeading(int i) {
-      if (i < 0 || i >= line_str.size()) {
+      if (i < 0 || i >= header_str.size()) {
         error.addWarning("getHeading index "+i+", out of bounds");
         return "";
       }
@@ -97,7 +101,7 @@ public final class SeparatedOutput implements ErrorReporter {
 	/** Return the number of columns 
 	 * @return number of columns
 	 * */ 
-	public long size() {
+	public int size() {
 		return header_str.size();
 	}
 
@@ -106,7 +110,7 @@ public final class SeparatedOutput implements ErrorReporter {
 	 * @param output if true, then the units should be displayed
 	 */
 	public void setOutputUnits(boolean output) {
-		units = output;
+		bunits = output;
 	}
 
 	/**
@@ -116,6 +120,17 @@ public final class SeparatedOutput implements ErrorReporter {
 	 * @param unit the unit for this column.  If you don't know, then use "unspecified"
 	 */
 	public void setHeading(int i, String name, String unit) {
+		setHeading(i, name, unit, 1);
+	}
+
+	/**
+	 * Set the heading for the given column number, columns begin at 0. 
+	 * @param i  the column number
+	 * @param name the name of this column heading
+	 * @param unit the unit for this column.  If you don't know, then use "unspecified"
+	 * @param p     digits of precision
+	 */
+	public void setHeading(int i, String name, String unit, int p) {
 		while (header_str.size() <= i) {
 			header_str.add(empty);
 		}
@@ -127,18 +142,33 @@ public final class SeparatedOutput implements ErrorReporter {
 			units_str.add("unspecified");
 		}
 		units_str.set(i, unit);
+		while (precision.size() <= i) {
+			precision.add(DEFAULT_PRECISION);
+		}
+		precision.set(i, p);
+		
 	}
-
+	
 	/** 
 	 * Add the given heading (and unit) to the next column
 	 * @param name the name of this column heading
 	 * @param unit the unit for this column.  If you don't know, then use "unspecified"
 	 */
 	public void addHeading(String name, String unit) {
-		header_count++;
-		setHeading(header_count, name, unit);
+		addHeading(name, unit, DEFAULT_PRECISION);
 	}
 
+	/** 
+	 * Add the given heading (and unit) to the next column
+	 * @param name the name of this column heading
+	 * @param unit the unit for this column.  If you don't know, then use "unspecified"
+	 * @param precision digits of precision
+	 */
+	public void addHeading(String name, String unit, int precision) {
+		header_count++;
+		setHeading(header_count, name, unit, precision);
+	}
+	
 	/** 
 	 * Add the given heading (and unit) to the next column
 	 * @param names the name of this column heading
@@ -259,6 +289,19 @@ public final class SeparatedOutput implements ErrorReporter {
       return units_str.get(i);
 	}
     
+	/** 
+	 * Returns the units string for the i-th column. If an invalid 
+	 * column is entered, then "unspecified" is returned. 
+	 * @param i column index
+	 * @return unit
+	 */
+	public int getPrecision(int i) {
+      if ( i < 0 || i >= precision.size()) {
+        return DEFAULT_PRECISION;
+      }
+      return precision.get(i);
+	}
+    
     /**
      * Sets the next column value equal to the given value. 
 	 * 
@@ -266,7 +309,7 @@ public final class SeparatedOutput implements ErrorReporter {
 	 * @param val the value (in internal units)
 	 */
 	public void setColumn(int i, double val) {
-		setColumn(i, f.FmPrecision(Units.to(getUnit(i), val),1));
+		setColumn(i, f.FmPrecision(Units.to(getUnit(i), val), getPrecision(i)));
 	}
 	
     /**
@@ -399,6 +442,7 @@ public final class SeparatedOutput implements ErrorReporter {
    /** 
     * Additively set parameters.  (This does not delete existing parameters, but will overwrite them.) 
     * @param pr  parameter object
+    * @param filter parameters to filter out
     */
    public void setParametersFilter(ParameterData pr, ArrayList<String> filter) {
 	   for (String p: pr.getKeyList()) {
@@ -452,7 +496,7 @@ public final class SeparatedOutput implements ErrorReporter {
 					}
 				}
 				print_line(header_str);
-				if (units) {
+				if (bunits) {
 					print_line(units_str);
 				}
 				header = true;
@@ -484,6 +528,10 @@ public final class SeparatedOutput implements ErrorReporter {
     
     public void flush() {
     	writer.flush();
+    }
+    
+    public void close() {
+    	writer.close();
     }
     
     public String toString() {

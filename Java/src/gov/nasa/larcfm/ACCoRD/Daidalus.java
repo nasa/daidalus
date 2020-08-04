@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -154,7 +154,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void set_WC_DO_365() {
 		clearAlerters();
-		addAlerter(Alerter.DWC_Phase_I());
+		addAlerter(Alerter.DWC_Phase_I);
 		setCorrectiveRegion(BandsRegion.MID);
 		setInstantaneousBands();
 		disableHysteresis();
@@ -174,7 +174,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void set_Buffered_WC_DO_365(boolean type) {
 		clearAlerters();
-		addAlerter(Alerter.Buffered_DWC_Phase_I());
+		addAlerter(Alerter.Buffered_DWC_Phase_I);
 		setCorrectiveRegion(BandsRegion.MID);
 		setKinematicBands(type);
 		disableHysteresis();
@@ -184,7 +184,6 @@ public class Daidalus implements GenericStateBands {
 		setMinVerticalRecovery(450,"ft");
 	}
 
-
 	/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to 
 	 * ACCoRD's CD3D, i.e.,
 	 * - Separation is given by a cylinder of of diameter 5nm and height 1000ft
@@ -193,7 +192,7 @@ public class Daidalus implements GenericStateBands {
 	 * - Instantaneous maneuvers */
 	public void set_CD3D() {
 		clearAlerters();
-		addAlerter(Alerter.CD3D());
+		addAlerter(Alerter.CD3D_SingleBands);
 		setCorrectiveRegion(BandsRegion.NEAR);
 		setInstantaneousBands();
 		setCollisionAvoidanceBands(true);
@@ -234,23 +233,35 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set ownship state and current time. Clear all traffic. 
-	 * @param id Ownship's identified
+	 * @param id Ownship's identifier
 	 * @param pos Ownship's position
 	 * @param vel Ownship's ground velocity
 	 * @param time Time stamp of ownship's state
 	 */
 	public void setOwnshipState(String id, Position pos, Velocity vel, double time) {
-		clear();
-		core_.set_ownship_state(id,pos,vel,time);
+		if (!hasOwnship() || !core_.ownship.getId().equals(id) || 
+				time <= getCurrentTime() ||
+				time-getCurrentTime() > getHysteresisTime()){
+			// Full reset (including hysteresis) if adding a different ownship or time is
+			// in the past.
+			core_.clear();
+			core_.set_ownship_state(id,pos,vel,time);
+			reset();
+		} else {
+			// Otherwise, reset cache values but keeps hysteresis.
+			core_.clear();
+			core_.set_ownship_state(id,pos,vel,time);
+			reset_cache(0);
+		}
 	}
 
 	/**
 	 * Set ownship state at time 0.0. Clear all traffic. 
-	 * @param id Ownship's identified
+	 * @param id Ownship's identifier
 	 * @param pos Ownship's position
 	 * @param vel Ownship's ground velocity
 	 */
-	public void setOwnship(String id, Position pos, Velocity vel) {
+	public void setOwnshipState(String id, Position pos, Velocity vel) {
 		setOwnshipState(id,pos,vel,0.0);
 	}
 
@@ -258,7 +269,9 @@ public class Daidalus implements GenericStateBands {
 	 * Add traffic state at given time. 
 	 * If time is different from current time, traffic state is projected, past or future, 
 	 * into current time. If it's the first aircraft, this aircraft is 
-	 * set as the ownship. 
+	 * set as the ownship. If a traffic state with the same id already exists,
+	 * the traffic state is overwritten. If id is ownship's, nothing is done and 
+	 * the value -1 is returned. 
 	 * @param id Aircraft's identifier
 	 * @param pos Aircraft's position
 	 * @param vel Aircraft's ground velocity
@@ -270,9 +283,12 @@ public class Daidalus implements GenericStateBands {
 			setOwnshipState(id,pos,vel,time);
 			return 0;
 		} else {
-			int ac_idx = core_.add_traffic_state(id,pos,vel,time);
-			stale(false);
-			return ac_idx;
+			int idx = core_.set_traffic_state(id,pos,vel,time);
+			if (idx >= 0) {
+				++idx;
+				reset_cache(idx);
+			}
+			return idx;
 		}
 	}
 
@@ -288,33 +304,21 @@ public class Daidalus implements GenericStateBands {
 		return addTrafficState(id,pos,vel,core_.current_time);
 	}
 
-	/**
-	 * Add traffic state at current time. If it's the first aircraft, this aircraft is 
-	 * set as the ownship. 
-	 * @param id Aircraft's identifier
-	 * @param pos Aircraft's position
-	 * @param vel Aircraft's ground velocity
-	 * Same function as addTrafficState, but it doesn't return index of added traffic. This is neeeded
-	 * for compatibility with GenericBands
-	 */
-	public void addTraffic(String id, Position pos, Velocity vel) {
-		addTrafficState(id,pos,vel);
-	}
-
 	/** 
 	 * Get index of aircraft with given name. Return -1 if no such index exists
 	 */
 	public int aircraftIndex(String name) {
+		int idx = -1;
 		if (lastTrafficIndex() >= 0) {
 			if (core_.ownship.getId().equals(name)) {
 				return 0;
 			}
-			for (int i = 0; i < core_.traffic.size(); ++i) {
-				if (core_.traffic.get(i).getId().equals(name))
-					return i+1;
+			idx = core_.find_traffic_state(name);
+			if (idx >= 0) {
+				++idx;
 			}
 		}
-		return -1;
+		return idx;
 	}
 
 	/**
@@ -325,7 +329,7 @@ public class Daidalus implements GenericStateBands {
 		int ac_idx = aircraftIndex(id);
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			core_.reset_ownship(ac_idx-1);
-			stale(true);
+			reset();
 		} else {
 			error.addError("resetOwnship: aircraft index "+ac_idx+" is out of bounds");
 		}
@@ -341,7 +345,7 @@ public class Daidalus implements GenericStateBands {
 		int ac_idx = aircraftIndex(name);
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			core_.traffic.remove(ac_idx-1);
-			stale(true);
+			reset();
 			return true;
 		}
 		return false;
@@ -357,7 +361,7 @@ public class Daidalus implements GenericStateBands {
 			for (int i = 0; i < core_.traffic.size(); i++) {
 				core_.traffic.set(i,core_.traffic.get(i).linearProjection(offset));
 			}   
-			stale(true);
+			reset();
 		}
 	}
 
@@ -437,7 +441,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setWindVelocityTo(Velocity wind_vector) {
 		core_.set_wind_velocity(wind_vector);
-		stale(false);
+		reset_cache(0);
 	}
 
 	/**
@@ -460,17 +464,17 @@ public class Daidalus implements GenericStateBands {
 			if (getAircraftStateAt(ac_idx).getAlerterIndex() != alerter_idx) {
 				if (ac_idx == 0 && core_.ownship.isValid()) {
 					core_.ownship.setAlerterIndex(alerter_idx);
-					stale(false);
+					reset_cache(ac_idx);
 				} else {
 					core_.traffic.get(ac_idx-1).setAlerterIndex(alerter_idx);
-					stale(false);
+					reset_cache(ac_idx);
 				}
 			}
 		} else {
-			error.addError("setAlerter: aircraft index "+ac_idx+" is out of bounds");
+			error.addError("setAlerterIndex: aircraft index "+ac_idx+" is out of bounds");
 		}
 		if (alerter_idx > core_.parameters.numberOfAlerters()) {
-			error.addWarning("setAlerter: alerter index "+alerter_idx+" is out of bounds");
+			error.addWarning("setAlerterIndex: alerter index "+alerter_idx+" is out of bounds");
 		}
 	}
 
@@ -522,7 +526,7 @@ public class Daidalus implements GenericStateBands {
 			} else {
 				core_.traffic.get(ac_idx-1).setHorizontalPositionUncertainty(s_EW_std,s_NS_std,s_EN_std);
 			}
-			stale(false);
+			reset_cache(ac_idx);
 		}
 	}
 
@@ -547,7 +551,7 @@ public class Daidalus implements GenericStateBands {
 			} else {
 				core_.traffic.get(ac_idx-1).setVerticalPositionUncertainty(sz_std);
 			}
-			stale(false);
+			reset_cache(ac_idx);
 		}
 	}
 
@@ -572,7 +576,7 @@ public class Daidalus implements GenericStateBands {
 			} else {
 				core_.traffic.get(ac_idx-1).setHorizontalVelocityUncertainty(v_EW_std,v_NS_std,v_EN_std);
 			}
-			stale(false);
+			reset_cache(ac_idx);
 		}
 	}
 
@@ -597,7 +601,7 @@ public class Daidalus implements GenericStateBands {
 			} else {
 				core_.traffic.get(ac_idx-1).setVerticalSpeedUncertainty(vz_std);
 			}
-			stale(false);
+			reset_cache(ac_idx);
 		}
 	}
 
@@ -619,7 +623,7 @@ public class Daidalus implements GenericStateBands {
 			} else {
 				core_.traffic.get(ac_idx-1).resetUncertainty();
 			}
-			stale(false);
+			reset_cache(ac_idx);
 		}
 	}
 
@@ -637,7 +641,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setUrgencyStrategy(UrgencyStrategy strat) { 
 		core_.urgency_strategy = strat.copy();
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -714,7 +718,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void clearAlerters() {
 		core_.parameters.clearAlerters();
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -723,7 +727,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public int addAlerter(Alerter alerter) {
 		int alert_idx = core_.parameters.addAlerter(alerter);
-		stale(true);
+		reset();
 		return alert_idx;
 	}
 
@@ -1161,7 +1165,7 @@ public class Daidalus implements GenericStateBands {
 	 */ 
 	public void setBandsPersistence(boolean flag) {
 		core_.parameters.setBandsPersistence(flag);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1281,7 +1285,7 @@ public class Daidalus implements GenericStateBands {
 	 */ 
 	public void setLookaheadTime(double t) {
 		core_.parameters.setLookaheadTime(t);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1289,7 +1293,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setLookaheadTime(double t, String u) {
 		core_.parameters.setLookaheadTime(t,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1755,7 +1759,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalNMAC(double val) {
 		core_.parameters.setHorizontalNMAC(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1763,7 +1767,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalNMAC(double val, String u) {
 		core_.parameters.setHorizontalNMAC(val,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1771,7 +1775,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setVerticalNMAC(double val) {
 		core_.parameters.setVerticalNMAC(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1779,7 +1783,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setVerticalNMAC(double val, String u) {
 		core_.parameters.setVerticalNMAC(val,u);
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -1788,7 +1792,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setRecoveryStabilityTime(double t) {
 		core_.parameters.setRecoveryStabilityTime(t);
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -1797,7 +1801,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setRecoveryStabilityTime(double t, String u) {
 		core_.parameters.setRecoveryStabilityTime(t,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1805,7 +1809,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHysteresisTime(double val) {
 		core_.parameters.setHysteresisTime(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1813,7 +1817,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHysteresisTime(double val, String u) {
 		core_.parameters.setHysteresisTime(val,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1821,7 +1825,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setPersistenceTime(double val) {
 		core_.parameters.setPersistenceTime(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1829,7 +1833,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setPersistenceTime(double val, String u) {
 		core_.parameters.setPersistenceTime(val,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1901,7 +1905,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setAlertingMofN(int m, int n) {
 		core_.parameters.setAlertingMofN(m,n);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1909,7 +1913,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setMinHorizontalRecovery(double val) {
 		core_.parameters.setMinHorizontalRecovery(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1917,7 +1921,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setMinHorizontalRecovery(double val, String u) {
 		core_.parameters.setMinHorizontalRecovery(val,u);
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -1925,7 +1929,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setMinVerticalRecovery(double val) {
 		core_.parameters.setMinVerticalRecovery(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1933,7 +1937,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setMinVerticalRecovery(double val, String u) {
 		core_.parameters.setMinVerticalRecovery(val,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1948,7 +1952,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setConflictCriteria(boolean flag) {
 		core_.parameters.setConflictCriteria(flag);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -1977,7 +1981,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setRecoveryCriteria(boolean flag) {
 		core_.parameters.setRecoveryCriteria(flag);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2112,7 +2116,7 @@ public class Daidalus implements GenericStateBands {
 	 */ 
 	public void setCollisionAvoidanceBands(boolean flag) {
 		core_.parameters.setCollisionAvoidanceBands(flag);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2141,7 +2145,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setCollisionAvoidanceBandsFactor(double val) {
 		core_.parameters.setCollisionAvoidanceBandsFactor(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2156,7 +2160,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalPositionZScore(double val) {
 		core_.parameters.setHorizontalPositionZScore(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2171,7 +2175,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalVelocityZScoreMin(double val) {
 		core_.parameters.setHorizontalVelocityZScoreMin(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2186,7 +2190,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalVelocityZScoreMax(double val) {
 		core_.parameters.setHorizontalVelocityZScoreMax(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2208,7 +2212,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalVelocityZDistance(double val) {
 		core_.parameters.setHorizontalVelocityZDistance(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2216,7 +2220,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setHorizontalVelocityZDistance(double val, String u) {
 		core_.parameters.setHorizontalVelocityZDistance(val,u);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2231,7 +2235,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setVerticalPositionZScore(double val) {
 		core_.parameters.setVerticalPositionZScore(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2246,7 +2250,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setVerticalSpeedZScore(double val) {
 		core_.parameters.setVerticalSpeedZScore(val);
-		stale(true);
+		reset();
 	}
 
 	/** 
@@ -2294,7 +2298,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setAlertingLogic(boolean ownship_centric) {
 		core_.parameters.setAlertingLogic(ownship_centric);
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -2332,7 +2336,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void setCorrectiveRegion(BandsRegion val) {
 		core_.parameters.setCorrectiveRegion(val);
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -2382,7 +2386,7 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public void disableHysteresis() {
 		core_.parameters.disableHysteresis();
-		stale(true);
+		reset();
 	}
 
 	/**
@@ -2418,11 +2422,12 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	public void setParameterData(ParameterData p) {
-		core_.setParameterData(p);
-		hdir_band_.setDaidalusParameters(core_.parameters);
-		hs_band_.setDaidalusParameters(core_.parameters);
-		vs_band_.setDaidalusParameters(core_.parameters);
-		alt_band_.setDaidalusParameters(core_.parameters);
+		if (core_.setParameterData(p)) {
+			hdir_band_.setDaidalusParameters(core_.parameters);
+			hs_band_.setDaidalusParameters(core_.parameters);
+			vs_band_.setDaidalusParameters(core_.parameters);
+			alt_band_.setDaidalusParameters(core_.parameters);
+		}
 	}
 
 	public ParameterData getParameterData() {
@@ -2445,7 +2450,7 @@ public class Daidalus implements GenericStateBands {
 	public void setAbsoluteHorizontalDirectionBands(double min, double max) {
 		min = Util.to_2pi(min);
 		max = Util.to_2pi(max);
-		hdir_band_.set_min_max_mod(min,max);
+		hdir_band_.set_minmax_mod(min,max);
 	}
 
 	/** 
@@ -2467,64 +2472,55 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
-	 *  Clear ownship and traffic data from this object.   
+	 *  Clear ownship and traffic state data from this object. 
+	 *  IMPORTANT: This method reset cache and hysteresis parameters. 
 	 */
 	public void clear() {
 		core_.clear();
+		reset();
+	}
+
+	/**
+	 * Reset cached values, but keep hysteresis variables.
+	 * The hysteresis variables of aircraft ac_idx are reset,
+	 * when curren_time is equal to last_time (meaning that current hysteresis
+	 * values are not longer valid for that aircraft). The value ac_idx = 0 means
+	 * all aircraft. 
+	 */
+	private void reset_cache(int ac_idx) {
+		core_.stale(false);
+		core_.reset_hysteresis(ac_idx);
 		hdir_band_.stale(false);
+		hdir_band_.reset_hysteresis(getCurrentTime(),getHysteresisTime());
 		hs_band_.stale(false);
+		hs_band_.reset_hysteresis(getCurrentTime(),getHysteresisTime());
 		vs_band_.stale(false);
+		vs_band_.reset_hysteresis(getCurrentTime(),getHysteresisTime());
 		alt_band_.stale(false);
+		alt_band_.reset_hysteresis(getCurrentTime(),getHysteresisTime());
 	}
 
 	/**
-	 * Set cached values to stale conditions as they are no longer fresh.
-	 * If hysteresis is true, it also clears hysteresis variables
+	 * Set cached values to stale conditions and clear hysteresis variables.
 	 */
-	public void stale(boolean hysteresis) {
-		core_.stale(hysteresis);
-		hdir_band_.stale(hysteresis);
-		hs_band_.stale(hysteresis);
-		vs_band_.stale(hysteresis);
-		alt_band_.stale(hysteresis);
+	public void reset() {
+		core_.stale(true);
+		hdir_band_.stale(true);
+		hs_band_.stale(true);
+		vs_band_.stale(true);
+		alt_band_.stale(true);
 	}
 
-	/**
-	 * Returns true is Daidalus object is fresh
-	 */
-	public boolean isFresh() {
-		return core_.isFresh() && hdir_band_.isFresh() && 
-				hs_band_.isFresh() && vs_band_.isFresh() && alt_band_.isFresh();
-	}
-	
-	/**
-	 * Refresh Daidalus object
-	 */
-	public void refresh() {
-		core_.refresh();
-		hdir_band_.refresh(core_);
-		hs_band_.refresh(core_);
-		vs_band_.refresh(core_);
-		alt_band_.refresh(core_);
-	}
-	
 	/* Main interface methods */
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to conflict bands for given region.
 	 */
 	public void conflictBandsAircraft(List<String> acs, BandsRegion region) {
-		conflictBandsAircraft(acs,region.orderOfConflictRegion());
-	}
-
-	/**
-	 * Compute in acs list of aircraft identifiers contributing to conflict bands for given region.
-	 * 1=FAR, 2=MID, 2=NEAR
-	 */
-	public void conflictBandsAircraft(List<String> acs, int region) {
-		if (BandsRegion.FAR.orderOfConflictRegion() <= region && region <= BandsRegion.NEAR.orderOfConflictRegion()) {
+		if (region.isConflictBand()) {
 			IndexLevelT.toStringList(acs,
-					core_.acs_conflict_bands(BandsRegion.NUMBER_OF_CONFLICT_BANDS-region),core_.traffic);
+					core_.acs_conflict_bands(BandsRegion.NUMBER_OF_CONFLICT_BANDS-BandsRegion.orderOfRegion(region)),
+					core_.traffic);
 		} else {
 			acs.clear();
 		}
@@ -2534,15 +2530,8 @@ public class Daidalus implements GenericStateBands {
 	 * Return time interval of violation for given bands region
 	 */
 	public Interval timeIntervalOfConflict(BandsRegion region) {
-		return timeIntervalOfConflict(region.orderOfConflictRegion());
-	}
-
-	/**
-	 * Return time interval of conflict for given bands region
-	 */
-	public Interval timeIntervalOfConflict(int region) {
-		if (BandsRegion.FAR.orderOfConflictRegion() <= region && region <= BandsRegion.NEAR.orderOfConflictRegion()) {
-			return core_.tiov(BandsRegion.NUMBER_OF_CONFLICT_BANDS-region);
+		if (region.isConflictBand()) {
+			return core_.tiov(BandsRegion.NUMBER_OF_CONFLICT_BANDS-BandsRegion.orderOfRegion(region));
 		}
 		return Interval.EMPTY;
 	}
@@ -2646,17 +2635,9 @@ public class Daidalus implements GenericStateBands {
 	 * for given region.
 	 */
 	public void peripheralHorizontalDirectionBandsAircraft(List<String> acs, BandsRegion region) {
-		peripheralHorizontalDirectionBandsAircraft(acs,region.orderOfConflictRegion());
-	}
-
-	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands
-	 * for given region. 1=FAR, 2=MID, 3=NEAR
-	 */
-	public void peripheralHorizontalDirectionBandsAircraft(List<String> acs, int region) {
-		if (BandsRegion.FAR.orderOfConflictRegion() <= region && region <= BandsRegion.NEAR.orderOfConflictRegion()) {
+		if (region.isConflictBand()) {
 			IndexLevelT.toStringList(acs,hdir_band_.acs_peripheral_bands(core_,
-					BandsRegion.NUMBER_OF_CONFLICT_BANDS-region),core_.traffic);
+					BandsRegion.NUMBER_OF_CONFLICT_BANDS-BandsRegion.orderOfRegion(region)),core_.traffic);
 		} else {
 			acs.clear();
 		}
@@ -2693,15 +2674,6 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public boolean preferredHorizontalDirectionRightOrLeft() {
 		return hdir_band_.preferred_direction(core_);
-	}
-
-	/**
-	 * Compute horizontal direction resolution region for a given direction.
-	 * @parameter dir is right (true)/left (false) of ownship current direction
-	 * @return Bands region of horizontal direction resolution for given direction
-	 */
-	public BandsRegion horizontalDirectionResolutionRegion(boolean dir) {
-		return hdir_band_.resolution_region(core_,dir);
 	}
 
 	/**
@@ -2803,17 +2775,9 @@ public class Daidalus implements GenericStateBands {
 	 * for given region.
 	 */
 	public void peripheralHorizontalSpeedBandsAircraft(List<String> acs, BandsRegion region) {
-		peripheralHorizontalSpeedBandsAircraft(acs,region.orderOfConflictRegion());
-	}
-
-	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands
-	 * for given region. 1=FAR, 2=MID, 3=NEAR
-	 */
-	public void peripheralHorizontalSpeedBandsAircraft(List<String> acs, int region) {
-		if (BandsRegion.FAR.orderOfConflictRegion() <= region && region <= BandsRegion.NEAR.orderOfConflictRegion()) {
+		if (region.isConflictBand()) {
 			IndexLevelT.toStringList(acs,hs_band_.acs_peripheral_bands(core_,
-					BandsRegion.NUMBER_OF_CONFLICT_BANDS-region),core_.traffic);
+					BandsRegion.NUMBER_OF_CONFLICT_BANDS-BandsRegion.orderOfRegion(region)),core_.traffic);
 		} else {
 			acs.clear();
 		}
@@ -2850,15 +2814,6 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public boolean preferredHorizontalSpeedUpOrDown() {
 		return hs_band_.preferred_direction(core_);
-	}
-
-	/**
-	 * Compute horizontal speed resolution region for a given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
-	 * @return Bands region of horizontal speed resolution for given direction
-	 */
-	public BandsRegion horizontalSpeedResolutionRegion(boolean dir) {
-		return hs_band_.resolution_region(core_,dir);
 	}
 
 	/**
@@ -2960,17 +2915,9 @@ public class Daidalus implements GenericStateBands {
 	 * for given region.
 	 */
 	public void peripheralVerticalSpeedBandsAircraft(List<String> acs, BandsRegion region) {
-		peripheralVerticalSpeedBandsAircraft(acs,region.orderOfConflictRegion());
-	}
-
-	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands
-	 * for given region. 1=FAR, 2=MID, 3=NEAR
-	 */
-	public void peripheralVerticalSpeedBandsAircraft(List<String> acs, int region) {
-		if (BandsRegion.FAR.orderOfConflictRegion() <= region && region <= BandsRegion.NEAR.orderOfConflictRegion()) {
+		if (region.isConflictBand()) {
 			IndexLevelT.toStringList(acs,vs_band_.acs_peripheral_bands(core_,
-					BandsRegion.NUMBER_OF_CONFLICT_BANDS-region),core_.traffic);
+					BandsRegion.NUMBER_OF_CONFLICT_BANDS-BandsRegion.orderOfRegion(region)),core_.traffic);
 		} else {
 			acs.clear();
 		}
@@ -3007,15 +2954,6 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public boolean preferredVerticalSpeedUpOrDown() {
 		return vs_band_.preferred_direction(core_);
-	}
-
-	/**
-	 * Compute vertical speed resolution region for a given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
-	 * @return Bands region of vertical speed resolution for given direction
-	 */
-	public BandsRegion verticalSpeedResolutionRegion(boolean dir) {
-		return vs_band_.resolution_region(core_,dir);
 	}
 
 	/**
@@ -3117,17 +3055,9 @@ public class Daidalus implements GenericStateBands {
 	 * for given region.
 	 */
 	public void peripheralAltitudeBandsAircraft(List<String> acs, BandsRegion region) {
-		peripheralAltitudeBandsAircraft(acs,region.orderOfConflictRegion());
-	}
-
-	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands
-	 * for given region. 1=FAR, 2=MID, 3=NEAR
-	 */
-	public void peripheralAltitudeBandsAircraft(List<String> acs, int region) {
-		if (BandsRegion.FAR.orderOfConflictRegion() <= region && region <= BandsRegion.NEAR.orderOfConflictRegion()) {
+		if (region.isConflictBand()) {
 			IndexLevelT.toStringList(acs,alt_band_.acs_peripheral_bands(core_,
-					BandsRegion.NUMBER_OF_CONFLICT_BANDS-region),core_.traffic);
+					BandsRegion.NUMBER_OF_CONFLICT_BANDS-BandsRegion.orderOfRegion(region)),core_.traffic);
 		} else {
 			acs.clear();
 		}
@@ -3166,15 +3096,6 @@ public class Daidalus implements GenericStateBands {
 		return alt_band_.preferred_direction(core_);
 	}
 
-	/**
-	 * Compute altitude resolution region for a given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current altitude
-	 * @return Bands region of altitude resolution for given direction
-	 */
-	public BandsRegion altitudeResolutionRegion(boolean dir) {
-		return alt_band_.resolution_region(core_,dir);
-	}
-
 	/*
 	 * Alerting logic
 	 */
@@ -3211,14 +3132,6 @@ public class Daidalus implements GenericStateBands {
 		return alertLevel(ac_idx,0,0,0);
 	}
 
-	@Deprecated
-	/**
-	 * This method is deprecated. It is replaced by alertLevel 
-	 */
-	public int alerting(int ac_idx) {
-		return alertLevel(ac_idx);
-	}
-
 	/**
 	 * Detects violation of alert thresholds for a given alert level with an
 	 * aircraft at index ac_idx.
@@ -3240,13 +3153,7 @@ public class Daidalus implements GenericStateBands {
 				if (alert_level > 0) {
 					Optional<Detection3D> detector = alerter.getDetector(alert_level);
 					if (detector.isPresent()) {
-						double s_err = intruder.relativeHorizontalPositionError(core_.ownship,core_.parameters);
-						double sz_err = intruder.relativeVerticalPositionError(core_.ownship,core_.parameters);
-						double v_err = intruder.relativeHorizontalSpeedError(core_.ownship,s_err,core_.parameters);
-						double vz_err = intruder.relativeVerticalSpeedError(core_.ownship,core_.parameters);
-						return detector.get().conflictDetectionSUM(core_.ownship.get_s(),core_.ownship.get_v(),intruder.get_s(),intruder.get_v(),
-								0,core_.parameters.getLookaheadTime(),
-								s_err,sz_err,v_err,vz_err);
+						return detector.get().conflictDetectionWithTrafficState(core_.ownship,intruder,0.0,core_.parameters.getLookaheadTime());
 					} else {
 						error.addError("violationOfAlertThresholds: detector of traffic aircraft "+ac_idx+" is not set");
 					}
@@ -3295,18 +3202,7 @@ public class Daidalus implements GenericStateBands {
 	/* Input/Output methods */
 
 	public String outputStringAircraftStates() {
-		String ualt = core_.parameters.getUnitsOf("step_alt");
-		String uhs = core_.parameters.getUnitsOf("step_hs");
-		String uvs = core_.parameters.getUnitsOf("step_vs");
-		String uxy = "m";
-		if (Units.isCompatible(uhs,"knot")) {
-			uxy = "nmi";
-		} else if (Units.isCompatible(uhs,"fpm")) {
-			uxy = "ft";
-		} else if (Units.isCompatible(uhs,"kph")) {
-			uxy = "km";
-		}
-		return core_.ownship.formattedTraffic(core_.traffic, uxy, ualt, uhs, uvs, core_.current_time);
+		return core_.outputStringAircraftStates(false);
 	}
 
 	public String rawString() {
@@ -3332,15 +3228,19 @@ public class Daidalus implements GenericStateBands {
 			if (core_.isFresh()) {
 				s+=core_.toString();
 				if (hdir_band_.isFresh()) {
+					s+="## Direction Bands\n";
 					s+=hdir_band_.toString();
 				}
 				if (hs_band_.isFresh()) {
+					s+="## Horizontal Speed Bands\n";
 					s+=hs_band_.toString();
 				}
 				if (vs_band_.isFresh()) {
+					s+="## Vertical Speed Bands\n";
 					s+=vs_band_.toString();
 				}
 				if (alt_band_.isFresh()) {
+					s+="## Altitude Bands\n";
 					s+=alt_band_.toString();
 				}
 			}
@@ -3354,32 +3254,22 @@ public class Daidalus implements GenericStateBands {
 
 	public String outputStringInfo() {
 		String s="";
-		String ualt = core_.parameters.getUnitsOf("step_alt");
-		String uhs = core_.parameters.getUnitsOf("step_hs");
-		String uvs = core_.parameters.getUnitsOf("step_vs");
-		String uxy = "m";
-		if (Units.isCompatible(uhs,"knot")) {
-			uxy = "nmi";
-		} else if (Units.isCompatible(uhs,"fpm")) {
-			uxy = "ft";
-		} else if (Units.isCompatible(uhs,"kph")) {
-			uxy = "km";
-		} 
 		s+="Time: "+Units.str("s",core_.current_time)+"\n";
-		s += core_.ownship.formattedTraffic(core_.traffic,uxy, ualt, uhs, uvs, core_.current_time);
+		s+= outputStringAircraftStates();
 		s+="Conflict Criteria: "+(core_.parameters.isEnabledConflictCriteria()?"Enabled":"Disabled")+"\n";
 		s+="Recovery Criteria: "+(core_.parameters.isEnabledRecoveryCriteria()?"Enabled":"Disabled")+"\n";
 		s+="Most Urgent Aircraft: "+core_.mostUrgentAircraft().getId()+"\n";
 		s+="Horizontal Epsilon: "+core_.epsilonH()+"\n";
 		s+="Vertical Epsilon: "+core_.epsilonV()+"\n";
 		List<String> acs = new ArrayList<String>();
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			conflictBandsAircraft(acs,region);
-			s+="Conflict Bands Aircraft ("+BandsRegion.conflictRegionFromOrder(region)+"): "+
-					TrafficState.listToString(acs)+"\n";
+			s+="Conflict Bands Aircraft ("+region.toString()+"): "+TrafficState.listToString(acs)+"\n";
 		}	
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
-			s+="Time Interval of Conflict ("+BandsRegion.conflictRegionFromOrder(region)+"): "+
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
+			s+="Time Interval of Conflict ("+region.toString()+"): "+
 					timeIntervalOfConflict(region).toStringUnits("s")+"\n";
 		}	
 		return s;
@@ -3414,9 +3304,10 @@ public class Daidalus implements GenericStateBands {
 			s+="  "+horizontalDirectionIntervalAt(i).toStringUnits(u)+" "+horizontalDirectionRegionAt(i).toString()+"\n";
 		} 
 		List<String> acs = new ArrayList<String>();
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			peripheralHorizontalDirectionBandsAircraft(acs,region);
-			s+="Peripheral Horizontal Direction Bands Aircraft ("+BandsRegion.conflictRegionFromOrder(region)+"): "+
+			s+="Peripheral Horizontal Direction Bands Aircraft ("+region.toString()+"): "+
 					TrafficState.listToString(acs)+"\n";
 		}
 		s+="Horizontal Direction Resolution (right): "+Units.str(u,horizontalDirectionResolution(true))+"\n";
@@ -3452,9 +3343,10 @@ public class Daidalus implements GenericStateBands {
 			s+="  "+horizontalSpeedIntervalAt(i).toStringUnits(u)+" "+horizontalSpeedRegionAt(i).toString()+"\n";
 		} 
 		List<String> acs = new ArrayList<String>();
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			peripheralHorizontalSpeedBandsAircraft(acs,region);
-			s+="Peripheral Horizontal Speed Bands Aircraft ("+BandsRegion.conflictRegionFromOrder(region)+"): "+
+			s+="Peripheral Horizontal Speed Bands Aircraft ("+region.toString()+"): "+
 					TrafficState.listToString(acs)+"\n";
 		}
 		s+="Horizontal Speed Resolution (up): "+Units.str(u,horizontalSpeedResolution(true))+"\n";
@@ -3490,9 +3382,10 @@ public class Daidalus implements GenericStateBands {
 			s+="  "+verticalSpeedIntervalAt(i).toStringUnits(u)+" "+ verticalSpeedRegionAt(i).toString()+"\n";
 		} 
 		List<String> acs = new ArrayList<String>();
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			peripheralVerticalSpeedBandsAircraft(acs,region);
-			s+="Peripheral Vertical Speed Bands Aircraft ("+BandsRegion.conflictRegionFromOrder(region)+"): "+
+			s+="Peripheral Vertical Speed Bands Aircraft ("+region.toString()+"): "+
 					TrafficState.listToString(acs)+"\n";
 		}
 		s+="Vertical Speed Resolution (up): "+Units.str(u,verticalSpeedResolution(true))+"\n";
@@ -3528,9 +3421,10 @@ public class Daidalus implements GenericStateBands {
 			s+="  "+altitudeIntervalAt(i).toStringUnits(u)+" "+ altitudeRegionAt(i).toString()+"\n";
 		} 
 		List<String> acs = new ArrayList<String>();
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			peripheralAltitudeBandsAircraft(acs,region);
-			s+="Peripheral Altitude Bands Aircraft ("+BandsRegion.conflictRegionFromOrder(region)+"): "+
+			s+="Peripheral Altitude Bands Aircraft ("+region.toString()+"): "+
 					TrafficState.listToString(acs)+"\n";
 		}
 		s+="Altitude Resolution (up): "+Units.str(u,altitudeResolution(true))+"\n";
@@ -3595,13 +3489,14 @@ public class Daidalus implements GenericStateBands {
 		s += "%%% Bands for Regions:\n";
 		s += "(# ";
 		comma = false;
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
 				s += ", ";
 			} else {
 				comma = true;
 			}
-			s += BandsRegion.conflictRegionFromOrder(region).toString()+"_:= "+core_.bands_for(BandsRegion.NUMBER_OF_CONFLICT_BANDS-region);
+			s += region.toString()+"_:= "+core_.bands_for(BandsRegion.NUMBER_OF_CONFLICT_BANDS-regidx);
 		}
 		s += " #)\n";
 		s += "%%% OUTPUTS %%%\n";
@@ -3609,7 +3504,8 @@ public class Daidalus implements GenericStateBands {
 		s += "( ";
 		List<String> acs = new ArrayList<String>();
 		comma = false;	
-		for (int region=BandsRegion.FAR.orderOfConflictRegion(); region <= BandsRegion.NEAR.orderOfConflictRegion(); ++region) {
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
 				s += ", ";
 			} else {
@@ -3626,8 +3522,8 @@ public class Daidalus implements GenericStateBands {
 		s += "%%% Peripheral Horizontal Direction Bands Aircraft (FAR,MID,NEAR):\n";
 		s += "( ";
 		comma = false;
-		for (int r=1; r <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++r) {
-			BandsRegion region = BandsRegion.conflictRegionFromOrder(r);
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
 				s += ", ";
 			} else {
@@ -3662,8 +3558,8 @@ public class Daidalus implements GenericStateBands {
 		s += "%%% Peripheral Horizontal Speed Bands Aircraft (FAR,MID,NEAR):\n";
 		s += "( ";
 		comma = false;
-		for (int r=1; r <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++r) {
-			BandsRegion region = BandsRegion.conflictRegionFromOrder(r);
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
 				s += ", ";
 			} else {
@@ -3698,8 +3594,8 @@ public class Daidalus implements GenericStateBands {
 		s += "%%% Peripheral Vertical Speed Bands Aircraft (FAR,MID,NEAR):\n";
 		s += "( ";
 		comma = false;
-		for (int r=1; r <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++r) {
-			BandsRegion region = BandsRegion.conflictRegionFromOrder(r);
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
 				s += ", ";
 			} else {
@@ -3734,8 +3630,8 @@ public class Daidalus implements GenericStateBands {
 		s += "%%% Peripheral Altitude Bands Aircraft (FAR,MID,NEAR):\n";
 		s += "( ";
 		comma = false;
-		for (int r=1; r <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++r) {
-			BandsRegion region = BandsRegion.conflictRegionFromOrder(r);
+		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
+			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
 				s += ", ";
 			} else {
@@ -3795,35 +3691,64 @@ public class Daidalus implements GenericStateBands {
 	// ErrorReporter Interface Methods
 
 	public boolean hasError() {
-		return error.hasError();
+		return error.hasError() || core_.parameters.hasError();
 	}
 
 	public boolean hasMessage() {
-		return error.hasMessage();
+		return error.hasMessage() || core_.parameters.hasMessage();
 	}
 
 	public String getMessage() {
-		return error.getMessage();
+		return error.getMessage()+"; "+core_.parameters.getMessage();
 	}
 
 	public String getMessageNoClear() {
-		return error.getMessageNoClear();
+		return error.getMessageNoClear()+"; "+core_.parameters.getMessageNoClear();
 	}
 
 	/* Deprecated Methods */
 
 	@Deprecated
 	/**
+	 * Use setOwnshipState instead.
+	 * Set ownship state at time 0.0. Clear all traffic. 
+	 * @param id Ownship's identified
+	 * @param pos Ownship's position
+	 * @param vel Ownship's ground velocity
+	 */
+	public void setOwnship(String id, Position pos, Velocity vel) {
+		setOwnshipState(id,pos,vel);
+	}
+
+	@Deprecated
+	/**
+	 * Use setOwnshipState instead.
 	 * Set ownship state at time 0.0. Clear all traffic. Name of ownship will be "Ownship"
 	 * @param pos Ownship's position
 	 * @param vel Ownship's ground velocity
 	 */
 	public void setOwnship(Position pos, Velocity vel) {
-		setOwnship("Ownship",pos,vel);
+		setOwnshipState("Ownship",pos,vel);
 	}
 
 	@Deprecated
 	/**
+	 * Use addTrafficState instead.
+	 * Add traffic state at current time. If it's the first aircraft, this aircraft is 
+	 * set as the ownship. 
+	 * @param id Aircraft's identifier
+	 * @param pos Aircraft's position
+	 * @param vel Aircraft's ground velocity
+	 * Same function as addTrafficState, but it doesn't return index of added traffic. This is neeeded
+	 * for compatibility with GenericBands
+	 */
+	public void addTraffic(String id, Position pos, Velocity vel) {
+		addTrafficState(id,pos,vel);
+	}
+
+	@Deprecated
+	/**
+	 * Use addTrafficState instead
 	 * Add traffic state at current time. If it's the first aircraft, this aircraft is 
 	 * set as the ownship. Name of aircraft is AC_n, where n is the index of the aicraft
 	 * @param pos Aircraft's position
@@ -3839,61 +3764,113 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	@Deprecated
+	/**
+	 * Use alertLevel instead
+	 */
+	public int alerting(int ac_idx) {
+		return alertLevel(ac_idx);
+	}
+
+	@Deprecated
+	/**
+	 * Use setMaxHorizontalSpeed instead
+	 */
 	public void setMaxGroundSpeed(double gs, String unit) {
 		setMaxHorizontalSpeed(gs,unit);		
 	}
 
 	@Deprecated
+	/**
+	 * Use getMaxHorizontalSpeed instead
+	 */
 	public double getMaxGroundSpeed(String unit) {
 		return getMaxHorizontalSpeed(unit);
 	}
 
 	@Deprecated
+	/**
+	 * Use horizontalDirectionBandsLength instead
+	 */
 	public int trackLength() {
 		return horizontalDirectionBandsLength();
 	}
 
 	@Deprecated
+	/**
+	 * Use horizontalDirectionIntervalAt instead
+	 */
 	public Interval track(int i, String unit) {
 		return horizontalDirectionIntervalAt(i,unit);
 	}
 
 	@Deprecated
+	/**
+	 * Use horizontalDirectionRegionAt instead
+	 */
 	public BandsRegion trackRegion(int i) {
 		return horizontalDirectionRegionAt(i);
 	}
 
 	@Deprecated
+	/**
+	 * Use regionOfHorizontalDirection instead
+	 */
 	public BandsRegion regionOfTrack(double trk, String unit) {
 		return regionOfHorizontalDirection(trk,unit);
 	}
 
 	@Deprecated
+	/**
+	 * Use horizontalSpeedBandsLength instead
+	 */
 	public int groundSpeedLength() {
 		return horizontalSpeedBandsLength();
 	}
 
 	@Deprecated
+	/**
+	 * Use horizontalSpeedIntervalAt instead
+	 */
 	public Interval groundSpeed(int i, String unit) {
 		return horizontalSpeedIntervalAt(i,unit);
 	}
 
 	@Deprecated
+	/**
+	 * Use horizontalSpeedRegionAt instead
+	 */
 	public BandsRegion groundSpeedRegion(int i) {
 		return horizontalSpeedRegionAt(i);
 	}
 
 	@Deprecated
+	/**
+	 * Use regionOfHorizontalSpeed instead
+	 */
 	public BandsRegion regionOfGroundSpeed(double gs, String unit) {
 		return regionOfHorizontalSpeed(gs,unit);
 	}
 
 	@Deprecated
+	/**
+	 * Use verticalSpeedBandsLength instead
+	 */
+	public int verticalSpeedLength() {
+		return verticalSpeedBandsLength();
+	}
+
+	@Deprecated
+	/**
+	 * Use verticalSpeedIntervalAt instead
+	 */
 	public Interval verticalSpeed(int i, String unit) {
 		return verticalSpeedIntervalAt(i,unit);
 	}
 
 	@Deprecated
+	/**
+	 * Use verticalSpeedRegionAt instead
+	 */
 	public BandsRegion verticalSpeedRegion(int i) {
 		return verticalSpeedRegionAt(i);
 	}

@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -417,6 +417,41 @@ public class IntervalSet implements Iterable<Interval> {
 	}
 
 	/**
+	 * Return intersection of this interval set and interval n
+	 * This may contain singletons
+	 * @param n
+	 * @return
+	 */
+	public IntervalSet intersection(Interval n) {
+		IntervalSet r = new IntervalSet();
+		IntervalSet m = new IntervalSet(this);
+		for (int i = 0; i < m.size(); i++) {
+			Interval iv = m.getInterval(i);
+			Interval j = iv.intersect(n);
+			if (!j.isEmpty()) {
+				r.union(j);
+			}
+		}
+		return r;
+	}
+
+	/**
+	 * Return intersection of this interval set and interval set n
+	 * This may contain singletons
+	 * @param n
+	 * @return
+	 */
+	public IntervalSet intersection(IntervalSet n) {
+		IntervalSet r = new IntervalSet();
+		for (int i = 0; i < n.size(); i++) {
+			Interval iv = n.getInterval(i);
+			IntervalSet m = intersection(iv);
+			r.union(m);
+		}
+		return r;
+	}
+
+	/**
 	 * Remove the given open interval from the given set of closed intervals.
 	 * Note: the semantics of this method mean that [1,2] - (1,2) = [1,1] and
 	 * [2,2]. To get rid of the extraneous singletons use methods like
@@ -700,10 +735,26 @@ public class IntervalSet implements Iterable<Interval> {
 	 * @param v
 	 * @return
 	 */
-	public Interval intervalContianing(double v) {
+	public Interval intervalContaining(double v) {
 		int i = order(v);
 		if (i >= 0) return r[i];
 		else return Interval.EMPTY;
 	}
 
+	/**
+	 * Shift all intervals in this set by a given amount
+	 * @param d amount to shift
+	 */
+	public void shift(double d) {
+		if (d > 0) {
+			for (int i = size()-1; i >= 0; i--) {
+				r[i] = r[i].shift(d);
+			}
+		} else if (d < 0) {
+			for (int i = 0; i < size(); i++) {
+				r[i] = r[i].shift(d);
+			}
+		}
+	}
+	
 }

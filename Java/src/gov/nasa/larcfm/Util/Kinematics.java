@@ -5,7 +5,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  *
  * 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -14,6 +14,7 @@
 package gov.nasa.larcfm.Util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A library of functions to aid the computation of the kinematics of an aircraft.  This
@@ -177,7 +178,35 @@ public final class Kinematics {
 	  return turnRate(vo.gs(), bankAngle);
   }
 
+  
 
+  /**
+   * Calculate the radius of a turn in order to both make a fly-by turn at a given (max) bank angle, 
+   * as well as not deviate from the turn point by more than a specified off-track distance. 
+   * @param turnAngle track angle change of the turn
+   * @param maxBank max allowed bank angle
+   * @param maxDist maximum distance from fly-by point
+   * @return maximum ground speed that will allow for the turn (MAX_VALUE if the turn angle is 180 degrees) 
+   */
+  public static double maxFlyByTurnDistance(double turnAngle, double maxDist) {
+	  if (Util.almost_equals(turnAngle, Math.PI)) return Double.MAX_VALUE;
+	  double a = turnAngle/2;
+	  return maxDist*Math.sin(a) / (1-Math.sin(a));
+  }
+  
+  /**
+   * Calculate the maximum turn speed in order to both make a fly-by turn at a given (max) bank angle, 
+   * as well as not deviate from the turn point by more than a specified off-track distance 
+   * @param turnAngle track angle change of the turn
+   * @param maxBank max allowed bank angle
+   * @param maxDist maximum distance from fly-by point
+   * @return maximum ground speed that will allow for the turn (MAX_VALUE if the turn angle is 180 degrees) 
+   */
+  public static double maxFlyByTurnSpeed(double turnAngle, double maxBank, double maxDist) {
+	  double r = maxFlyByTurnDistance(turnAngle, maxDist);
+	  return speedOfTurn(r, maxBank);
+  }
+  
   /**
    * Has the turn completed?  Specifically, is the currentTrack at least the targetTrack given that 
    * currentTrack is roughly moving in the direction indicated by the parameter turnRight.
@@ -1536,47 +1565,302 @@ public final class Kinematics {
 	
 	// -----------------------------------------------------------------
 
-	// returns t1, t2, or -1,-1 if not solvable
-	private static Pair<Double,Double> gsAccelToRTAV(double gs1, double gs3, double d, double t, double a1, double a2) {
-		// constraints and equations simplified and checked by Anthony
-		double c00 = gs1*t + 0.5*a2*t*t;
-		double c10 = t*(a1-a2);
-		double c20 = 0.5*(a2-a1);
-		double c01 = -a2*t;
-		double c02 = 0.5*a2;
-		double c11 = a2;
-		double A = (gs1-gs3+a2*t) / a2;
-		double B = (a1-a2) / a2;
-		double E = c20 + c02*B*B + c11*B;
-		double F = c10 + c01*B + 2*c02*A*B + c11*A;
-		double G = c00 + c01*A + c02*A*A - d;
-		double t1a = (-F + Math.sqrt(F*F - 4*E*G))/2*E;
-		double t2a = A + B*t1a;
-		double t1b = (-F - Math.sqrt(F*F - 4*E*G))/2*E;
-		double t2b = A + B*t1b;
-//f.pln("Kinematics.gsAccelToRTAV t1a=" + t1a + " t2a=" + t2a + " OR t1b=" + t1b + " t2b=" + t2b);
+	/**
+	 * Attempt to achieve an RTA given a starting speed and ending speed.
+	 * @param gs1 ground speed in
+	 * @param gs3 ground speed out
+	 * @param d total distance
+	 * @param t total time
+	 * @param a1 acceleration 1 (signed)
+	 * @param a2 acceleration 2 (signed)
+	 * @return returns (initial accel time, final accel time), or (-1,-1) if not solvable
+	 */
+	protected static Pair<Double,Double> gsAccelToRTAV(double gs1, double gs3, double d, double t, double a1, double a2) {
 
-		if (t1a >= 0 && t2a >= 0) {
-//f.pln("Kinematics.gsAccelToRTAV a");
-			return new Pair<Double,Double>(t1a,t2a); 
-		} else if (t1b >= 0 && t2b >= 0) {
-//f.pln("Kinematics.gsAccelToRTAV b");
-			return new Pair<Double,Double>(t1b,t2b); 
+//		double d = d1+d2+d3;
+//		double t = t1+t2+t3;
+//		double d1 = gs1*t1 + 0.5*a1*t1*t1;
+//		double gs2 = gs1 + a1*t1;
+//		double d2 = gs2 * t2;
+//		double d3 = gs2 * t3 + 0.5*a2*t3*t3;
+//		double gs3 = gs2 + a2*t3;
+//		double t3 = (gs3 - gs2)/a2;
+//		double t3 = (gs3 - (gs1 + a1*t1)) / a2;
+//		double t3 = (gs3 - gs1 - a1*t1) / a2;
+//		double t3 = (gs3-gs1)/a2 - (a1/a2)*t1;
+
+		double x01 = (gs3-gs1)/a2;
+		double x02 = -(a1/a2); // the way we normally use it, this is always either +1 or -1
+
+//		double t3 = x01 + x02*t1;
+//		double t2 = t - t1 - t3;
+//		double t2 = t - t1 - (x01 + x02*t1);
+//		double t2 = t - x01 - x02*t1 - t1;
+//		double t2 = t - x01 - (x02+1)*t1;
+
+		double x03 = t - x01;
+		double x04 = x02+1; // usually either 2 or 0
+
+//		double t2 = x03 - x04*t1;
+//		double d2 = (gs1 + a1*t1) * (x03 - x04*t1);
+//		double d2 = gs1*x03 - gs1*x04*t1 + x03*a1*t1 - x04*a1*t1*t1;
+//		double d2 = gs1*x03 + (x03*a1 - gs1*x04)*t1 - x04*a1*t1*t1;
+
+		double x05 = x03*gs1;
+		double x06 = x03*a1 - x04*gs1;
+		double x07 = x04*a1;
+		
+//		double d2 = x05 + x06*t1 - x07*t1*t1;
+//		double d3 = gs2 * t3 + 0.5*a2*t3*t3;
+//		double d3 = (gs1 + a1*t1) * (x01 + x02*t1) + 0.5*a2*(x01 + x02*t1)*(x01 + x02*t1);
+//		double d3 = x01*gs1 + x02*gs1*t1 + x01*a1*t1 + x02*a1*t1*t1 + 0.5*a2*(x01 + x02*t1)*(x01 + x02*t1);
+//		double d3 = x01*gs1 + x02*gs1*t1 + x01*a1*t1 + x02*a1*t1*t1 + 0.5*a2*(x01*x01 + 2*x01*x02*t1 + x02*x02*t1*t1);
+//		double d3 = x01*gs1 + x02*gs1*t1 + x01*a1*t1 + x02*a1*t1*t1 + 0.5*a2*x01*x01 + 0.5*a2*2*x01*x02*t1 + 0.5*a2*x02*x02*t1*t1;
+//		double d3 = x01*gs1 + x02*gs1*t1 + x01*a1*t1 + x02*a1*t1*t1 + 0.5*a2*x01*x01 + a2*x01*x02*t1 + 0.5*a2*x02*x02*t1*t1;
+//		double d3 = (x01*gs1 + 0.5*a2*x01*x01) + (x02*gs1*t1 + x01*a1*t1 + a2*x01*x02*t1) + (x02*a1*t1*t1 + 0.5*a2*x02*x02*t1*t1);
+//		double d3 = (x01*gs1 + 0.5*a2*x01*x01) + (x02*gs1 + x01*a1 + a2*x01*x02)*t1 + (x02*a1 + 0.5*a2*x02*x02)*t1*t1;
+		
+		double x08 = x01*gs1 + 0.5*a2*x01*x01;
+		double x09 = x02*gs1 + x01*a1 + x01*x02*a2;
+		double x10 = x02*a1 + 0.5*a2*x02*x02;
+		
+//		double d3 =  x08 + x09*t1 + x10*t1*t1;
+//		d = d1 + d2 + d3;
+//		0 = gs1*t1 + 0.5*a1*t1*t1 + x05 + x06*t1 - x07*t1*t1 + x08 + x09*t1 + x10*t1*t1 - d;
+//		0 = (0.5*a1*t1*t1 + x10*t1*t1 - x07*t1*t1) + (gs1*t1 + x06*t1 + x09*t1) + (x05 + x08 - d);
+//		0 = (0.5*a1 + x10 - x07)*t1*t1 + (gs1 + x06 + x09)*t1 + (x05 + x08 - d);
+
+		double AA = 0.5*a1 + x10 - x07;
+		double BB = gs1 + x06 + x09;
+		double CC = x05 + x08 - d;
+		
+		
+		double t1a = -1;
+		double t1b = -1;
+
+		if (AA == 0.0) { // divide by zero
+			t1a = -CC/BB;
+		} else {
+			t1a = (-BB + Math.sqrt(BB*BB - 4*AA*CC)) / (2*AA);
+			t1b = (-BB - Math.sqrt(BB*BB - 4*AA*CC)) / (2*AA);
+		}
+//		double t2a = x03 - x04*t1a;
+//		double t2b = x03 - x04*t1b;
+		double t3a = x01 + x02*t1a;
+		double t3b = x01 + x02*t1b;
+		
+
+//	f.pln("Kinematics.gsAccelToRTAV A t1a=" + t1a + " t2a="+t2a+" t3a=" + t3a + " OR t1b=" + t1b + " t2b="+t2b+" t3a=" + " t3b=" + t3b+" t="+t);
+
+		if (t1a >= 0 && t3a >= 0 && t1a+t3a <= t) {
+//assert(t1a+t3a<=t);
+			return new Pair<Double,Double>(t1a,t3a); 
+		} else if (t1b >= 0 && t3b >= 0 && t1b+t3b <= t) {
+//assert(t1b+t3b<=t);
+			return new Pair<Double,Double>(t1b,t3b); 
 		} else {
 //f.pln("Kinematics.gsAccelToRTAV FAIL");
 			return new Pair<Double,Double>(-1.0,-1.0);
 		}
+//		// constraints and equations simplified and checked by Anthony
+//		double c00 = gs1*t + 0.5*a2*t*t;
+//		double c10 = t*(a1-a2);
+//		double c20 = 0.5*(a2-a1);
+//		double c01 = -a2*t;
+//		double c02 = 0.5*a2;
+//		double c11 = a2;
+//		double A = (gs1-gs3+a2*t) / a2;
+//		double B = (a1-a2) / a2;
+//		double E = c20 + c02*B*B + c11*B;
+//		double F = c10 + c01*B + 2*c02*A*B + c11*A;
+//		double G = c00 + c01*A + c02*A*A - d;
+//		double t1a = (-F + Math.sqrt(F*F - 4*E*G))/2*E;
+//		double t2a = A + B*t1a;
+//		double t1b = (-F - Math.sqrt(F*F - 4*E*G))/2*E;
+//		double t2b = A + B*t1b;
+//		f.pln("Kinematics.gsAccelToRTAV B t1a=" + t1a + " t2a=" + t2a + " OR t1b=" + t1b + " t2b=" + t2b+" t="+t);
+//
+//		if (t1a >= 0 && t2a >= 0) {
+//			assert(t1a+t2a<=t);
+//			return new Pair<Double,Double>(t1a,t2a); 
+//		} else if (t1b >= 0 && t2b >= 0) {
+//			assert(t1b+t2b<=t);
+//			return new Pair<Double,Double>(t1b,t2b); 
+//		} else {
+////f.pln("Kinematics.gsAccelToRTAV FAIL");
+//			return new Pair<Double,Double>(-1.0,-1.0);
+//		}
+
 	}
+
+	/**
+	 * Attempt to achieve an RTA given a starting speed, ending speed, and desired constant speed.  This calculates acceleration values (same magnitudes) and times.
+	 * @param gs1 starting speed
+	 * @param gs2 desired cruising speed
+	 * @param gs3 ending speed
+	 * @param d total distance
+	 * @param t relative time to RTA
+	 * @return list of (accel time 1, accel time 2, accel 1, accel 2), possibly empty
+	 */
+	protected static List<Quad<Double,Double,Double,Double>> gsAccelToRTAVVV(double gs1, double gs2, double gs3, double d, double t) {
+
+		List<Quad<Double,Double,Double,Double>> ret = new ArrayList<Quad<Double,Double,Double,Double>>();
+		if (gs1 < 0 || gs2 < 0 || gs3 < 0 || d < 0 || t < 0) {
+			return ret;
+		}
+		
+		// try each combination of +/-a
+		
+		//++
+		
+//		double d = d1+d2+d3;
+//		double t = t1+t2+t3;
+//		double d1 = gs1*t1 + 0.5*a1*t1*t1;		
+//		double gs2 = gs1 + a1*t1;
+//		double d2 = gs2 * t2;
+//		double d3 = gs2 * t3 + 0.5*a2*t3*t3;
+//		double gs3 = gs2 + a2*t3;
+		
+//		a1 = (gs2-gs1)/t1
+//		a2 = (gs2-gs1)/t1
+		
+//		gs2 = gs1 + a1*t1
+//		a1 = (gs2-gs1)/t1
+		double x01 = gs2-gs1;
+//		a1 = x01/t1;
+//		a2 = x01/t1;
+//		d1 = gs1*t1 + 0.5*(a1)*t1*t1;
+//		d1 = gs1*t1 + 0.5*(x01)*t1;
+		double x02 = 0.5*x01;
+//		d1 = gs1*t1 +x02*t1;
+		double x03 = gs1+x02;
+//		d1 = x03*t1;
+//		t3 = (gs3-gs2)/(a2)		
+		double x04 = gs3-gs2;
+//		t3 = x04*t1/x01;		
+		double x05 = x04/x01;
+//		t3 = x05*t1;
+//		t2 = t - t1 - t3
+//		t2 = t - t1 - x05*t1;
+		double x06 = (1+x05);
+//		t2 = t - x06*ti;
+//		d2 = gs2 * t2
+//		d2 = gs2 * (t - x06*t1)
+//		d2 = gs2*t - x06*gs2*t1
+		double x07 = gs2*t;
+		double x08 = x06*gs2;
+//		d2 = x07 - x08*t;
+//		d3 = gs2 * t3 + 0.5*(a2)*t3*t3;
+//		d3 = gs2*x05*t1 + 0.5*(x01/t1)*(x05*t1)*(x05*t1); 
+//		d3 = gs2*x05*t1 + 0.5*(x01)*x05*x05*t1;
+		double x09 = gs2*x05;
+		double x10 = 0.5*x01*x05*x05;
+//		d3 = x09*t1 + x10*t1
+//		d = d1 + d2 + d3;
+//		d = (x03*t1) + (x07 - x08*t) + (x09*t1 + x10*t1)
+//		d - x07 = (x03 - x08 + x09 + x10)*t1
+		double t1a = (d - x07)/(x03 - x08 + x09 + x10);
+		double a1a = x01/t1a;
+		double a2a = a1a;
+		double t3a = x05*t1a;
+
+		double t2a = t - t1a-t3a;
+		double d1a = gs1*t1a + 0.5*a1a*t1a*t1a;
+		double d2a = gs2*t2a;
+		double d3a = gs2*t3a + 0.5*a2a*t3a*t3a;
+		double da = d1a+d2a+d3a;
+		
+		if (gs1 <= gs2 && gs2 <= gs3 && t1a >=0 && t3a >= 0 && t1a +t3a <= t && d1a >= 0 && d2a>= 0 && d3a >= 0) {
+//assert(Util.almost_equals(t, t1a+t2a+t3a));			
+//assert(Util.almost_equals(d, d1a+d2a+d3a));		
+//assert(Util.almost_equals(t1a, (gs2-gs1)/a1a));		
+//assert(Util.almost_equals(t3a, (gs3-gs2)/a2a));		
+			ret.add(Quad.make(t1a, t3a, a1a, a2a));
+		}
+
+		// +a1 -a2
+		double x11 = gs1-gs2;
+		double x12 = x04/x11;
+		double x13 = (1+x12);
+		double x14 = x13*gs2;
+		double x15 = gs2*x12;
+		double x16 = 0.5*x11*x12*x12;
+		double t1b = (d - x07)/(x03 - x14 + x15 + x16);
+		double a1b = x01/t1b;
+		double a2b = -a1b;
+		double t3b = x12*t1b;
+		
+		double t2b = t - t1b-t3b;
+		double d1b = gs1*t1b + 0.5*a1b*t1b*t1b;
+		double d2b = gs2*t2b;
+		double d3b = gs2*t3b + 0.5*a2b*t3b*t3b;
+		double db = d1b+d2b+d3b;
+		
+		if (gs1 <= gs2 && gs2 >= gs3 && t1b >=0 && t3b >= 0 && t1b +t3b <= t && d1b >= 0 && d2b >= 0 && d3b >= 0) {
+//assert(Util.almost_equals(t, t1b+t2b+t3b));			
+//assert(Util.almost_equals(d, db));			
+//assert(Util.almost_equals(t1b, (gs2-gs1)/a1b));		
+//assert(Util.almost_equals(t3b, (gs3-gs2)/a2b));		
+			ret.add(Quad.make(t1b, t3b, a1b, a2b));
+		}
+		
+		// -a1 +a2
+		double x17 = 0.5*x11;
+		double x18 = gs1+x17;
+		double t1c = (d - x07)/(x18 - x08 + x09 + x10);
+		double a1c = x11/t1c;
+		double a2c = -a1c;
+		double t3c = x05*t1c;
+
+		double t2c = t - t1c-t3c;
+		double d1c = gs1*t1c + 0.5*a1c*t1c*t1c;
+		double d2c = gs2*t2c;
+		double d3c = gs2*t3c + 0.5*a2c*t3c*t3c;
+		double dc = d1c+d2c+d3c;
+		
+		if (gs1 >= gs2 && gs2 <= gs3 && t1c >=0 && t3c >= 0 && t1c + t3c <= t && d1c >= 0 && d2c >= 0 && d3c >= 0) {
+//assert(Util.almost_equals(t, t1c+t2c+t3c));			
+//assert(Util.almost_equals(d, dc));			
+//assert(Util.almost_equals(t1c, (gs2-gs1)/a1c));		
+//assert(Util.almost_equals(t3c, (gs3-gs2)/a2c));		
+			ret.add(Quad.make(t1c, t3c, a1c, a2c));
+		}
+
+
+		
+		// -a1 -a2
+		double t1d = (d - x07)/(x18 - x14 + x15 + x16);
+		double a1d = x11/t1d;
+		double a2d = a1d;
+		double t3d = x12*t1d;
+		
+		double t2d = t - t1d - t3d;
+		double d1d = gs1*t1d + 0.5*a1d*t1d*t1d;
+		double d2d = gs2*t2d;
+		double d3d = gs2*t3d + 0.5*a2d*t3d*t3d;
+		double dd = d1d+d2d+d3d;
+		
+		if (gs1 >= gs2 && gs2 >= gs3 && t1d >=0 && t3d >= 0 && t1d + t3d <= t && d1d >= 0 && d2d >= 0 && d3d >= 0) {
+//assert(Util.almost_equals(t, t1d+t2d+t3d));			
+//assert(Util.almost_equals(d, dd));
+//assert(Util.almost_equals(t1d, (gs2-gs1)/a1d));		
+//assert(Util.almost_equals(t3d, (gs3-gs2)/a2d));		
+			ret.add(Quad.make(t1d, t3d, a1d, a2d));
+		}
+		
+		return ret;
+	}
+	
 	
 	/**
 	 * This returns times and accelerations needed to reach an RTA at a given time with a given speed within a given distance. 
 	 * @param gsIn grounds speed in
-	 * @param dist distance to rta
-	 * @param rta time to rta
+	 * @param dist distance to rta (relative)
+	 * @param rta time to rta (relative)
 	 * @param gsOut desired speed at rta
-	 * @param gsAccel maximum acceleration (positive value)
+	 * @param gsAccel acceleration (positive value)
 	 * @return a pair of triples: ((t1,t2,t3),(a1,gs2,a2))
-	 * t1 is the time for an initial acceleration leg with constant acceletation a1, starting immediately
+	 * t1 is the time for an initial acceleration leg with constant acceleration a1, starting immediately
 	 * t2 is the time to be spent traveling at gs2
 	 * t3 is the time for a final acceleration leg with constant acceleration a2, ending at the rta
 	 * On failure, returns all negative values
@@ -1585,52 +1869,70 @@ public final class Kinematics {
 		double t1,t2,t3;
 		double gs2;
 		double a1,a2;
+		double dd;
 		Pair<Double,Double> tt;
 		tt = gsAccelToRTAV(gsIn, gsOut, dist, rta, gsAccel, gsAccel);
-		if (tt.first >= 0 && tt.second >= 0) {
+		if (tt.first >= 0 && tt.second >= 0 && tt.first+tt.second <= rta) {
 			t1 = tt.first;
-			t2 = tt.second;
-			t3 =  rta - t1 - t2;
+			t3 = tt.second;
+			t2 = rta - t1 - t3;
 			a1 = gsAccel;
 			a2 = gsAccel;
 			gs2 = gsIn + a1 * t1;
-			return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			dd = gsIn*t1 + 0.5*a1*t1*t1 + gs2*t2 + gs2*t3 + 0.5*a2*t3*t3;
+//f.pln(dist+" =?= "+dd);						
+//			assert(Util.within_epsilon(dist, dd, 0.0001));
+			if (gs2 >= 0.0) {
+				return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			}
 		}
 		tt = gsAccelToRTAV(gsIn, gsOut, dist, rta, -gsAccel, gsAccel);
-		if (tt.first >= 0 && tt.second >= 0) {
+		if (tt.first >= 0 && tt.second >= 0 && tt.first+tt.second <= rta) {
 			t1 = tt.first;
-			t2 = tt.second;
-			t3 =  rta - t1 - t2;
+			t3 = tt.second;
+			t2 = rta - t1 - t3;
 			a1 = -gsAccel;
 			a2 = gsAccel;
 			gs2 = gsIn + a1 * t1;
-			return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			dd = gsIn*t1 + 0.5*a1*t1*t1 + gs2*t2 + gs2*t3 + 0.5*a2*t3*t3;
+//f.pln(dist+" =?= "+dd);			
+//			assert(Util.within_epsilon(dist, dd, 0.0001));
+			if (gs2 >= 0.0) {
+				return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			}
 		}
 		tt = gsAccelToRTAV(gsIn, gsOut, dist, rta, gsAccel, -gsAccel);
-		if (tt.first >= 0 && tt.second >= 0) {
+		if (tt.first >= 0 && tt.second >= 0 && tt.first+tt.second <= rta) {
 			t1 = tt.first;
-			t2 = tt.second;
-			t3 =  rta - t1 - t2;
+			t3 = tt.second;
+			t2 = rta - t1 - t3;
 			a1 = gsAccel;
 			a2 = -gsAccel;
 			gs2 = gsIn + a1 * t1;
-			return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			dd = gsIn*t1 + 0.5*a1*t1*t1 + gs2*t2 + gs2*t3 + 0.5*a2*t3*t3;
+//f.pln(dist+" =?= "+dd);			
+//			assert(Util.almost_equals(dist, dd));
+			if (gs2 >= 0.0) {
+				return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			}
 		}
 		tt = gsAccelToRTAV(gsIn, gsOut, dist, rta, -gsAccel, -gsAccel);
-		if (tt.first >= 0 && tt.second >= 0) {
+		if (tt.first >= 0 && tt.second >= 0 && tt.first+tt.second <= rta) {
 			t1 = tt.first;
-			t2 = tt.second;
-			t3 =  rta - t1 - t2;
+			t3 = tt.second;
+			t2 = rta - t1 - t3;
 			a1 = -gsAccel;
 			a2 = -gsAccel;
 			gs2 = gsIn + a1 * t1;
-			return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			dd = gsIn*t1 + 0.5*a1*t1*t1 + gs2*t2 + gs2*t3 + 0.5*a2*t3*t3;
+//f.pln(dist+" =?= "+dd);			
+//			assert(Util.within_epsilon(dist, dd, 0.0001));
+			if (gs2 >= 0.0) {
+				return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(t1,t2,t3), new Triple<Double,Double,Double>(a1,gs2,a2));
+			}
 		}
-		
 		return new Pair<Triple<Double,Double,Double>,Triple<Double,Double,Double>>(new Triple<Double,Double,Double>(-1.0,-1.0,-1.0), new Triple<Double,Double,Double>(-1.0,-1.0,-1.0));
-		
 	}
-
 
 	/**
 	 * Accelerate for a given distance.  Return the end gs and time.  Negative time indicates an error.
@@ -1655,10 +1957,29 @@ public final class Kinematics {
     	} else if (tb >= 0) {
     	  t = tb;
     	}
-    	if (gsAccel < 0 && dist > gsIn*gsIn*t + 0.5*gsIn) {	// decceleration below 0 speed
+    	if (gsAccel < 0 && dist > gsIn*gsIn*t + 0.5*gsIn) {	// Deceleration below 0 speed
     		return new Pair<Double,Double>(0.0,-1.0);
     	}  	
     	return new Pair<Double,Double>(gsIn+gsAccel*t, t);
+	}
+
+	/**
+	 * The time required to cover distance "dist" if initial speed is "gs" and acceleration is "gsAccel"
+	 *
+	 * @param gs       initial ground speed
+	 * @param gsAccel  signed ground speed acceleration
+	 * @param dist     non-negative distance
+	 * @return time required to cover distance
+	 * 
+	 * Warning:  This function can return NaN
+	 * 
+	 */
+	public static double distanceToGsAccelTime(double gs, double gsAccel, double dist) {
+		double t1 = Util.root(0.5 * gsAccel, gs, -dist, 1);
+		double t2 = Util.root(0.5 * gsAccel, gs, -dist, -1);
+        //f.pln("$$$ Kinematics.distanceToGsAccelTime t1="+t1+" t2="+t2);		
+		double dt = Double.isNaN(t1) || t1 < 0 ? t2 : (Double.isNaN(t2) || t2 < 0 ? t1 : Util.min(t1, t2));
+		return dt;
 	}
 
 	
@@ -2329,7 +2650,7 @@ public final class Kinematics {
 			  return new Triple<Double,Double,Double>(t1, t1+remainder/goalClimb, t1+remainder/goalClimb+t2);
 		  }
 		  
-		  // case 2: does not reach goalClimb, with a switch in acceleraiton direction (2 segments, the first may be zero)
+		  // case 2: does not reach goalClimb, with a switch in acceleration direction (2 segments, the first may be zero)
 		  double aa = 0.5*a1-0.5*a1*a1/a2;
 		  double bb = (1-a1/a2)*v.z;
 		  double cc = s.z - goalAlt - 0.5*v.z*v.z/a2;
@@ -2457,6 +2778,26 @@ public final class Kinematics {
 		//f.pln("%% testLoSVs: rtn = "+rtn);
 		return rtn;
 	}
+	
+	/** Track angle of line from p1 to p2
+	 * 
+	 * @param p1
+	 * @param p2
+	 * @return track angle of p2 - p1
+	 */
+	public static double trackFrom(Vect3 p1, Vect3 p2) {
+		return p2.Sub(p1).vect2().trk();
+	}
+	
+
+	public static double calcLinearAccel(double gs0, double gs1, double d, double t) {
+		double a1 = 2*(d-gs0*t)/(t*t);
+		double a2 = (gs1-gs0)/t;
+		assert(Util.almost_equals(a1, a2));
+f.pln("Kinematics.calcLinearAccel a1="+a1+" a2="+a2);		
+		return a2;
+	}
+	
 }
 
 

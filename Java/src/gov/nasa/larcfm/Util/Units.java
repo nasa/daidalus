@@ -2,7 +2,7 @@
  *
  * Notices:
  * 
- * Copyright (c) 2011-2018 United States Government as represented by
+ * Copyright (c) 2011-2019 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -765,7 +765,7 @@ public final class Units {
 	/** pascal, unit of pressure, defined as a newton per meter squared */
 	public static final double Pa = pascal;
 	/**
-	 * P0, the adopted standard atmosphere. This quanity equals 101325 Pa. This
+	 * P0, the adopted standard atmosphere. This quantity equals 101325 Pa. This
 	 * definition comes from NIST Special Publication 330, the International
 	 * System of Units (SI), 1991 edition, p15.
 	 */
@@ -773,7 +773,8 @@ public final class Units {
 	/**
 	 * millimeters of mercury (at 32 degrees Fahrenheit), a unit of pressure
 	 * equal to 133.3224 Pascals (see NIST publication 811). It approximately
-	 * equals 1/760.0 of Units.P0;
+	 * equals 1/760.0 of Units.P0; 
+	 * 
 	 */
 	public static final double mmHg = 133.3224 * Pa;
 	/**
@@ -787,7 +788,8 @@ public final class Units {
 	 * bar, a unit of pressure, defined as 100 000.0 Pascals
 	 */
 	public static final double bar = 100000.0 * Pa;
-	/** millibar, a unit of pressure, defined as one thousandth of a bar */
+	/** millibar, a unit of pressure, defined as one thousandth of a bar.  This unit precisely equals a &quot;hectopascal&quot;.
+	 * It appears that atmospheric scientists are moving away from the millibar and towards the hectopascal. */
 	public static final double mbar = bar / 1000.0;
 
 	// Flags used to indicate a special function is needed for conversion
@@ -958,6 +960,7 @@ public final class Units {
 		}
 
 		try {
+			// Speeds
 			addUnit("m/s", meter_per_second);
 			addSimilarUnit("meter_per_second", "m/s");
 			addSimilarUnit("metre_per_second", "m/s");
@@ -988,6 +991,7 @@ public final class Units {
 		}
 
 		try {
+			// Accelerations
 			addUnit("m/s^2", meter_per_second2);
 			addUnit("ft/s^2", foot / (second * second), "m/s^2");
 			addUnit("G", G, "m/s^2");
@@ -996,6 +1000,7 @@ public final class Units {
 		}
 
 		try {
+			// Area
 			addUnit("m^2", meter2);
 			addUnit("ft^2", foot2, "m^2");
 			addUnit("in^2", inch2, "m^2");
@@ -1008,6 +1013,7 @@ public final class Units {
 		}
 
 		try {
+			// Volume
 			addUnit("m^3", meter3);
 			addUnit("ft^3", foot3, "m^3");
 			addUnit("in^3", inch3, "m^3");
@@ -1078,6 +1084,7 @@ public final class Units {
 		}
 
 		try {
+			//Pressure
 			addUnit("Pa", Pa);
 			addUnit("psi", psi, "Pa");
 			addUnit("psf", psf, "Pa");
@@ -1085,12 +1092,15 @@ public final class Units {
 			addUnit("mmHg", mmHg, "Pa");
 			addUnit("inHg", inHg, "Pa");
 			addUnit("bar", bar, "Pa");
-			addUnit("mbar", mbar, "Pa");
+			addUnit("hPa", mbar, "Pa"); // a hectopascal, apparently the preferred name for the millibar.
+			addSimilarUnit("mbar", "hPa"); // still keep the millibar as a similar unit
 			addSimilarUnit("pascal", "Pa");
 
+			// Density
 			addUnit("kg/m^3", kilogram / meter3);
 			addUnit("slug/ft^3", slug / foot3, "kg/m^3");
 
+			// What are these?
 			addUnit("kg/m^3-s", kilogram / (meter3 * second));
 			addUnit("slug/ft^3-s", slug / foot3, "kg/m^3-s");
 		} catch (UnitException e) {
@@ -1361,6 +1371,25 @@ public final class Units {
 	}
 
 	/**
+	 * Return the "canonical" version of a given unit, as defined by this object, or the empty string if this is no such unit.
+	 * This returns one name out of a group of units that have been defined as being "similar".
+	 * @param unit unit name to query
+	 * @return "canonical" version of the unit name or the empty string.
+	 * (Note this is "canonical" only with respect to the definition of this Units object.) 
+	 */
+	public static String getCanonicalUnit(String unit) {
+		String[] compat = getCompatibleUnits(unit);
+		for (int i = 0; i < compat.length; i++) {
+			if (getFactor(compat[i]) == getFactor(unit)) {
+				return compat[i];
+			}
+		}
+		return "";
+
+	}
+
+	
+	/**
 	 * <p>Create a composite unit. For example a <i>linear density</i> unit could
 	 * be defined as:<br>
 	 * <code>Units.addUnit("kg/m", Units.kg / Units.meter);</code>
@@ -1486,6 +1515,7 @@ public final class Units {
 		}
 		return "";
 	}
+
 
 	/**
 	 * Returns the list of all units currently registered to the Units class and
@@ -1936,12 +1966,15 @@ public final class Units {
 
 	// This regex expression basically says is the string roughly in two parts, something that looks like a 
 	// number and something that looks like a unit.
+	// now allows for e-notation
 	//private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*\\[?\\s*([-/^_a-zA-Z0-9\u00B0]*)\\s*\\]?"); //\\s*$");
 	//private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*([-\\[\\]\\/^_a-zA-Z0-9\u00B0]*).*"); //\\s*$");
-	private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*\\[?\\s*([-\\/^_a-zA-Z0-9\\u00B0]*).*");
+	//private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*\\[?\\s*([-\\/^_a-zA-Z0-9\\u00B0]*).*");
+	private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+(?:[eE][0-9]+)?)\\s*\\[?\\s*([-\\/^_a-zA-Z0-9\\u00B0]*).*");
 	/**
 	 * Parse a string, representing a value and a unit. 
 	 * If the string does not contain a unit, then the unit "unspecified" is returned.
+	 * This version will be able to parse numbers in exponential notation (C++ does not)
 	 * @param s string to parse
 	 * @return unit string;
 	 */
@@ -1969,6 +2002,7 @@ public final class Units {
 	 * 
 	 * More formally, if the string to parse contains a unit, then the value is understood in terms of that unit.  If no
 	 * unit is specified in the string, then the unit in "defautlUnitsFrom" is used.
+	 * This version will be able to parse numbers in exponential notation (C++ does not)
 	 * @param defaultUnitsFrom the default units to convert the value from (if no text unit is specified) 
 	 * @param str string to parse
 	 * @param defaultValue the default value is the parameter 'str' is invalid. The units used are the defaultUnitsFrom. 
@@ -2016,8 +2050,8 @@ public final class Units {
 
 	/**
 	 * Parse a string, including an optional units identifier, as a double value.
-	 * If the string does not contain a (valid) unit, then the value is interpreted as an "unspecified" unit. This version does not
-	 * parse numbers in exponential notation, e.g., "10e-4".  
+	 * If the string does not contain a (valid) unit, then the value is interpreted as an "unspecified" unit. This version does 
+	 * parse numbers in exponential notation, e.g., "10e-4".  (C++ does not)
 	 * @param str string to parse
 	 * @param default_value if the string is not recognized as a valid value, the result to be returned 
 	 * @return value
@@ -2028,8 +2062,8 @@ public final class Units {
 
 	/**
 	 * Parse a string, including an optional units identifier, as a double value.
-	 * If the string does not contain a (valid) unit, then the value is interpreted as an "unspecified" unit. This version does not
-	 * parse numbers in exponential notation, e.g., "10e-4".
+	 * If the string does not contain a (valid) unit, then the value is interpreted as an "unspecified" unit. This version does
+	 * parse numbers in exponential notation, e.g., "10e-4". (C++ does not)
 	 * Elements that are not recognizable numbers will be interpreted as a zero value.
 	 * @param str string to parse
 	 * @return value
