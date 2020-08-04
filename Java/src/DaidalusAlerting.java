@@ -194,7 +194,7 @@ public class DaidalusAlerting {
 				for (int l=1; l <= daa.parameters.alertor.mostSevereAlertLevel(); ++l) {
 					det = daa.detection(ac,l);
 					out.print(", ");
-					out.print(det.getTimeIn());
+					out.print(det.conflict() ? det.getTimeIn() : Double.POSITIVE_INFINITY);
 				}
 				if (det != null) {
 					out.print(", "+Units.to(uhor,det.get_s().norm2D()));

@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
 			for (int l=1; l <= daa.parameters.alertor.mostSevereAlertLevel(); ++l) {
 				det = daa.detection(ac,l);
 				out << ", ";
-				out << det.getTimeIn();
+				out << (det.conflict() ? det.getTimeIn() : PINFINITY);
 				one = true;
 			}
 			if (one) {

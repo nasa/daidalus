@@ -25,6 +25,16 @@ that produces alerting and banding information from encounter file.
   that can be used to produce graphical alerting and banding information from encounter file.
 * [`Makefile`](Makefile): Unix make file to compile example applications.
 
+Requirements
+------------
+This Java code has been compiled in Mac OSX and Linux using:
+
+```
+Java version "1.8.0_191"
+Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+```
+
 Compiling example applications
 --------------------------
 

@@ -24,6 +24,21 @@ that produces alerting and banding information from encounter file.
 * [`Makefile`](Makefile): Unix make file to produce binary files and compile example
 applications.
 
+Requirements
+------------
+This C++ code has been compiled in Mac OSX using:
+
+```
+Apple clang version 11.0.0 (clang-1100.0.33.17)
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+```
+and in Linux using:
+
+```
+g++ 7.4.0
+```
+
 Compiling example applications
 --------------------------
 
