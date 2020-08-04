@@ -29,9 +29,9 @@ A draft of user guide is available at https://nasa.github.io/WellClear.
 The library can be compiled using the Unix utility `make` with the
 provided `Makefile` in both the [Java](Java/Makefile) and
 [C++](C++/Makefile) directories. From the directory Java,
-the `make` command produces a jar file in the directory `lib`.
-From the directory C++, the `make` command will generate the static library
-`lib/DAIDALUS.a`.
+the `make` command produces a jar file in the directory `Java/lib`.
+From the directory C++, the `make` command will generate a static library
+in `C++/lib`.
 
 The sample application `DaidalusExample`, which is available in
 [Java](Java/src/DaidalusExample.java) and
