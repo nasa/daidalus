@@ -1,12 +1,26 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release: Java 1.0.1, October 11, 2017
+Release:  v1.0.2, April 21, 2019
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2014 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.
+
+Release DAIDALUS 1.0.2
+------------------
+April 21, 2019
+* Fixed bug in the method toIntervalSet of the class
+KinematicRealBands, where a range of length 0, i.e., a point, is
+sometimes added to the list of bands due to numerical round-off
+errors. This zero-length range may yield a
+recovery bands that is slightly larger than necessary.
+* Fixed bug in the method find_resolution of the class
+KinematicRealBands, where a track resolution larger than 180 degrees
+is sometimes returned. The fixed method will return either negative
+infinity (left) or postive infinity (right) when no resolution exists
+within 180 of the current track.
 
 Release DAIDALUS 1.0.1
 ------------------

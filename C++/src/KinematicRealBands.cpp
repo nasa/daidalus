@@ -569,23 +569,22 @@ void KinematicRealBands::compute(KinematicBandsCore& core) {
 Interval KinematicRealBands::find_resolution(KinematicBandsCore& core, const IntervalSet& noneset) {
   double l = NINFINITY;
   double u = PINFINITY;
+  double val = own_val(core.ownship);
+  bool conflict = true;
   if (!noneset.isEmpty()) {
     // There is a resolution
-    double val = own_val(core.ownship);
     for (int i=0; i < noneset.size(); ++i) {
       if (noneset.getInterval(i).almost_in(val,true,true,ALMOST_)) {
         // There is no conflict
         l = NaN;
         u = NaN;
+	conflict = false;
         break;
       } else if (noneset.getInterval(i).up < val) {
         if (i+1==noneset.size()) {
           l = noneset.getInterval(i).up;
           if (mod_ > 0) {
             u = noneset.getInterval(0).low;
-            if (Util::almost_geq(mod_val(u-val),mod_/2.0,ALMOST_)) {
-              u = PINFINITY;
-            }
           }
           break;
         } else if (val < noneset.getInterval(i+1).low) {
@@ -597,14 +596,19 @@ Interval KinematicRealBands::find_resolution(KinematicBandsCore& core, const Int
         if (i==0) {
           if (mod_ > 0) {
             l = noneset.getInterval(noneset.size()-1).up;
-            if (Util::almost_geq(mod_val(val-l),mod_/2.0,ALMOST_)) {
-              l = NINFINITY;
-            }
           }
           u = noneset.getInterval(i).low;
           break;
         }
       }
+    }
+  }
+  if (conflict && mod_ > 0) {
+    if (Util::almost_geq(mod_val(u-val),mod_/2.0,ALMOST_)) {
+      u = PINFINITY;
+    }
+    if (Util::almost_geq(mod_val(val-l),mod_/2.0,ALMOST_)) {
+      l = NINFINITY;
     }
   }
   return Interval(l,u);
@@ -722,7 +726,10 @@ void KinematicRealBands::toIntervalSet(IntervalSet& noneset, const std::vector<I
     double scal, double add, double min, double max) {
   noneset.clear();
   for (int i=0; i < (int) l.size(); ++i) {
-    Integerval ii = l[i];
+    const Integerval& ii = l[i];
+    if (ii.lb == ii.ub) {
+      continue;
+    }
     double lb = scal*ii.lb+add;
     double ub = scal*ii.ub+add;
     if (mod_ == 0)  {
