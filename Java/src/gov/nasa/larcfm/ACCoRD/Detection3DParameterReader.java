@@ -36,7 +36,7 @@ public class Detection3DParameterReader {
 	 * @return triple of all Detection3D objects loaded, the "det" Detection3D object, and the "res" Detection3D object
 	 * Note that the "det" and "res" (if defined) will be references to list entries.
 	 * 
-	 * If verbose is false (default true), suppress all status messages except exceptions
+	 * If verbose is false (default false), suppress all status messages except exceptions
 	 */
 	public static Triple<List<Detection3D>,Detection3D,Detection3D> readCoreDetection(ParameterData params) {
 		return readCoreDetection(params,false);

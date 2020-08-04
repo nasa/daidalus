@@ -1,1 +1,2 @@
-java -cp lib/DAIDALUS2.jar:src DaidalusExample
+DIR=$( cd "$(dirname "$0")" ; pwd -P )
+java -cp $DIR/lib/DAIDALUS2.jar:$DIR/src DaidalusExample "$@"

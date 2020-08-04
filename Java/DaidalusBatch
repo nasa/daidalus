@@ -1,0 +1,2 @@
+DIR=$( cd "$(dirname "$0")" ; pwd -P )
+java -cp $DIR/lib/DAIDALUS2.jar:$DIR/src DaidalusBatch "$@"

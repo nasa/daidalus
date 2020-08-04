@@ -394,6 +394,21 @@ public final class SeparatedOutput implements ErrorReporter {
 		   params.add(p+" = "+s);
 	   }
    }
+   
+   
+   /** 
+    * Additively set parameters.  (This does not delete existing parameters, but will overwrite them.) 
+    * @param pr  parameter object
+    */
+   public void setParametersFilter(ParameterData pr, ArrayList<String> filter) {
+	   for (String p: pr.getKeyList()) {
+		   if (! filter.contains(p)) {
+			   String s = pr.getString(p);
+			   params.add(p+" = "+s);
+		   }
+	   }
+   }
+
 
    public void setParameter(String key, String value) {
 	   params.add(key+" = "+value);

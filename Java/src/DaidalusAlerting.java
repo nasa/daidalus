@@ -67,7 +67,7 @@ public class DaidalusAlerting {
 		String conf = "";
 		boolean echo = false;
 		int precision = 6;
-		
+
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
 			if (arga.equals("--noma") || arga.equals("-noma")) {
@@ -78,7 +78,7 @@ public class DaidalusAlerting {
 				// Configure DAIDALUS to WC nominal B parameters: Kinematic Bands, Turn Rate 3.0 [deg/s])
 				daa.set_Buffered_WC_DO_365(true);
 				conf = "nomb";
-			} else if (arga.equals("--std") || arga.equals("-nomb")) {
+			} else if (arga.equals("--std") || arga.equals("-std")) {
 				// Configure DAIDALUS to WC standard parameters: Instantaneous Bands
 				daa.set_WC_DO_365();
 				conf = "std";
@@ -113,7 +113,7 @@ public class DaidalusAlerting {
 				System.err.println("  <option> can be");
 				System.err.println("  --std --noma --nomb --cd3d");
 				System.err.println("  --config <config_file>\n\tLoad configuration <config_file>");
-				System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g.,--h_vel_z_distance=1.0[nmi]");
+				System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --echo\n\tEcho configuration and traffic list in standard outoput");
 				System.out.println("  --precision <n>\n\tOutput decimal precision");

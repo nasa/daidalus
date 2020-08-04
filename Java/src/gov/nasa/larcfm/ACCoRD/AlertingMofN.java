@@ -121,18 +121,24 @@ public class AlertingMofN {
 		}
 		return 0;
 	}
-
+	
 	/* 
 	 * Return M of N value for a given alert level at a current time.
 	 * In addition of m_of_n, this also applies hysteresis and persistence
 	 */
 	public int m_of_n(int alert_level, double current_time) {
-		if (!Double.isNaN(_last_time_) &&
-				(current_time <= _last_time_ || current_time - _last_time_ > hysteresis_time_)) {
-			reset();
+		if (!Double.isNaN(_last_time_)) {
+			if (current_time == _last_time_) {
+				return _alert_;
+			}
+			if (current_time < _last_time_ || current_time - _last_time_ > hysteresis_time_) {
+				reset();
+			}
 		}
 		int alert_mofn = m_of_n(alert_level);
 		if (alert_mofn < 0) {
+			_last_time_ = current_time;
+			_alert_ = alert_mofn;
 			return alert_mofn;
 		}
 		if (!Double.isNaN(_init_time_) && _alert_ > 0 && alert_mofn < _alert_ && current_time >= _init_time_ &&

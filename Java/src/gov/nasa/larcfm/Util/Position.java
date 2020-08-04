@@ -531,7 +531,7 @@ public final class Position implements OutputList {
 	 * Calculate a new position that is offset from the current position by (dn,de)
 	 * @param dn  offset in north direction (m)
 	 * @param de  offset in east direction  (m)
-	 * @return linear projection of the position
+	 * @return    linear projection of the position
 	 */
 	public Position linearEst(double dn, double de) {
 		Position newNP;
@@ -687,7 +687,7 @@ public final class Position implements OutputList {
 
 	/** Return the track angle of the vector from the current Position to the given Position, based on initial course 
 	 * @param p another position
-	 * @return track angle
+	 * @return track angle within [0..2PI]
 	 * */
 	public double track(Position p) {  
 		Debug.checkError(p.latlon == latlon, "Position.track call given an inconsistent argument: "+toString()+" "+p.toString());	

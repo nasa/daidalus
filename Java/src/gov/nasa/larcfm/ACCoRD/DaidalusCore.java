@@ -42,8 +42,8 @@ public class DaidalusCore {
 
 	/**** CACHED VARIABLES__ ****/
 
-	/* Boolean to control re-computation of cached values */
-	private boolean outdated__; 
+	/* Variable to control re-computation of cached values */
+	private int cache__; // -1: outdated, 1:updated, 0: updated only most_urgent_ac and eps
 	/* Most urgent aircraft */
 	public TrafficState most_urgent_ac__; 
 	/* Cached horizontal epsilon for implicit coordination */
@@ -85,8 +85,8 @@ public class DaidalusCore {
 		_alerting_mofns_ = new HashMap<String,AlertingMofN>();
 
 		// Cached__ variables are cleared
-		outdated__ = false; // Force stale
-		stale(true);
+		cache__ = -1; 
+		stale(true,true);
 	}
 
 	public DaidalusCore() {
@@ -128,8 +128,8 @@ public class DaidalusCore {
 		urgency_strategy = core.urgency_strategy.copy();
 
 		// Cached__ variables are cleared
-		outdated__ = false; // Force stale
-		stale(true);
+		cache__ = -1; 
+		stale(true,true);
 	}
 
 	/**
@@ -147,9 +147,9 @@ public class DaidalusCore {
 	 * Set cached values to stale conditions as they are no longer fresh.
 	 * If hysteresis is true, it also clears hysteresis variables
 	 */
-	public void stale(boolean hysteresis) {
-		if (!outdated__) {
-			outdated__ = true;
+	private void stale(boolean hysteresis,boolean forced) {
+		if (forced || cache__ >= 0) {
+			cache__ = -1;
 			most_urgent_ac__ = TrafficState.INVALID;
 			epsh__ = 0;
 			epsv__ = 0;
@@ -163,19 +163,27 @@ public class DaidalusCore {
 			_alerting_mofns_.clear();
 		}
 	}
+	
+	/**
+	 * Set cached values to stale conditions as they are no longer fresh.
+	 * If hysteresis is true, it also clears hysteresis variables
+	 */
+	public void stale(boolean hysteresis) {
+		stale(hysteresis,false);
+	}
 
 	/**
 	 * Returns true is object is fresh
 	 */
 	public boolean isFresh() {
-		return !outdated__;
+		return cache__ > 0;
 	}
 
 	/**
 	 *  Refresh cached values 
 	 */
 	public void refresh() {
-		if (outdated__) {
+		if (cache__ <= 0) {
 			for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 				conflict_aircraft(conflict_region);
 				BandsRegion region = BandsRegion.conflictRegionFromOrder(BandsRegion.NUMBER_OF_CONFLICT_BANDS-conflict_region);
@@ -188,6 +196,13 @@ public class DaidalusCore {
 					}
 				}
 			}
+			refresh_mua_eps();
+			cache__ = 1;
+		} 
+	}
+
+	private void refresh_mua_eps() {
+		if (cache__ < 0) {
 			int muac = -1;
 			if (!traffic.isEmpty()) {
 				muac = urgency_strategy.mostUrgentAircraft(ownship,traffic,parameters.getLookaheadTime());
@@ -199,15 +214,15 @@ public class DaidalusCore {
 			}
 			epsh__ = epsilonH(ownship,most_urgent_ac__);
 			epsv__ = epsilonV(ownship,most_urgent_ac__);
-			outdated__ = false;
-		} 
+			cache__ = 0;
+		}
 	}
 
 	/**
 	 * @return most urgent aircraft for implicit coordination 
 	 */
 	public TrafficState mostUrgentAircraft() {
-		refresh();
+		refresh_mua_eps();
 		return most_urgent_ac__;
 	}
 
@@ -216,7 +231,7 @@ public class DaidalusCore {
 	 * 
 	 */
 	public int epsilonH() {
-		refresh();
+		refresh_mua_eps();
 		return epsh__;
 	}
 
@@ -224,7 +239,7 @@ public class DaidalusCore {
 	 * Returns vertical epsilon for implicit coordination with respect to criteria ac.
 	 */
 	public int epsilonV() {
-		refresh();
+		refresh_mua_eps();
 		return epsv__;
 	}
 
@@ -233,7 +248,7 @@ public class DaidalusCore {
 	 * 
 	 */
 	public int epsilonH(boolean recovery_case, TrafficState traffic) {
-		refresh();
+		refresh_mua_eps();
 		if ((recovery_case? parameters.isEnabledRecoveryCriteria() : parameters.isEnabledConflictCriteria()) &&
 				traffic.sameId(most_urgent_ac__)) {
 			return epsh__;
@@ -245,7 +260,7 @@ public class DaidalusCore {
 	 * Returns vertical epsilon for implicit coordination with respect to criteria ac.
 	 */
 	public int epsilonV(boolean recovery_case, TrafficState traffic) {
-		refresh();
+		refresh_mua_eps();
 		if ((recovery_case? parameters.isEnabledRecoveryCriteria() : parameters.isEnabledConflictCriteria()) &&
 				traffic.sameId(most_urgent_ac__)) {
 			return epsv__;
@@ -682,35 +697,37 @@ public class DaidalusCore {
 	 * 2. This methods applies MofN alerting strategy
 	 */
 	public int alert_level(int idx, int turning, int accelerating, int climbing) {
-		int alert = -1;
 		if (0 <= idx && idx < traffic.size()) {
 			TrafficState intruder = traffic.get(idx);
 			int alerter_idx = alerter_index_of(idx);
 			if (alerter_idx > 0) {
-				alert = 0;
-				Alerter alerter = parameters.getAlerterAt(alerter_idx);
-				for (int alert_level=alerter.mostSevereAlertLevel(); alert_level > 0; --alert_level) {
-					AlertThresholds athr = alerter.getLevel(alert_level);
-					if (check_alerting_thresholds(athr,intruder,turning,accelerating,climbing)) {
-						alert = alert_level;
-						break;
-					}
-				}	
 				String id = intruder.getId();
 				AlertingMofN mofn = _alerting_mofns_.get(id);
+				Alerter alerter = parameters.getAlerterAt(alerter_idx);
 				if (mofn == null) {
 					mofn = new AlertingMofN(parameters.getAlertingParameterM(),
 							parameters.getAlertingParameterN(),
 							parameters.getHysteresisTime(),
 							parameters.getPersistenceTime());
-					alert = mofn.m_of_n(alert,current_time);
+					int alert = mofn.m_of_n(alert_level(alerter,intruder,turning,accelerating,climbing),current_time);
 					_alerting_mofns_.put(id,mofn);
+					return alert;
 				} else {
-					alert = mofn.m_of_n(alert,current_time);
+					return mofn.m_of_n(alert_level(alerter,intruder,turning,accelerating,climbing),current_time);
 				}
 			} 
 		} 
-		return alert;
+		return -1;
+	}
+
+	private int alert_level(Alerter alerter, TrafficState intruder, int turning, int accelerating, int climbing) {
+		for (int alert_level=alerter.mostSevereAlertLevel(); alert_level > 0; --alert_level) {
+			AlertThresholds athr = alerter.getLevel(alert_level);
+			if (check_alerting_thresholds(athr,intruder,turning,accelerating,climbing)) {
+				return alert_level;
+			}
+		}	
+		return 0;
 	}
 
 	public void setParameterData(ParameterData p) {
@@ -725,7 +742,7 @@ public class DaidalusCore {
 		s+="## DaidalusBandsCore Parameters\n";
 		s+=parameters.toString();
 		s+="## Cached variables__\n";
-		s+="outdated__ = "+outdated__+"\n";		
+		s+="cache__ = "+f.Fmi(cache__)+"\n";		
 		s+="most_urgent_ac__ = "+most_urgent_ac__.getId()+"\n";
 		s+="epsh__ = "+f.Fmi(epsh__)+"\n";
 		s+="epsv__ = "+f.Fmi(epsv__)+"\n";		

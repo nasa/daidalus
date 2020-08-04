@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
       // Configure DAIDALUS to WC nominal B parameters: Kinematic Bands, Turn Rate 3.0 [deg/s])
       daa.set_Buffered_WC_DO_365(true);
       conf = "nomb";
-    } else if (arga == "--std" || arga == "-nomb") {
+    } else if (arga == "--std" || arga == "-std") {
       // Configure DAIDALUS to WC standard parameters: Instantaneous Bands
       daa.set_WC_DO_365();
       conf = "std";
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     } else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
       ++a;
       std::istringstream(argv[a]) >> precision;
-  } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
+    } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
       std::string keyval = arga.substr(arga.find_last_of('-')+1);
       params.set(keyval);
     } else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
       std::cerr << "  <option> can be" << std::endl;
       std::cerr << "  --std --noma --nomb --cd3d" << std::endl;
       std::cerr << "  --config <config_file>\n\tLoad configuration <config_file>" << std::endl;
-      std::cerr << "  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g.,--h_vel_z_distance=1.0[nmi]" << std::endl;
+      std::cerr << "  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]" << std::endl;
       std::cerr << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
       std::cerr << "  --echo\n\tEcho configuration and traffic list in standard outoput" << std::endl;
       std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;

@@ -111,8 +111,9 @@ public class IntervalSet implements Iterable<Interval> {
 		IntervalSet other = (IntervalSet) obj;
 		if (length != other.length)
 			return false;
-		if (!Arrays.equals(r, other.r))
-			return false;
+		for (int i = 0; i < length; i++) {
+			if (!r[i].equals(other.r[i])) return false;
+		}
 		return true;
 	}
 

@@ -192,7 +192,7 @@ void Alerter::updateParameterData(ParameterData& p) const {
   // this also ensures they each have a unique identifier
   ParameterData pdmain;
   // add parameters for each alerter, ensuring they have an ordered set of identifiers
-  for (int i = 0; i < levels_.size(); i++) {
+  for (int i = 0; i < (int)levels_.size(); i++) {
       const ParameterData& pd = levels_[i].getParameters();
       //make sure each instance has a unique, ordered name
       std::string prefix = "alert_"+Fmi(i+1)+"_";

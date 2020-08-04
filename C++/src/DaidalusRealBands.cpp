@@ -256,12 +256,18 @@ int DaidalusRealBands::indexOf(DaidalusCore& core, double val) {
     for (int i=0; i <= last_index; ++i) {
       bool none = BandsRegion::isResolutionBand(ranges__[i].region);
       int order_i = BandsRegion::orderOfConflictRegion(ranges__[i].region);
-      bool lb_close = none ||
-          (i > 0 && order_i <= BandsRegion::orderOfConflictRegion(ranges__[i-1].region)) ||
-          (i == 0 && order_i <= BandsRegion::orderOfConflictRegion(ranges__[last_index].region));
-      bool ub_close = none ||
-          (i < last_index && order_i <= BandsRegion::orderOfConflictRegion(ranges__[i+1].region)) ||
-          (i == last_index && order_i <= BandsRegion::orderOfConflictRegion(ranges__[0].region));
+      bool lb_close = none;
+      if (!lb_close && order_i > 0) {
+        lb_close =
+            (i > 0 && order_i <= BandsRegion::orderOfConflictRegion(ranges__[i-1].region)) ||
+            (i == 0 && mod_ > 0 && order_i <= BandsRegion::orderOfConflictRegion(ranges__[last_index].region));
+      }
+      bool ub_close = none;
+      if (!ub_close && order_i > 0) {
+        ub_close =
+            (i < last_index && order_i <= BandsRegion::orderOfConflictRegion(ranges__[i+1].region)) ||
+            (i == last_index && mod_ > 0 && order_i <= BandsRegion::orderOfConflictRegion(ranges__[0].region));
+      }
       if (ranges__[i].interval.almost_in(val, lb_close, ub_close, DaidalusParameters::ALMOST_)) {
         return i;
       }
@@ -606,7 +612,7 @@ void DaidalusRealBands::compute(DaidalusCore& core) {
   recovery_horizontal_distance__ = NaN;
   recovery_vertical_distance__ = NaN;
   std::vector<IntervalSet> none_sets;
-  none_sets.reserve(BandsRegion::NUMBER_OF_CONFLICT_BANDS);
+  none_sets.resize(BandsRegion::NUMBER_OF_CONFLICT_BANDS);
   for (int conflict_region=0;conflict_region<BandsRegion::NUMBER_OF_CONFLICT_BANDS;++conflict_region) {
     none_sets[conflict_region] = IntervalSet();
   }
@@ -948,7 +954,10 @@ void DaidalusRealBands::add_noneset(IntervalSet& noneset, double lb, double ub) 
 void DaidalusRealBands::toIntervalSet(IntervalSet& noneset, const std::vector<Integerval>& l, double scal, double add) const {
   noneset.clear();
   for (int i=0; i < (int) l.size(); ++i) {
-    Integerval ii = l[i];
+    const Integerval& ii = l[i];
+    if (ii.lb == ii.ub) {
+        continue;
+    }
     double lb = scal*ii.lb+add;
     double ub = scal*ii.ub+add;
     add_noneset(noneset,lb,ub);

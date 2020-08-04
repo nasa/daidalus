@@ -337,12 +337,18 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 			for (int i=0; i <= last_index; ++i) {
 				boolean none = ranges__.get(i).region.isResolutionBand();	
 				int order_i = ranges__.get(i).region.orderOfConflictRegion();
-				boolean lb_close = none ||
-						(i > 0 && order_i <= ranges__.get(i-1).region.orderOfConflictRegion()) ||
-						(i == 0 && order_i <= ranges__.get(last_index).region.orderOfConflictRegion());
-				boolean ub_close = none ||
-						(i < last_index && order_i <= ranges__.get(i+1).region.orderOfConflictRegion()) ||
-						(i == last_index && order_i <= ranges__.get(0).region.orderOfConflictRegion());
+				boolean lb_close = none;
+				if (!lb_close && order_i > 0) { 
+					lb_close = 	
+							(i > 0 && order_i <= ranges__.get(i-1).region.orderOfConflictRegion()) ||
+							(i == 0 && mod_ > 0 && order_i <= ranges__.get(last_index).region.orderOfConflictRegion());
+				}
+				boolean ub_close = none;
+				if (!ub_close && order_i > 0) { 
+					ub_close = 
+							(i < last_index && order_i <= ranges__.get(i+1).region.orderOfConflictRegion()) ||
+							(i == last_index && mod_ > 0 && order_i <= ranges__.get(0).region.orderOfConflictRegion());
+				}
 				if (ranges__.get(i).interval.almost_in(val,lb_close,ub_close,DaidalusParameters.ALMOST_)) {
 					return i;
 				} 
@@ -1039,6 +1045,9 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		noneset.clear();
 		for (int i=0; i < (int) l.size(); ++i) {
 			Integerval ii = l.get(i);
+			if (ii.lb == ii.ub) {
+				continue;
+			}
 			double lb = scal*ii.lb+add;
 			double ub = scal*ii.ub+add;
 			add_noneset(noneset,lb,ub);

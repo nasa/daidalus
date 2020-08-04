@@ -1,0 +1,550 @@
+DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
+-----------------------------------------------------
+Release:  v2.0.e, February 15, 2020
+Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
+
+Copyright: Copyright (c) 2014 United States Government as represented by 
+the National Aeronautics and Space Administration.  No copyright 
+is claimed in the United States under Title 17, U.S.Code. All Other 
+Rights Reserved.
+
+Release DAIDALUS-V2.0.e:
+------------------
+February 15, 2020
+* Corrected bug in C++, where reserve was used instead of resize. This
+caused a segmentation fault in Visual Studio C++
+* Reorganized examples in directory outside src
+* Updated Makefile
+
+May 19, 2019
+* Fixed issue with intervals of lenght 0 (i.e, only one point). These
+intervals are now removed from the computations.
+* Fixed issue with getTimeIn and getTimeOut, where in case of
+no-conflict, their return value is undefined. These methods are now guarded
+by conflit predicated. In case of no conflict they return infinite
+values.
+* Fixed issue in WCV_TAUMOD_SUM, where violationSUMAt and detectionSUM
+return inconsistent values when aircraft are at the border of the 
+violation area.
+* Better use of cache information in DaidalusCore. Alerting doesn't
+trigger re-computation of banding core information.
+
+Release DAIDALUS-V2.0.2d:
+------------------
+April 4, 2019
+
+* Added hysteresis and persistence times
+* Added preferred resolution persistence
+* Added bands persistence
+* Added alerting M of N
+
+* Changed max_delta_resolution_xxx to persistence_preferred_xxx. A
+  preferred resolution persists while the diference between the the
+  preferred resolution and the best resolution is less than this parameter.
+
+* Method setHorizontalSpeedUncertainty is now called
+setHorizontalVelocityUncertainty.
+
+* Method setVerticalVelocityZScore is now called
+setVerticalSpeedZScore.
+
+* Method alerting in Daidalus is now deprecated. It has been renamed
+alertLevel.
+
+* setAboveBelowHorizontalSpeed in DaidalusBands refactored as 
+setAboveRelativeHorizontalSpeed and setBelowRelativeHorizontalSpeed.
+Similar changes for  setRelativeVerticalSpeedBands, and
+setRelativeAltitudeBands.
+
+* Added configurable parameters for relative bands.
+
+* Added UNKOWN bands region in cases where relative bands are
+  used.
+
+* Added hysteresis to alerting, preferred direction, and
+resolution. Configurable through new parameters.
+
+Implemented ownship/intruder centric alerting logic. There is a new
+boolean configuration parameter ownship_centric_alerting. By default,
+ownship_centric_alerting is set to true.
+
+Programmatically this parameter can be changed through the
+methods:
+* setAlertingLogic(boolean ownship_centric) 
+* setOwnshipCentricAlertingLogic()
+* setIntruderCentricAlertingLogic()
+The value of the parameter is obtained by the method
+isAlertingLogicOwnshipCentric().
+
+When the logic is ownship centric, an alerter for all traffic
+aircraft is set by using
+* setAlerterIndex(0,alerter_idx).
+
+When the logic is intruder centric, individual alerters for each 
+traffic aircraft (ac_idx) is set by using
+* setAlerterIndex(ac_idx, alerter_idx)
+
+The methods minHorizontalSeparationAtRecovery and
+minVerticalSeparationAtRecovery in RecoveryInformation are now called
+recoveryHorizontalDistance and recoveryVerticalDistance.
+
+Release DAIDALUS-V2.0.2b:
+------------------
+October 15, 2018
+
+daa.set_WC_SC_228_MOPS--> daa. set_WC_DO_365
+daa.set_Buffered_WC_SC_228_MOPS --> daa. set_Buffered_WC_DO_365
+
+Daidalus.getMultiKinematicBands() --> disappeared: The Daidalus object
+implements all the functionality of MultiKinematicBands().
+
+The field Daidalus.parameters is not longer available. Daidalus itself
+implements all the methods available in DaidalusParameters. Therefore,
+something like daa.parameters.getLookaheadTime() is now written
+daa.getLookahaedTime();
+
+*VERY IMPORTANT* List of alerters is now 1-indexed. 0 means none, 1 means first
+alerter, 2 means second alerter, etc. More precisely:
+
+1. Alerters are 1-indexed, i.e., 1 is the index of first alerter
+(e.g., Phase I), 2 is the index of second alerter (e.g., Phase 2), 3 is the index of third alerter, etc.
+
+2. By default, Ownship is set to alerter 0 (meaning none)
+
+3. By default, Traffic aircraft is set to alerter 1 
+
+4. If Onwship's alerter is set to 0, then the logic is "intruder-centric" and each aircraft's alerter is used for each aircraft. This is the default behavior.
+
+5. If Ownship's alerter is set to a value different from 0, then the logic is "ownship-centric" and this is the alerter that is used for every traffic aircraft.
+
+Release DAIDALUS-V2.0.2a:
+------------------
+October 4, 2018
+
+* DADIALUS-2 supports multiple alerting structures that can be
+  dynamically applied per traffic aircraft.
+
+* DAIDALUS-2 corrects several misnomers in DAIDALUS-1 (see below).
+
+* The class AlertLevels is now called Alerter. If daa is an object of
+the class Daidalus, a particular alerter for this aircraft
+can be set using the method:
+daa.setAlerter(ac_idx,arleter_idx);
+or equivalently,
+daa.setAlerter(ac_idx,alerter_id);
+
+In these calls, ac_idx is the index of the aircraft in the traffic
+list. The index 0 represents the ownship and the last index is the one
+in daa.lastTrafficIndex().  Alerters are collected in a list indexed
+from 0 (default alerter) to daa.parameters.numberOfAlerters()-1.
+
+
+Configuration by File
+----
+To configure alerters using a file (same as in DAIDALUS-1):
+daa.loadFromFile("configuration_file.txt");
+
+DAIDALUS-2 correctly reads DAIDALUS-1 configuration
+files. In this case, only 1 alerter is configured. The configuration
+file for multiple alerters is done by configuring a list of alerter identifiers, e.g.,
+
+alerters = Buffered_DWC_Phase_I,DWC_Phase_I
+
+The order in this list is important, the index 0 corresponds to
+Buffered_DWC_Phase_I and the index 1 corresponds to DWC_Phase_I. The
+definition of these alerters is provided in the lines that follows
+this line in the configuration file. Each one is similar to the
+configuration of alert_levels in DAIDALUS-1.
+
+The field conflict_level is replaced by a field corrective_region and
+it takes a conflict region, e.g., FAR, MID, NEAR, instead of a
+number. The reason for this change is that different alerters may
+configure the corrective volume at a different alerting level. 
+
+Programatic Configuration
+----
+It works as follows.
+
+daa.parameters.clearAlerters(); // Remove all alerters
+daa.parameters.addAlerter(Alerter. DWC_Phase_I()); // This put DWC_Phase_I alerter at the index 0
+Alerter alerter1 = new Alerter(...);
+... configuration of alerter 1 ...
+daa.parameters.addAlerter(alerter1);
+Aleter alertere2 = new Alerter(...);
+... configuration of alerter 2...
+daa.parameters.addAlerter(alerter2);
+etc.
+
+Misnomers
+----------
+* In the configuration file, the prefix, postfix "trk" is now "hdir"
+and "gs" is now "hs". Furtrhermore, all of them are postfix, e.g.,
+"trk_step" is now "step_hdir". However, DAIDALUS-2 still recognizes
+the field names used in DAIDALUS-1.
+
+* In the names of methods the prefix/postfix "Track" and "GroundSpeed"
+  have been replaced by "HorizontalDirection" and "HorizontalSpeed",
+  respectively. The reason for this change is that these methods may
+  represent ground- or air- based values depending on whether a wind
+  vector was configured.
+
+* The method daa.setWindField(...) is now called
+  daa.setWindVelocityTo(...). This clarifies that the "wind field" is
+  just a vector and that the direction of the wind is "to". The method
+  daa.setWindVelocityFrom(...) can be sued in case the wind vector is
+  specified in the "from" direction.
+
+Other Changes
+------------
+* The class KinematicMultiBands is now DaidalusBands 
+* The class KinematicBands disappeared as its functionality is fully integrated
+into DaidalusBands.
+* The class KinematicBandsCore is now DaidalusBandsCore
+* The class KinematicBandsParameters is now DaidalusParameters
+
+In DaidalusBands (former KinematicMultiBands)
+* track() -> HorizontalDirectionAt()
+* groundSpeed() -> HorizontalSpeedAt() 
+* verticalSpeed() -> VerticalSpeedAt() 
+* altitude() -> altitudeAt()
+* directionRangeOf -> indexOfHorizontalDirection
+* trackLength -> horizontalDirectionBandsLength
+* groundSpeedLength -> horizontalSpeedBandsLength
+* verticalSpeedLength -> verticalSpeedBandsLength
+* altitudeLength -> altitudeBandsLength
+* timeIntervalOfViolation()->timeIntervalOfRegionViolation()
+* horizontalSpeed-> horizontalSpeedIntervalAt
+* horizontalSpeedRegion -> horizontalSpeedRegionAt
+* horizontalSpeedRangeOf -> indexOfHorizontalSpeed
+* peripheralDirectionAircraft(level): list<AircraftStates> ->
+  peripheralHorizontalDirectionAircraft
+* peripheralHorizontalSpeedAircraft(level): list<AircraftStates> ->
+  peripheralHorizontalSpeedBandsAircraft(region):list<string>
+* peripheralVerticalSpeedAircraft(level): list<AircraftStates> ->
+  peripheralVerticalSpeedBandsAircraft(region):list<string>
+* peripheralAltitudeAircraft(level): list<AircraftStates> ->
+ peripheralAltitudeBandsAircraft(region):list<string>
+
+In Daidalus:
+* getAircraftState -> getAircraftStateAt
+* timeToViolation -> timeToCorrectiveVolume
+
+Gotchas:
+* Spreaded bands will now compute UNKOWN bands, for ranges outside
+   min/max values. 
+* Check usage of method getUnits from DaidalusParameters as field
+names  have changed, e.g., "trk_step" is now "step_hs".
+
+Release DAIDALUS 1.0.2
+------------------ 
+April 21, 2019
+* Fixed bug in the method toIntervalSet of the class
+KinematicRealBands, where a range of length 0, i.e., a point, is
+sometimes added to the list of bands due to numerical round-off
+errors. This zero-length range may yield a
+recovery bands that is slightly larger than necessary.
+* Fixed bug in the method find_resolution of the class
+KinematicRealBands, where a track resolution larger than 180 degrees
+is sometimes returned. The fixed method will return either negative
+infinity (left) or postive infinity (right) when no resolution exists
+within 180 of the current track.
+
+Release DAIDALUS 1.0.1
+------------------
+October 11, 2017
+* Fixed bug in line 635 and 637 of Units.cpp. This bug only affects
+MSVC++ (Thanks to Randal Guendel for reporting this issue).
+
+March 18, 2017
+* Added PVS specifications and proofs of core algorithms.
+* Modified algorithm that projects aircraft trajectories. The
+core detection, alerting, and bands algorithms use an Euclidean
+three-dimensional coordinate system, i.e., a local East, North, Up
+(ENU) Cartesian coordinate system. This coordinate system is based on
+the orthogonal projection of the ownship and traffic geodesic
+coordinates onto a plane tangent to the projected ownship position on
+the surface of the earth. In previous releases, kinematic bands were
+generated by projecting in time aircraft Geodesic states and then
+projecting the resulting states into the Euclidean coordinate system.
+In this release, Geodesic coordinates are projected into the Euclidean
+coordinate system first, and then projected in time. This change
+significantly improves the performance of the bands algorithm.
+CAVEAT: Projected states may not be precise enough for a lookahead
+time larger than 5 minutes.
+
+* Modified behavior of detection, alerting, and bands algorithms with
+respect to lookahead time. In the previous release, lookahead time was
+expected to be larger than early alerting time, which was expected to
+be larger than alerting time, for all alerting leves. In this release,
+the time horizon for the core algorithms is between current time and
+current time+lookahead time. In other words,  no violation, alert, or band is
+computed after lookahead time (relative to current time).
+
+* Modified algorithm that prints configuration parameters. In this
+release, units from a configuration file are remembered and displayed
+back when the configuration parameters are printed as a string or
+saved into a file. Furthermore, configuration parameters are printed
+in a better organized format.
+
+* Fixed a bug that caused the region of a conflict band at 180 degrees
+to be incorrectly computed as NONE. The bug was due to numerical error
+where 180 degrees and -180 degrees were not considered to be equal.
+
+Release DAIDALUS 1.0
+------------------
+November 18, 2016
+* First non-alpha release of DAIDALUS. Parameters and thresholds have
+  been configured according to DAA_MOPS_ToPMC_V3.8_2016-11-10.
+* Used "almost equality" instead of "==" in guidance computation to
+  mitigate numerical issues at the limits of the well-clear volume.
+* Provided interface to non-hazard volume, which is defined using VMOD
+  instead of TCOA.
+* Fixed directional resolution logic for track, which in some cases
+  returned maneuvers that were more than 180 degrees in one direction.
+
+Release DAIDALUS 1.a2
+------------------
+September 26, 2016
+* Fixed mismatch between tiovs_ and conflict_acs_ in
+KinematicBandsCore. This error affected timeToViolation for a
+given alert level.
+
+September 23, 2016
+* Fixed memory leaks in the AlertLevels class in C++.
+* Changed default minimun ground speed to 10 [knots]. The previous value was 0,
+which is not a valid ground speed. The minimum ground speed must be greater than
+the ground speed step.
+* Fixed a border case problem when detection was computed at exactly late alerting time. The
+previous behavior always returned false in this case. The current behavior checks
+if there is a violation at that unique position in time.
+* Changed the beahvior of track resolution, when the returned values is greater than 180.
+In this release, the returned value is positive infinity, for the right resolution,
+and negative infinity, for the left resolution.
+* Fixed a problem in the characterization of regions in the case of recovery bands.
+The previous behavior always returned either NEAR or RECOVERY regions, which is not
+always correct. The current behavior returns the correct saturated region or RECOVERY.
+Thanks to Randal Guendel (MIT/LL) for pointing this out.
+
+Release DAIDALUS 1.a1, September 16, 2016  
+---------------------
+Fixed a bug in set_Buffered_WC_SC_228_MOPS(boolean type), where the
+parameter type was ignored, and setKinematicBands(boolean type), where
+turn_rate was set to 1/5, e.g., 0, instead of 1.5.
+
+Release DAIDALUS 1.a0, September 11, 2016  
+---------------------
+Fixed a problem in the preparation of the C++ release.  Fixed a bug in
+the setting of Min/Max gs,vs, and alt parameters in the method
+setKinematicBandsParameters of the class KinematicMultiBands.
+
+Release DAIDALUS 1.a, September 11, 2016  
+---------------------
+* Added methods set_WC_SC_228_MOPS() and
+  set_Buffered_WC_SC_228_MOPS(boolean type) to Daidalus. 
+  The method set_WC_SC_228_MOPS(), which is the default configuration
+  of DAIDALUS, set the Daidalus object such that 
+  - Alerting thresholds are unbuffered as defined by SC-228 MOPS.
+  - Maneuver guidance logic assumes instantaneous maneuvers
+  - Bands saturate at DMOD/ZTHR.
+  The method set_Buffered_WC_SC_228_MOPS(boolean type) set the
+  Daidalus object  such that 
+  - Alerting thresholds are buffered 
+  - Maneuver guidance logic assumes kinematic maneuvers
+  - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
+     when type is false.
+  - Bands don't saturate until NMAC
+* Removed static field DefaultValues from KinematicBandsParameters.
+* Renamed WC_SC_228() and Buffered_WC_SC_228() in AlertLevels as
+  AlertLevelWC_SC_228_Thresholds() and
+  Buffered_WC_SC_228_Thresholds(), respectively.
+* Renamed late_alerting_time and set/getLateAlertingTime in
+  AlertThresholds as  early_alerting_time and set/getEarlyAlertingTime.
+  Original names were a misnomer.
+* Fixed a bug in function rangeOf, where a value in the boundaries
+  of a NEAR and MID bands returned the region UNKNOWN.
+* Fixed a bug in preferred_direction, where an incorrect direction was
+  returned when one of the directions was not feasible.
+* Modified the logic of recovery bands for instantaneous maneuvers such that
+   they are computed when the current state is in loss of well-clear.
+* For efficiency reasons, the Daidalus method in Java 
+   KinematicMultiBands getKinematicMultiBands()
+   has the following signature in C++ 
+   void kinematicMultiBands( KinematicMultiBand&) 
+  To bring attention to this change, note the name change.
+* Removed ConflictBands.cpp (C++). Bands.cpp includes this
+  functionality.
+
+Release DAIDALUS 0.99n, August 31, 2016  
+---------------------
+* Updated C++ code
+* Redesigned resolution algorithms for compatibility with maneuver guidance
+* Implemented preferred direction for each type of maneuver guidance
+* Added parameters for horizontal_nmac and vertical_nmac 
+* Pre-configured alert levels: 
+ - WC_SC_228: Unbuffered threshold values (default)
+ - Buffered_WC_SC_228: Buffered threshold values
+ - Implemented instantaneous bands
+
+Release DAIDALUS 0.99m, August 19, 2016  
+---------------------
+* The main change of this release is the implementation of multilevel
+  bands. The function getKinematicBands is now called 
+  getKinematicMultiBands and the return type is KinematicMultiBands
+  instead of KinematicBands. By default, the guidance logic computes NEAR bands,
+  which correspond to Warning alerts, MID bands, which correspond to
+  Corrective alerts, RECOVERY bands, which correspond to well-clear
+  recovery, and NONE bands, which indicate no predicted alert.
+
+* The alerting and guidance logics are configurable through a new class
+  called AlertLevels. This class includes a list of AlertThresolds and is
+  ordered by alert level from less severe to more severe. Alert levels
+  are 1-indexed. Alerting logic returns level of most severe set of
+  alert thresholds that are violated, where level 0 indicates absence of alert.
+
+* Configuration parameters, including alerting levels, can be read
+  from a file. 
+
+* Getting and setting of configuration parameters has also
+  changed. Instead of providing setters and getters in the Daidalus
+  and KinematicBandsParameters, these methods are provided through
+  the public field parameters in the Daidalus and DefaultValues in 
+  KinematicBandsParameters. For instance, the previous call 
+  daa.getHorizontalAcceleration() is now available through 
+  daa.parameters.getHorizontalAcceleration().
+  Similarly, the previous call 
+  DefaultDaidalusParameters.getHorizontalAcceleration()
+  is now available through
+  KinematicBandsParameters.DefaultValues.getHorizontalAcceleration().
+
+* The constant VERSION is now defined in KinematicBandsParameters, e.g.,
+   the call Daidalus.VERSION needs to be
+   KinematicBandsParameters.VERSION. There is also a function
+   Daidalus.release().
+
+Release DAIDALUS 0.99b, February 10, 2016  
+---------------------
+* Added interface function for computing contours
+* Added interface functions for computing last time to maneuver
+* Added interface functions for computing resolution maneuvers in each
+direction
+* Removed bands-based alerting logic
+ 
+Release DAIDALUS 0.99a, September 29, 2015  
+---------------------
+* Updated MOPS table in thresholds-based alerting to current values
+
+Release DAIDALUS 0.99, September 26, 2015  
+---------------------
+* Removed unused configuration parameters, e.g. time_delay,
+recovery_bands_iff_ca_bands, etc.
+* Removed dependency in Daidalus from Plans. This change allows  for
+a simpler interface to add aircraft states.
+* Added PVS output for validation purposes
+* Added C++ interface to DAIDALUS
+* Added missing get and setter methods to DAIDALUS
+
+Release DAIDALUS 0.9a, July 26, 2015  
+---------------------
+* Fixed the null pointer exception caused by time synchronization problem.
+* Changed preventive thresholds so that they use "strict less" instead of "less or equal".
+* Supplied new configuration file that only contains parameters relevant to CASSAT 2.
+
+Release DAIDALUS 0.9, July 17, 2015
+--------------------- 
+Added configuration parameters to alerting logic to set preventive thresholds.
+
+Release DAIDALUS 0.d, June 1, 2015
+--------------------- 
+Added interface to turn off/off recovery bands. 
+
+Release DAIDALUS 0.c, April 23, 2015
+--------------------- 
+Minor configuration changes.
+
+Release DAIDALUS 0.b, April 7, 2015
+--------------------- 
+Included an alerting algorithm that incorporates recommendations from
+attendants of the 2-day UAS Workshop held at NASA Langley Research
+Center on March 26-27, 2015.
+
+Release DAIDALUS 0.a, March 17, 2015
+---------------------
+Initial release of DAIDALUS interface. References to Chorus and
+Stratway+ objects have been removed. DAIDALUS only depends on Util and
+ACCoRD.
+
+Release Stratway+ 2.3.4, February, 2015
+--------------------------------
+* Decoupled lookahead time and alert time. This adds a new parameter for
+alert time. It also adds the ability to specify a base configuration
+file.
+
+* Improved stability of well-clear bands by adding a time
+stabilization parameter.
+
+Release Stratway+ 2.3.3b, January, 2015
+-------------------------------
+Added interface methods for setting independent lookahead times for
+conflict and well-clear bands.
+
+Release Stratway+ 2.3.3a, January, 2015
+-------------------------------
+Added conflict detection logic to be used in conjunction with
+prevention bands logic in PT5 experiment.
+
+Release Stratway+ 2.3.3, January, 2015
+-------------------------------
+* Added alerting logic and altitude bands interface to be used in PT5 experiment.
+
+* Redesigned core architectural components of Stratway to support
+integration of Well-Clear algorithms in the Appendix of RTCA SC 228
+Detection and Avoid.
+
+* Implemented prototype interface of Stratway's well-clear alerting
+concept.
+
+* Implemented prototype interface of Stratway's altitude bands concept.
+
+* Implemented prototype interface of Stratway's well-clear recovery bands. Current
+implementation supports strategies for selecting most urgent aircraft
+based on DCPA and Time to Closest Point of Apporach (TCPA).
+
+Release Stratway+ 1.8.4a, July, 2013
+-------------------------------
+* Modified interface to the TCAS prevention bands computed by Stratway+ to
+enable different time and distance threshold tables for different aircraft.
+* Initiated the development of prevention bands for flight levels. These
+kinds of prevention bands indicate flight levels that are predicted to
+be in conflict or cause a TCAS alert. In addition to aircraft state of
+information (position and velocity vector information), the computation of
+these bands require vertical acceleration and target rate of climb for the
+ownship.
+
+Release Stratway+ 1.8.3, April, 2013
+-------------------------------
+* Added table of time and distance thresholds for TCAS II Traffic
+Alerts (TA).
+* Added configurable TCAS II DMOD, TAU, ZTHR, and HMD threshold 
+parameters.
+* Added configurable on/off HMD filter for the TCAS II RA detection
+logic.
+* Added methods to access distance-based and TCAS-based conflict
+information including most urgent conflict and for every conflict:
+time to conflict, time out of conflict, and time of closest approach
+(or time of minimum tau depending of configuration parameters).
+
+February 21, 2013
+--------------
+Implemented a new interface to the TCAS-II RA detection code in
+Stratway. The new interface will enable more sophisticated aircraft
+kinematic models for predicting RAs and computing RA prevention bands.
+
+December 5 2012
+--------------
+Developed a software interface in Stratway to support Langley's SSA
+concept of integration. The software interface provides the following
+functionality: creation of Stratway objects for onwnship and traffic
+aircraft, setting of configurable parameters such as time delays,
+lookahead times, and maximum aircraft performance values, checking if
+an aircraft is well-clear for TCAS-II RAs, and computing kinematics
+prevention bands for conflict-free areas in the airspace.

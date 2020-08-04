@@ -1,27 +1,29 @@
 # Simple Makefile to build DAIDALUS library and example applications
+NAME=DAIDALUS
+MAJOR=2
+MINOR=e
+VERSION=$(NAME)$(MAJOR)
+RELEASE=$(NAME)$(MAJOR)$(MINOR)
 
-RELEASE = DAIDALUS2d
-SRC0   = $(wildcard src/*.cpp)
-SRC1   = $(SRC0:src/DaidalusExample.cpp=)
-SRC2   = $(SRC1:src/DaidalusAlerting.cpp=)
-SRCS   = $(SRC2)
-OBJS   = $(SRCS:.cpp=.o)
+SRC    = $(wildcard src/*.cpp)
+OBJS   = $(SRC:.cpp=.o)
+
 INCLUDEFLAGS = -Iinclude 
 CXXFLAGS = $(INCLUDEFLAGS) -Wall -O 
 
-all: lib examples
+all: clean lib examples
 
 lib: $(OBJS)
-	@echo 
 	@echo "** Building lib/$(RELEASE).a library"
-	ar -cr lib/$(RELEASE).a $(OBJS) && ranlib lib/$(RELEASE).a 
-	@echo 
+	@test -d lib || mkdir lib
+	@ar -cr lib/$(RELEASE).a $(OBJS) && ranlib lib/$(RELEASE).a
+	@cd lib;ln -sf $(RELEASE).a $(VERSION).a
 
-examples:
-	@echo
+examples: 
 	@echo "** Building example applications"
-	$(CXX) -o DaidalusExample $(CXXFLAGS) src/DaidalusExample.cpp lib/$(RELEASE).a
-	$(CXX) -o DaidalusAlerting $(CXXFLAGS) src/DaidalusAlerting.cpp lib/$(RELEASE).a
+	$(CXX) -o DaidalusExample $(CXXFLAGS) examples/DaidalusExample.cpp lib/$(RELEASE).a
+	$(CXX) -o DaidalusAlerting $(CXXFLAGS) examples/DaidalusAlerting.cpp lib/$(RELEASE).a
+	$(CXX) -o DaidalusBatch $(CXXFLAGS) examples/DaidalusBatch.cpp examples/DaidalusProcessor.cpp lib/$(RELEASE).a
 	@echo
 	@echo "** To run DaidalusExample type:"
 	@echo "./DaidalusExample"
@@ -29,6 +31,6 @@ examples:
 	@echo "./DaidalusAlerting --conf ../configs/HYS-nom_b.txt ../scenarios/H1.daa"
 
 clean:
-	rm -f DaidalusExample DaidalusAlerting $(OBJS) lib/DAIDALUS.a
+	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a
 
 .PHONY: all lib examples

@@ -14,6 +14,8 @@ import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** A broad collection of utility functions */
 public final class Util {
@@ -770,7 +772,7 @@ public final class Util {
       return false;
     }
   }
-
+  
   /**
    * Returns an integer value which is represented by the given string.  If the string does 
    * not represent a number, a zero is returned.  If one wants to know
@@ -784,6 +786,22 @@ public final class Util {
     } catch (NumberFormatException e) {
       return 0;
     }
+  }
+  
+  
+  /**
+   * Returns an integer value which is represented by the first numeric portion of the given string (with an optional initial minus sign).  If the string does 
+   * not contain a number, a zero is returned.
+   * @param s a string
+   * @return integer value of the string
+   */
+  public static int parse_first_int(String s) {
+      Pattern p = Pattern.compile("-?\\d+");
+      Matcher m = p.matcher(s);
+      if(m.find()) {
+    	return parse_int(m.group());  
+      }
+      return 0;
   }
 
   /**

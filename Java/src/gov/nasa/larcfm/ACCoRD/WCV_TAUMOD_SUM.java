@@ -114,7 +114,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		return wcv_vertical.vertical_WCV(table.ZTHR,table.TCOA,snew,vnew);
 	}
 
-	private boolean WCV_taumod_uncertain(Vect3 s, Vect3 v, double s_err, double sz_err, double v_err, double vz_err) {
+	protected boolean WCV_taumod_uncertain(Vect3 s, Vect3 v, double s_err, double sz_err, double v_err, double vz_err) {
 		return horizontal_wcv_taumod_uncertain(s.vect2(),v.vect2(),s_err,v_err) && 
 				vertical_WCV_uncertain(s.z,v.z,sz_err,vz_err);
 	}
@@ -273,10 +273,12 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		if (s_err == 0.0 && sz_err == 0.0 && v_err == 0.0 && vz_err == 0.0) {
 			return violation(so.AddScal(t,vo),vo,si.AddScal(t,vi),vi);
 		} 
-		Vect3 s = so.Sub(si);
-		Vect3 v = vo.Sub(vi);
-		Vect3 st = t == 0 ? s : v.ScalAdd(t,s);
-		return WCV_taumod_uncertain(st,v,s_err+t*v_err,sz_err+t*vz_err,v_err,vz_err);
+		return conflictSUM(so,vo,si,vi,t,t,s_err,sz_err,v_err,vz_err);
+		// This original code have numerical issues at the border of the volume
+		//Vect3 s = so.Sub(si);
+		//Vect3 v = vo.Sub(vi);
+		//Vect3 st = t == 0 ? s : v.ScalAdd(t,s);
+		//return WCV_taumod_uncertain(st,v,s_err+t*v_err,sz_err+t*vz_err,v_err,vz_err);
 	}
 
 	public boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {

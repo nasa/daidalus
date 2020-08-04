@@ -32,10 +32,10 @@ public class ParameterData {
 
 	public static final String parenPattern = "[()]+";
 	public static final String defaultEntrySeparator = "?";
+	private final String listPatternStr; // may be user-settable at some point
 	private boolean preserveUnits;
 	private boolean unitCompatibility;
 	private Map<String, ParameterEntry> parameters;
-	private String patternStr;
 
 
 	/** A database of parameters.  A parameter can be a string, double value, or a boolean value.
@@ -44,14 +44,14 @@ public class ParameterData {
 	public ParameterData() {
 		preserveUnits = false;
 		unitCompatibility = true;
-		patternStr = Constants.wsPatternBase;
+		listPatternStr = Constants.wsPatternBase;
 		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
 	}
 
 	public ParameterData(boolean originalOrder) {
 		preserveUnits = false;
 		unitCompatibility = true;
-		patternStr = Constants.wsPatternBase;
+		listPatternStr = Constants.wsPatternBase;
 		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
 	}
 	
@@ -62,7 +62,7 @@ public class ParameterData {
 	public ParameterData(ParameterData p) {
 		preserveUnits = p.preserveUnits;
 		unitCompatibility = p.unitCompatibility;
-		patternStr = p.patternStr;
+		listPatternStr = Constants.wsPatternBase;
 		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
 		copy(p,true);
 	}
@@ -78,7 +78,6 @@ public class ParameterData {
 		ParameterData p = new ParameterData();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		p.patternStr = patternStr;
 		for (String key : parameters.keySet()) {
 			p.parameters.put(prefix+key, new ParameterEntry(parameters.get(key))); // make sure this is a copy
 		}
@@ -99,7 +98,6 @@ public class ParameterData {
 		ParameterData p = new ParameterData();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		p.patternStr = patternStr;
 		for (String key : parameters.keySet()) {
 			String keylc = key.toLowerCase();
 			if (keylc.indexOf(prefixlc) == 0) {
@@ -120,7 +118,6 @@ public class ParameterData {
 		ParameterData p = new ParameterData();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		p.patternStr = patternStr;
 		for (String key : parameters.keySet()) {
 			String keylc = key.toLowerCase();
 			if (!keylc.startsWith(prefixlc)) {
@@ -142,7 +139,6 @@ public class ParameterData {
 		ParameterData p = new ParameterData();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		p.patternStr = patternStr;
 		for (String key : keylist) {
 			if (contains(key)) {
 				p.parameters.put(key, parameters.get(key));
@@ -161,7 +157,6 @@ public class ParameterData {
 		ParameterData p = new ParameterData();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		p.patternStr = patternStr;
 		if (contains(key)) {
 			p.parameters.put(key, parameters.get(key));
 		}
@@ -931,7 +926,7 @@ public class ParameterData {
 			return false;
 		} else {
 			String s = parameters.get(key).sval;
-			String[] fields = s.split(patternStr);
+			String[] fields = s.split(listPatternStr);
 			if (fields.length == 1) {
 				return Util.is_double(fields[0]);
 			} else if (fields.length == 2) {
@@ -1119,7 +1114,7 @@ public class ParameterData {
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		result = prime * result
-				+ ((patternStr == null) ? 0 : patternStr.hashCode());
+				+ ((listPatternStr == null) ? 0 : listPatternStr.hashCode());
 		result = prime * result + (preserveUnits ? 1231 : 1237);
 		result = prime * result + (unitCompatibility ? 1231 : 1237);
 		return result;
@@ -1150,10 +1145,10 @@ public class ParameterData {
 				else if (!getString(key).equals(other.getString(key))) return false;
 			}
 		}
-		if (patternStr == null) {
-			if (other.patternStr != null)
+		if (listPatternStr == null) {
+			if (other.listPatternStr != null)
 				return false;
-		} else if (!patternStr.equals(other.patternStr))
+		} else if (!listPatternStr.equals(other.listPatternStr))
 			return false;
 		if (preserveUnits != other.preserveUnits)
 			return false;

@@ -49,14 +49,14 @@ public class LossData {
 	 * Returns time to first loss in seconds.
 	 */
 	public double getTimeIn() {
-		return time_in;
+		return conflict() ? time_in : Double.POSITIVE_INFINITY;
 	}
 
 	/**
 	 * Returns time to last loss in seconds.
 	 */
 	public double getTimeOut() {
-		return time_out;
+		return conflict() ? time_out : Double.NEGATIVE_INFINITY;
 	}
 
 	/**

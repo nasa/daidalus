@@ -232,11 +232,33 @@ final public class f {
 		}
 	}
 
+	/**
+	 * String form of numeric value to the default precision (Constants.get_output_precision())
+	 * @param v value to print
+	 * @return
+	 */
 	public static String FmPrecision(double v) {
 		return FmPrecision(v,Constants.get_output_precision());
 	}
 
+	/**
+	 * String form of numeric value to the indicated precision (overrides Constants.get_output_precision())
+	 * @param v value to print
+	 * @param precision number of fractional digits to include
+	 * @return
+	 */
 	public static String FmPrecision(double v, int precision) {
+		return FmPrecision(v, precision, Constants.get_trailing_zeros());
+	}
+	
+	/**
+	 * String form of numeric value to the indicated precision (overrides Constants.get_output_precision() and Constants.get_trailing_zeros())
+	 * @param v value to print
+	 * @param precision number of fractional digits to include
+	 * @param includeTrailingZeros if true, include fractional trailing zeros, if false, truncate fractional trailing zeros 
+	 * @return
+	 */
+	public static String FmPrecision(double v, int precision, boolean includeTrailingZeros) { 
 		if (Double.isNaN(v)) {
 			return "NaN";
 		}
@@ -247,22 +269,22 @@ final public class f {
 		} 
 		v = fm_nz(v,precision+1);
 		switch(precision) {
-		case 1 : return (Constants.get_trailing_zeros() ? Frm1 : Frmnz1).format(v);
-		case 2 : return (Constants.get_trailing_zeros() ? Frm2 : Frmnz2).format(v);
-		case 3 : return (Constants.get_trailing_zeros() ? Frm3 : Frmnz3).format(v);
-		case 4 : return (Constants.get_trailing_zeros()? Frm4 : Frmnz4).format(v);
-		case 5 : return (Constants.get_trailing_zeros() ? Frm5 : Frmnz5).format(v);
-		case 6 : return (Constants.get_trailing_zeros() ? Frm6 : Frmnz6).format(v);
-		case 7 : return (Constants.get_trailing_zeros() ? Frm7 : Frmnz7).format(v);
-		case 8 : return (Constants.get_trailing_zeros() ? Frm8 : Frmnz8).format(v);
-		case 9 : return (Constants.get_trailing_zeros() ? Frm9 : Frmnz9).format(v);
-		case 10: return (Constants.get_trailing_zeros() ? Frm10 : Frmnz10).format(v);
-		case 11: return (Constants.get_trailing_zeros() ? Frm11 : Frmnz11).format(v);
-		case 12: return (Constants.get_trailing_zeros() ? Frm12 : Frmnz12).format(v);
-		case 13: return (Constants.get_trailing_zeros() ? Frm13 : Frmnz13).format(v);
-		case 14: return (Constants.get_trailing_zeros() ? Frm14 : Frmnz14).format(v);
-		case 15: return (Constants.get_trailing_zeros() ? Frm15 : Frmnz15).format(v);
-		case 16: return (Constants.get_trailing_zeros() ? Frm16 : Frmnz16).format(v);
+		case 1 : return (includeTrailingZeros ? Frm1 : Frmnz1).format(v);
+		case 2 : return (includeTrailingZeros ? Frm2 : Frmnz2).format(v);
+		case 3 : return (includeTrailingZeros ? Frm3 : Frmnz3).format(v);
+		case 4 : return (includeTrailingZeros ? Frm4 : Frmnz4).format(v);
+		case 5 : return (includeTrailingZeros ? Frm5 : Frmnz5).format(v);
+		case 6 : return (includeTrailingZeros ? Frm6 : Frmnz6).format(v);
+		case 7 : return (includeTrailingZeros ? Frm7 : Frmnz7).format(v);
+		case 8 : return (includeTrailingZeros ? Frm8 : Frmnz8).format(v);
+		case 9 : return (includeTrailingZeros ? Frm9 : Frmnz9).format(v);
+		case 10: return (includeTrailingZeros ? Frm10 : Frmnz10).format(v);
+		case 11: return (includeTrailingZeros ? Frm11 : Frmnz11).format(v);
+		case 12: return (includeTrailingZeros ? Frm12 : Frmnz12).format(v);
+		case 13: return (includeTrailingZeros ? Frm13 : Frmnz13).format(v);
+		case 14: return (includeTrailingZeros ? Frm14 : Frmnz14).format(v);
+		case 15: return (includeTrailingZeros ? Frm15 : Frmnz15).format(v);
+		case 16: return (includeTrailingZeros ? Frm16 : Frmnz16).format(v);
 		default : return Frm0.format(v);
 		}
 	}

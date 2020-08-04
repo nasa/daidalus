@@ -31,7 +31,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.2d";
+	public static final String VERSION = "2.0.e";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
