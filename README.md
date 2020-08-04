@@ -3,23 +3,26 @@
 Detect and AvoID Alerting Logic for Unmanned Systems
 ========
 
-This repository includes a prototype implementation written in Java and
-C++ of DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems).
-DAIDALUS is a reference implementation of a detect and avoid concept
-intended to support the integration of Unmanned Aircraft Systems into
-civil airspace.
-The repository also includes the formal specification
-of DAIDALUS core algorithms in the Prototype Verification System ([PVS](http://pvs.csl.sri.com)).
+Detect and Avoid Alerting Logic for Unmanned Systems (DAIDALUS) is a
+software library that implements a configurable detect and avoid (DAA)
+concept intended to support the integration of Unmanned Aircraft
+Systems into civil airspace.  DAIDALUS serves as a reference
+implementation of the functional requirements specified in DO-365, the
+Minimum Operational Performance Standards (MOPS) for Unmanned Aircraft
+Systems (UAS) developed by RTCA Special Committee 228 (SC-228).
 
-DAIDALUS is a
-reference implementation of the detect and avoid (DAA) functional
-requirements  described in DO-365, the Minimum Operational Performance Standards (MOPS)
-for Unmanned Aircraft Systems (UAS)  developed by RTCA
-Special Committee 228 (SC-228). The core functionalities implemented by DAIDALUS include
+This repository includes a prototype
+implementations written in Java and C++.  The repository also includes
+the formal specification of DAIDALUS core algorithms witten the Prototype
+Verification System ([PVS](http://pvs.csl.sri.com)).
+
+The core functionalities implemented by DAIDALUS include
 
 *  detection logic,
 *  alerting logic based on hazard and non-hazard volumes, and
-*  multi-level instantaneous and kinematic maneuver guidance.
+*  instantaneous and kinematic maneuver guidance in the form of
+suggestive guidance (i.e., bands) and directive guidance (i.e.,
+preferred resolution).
 
 ### Documentation
 
@@ -57,7 +60,7 @@ repository, visit https://shemesh.larc.nasa.gov/fm/DAIDALUS.
 
 ### Current Release
 
-V-1.0.2-FormalATM-v2.6.2 (April-21-2019)
+Java 2.0.a, October 11, 2020
 
 ### License
 
