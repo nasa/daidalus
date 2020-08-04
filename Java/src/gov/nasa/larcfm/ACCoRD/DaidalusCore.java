@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 United States Government as represented by
+ * Copyright (c) 2015-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -7,7 +7,6 @@
 package gov.nasa.larcfm.ACCoRD;
 
 import gov.nasa.larcfm.Util.Interval;
-import gov.nasa.larcfm.Util.LossData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
@@ -16,9 +15,7 @@ import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -485,18 +482,6 @@ public class DaidalusCore {
 		return traffic.size() > 0;
 	}
 
-	private static void add_blob(List<List<Position>> blobs, Deque<Position> vin, Deque<Position> vout) {
-		if (vin.isEmpty() && vout.isEmpty()) {
-			return;
-		}
-		// Add conflict contour
-		List<Position> blob = new ArrayList<Position>(vin);
-		blob.addAll(vout);
-		blobs.add(blob);
-		vin.clear();
-		vout.clear();
-	}
-
 	/* idx is a 0-based index in the list of traffic aircraft
 	 * returns 1 if detector of traffic aircraft
 	 * returns 2 if corrective alerter level is not set
@@ -514,85 +499,9 @@ public class DaidalusCore {
 			if (alert_level > 0) {
 				Optional<Detection3D> detector = alerter.getDetector(alert_level);
 				if (detector.isPresent()) {
-					blobs.clear();
-					Deque<Position> vin = new ArrayDeque<Position>();
-					Position po = ownship.getPosition();
-					Velocity vo = ownship.getAirVelocity();
-					double current_trk = vo.trk();
-					Deque<Position> vout = new ArrayDeque<Position>();
-					/* First step: Computes conflict contour (contour in the current path of the aircraft).
-					 * Get contour portion to the right.  If los.getTimeIn() == 0, a 360 degree
-					 * contour will be computed. Otherwise, stops at the first non-conflict degree.
-					 */
-					double right = 0; // Contour conflict limit to the right relative to current direction  [0-2pi rad]
-					double two_pi = 2*Math.PI;
-					TrafficState own = new TrafficState(ownship);
-					for (; right < two_pi; right += parameters.getHorizontalDirectionStep()) {
-						Velocity vop = vo.mkTrk(current_trk+right);
-						own.setAirVelocity(vop);
-						LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
-						if ( !los.conflict() ) {
-							break;
-						}
-						if (los.getTimeIn() != 0 ) {
-							// if not in los, add position at time in (counter clock-wise)
-							vin.addLast(po.linear(vop,los.getTimeIn()));
-						}
-						// in any case, add position ad time out (counter clock-wise)
-						vout.addFirst(po.linear(vop,los.getTimeOut()));
-					}
-					/* Second step: Compute conflict contour to the left */
-					double left = 0;  // Contour conflict limit to the left relative to current direction [0-2pi rad]
-					if (0 < right && right < two_pi) {
-						/* There is a conflict contour, but not a violation */
-						for (left = parameters.getHorizontalDirectionStep(); left < two_pi; left += parameters.getHorizontalDirectionStep()) {
-							Velocity vop = vo.mkTrk(current_trk-left);
-							own.setAirVelocity(vop);
-							LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
-							if ( !los.conflict() ) {
-								break;
-							}
-							vin.addFirst(po.linear(vop,los.getTimeIn()));
-							vout.addLast(po.linear(vop,los.getTimeOut()));
-						}
-					}
-					add_blob(blobs,vin,vout);
-					// Third Step: Look for other blobs to the right within direction threshold
-					if (right < parameters.getHorizontalContourThreshold()) {
-						for (; right < two_pi-left; right += parameters.getHorizontalDirectionStep()) {
-							Velocity vop = vo.mkTrk(current_trk+right);
-							own.setAirVelocity(vop);
-							LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
-							if (los.conflict()) {
-								vin.addLast(po.linear(vop,los.getTimeIn()));
-								vout.addFirst(po.linear(vop,los.getTimeOut()));
-							} else {
-								add_blob(blobs,vin,vout);
-								if (right >= parameters.getHorizontalContourThreshold()) {
-									break;
-								}
-							}
-						}
-						add_blob(blobs,vin,vout);
-					}
-					// Fourth Step: Look for other blobs to the left within direction threshold
-					if (left < parameters.getHorizontalContourThreshold()) {
-						for (; left < two_pi-right; left += parameters.getHorizontalDirectionStep()) {
-							Velocity vop = vo.mkTrk(current_trk-left);
-							own.setAirVelocity(vop);
-							LossData los = detector.get().conflictDetectionWithTrafficState(own,intruder,0.0,parameters.getLookaheadTime());
-							if (los.conflict()) {
-								vin.addFirst(po.linear(vop,los.getTimeIn()));
-								vout.addLast(po.linear(vop,los.getTimeOut()));
-							} else {
-								add_blob(blobs,vin,vout);
-								if (left >= parameters.getHorizontalContourThreshold()) {
-									break;
-								}
-							}
-						}
-						add_blob(blobs,vin,vout);
-					} 
+					detector.get().horizontalContours(blobs,ownship,intruder,
+							parameters.getHorizontalContourThreshold(), 
+							parameters.getLookaheadTime());
 				} else {
 					return 1;
 				}
@@ -604,6 +513,40 @@ public class DaidalusCore {
 		}
 		return 0;
 	} 
+
+	/* idx is a 0-based index in the list of traffic aircraft
+	 * returns 1 if detector of traffic aircraft
+	 * returns 2 if corrective alerter level is not set
+	 * returns 3 if alerter of traffic aircraft is out of bands
+	 * otherwise, if there are no errors, returns 0 and the answer is in blobs
+	 */
+	public int horizontal_hazard_zone(List<Position> haz, int idx, int alert_level, 
+			boolean loss, boolean from_ownship) {
+		TrafficState intruder = traffic.get(idx);
+		int alerter_idx = alerter_index_of(intruder);
+		if (1 <= alerter_idx && alerter_idx <= parameters.numberOfAlerters()) {
+			Alerter alerter = parameters.getAlerterAt(alerter_idx);
+			if (alert_level == 0) {
+				alert_level = parameters.correctiveAlertLevel(alerter_idx);
+			}
+			if (alert_level > 0) {
+				Optional<Detection3D> detector = alerter.getDetector(alert_level);
+				if (detector.isPresent()) {
+					detector.get().horizontalHazardZone(haz,
+							(from_ownship ? ownship : intruder),
+							(from_ownship ? intruder : ownship),
+							(loss ? 0 : alerter.getLevel(alert_level).getAlertingTime()));
+				} else {
+					return 1;
+				}
+			} else {
+				return 2;
+			}
+		} else {
+			return 3;
+		}
+		return 0;
+	}
 
 	/**
 	 * Requires 0 <= conflict_region < CONFICT_BANDS
@@ -633,10 +576,9 @@ public class DaidalusCore {
 							alerting_hysteresis.getLastValue() == alert_level) {
 						alerting_time = alerter.getLevel(alert_level).getEarlyAlertingTime();
 					}
-					alerting_time = Util.min(parameters.getLookaheadTime(),alerting_time);
 					ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0,parameters.getLookaheadTime());
 					if (det.conflict()) {
-						if (det.getTimeIn() == 0 || det.getTimeIn() < alerting_time) {
+						if (det.conflictBefore(alerting_time)) {
 							acs_conflict_bands_.get(conflict_region).add(new IndexLevelT(ac,alert_level,parameters.getLookaheadTime()));
 						} 
 						tin = Util.min(tin,det.getTimeIn());
@@ -763,11 +705,10 @@ public class DaidalusCore {
 					alerting_hysteresis.getLastValue() == alert_level) {
 				alerting_time = athr.getEarlyAlertingTime();
 			}
-			alerting_time = Util.min(parameters.getLookaheadTime(),alerting_time);
 			int epsh = epsilonH(false,intruder);
 			int epsv = epsilonV(false,intruder);
-			ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0,alerting_time);
-			if (det.conflict()) {
+			ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0,parameters.getLookaheadTime());
+			if (det.conflictBefore(alerting_time)) {
 				return true;
 			}
 			if (athr.getHorizontalDirectionSpread() > 0 || athr.getHorizontalSpeedSpread() > 0 || 

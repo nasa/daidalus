@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2012-2019 United States Government as represented by
+ * Copyright (c) 2012-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
 
 package gov.nasa.larcfm.ACCoRD;
+
+import java.util.List;
 
 import gov.nasa.larcfm.Util.*;
 
@@ -30,7 +32,7 @@ public class TCAS3D extends Detection3D {
 	 */
 	public static final TCAS3D A_TCAS3D =
 			new TCAS3D();
-	
+
 	/** Make TCAS3D object with empty Table **/
 	public static TCAS3D make_Empty() {
 		TCAS3D tcas3d = new TCAS3D();
@@ -445,6 +447,51 @@ public class TCAS3D extends Detection3D {
 			return table_.contains(d.table_);
 		}
 		return false;
+	}
+
+	public void horizontalHazardZone(List<Position>haz, TrafficState ownship, TrafficState intruder, double T) {
+		int sl = table_.getSensitivityLevel(ownship.altitude());
+		boolean usehmdf = table_.getHMDFilter();
+		double TAUMOD  = table_.getTAU(sl);
+		double DMOD = Util.max(table_.getDMOD(sl),table_.getHMD(sl));
+		haz.clear();
+		Position po = ownship.getPosition();
+		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
+		Vect3 sD = Horizontal.hmd_tangent_point(DMOD,v);
+		Velocity vD = Velocity.make(sD);
+		if (TAUMOD+T == 0) {
+			CDCylinder.circular_arc(haz,po,vD,2*Math.PI,false);
+		} else {
+			CDCylinder.circular_arc(haz,po,vD,Math.PI,usehmdf);	
+			Position TAU_center = WCV_TAUMOD.TAU_center(po,v,TAUMOD,T);
+			Vect3 vC = v.Scal(0.5*TAUMOD);     // TAUMOD Center (relative)
+			if (usehmdf) {
+				Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
+				Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);
+				double sqa = vDC.sqv2D();
+				double alpha = Util.atan2_safe(vDC.det2D(nvDC)/sqa,vDC.dot2D(nvDC)/sqa);	
+				Velocity velDC = Velocity.make(vDC);
+				CDCylinder.circular_arc(haz,TAU_center,velDC,alpha,true);				
+			} else {
+				Vect3 nsCD=sD.Neg().Sub(vC);
+				Vect3 sCD=sD.Sub(vC);
+				double sqa = sCD.sqv2D();
+				Velocity nvCD = Velocity.make(nsCD);
+				if (T==0) { // Two circles: DMOD and TAUMO. They intersect at +/-vD
+					double alpha = Util.atan2_safe(nsCD.det2D(sCD)/sqa,nsCD.dot2D(sCD)/sqa);	
+					CDCylinder.circular_arc(haz,TAU_center,nvCD,alpha,false);		
+				} else { // Two circles: DMOD and TAUMOD. They intersect at +/- vD. 
+					Vect3 sT = Horizontal.hmd_tangent_point(Math.sqrt(sqa),v);
+					Velocity vT = Velocity.make(sT);
+					Vect3 nsT = sT.Neg();
+					Velocity nvT = Velocity.make(nsT);
+					double alpha = Util.atan2_safe(nsCD.det2D(nsT)/sqa,nsCD.dot2D(nsT)/sqa);	
+					Position TAU_center_0 = WCV_TAUMOD.TAU_center(po,v,TAUMOD,0);
+					CDCylinder.circular_arc(haz,TAU_center_0,nvCD,alpha,true);	
+					CDCylinder.circular_arc(haz,TAU_center,nvT,Math.PI,true);	
+					CDCylinder.circular_arc(haz,TAU_center_0,vT,alpha,false);				}
+			} 			
+		}
 	}
 
 }

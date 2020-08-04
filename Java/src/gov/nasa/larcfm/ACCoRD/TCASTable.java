@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 United States Government as represented by
+ * Copyright (c) 2012-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -566,8 +566,12 @@ public class TCASTable implements ParameterTable {
 		if (levels_.size() != 7) return false;
 		boolean ra = HMDFilter_;
 		for (int i=0; ra && i < 8; ++i) {
-			ra &= (i == 7 || levels_.get(i) == default_levels_[i]) && TAU_.get(i)==RA_TAU_[i] && TCOA_.get(i)==RA_TAU_[i] && 
-					DMOD_.get(i)==RA_DMOD_[i] && ZTHR_.get(i)==RA_ZTHR_[i] && HMD_.get(i)==RA_HMD_[i];
+			ra &= (i == 7 || Util.almost_equals(levels_.get(i),default_levels_[i],DaidalusParameters.ALMOST_)) && 
+					Util.almost_equals(TAU_.get(i),RA_TAU_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(TCOA_.get(i),RA_TAU_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(DMOD_.get(i),RA_DMOD_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(ZTHR_.get(i),RA_ZTHR_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(HMD_.get(i),RA_HMD_[i],DaidalusParameters.ALMOST_);
 		}
 		return ra;
 	}
@@ -577,8 +581,12 @@ public class TCASTable implements ParameterTable {
 		boolean ta = !HMDFilter_;
 		if (levels_.size() != 7) return false;
 		for (int i=0; ta && i < 8; ++i) {
-			ta &= (i == 7 || levels_.get(i) == default_levels_[i]) && TAU_.get(i)==TA_TAU_[i] && TCOA_.get(i)==TA_TAU_[i] && 
-					DMOD_.get(i)==TA_DMOD_[i] && ZTHR_.get(i)==TA_ZTHR_[i] && HMD_.get(i)==TA_DMOD_[i];
+			ta &= (i == 7 || Util.almost_equals(levels_.get(i),default_levels_[i],DaidalusParameters.ALMOST_)) && 
+					Util.almost_equals(TAU_.get(i),TA_TAU_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(TCOA_.get(i),TA_TAU_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(DMOD_.get(i),TA_DMOD_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(ZTHR_.get(i),TA_ZTHR_[i],DaidalusParameters.ALMOST_) && 
+					Util.almost_equals(HMD_.get(i),TA_DMOD_[i],DaidalusParameters.ALMOST_);
 		}
 		return ta;
 	}
@@ -599,8 +607,11 @@ public class TCASTable implements ParameterTable {
 
 	public String toString() {
 		String s = "HMDFilter: "+HMDFilter_;
-		if (isRAStandard()) s = s+"; (RA vals) ";
-		else if (isTAStandard()) s= s+"; (TA vals) ";
+		if (isRAStandard()) {
+			s = s+"; (RA vals) ";
+		} else if (isTAStandard()) {
+			s = s+"; (TA vals) ";
+		}
 		//TODO: made this next bit optional?
 		s= s+"; levels: "+list_units(units_.get("TCAS_level"),levels_)+
 				"; TAU: "+list_units(units_.get("TCAS_TAU"),TAU_)+"; TCOA: "+list_units(units_.get("TCAS_TCOA"),TCOA_)+
@@ -755,7 +766,7 @@ public class TCASTable implements ParameterTable {
 		if (!levels_.equals(tab.levels_)) return false;
 		if (HMDFilter_ != tab.HMDFilter_) return false;
 		for (int i=0; i <= levels_.size(); i++) {
-	    if (i < levels_.size() && !Util.almost_equals(levels_.get(i),tab.levels_.get(i))) return false;
+			if (i < levels_.size() && !Util.almost_equals(levels_.get(i),tab.levels_.get(i))) return false;
 			if (!(TAU_.get(i) >= tab.TAU_.get(i) && TCOA_.get(i) >= tab.TCOA_.get(i) && 
 					DMOD_.get(i) >= tab.DMOD_.get(i) && ZTHR_.get(i) >= tab.ZTHR_.get(i) && HMD_.get(i) >= tab.HMD_.get(i))) 
 				return false;

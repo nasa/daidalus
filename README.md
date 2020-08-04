@@ -58,9 +58,9 @@ encounter files are provided in [Java](Java/README.md) and
 For technical information about the definitions and algorithms in this
 repository, visit https://shemesh.larc.nasa.gov/fm/DAIDALUS.
 
-### Current Pre-Release
+### Current Release
 
-Java 2.0.g, June 8, 2020
+v2.0.1, August 4, 2020
 
 ### License
 

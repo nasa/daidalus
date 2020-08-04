@@ -5,10 +5,8 @@
  * Rights Reserved.
  */
 
-import gov.nasa.larcfm.ACCoRD.Alerter;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
-import gov.nasa.larcfm.ACCoRD.Detection3D;
 import gov.nasa.larcfm.Util.ParameterData;
 
 import java.io.*;
@@ -16,22 +14,21 @@ import java.util.*;
 
 public class DaidalusBatch extends DaidalusProcessor {  
 
-    static final int STANDARD = 0;
-    static final int PVS = 1;
+	static final int STANDARD = 0;
+	static final int PVS = 1;
 	static boolean verbose = false;
 	static boolean raw = false;
-    static int format = STANDARD; 
+	static int format = STANDARD; 
 	static PrintWriter out = new PrintWriter(System.out);
 	static String output = "";
 	static double prj_t = 0;
-	static Optional<Detection3D> detector;
 
 	static void printHelpMsg() {
 		System.out.println("Usage:");
 		System.out.println("  DaidalusBatch [flags] files");
 		System.out.println("  flags include:");
 		System.out.println("  --help\n\tPrint this message");
-		System.out.println("  --config <file>\n\tLoad configuration <file>");
+		System.out.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <file>");
 		System.out.println("  --out <file>\n\tOutput information to <file>");
 		System.out.println("  --verbose\n\tPrint extra information");
 		System.out.println("  --raw\n\tPrint raw information");
@@ -96,21 +93,36 @@ public class DaidalusBatch extends DaidalusProcessor {
 			System.out.println("ERROR: "+e);
 		}   
 		DaidalusParameters.setDefaultOutputPrecision(precision);
+
 		Daidalus daa = new Daidalus();
-		daa.set_WC_DO_365();
-		
-		if (!config.equals("")) {
-			daa.loadFromFile(config);
+
+		if (config.equals("")) {
+			// Configure alerters as in DO_365A Phase I and Phase II
+			daa.set_DO_365A();
+		} else if (!daa.loadFromFile(config)) {
+			if (config.equals("no_sum")) {
+				// Configure DAIDALUS as in DO-365, but without SUM
+				daa.set_DO_365A(true,false);
+			} else if (config.equals("nom_a")) {
+				// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+				daa.set_Buffered_WC_DO_365(false);
+			} else if (config.equals("nom_b")) {
+				// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+				daa.set_Buffered_WC_DO_365(true);
+			} else if (config.equals("cd3d")) {
+				// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+				daa.set_CD3D();
+			} else if (config.equals("tcasii")) {
+				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+				daa.set_TCASII();
+			} else {
+				System.err.println("** Error: File "+args[a]+" not found");
+				System.exit(1);
+			}
 		}   
 		if (params.size() > 0) {
 			daa.setParameterData(params);
 		}
-						
-		Alerter alerter = daa.getAlerterAt(1);
-		if (!alerter.isValid()) {
-			return;
-		}
-		detector = alerter.getDetector(1);  
 
 		switch (format) {
 		case STANDARD:

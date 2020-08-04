@@ -51,35 +51,41 @@ class DaidalusExample {
 		System.out.println("## "+Daidalus.release());
 		System.out.println("##\n");
 		boolean verbose = false;
-		
-		// Create a Daidalus object for an unbuffered well-clear volume and instantaneous bands
+
+		// Create an empty Daidalus object
 		Daidalus daa = new Daidalus();
-		
-		// Set a configuration. This can be also done through a file (see example below)
-		daa.set_Buffered_WC_DO_365(true);
 
 		// A Daidalus object can be configured either programmatically or by using a configuration file.
 		for (int a=0;a < argv.length; ++a) {
 			String arga = argv[a];
-			if (arga.equals("--noma") || arga.equals("-noma")) {
-				// Configure DAIDALUS to nominal A parameters: Kinematic Bands, Turn Rate 1.5 [deg/s])
-				daa.set_Buffered_WC_DO_365(false);
-			} else if (arga.equals("--nomb") || arga.equals("-nomb")) {
-				// Configure DAIDALUS to nominal B parameters: Kinematic Bands, Turn Rate 3.0 [deg/s])
-				daa.set_Buffered_WC_DO_365(true);
-			} else if ((arga.startsWith("--conf") || arga.startsWith("-conf")) && a+1 < argv.length) {
+			if ((arga.startsWith("--conf") || arga.startsWith("-conf")) && a+1 < argv.length) {
 				// Load configuration file
 				arga = argv[++a];
-				if (!daa.loadFromFile(arga)) {
-					System.err.println("File "+arga+" not found");
-					System.exit(0);
-				} else {
+				if (daa.loadFromFile(arga)) {
 					System.out.println("Loading configuration file "+arga);
+				} else if (arga.equals("no_sum")) {
+					// Configure DAIDALUS as in DO-365, but without SUM
+					daa.set_DO_365A(true,false);
+				} else if (arga.equals("nom_a")) {
+					// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+					daa.set_Buffered_WC_DO_365(false);
+				} else if (arga.equals("nom_b")) {
+					// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+					daa.set_Buffered_WC_DO_365(true);
+				} else if (arga.equals("cd3d")) {
+					// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+					daa.set_CD3D();
+				} else if (arga.equals("tcasii")) {
+					// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+					daa.set_TCASII();
+				} else {
+					System.err.println("File "+arga+" not found");
+					System.exit(1);
 				}
 			} else if (arga.startsWith("--verb") || arga.startsWith("-verb")) {
 				verbose = true;
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
-				System.err.println("Options: [--noma | --nomb | --config <configuration file> | --verbose | --help]");
+				System.err.println("Options: [ --config [<configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii] | --verbose | --help]");
 				System.exit(0);
 			} else {
 				System.err.println("Unknown option "+arga);
@@ -87,8 +93,14 @@ class DaidalusExample {
 			}
 		}
 
+		if (daa.numberOfAlerters()==0) {
+			// If no alerter has been configured, configure alerters as in 
+			// DO_365A Phase I and Phase II
+			daa.set_DO_365A();			
+		}
+
 		double t = 0.0;
-		
+
 		// for all times t (in this example, only one time step is illustrated)
 		// Add ownship state at time t
 		Position so = Position.makeLatLonAlt(33.95,"deg", -96.7,"deg", 8700.0,"ft");
@@ -100,11 +112,11 @@ class DaidalusExample {
 		// daa.setVerticalPositionUncertainty(0, sz, units);
 		// daa.setHorizontalVelocityUncertainty(0, v_EW, v_NS, v_EN, units);
 		// daa.setVerticalSpeedUncertainty(0, vz, units);
-		
+
 		// In case of multiple alerting logic (assuming ownship_centric is set to true), e.g.,
 		int alerter_idx = 1;
 		daa.setAlerterIndex(0,alerter_idx);
-		
+
 		// Add all traffic states at time t
 		// ... some traffic ...
 		Position si = Position.makeLatLonAlt(33.86191658,"deg", -96.73272601,"deg", 9000.0,"ft"); 
@@ -116,24 +128,24 @@ class DaidalusExample {
 		// daa.setVerticalPositionUncertainty(ac_idx, sz, units_string);
 		// daa.setHorizontalVelocityUncertainty(ac_idx, v_EW, v_NS, v_EN, units_string);
 		// daa.setVerticalSpeedUncertainty(ac_idx, vz, units_string);
-		
+
 		// In case of multiple alerting logic (assuming ownship_centric is set to false), e.g.,
 		alerter_idx = 1;
 		daa.setAlerterIndex(ac_idx,alerter_idx);
-		
+
 		// ... more traffic ...
-		
+
 		// After all traffic has been added ...
 
 		// Set wind vector (TO direction)
 		Velocity wind_vector = Velocity.makeTrkGsVs(45,"deg", 10,"knot", 0,"fpm");
 		daa.setWindVelocityTo(wind_vector);
-		
+
 		// Print Daidalus Object
 		if (verbose) {
 			System.out.println(daa.toString());
 		}
-		
+
 		// Print information about the Daidalus Object
 		System.out.println("Number of Aircraft: "+daa.numberOfAircraft());
 		System.out.println("Last Aircraft Index: "+daa.lastTrafficIndex());
@@ -148,9 +160,13 @@ class DaidalusExample {
 		// Print bands information
 		printBands(daa);
 
-		// Print points of well-clear violation contours, i.e., blobs
-		printContours(daa);
-		
+		if (verbose) {
+			// Print horizontal contours (for display purposes only)
+			printHorizontalContours(daa);
+
+			// Print horizontal hazard zones (for display purposes only)
+			printHorizontalHazardZones(daa);
+		}
 		// go to next time step
 
 	} 
@@ -356,14 +372,14 @@ class DaidalusExample {
 		System.out.println();
 	}
 
-	static void printContours(Daidalus daa) {
+	static void printHorizontalContours(Daidalus daa) {
 		List<List<Position>> blobs = new ArrayList<List<Position>>();
 		// Aircraft at index 0 is ownship
 		for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 			// Compute all contours
 			daa.horizontalContours(blobs,ac_idx);
 			for (List<Position> blob :blobs) {
-				System.out.println("Counter-clockwise Conflict Contour with Aircraft "+daa.getAircraftStateAt(ac_idx).getId()+": ");
+				System.out.println("Counter-clockwise Corrective Contour wrt Aircraft "+daa.getAircraftStateAt(ac_idx).getId()+": ");
 				for (Position pos:blob) {
 					System.out.print(pos.toString()+" ");
 				}
@@ -372,4 +388,24 @@ class DaidalusExample {
 		}
 	}
 
+	static void printHorizontalHazardZones(Daidalus daa) {
+		List<Position> haz = new ArrayList<Position>();
+		// Aircraft at index 0 is ownship
+		for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
+			// Compute hazard zone (violation)
+			daa.horizontalHazardZone(haz,ac_idx,true,true); // Violation
+			System.out.println("Counter-clockwise Corrective Hazard Zone wrt Aircraft "+daa.getAircraftStateAt(ac_idx).getId()+": ");
+			for (Position pos:haz) {
+				System.out.print(pos.toString()+" ");
+			}
+			System.out.println();
+			// Compute hazard zone (conflict)
+			daa.horizontalHazardZone(haz,ac_idx,false,true); // Conflict
+			System.out.println("Counter-clockwise Corrective Hazard Zone (with alerting time) wrt Aircraft "+daa.getAircraftStateAt(ac_idx).getId()+": ");
+			for (Position pos:haz) {
+				System.out.print(pos.toString()+" ");
+			}
+			System.out.println();
+		}
+	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 United States Government as represented by
+ * Copyright (c) 2013-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -80,7 +80,7 @@ public class ParameterData {
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
 		for (String key : parameters.keySet()) {
-			p.parameters.put(prefix+key, new ParameterEntry(parameters.get(key))); // make sure this is a copy
+			p.parameters.put(prefix+key, ParameterEntry.make(parameters.get(key))); // make sure this is a copy
 		}
 		return p;
 	}
@@ -96,7 +96,7 @@ public class ParameterData {
 		ParameterEntry pe = parameters.get(key);
 		
 		if (pe != null) {
-			p.parameters.put(key, new ParameterEntry(pe));
+			p.parameters.put(key, ParameterEntry.make(pe));
 		}
 		return p;		
 	}
@@ -118,7 +118,7 @@ public class ParameterData {
 		for (String key : parameters.keySet()) {
 			String keylc = key.toLowerCase();
 			if (keylc.indexOf(prefixlc) == 0) {
-				p.parameters.put(key.substring(prefix.length()), new ParameterEntry(parameters.get(key))); // make sure this is a copy
+				p.parameters.put(key.substring(prefix.length()), ParameterEntry.make(parameters.get(key))); // make sure this is a copy
 			}
 		}
 		return p;		
@@ -138,7 +138,7 @@ public class ParameterData {
 		for (String key : parameters.keySet()) {
 			String keylc = key.toLowerCase();
 			if (!keylc.startsWith(prefixlc)) {
-				p.parameters.put(key, new ParameterEntry(parameters.get(key))); // make sure this is a copy
+				p.parameters.put(key, ParameterEntry.make(parameters.get(key))); // make sure this is a copy
 			}
 		}
 		return p;		
@@ -159,7 +159,7 @@ public class ParameterData {
 			ParameterEntry pe = parameters.get(key);
 		
 			if (pe != null) {
-				p.parameters.put(key, new ParameterEntry(pe));
+				p.parameters.put(key, ParameterEntry.make(pe));
 			}
 		}
 		return p;		
@@ -190,8 +190,7 @@ public class ParameterData {
 	}
 
 	/** 
-	 * Will set methods update the units in the database, or will the units
-	 * in the database be preserved?
+	 * Will the units in the database will be updated if a subsequent set operation changes them.
 	 * @return true, if the units in the database will be preserved when a set method is called.
 	 */
 	public boolean isPreserveUnits() {
@@ -199,13 +198,11 @@ public class ParameterData {
 	}
 
 	/**
-	 * If true, then all subsequent calls to "set.." methods will not update 
+	 * Controls whether all subsequent calls to "set.." methods will update 
 	 * the units in the database to the units supplied through a "set.." method.
-	 * The only exception is if the units in the database are "unspecified" then
-	 * the units in the database will be updated with the value of units supplied through 
-	 * a "set.." method.
+	 * The "unspecified" unit is never preserved.
 	 * 
-	 * @param v true when the units in the database should be preserved
+	 * @param v If true, then the units in the database should be preserved
 	 */
 	public void setPreserveUnits(boolean v) {
 		preserveUnits = v;
@@ -223,7 +220,7 @@ public class ParameterData {
 	}
 
 	/**
-	 * Will set methods disallow updating a unit if the new unit is incompatible with the
+	 * Controls whether set methods disallow updating a unit if the new unit is incompatible with the
 	 * old unit.  Meters and feet are compatible, whereas meters and kilograms are not.
 	 * Most of the time, one wants the enforcement that compatible units are required,
 	 * but there may be some situations where this is undesired.
@@ -452,7 +449,6 @@ public class ParameterData {
 		return (long) getValue(key);
 	}
 
-
 	/**
 	 * Put entry in parameter map
 	 * @param key key name
@@ -462,23 +458,49 @@ public class ParameterData {
 	 * @return true, if parameter was added successfully
 	 */
 	private boolean putParam(String key, Pair<Boolean, ParameterEntry> entry) {
-		boolean perform_conversion = entry.first;
-		ParameterEntry newEntry = entry.second;
+		boolean perform_conversion;
+		ParameterEntry newEntry;
+		if (entry == null) {
+			perform_conversion = false;
+			newEntry = null; // should cause an false to be returned from putParam()
+		} else {
+			perform_conversion = entry.first;
+			newEntry = entry.second;			
+		}
+		
+		return putParam(key, perform_conversion, newEntry);
+	}
 
+	/**
+	 * Put entry in parameter map
+	 * @param key key name
+	 * @param perform_conversion When the perform_conversion flag is false, it says that the
+	 * the value is already in internal units, so no conversion is necessary.
+	 * @param newEntry  A value is just a 
+	 * structure holding the value of the key.  
+	 * @return true, if parameter was added successfully
+	 */
+	private boolean putParam(String key, boolean perform_conversion, ParameterEntry newEntry) {
+		if (newEntry == null) {
+			return false;  // debatable, what does adding nothing mean?
+		}
 		boolean compatible = true;
 		if (parameters.containsKey(key)) {
 			ParameterEntry oldEntry = parameters.get(key);
 			newEntry.order = oldEntry.order; // preserve original order
-			if (!Units.isCompatible(newEntry.units,oldEntry.units)) {
+			if ( ! Units.isCompatible(newEntry.units,oldEntry.units)) {
 				compatible = false;
 			} else {
+				if (newEntry.comment.isEmpty()) {
+					newEntry.comment = oldEntry.comment;
+				}
 				if (newEntry.units.equals("unspecified")) {
 					newEntry.units = oldEntry.units;
 					if (perform_conversion) {
 						newEntry.dval = Units.from(oldEntry.units,newEntry.dval);
 						//do NOT change the string ("newEntry.sval").  The parameter coming in may not be a double value, it may be a list or a name
 					} 
-				} else if (isPreserveUnits()) { // newEntry.units != "unspecified"
+				} else if (isPreserveUnits()) { 
 					if ( ! oldEntry.units.equals("unspecified")) {
 						newEntry.units = oldEntry.units;
 					} 
@@ -578,7 +600,7 @@ public class ParameterData {
 	 */
 	public boolean setBool(String key, boolean value) {
 		ParameterEntry newEntry = ParameterEntry.makeBoolEntry(value);
-		return putParam(key,Pair.make(Boolean.FALSE,newEntry));		
+		return putParam(key,false,newEntry);		
 	}
 
 	/** Associates true value with a parameter key. 
@@ -611,7 +633,7 @@ public class ParameterData {
 	 */
 	public boolean setInt(String key, int value) {
 		ParameterEntry newEntry = ParameterEntry.makeIntEntry(value);
-		return putParam(key,Pair.make(Boolean.FALSE,newEntry));		
+		return putParam(key,false,newEntry);		
 	}
 
 	/** Associates a value (in the given units) with a parameter key. If the supplied units
@@ -629,7 +651,7 @@ public class ParameterData {
 	public boolean set(String key, double value, String units) {
 		units = Units.clean(units);
 		ParameterEntry newEntry = ParameterEntry.makeDoubleEntry(Units.from(units,value),units,Constants.get_output_precision());
-		return putParam(key,Pair.make(Boolean.TRUE,newEntry));
+		return putParam(key,true,newEntry); //Pair.make(Boolean.TRUE,newEntry));
 	}
 
 	/** Associates a value (in internal units) with a parameter key. How the units in the database
@@ -658,7 +680,7 @@ public class ParameterData {
 	public boolean setInternal(String key, double value, String units, int prec) {
 		units = Units.clean(units);
 		ParameterEntry newEntry = ParameterEntry.makeDoubleEntry(value,units,prec);
-		return putParam(key,Pair.make(Boolean.FALSE,newEntry));
+		return putParam(key,false,newEntry);
 	}
 
 	/**
@@ -672,11 +694,10 @@ public class ParameterData {
 	 */
 	public boolean updateUnit(String key, String unit) {
 		ParameterEntry entry = parameters.get(key);
-		if (Units.isUnit(unit) && entry != null && ! entry.units.equals(unit) &&
+		if (unit != null && Units.isUnit(unit) && entry != null && ! entry.units.equals(unit) &&
 				Units.isCompatible(entry.units,unit) &&
 				!unit.equals("unspecified")) {
 			entry.units = unit;
-			//entry.set_sval();
 			return true;
 		} else {
 			return false;
@@ -738,49 +759,26 @@ public class ParameterData {
 	 * @param plist list of keys
 	 * @param overwrite if a parameter key exists in both this object and p, if overwrite is true 
 	 * 	then p's value will be used, otherwise this object's value will be used
-	 * @param merge if true, then if the comment or units fields are blank in p, they are replaced with values in this object
+	 * @param merge if true, then (assuming overwrite is true) if the comment or units fields are blank in p, 
+	 *    they are replaced with values in this object
 	 */
-	private void listCopy(ParameterData p, List<String> plist, boolean overwrite, boolean merge) {
+	private void listCopy(ParameterData p, List<String> plist, boolean overwrite) {
 		for (String key: plist) {
 			if (overwrite || ! contains(key)) {
-				ParameterEntry entry = p.parameters.get(key);
-				if (entry != null) {
-					ParameterEntry en2 = new ParameterEntry(entry);
-					if (parameters.containsKey(key)) {
-						ParameterEntry entryOrig = parameters.get(key);
-						en2.order = entryOrig.order; // preserve original entry ordering
-						if (merge) {
-							if (en2.comment.equals("")) {
-								en2.comment = entryOrig.comment;
-							}
-							if (en2.units.equals("unspecified")) {
-								en2.units = entryOrig.units;
-							}
-						}
-					}
-					parameters.put(key, en2);
-				}
+				ParameterEntry entry = ParameterEntry.make(p.parameters.get(key));
+				putParam(key, false, entry); 
 			}
 		}
 	}
 
 	/**
-	 * Copy a ParameterData object into this object.  That is, A.copy(B,true) means A &lt;--- B.
+	 * Copy a ParameterData object into this object.  That is, A.copy(B,true) means A &lt;--- B.  If either units or comments are not
+	 * defined in B, then the values in A are used.
 	 * @param p source ParameterData
 	 * @param overwrite if true and a key exists in both this object and p, then use p's value, otherwise keep the original value
 	 */
 	public void copy(ParameterData p, boolean overwrite) {
-		copy(p,overwrite,false); 
-	}
-
-	/**
-	 * Copy a ParameterData object into this object with an optional merge.  That is, A.copy(B,true,false) means A &lt;--- B.
-	 * @param p source ParameterData
-	 * @param overwrite if true and a key exists in both this object and p, then use p's value, otherwise keep the original value
-	 * @param merge if true, then if the comment or units fields are blank in p, they are replaced with values in this object
-	 */	
-	public void copy(ParameterData p, boolean overwrite, boolean merge) {
-		listCopy(p,p.getKeyListEntryOrder(),overwrite, merge); // preserve entry ordering (if necessary)
+		listCopy(p,p.getKeyListEntryOrder(),overwrite); // preserve entry ordering (if necessary)
 	}
 
 	/**

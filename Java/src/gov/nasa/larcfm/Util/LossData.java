@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 United States Government as represented by
+ * Copyright (c) 2014-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -20,7 +20,7 @@ public class LossData {
 	final public double  time_out;                  // relative time to the exit from loss of separation	
 
 	public static final LossData EMPTY = new LossData();
-	
+
 	public LossData(double tin, double tout) {
 		time_in = tin;
 		time_out = tout;
@@ -35,14 +35,31 @@ public class LossData {
 	 * Returns true if loss
 	 */
 	public boolean conflict() {
-		return time_in < time_out && !Util.almost_equals(time_in,time_out); //[CAM] Added to avoid numerical instability  
+		return Util.almost_less(time_in,time_out); 
+	}
+
+	/**
+	 * Returns true if loss occurs before t in seconds
+	 */
+	public boolean conflictBefore(double t) {
+		return // Zero is special since loss intervals are cut at 0
+				(time_in == 0 || Util.almost_less(time_in,t)) &&
+				Util.almost_less(time_in,time_out);
 	}
 
 	/**
 	 * Returns true if loss last more than thr in seconds
 	 */
-	public boolean conflict(double thr) {
+	public boolean conflictLastMoreThan(double thr) {
 		return conflict() && (time_out - time_in >= thr);
+	}
+
+	/**
+	 * DEPRECATED -- Use conflictLastMoreThan instead
+	 */
+	@Deprecated
+	public boolean conflict(double thr) {
+		return conflictLastMoreThan(thr);
 	}
 
 	/**

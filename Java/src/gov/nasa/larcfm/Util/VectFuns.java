@@ -6,7 +6,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  
  * 
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -314,18 +314,15 @@ public final class VectFuns {
 		Vect2 vi = vi3.vect2();
 		Vect2 ds = si.Sub(so);
 		if (vo.det(vi) == 0) {
-			//f.pln(" $$$ intersection: lines are parallel vo="+vo+" vi="+vi);
 			return new Pair<Vect3,Double>(Vect3.ZERO, Double.NaN); //Don't change this to (so,0.0) 
 		}
 		double tt = ds.det(vi)/vo.det(vi);
-		//f.pln(" $$$ intersection: tt = "+tt);
-		Vect3 intersec = so3.Add(vo3.Scal(tt));
+		Vect3 intersec = so3.AddScal(tt,vo3); //so3.Add(vo3.Scal(tt));
 		double nZ = intersec.z();
 		double maxZ = Util.max(so3.z,si3.z);
 		double minZ = Util.min(so3.z,si3.z);			
 		if (nZ > maxZ) nZ = maxZ;
 		if (nZ < minZ) nZ = minZ;	
-		//f.pln("intersection nz="+nZ);		
 		return new Pair<Vect3,Double>(intersec.mkZ(nZ),tt);
 	}
 

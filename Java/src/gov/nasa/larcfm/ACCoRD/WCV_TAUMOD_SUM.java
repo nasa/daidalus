@@ -1,5 +1,5 @@
 /*
-> * Copyright (c) 2012-2019 United States Government as represented by
+> * Copyright (c) 2012-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -33,7 +33,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	private boolean h_vel_z_score_max_enabled_; // True if value has been set independently. Otherwise,
 	// value will be overwritten using global parameter
 	private double  h_vel_z_distance_;          // Distance at which h_vel_z_score scales from min to max as range decreases
-	private String  h_vel_z_distance_units_;    // Distance at which h_vel_z_score scales from min to max as range decreases
+	private String  h_vel_z_distance_units_;    // Units of distance at which h_vel_z_score scales from min to max as range decreases
 	private boolean h_vel_z_distance_enabled_;  // True if value has been set independently. Otherwise,
 	// value will be overwritten using global parameter
 	private double  v_pos_z_score_;             // Number of vertical position standard deviations
@@ -73,6 +73,27 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		super(tab);
 		initSUM();
 	}
+
+	/**
+	 * @return DO-365 Phase I (en-route) preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft,
+	 * TTHR=35s, TCOA=0, with SUM
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_Phase_I_preventive =
+			new WCV_TAUMOD_SUM(WCVTable.DO_365_Phase_I_preventive);
+
+	/**
+	 * @return DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
+	 * TTHR=35s, TCOA=0, with SUM
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_I = 
+			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_I);
+
+	/**
+	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
+	 * TTHR=0s, TCOA=0, with SUM
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_II = 
+			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_II);
 
 	private void copyFrom(WCV_TAUMOD_SUM wcv) {
 		id = wcv.id;

@@ -1,7 +1,7 @@
 /* 
  * StateReader
  *
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -19,6 +19,7 @@ import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.ParameterProvider;
 import gov.nasa.larcfm.Util.ParameterReader;
 import gov.nasa.larcfm.Util.Position;
+import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Triple;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
@@ -208,7 +209,7 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 				head.set(VS_VZ, input.findHeading("vs", "vz", "verticalspeed", "hdot"));
 				head.set(TM_CLK, input.findHeading("clock", "time", "tm", "st"));
 
-				// set accuracy parameters
+				// set accuracy parameters (don't use UtilParameters due to plan inclusion)
 				if (getParametersRef().contains("horizontalAccuracy")) {
 					Constants.set_horizontal_accuracy(getParametersRef().getValue("horizontalAccuracy","m"));
 				}
@@ -218,6 +219,10 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 				if (getParametersRef().contains("timeAccuracy")) {
 					Constants.set_time_accuracy(getParametersRef().getValue("timeAccuracy","s"));
 				}
+				if (getParametersRef().contains("Projection.projectionType")) {
+					Projection.setProjectionType(Projection.getProjectionTypeFromString(getParametersRef().getString("Projection.projectionType")));
+				}
+
 
 				if (getParametersRef().contains("filetype")) {
 					String sval = getParametersRef().getString("filetype");

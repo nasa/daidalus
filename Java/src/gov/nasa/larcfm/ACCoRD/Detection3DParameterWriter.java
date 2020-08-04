@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 United States Government as represented by
+ * Copyright (c) 2015-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -10,6 +10,7 @@ package gov.nasa.larcfm.ACCoRD;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.f;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -38,6 +39,9 @@ public class Detection3DParameterWriter {
 	 * @param ordered true to modify detection identifiers to ensure they retain the input list's ordering when decoded, false will only modify identifiers if they are not unique
 	 */
 	public static ParameterData writeCoreDetection(List<Detection3D> dlist, Detection3D det, Detection3D res, boolean ordered) {
+		if (dlist == null) {
+			dlist = new ArrayList<Detection3D>();
+		}
 		// make sure det and res are in the list, if necessary
 		if (det != null && !dlist.contains(det)) {
 			dlist.add(det);

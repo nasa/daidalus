@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 United States Government as represented by
+ * Copyright (c) 2015-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -17,7 +17,9 @@ public interface ParameterProvider {
 	public ParameterData getParameters();
 	
 	/**
-	 * Modify an existing ParameterData object (the supplied object 'p') to include this object's parameters.  Duplicate keys are assumed to be overwritten.
+	 * Modify an existing ParameterData object (the supplied object 'p') to include this object's parameters.  
+	 * Duplicate keys are overwritten.
+	 * 
 	 * @param p database of parameters, primarily an output
 	 */
 	public void updateParameterData(ParameterData p);

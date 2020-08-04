@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -95,11 +95,11 @@ public class Daidalus implements GenericStateBands {
 	/* Constructors */
 
 	/** 
-	 * Construct a Daidalus object with a default set of parameters.
-	 * NOTE THAT NO ALERTER IS SPECIFIED BY DEFAULT. 
-	 * USE set_WC_DO_365() or set_Buffered_WC_DO_365(..) or even better, load a configuration file,
-	 * to obtain some predefined configuration.
-	 */
+	 * Construct an empty Daidalus object.
+	 * NOTE: This object doesn't have any alert configured. Alerters can be
+	 * configured either programmatically, set_DO_365A(true,true) or
+	 * via a configuration file with the method loadFromFile(configurationfile)
+	 **/
 	public Daidalus() {
 		core_ = new DaidalusCore();
 		hdir_band_ = new DaidalusDirBands();
@@ -147,20 +147,62 @@ public class Daidalus implements GenericStateBands {
 
 	/*  
 	 * Set Daidalus object such that 
-	 * - Alerting thresholds are unbuffered as defined in RTCA DO-365.
-	 * - Maneuver guidance logic assumes instantaneous maneuvers
-	 * - Bands saturate at DMOD/ZTHR
+	 * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
+	 * - Maneuver guidance logic assumes kinematic maneuvers
+	 * - Turn rate is set to 3 deg/s
+	 * - Configure Sensor Uncertainty Migitation (SUM) 
+	 * - Bands don't saturate until NMAC
 	 */
-	public void set_WC_DO_365() {
+	public void set_DO_365A() {
+		set_DO_365A(true,true);
+	}
+
+	/*  
+	 * Set Daidalus object such that 
+	 * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
+	 * - Maneuver guidance logic assumes kinematic maneuvers
+	 * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
+	 *   when type is false.
+	 * - Configure Sensor Uncertainty Migitation (SUM) when sum is true  
+	 * - Bands don't saturate until NMAC
+	 */
+	public void set_DO_365A(boolean type, boolean sum) {
 		clearAlerters();
-		addAlerter(Alerter.DWC_Phase_I);
+		if (sum) {
+			addAlerter(Alerter.DWC_Phase_I_SUM);
+			addAlerter(Alerter.DWC_Phase_II_SUM);
+		} else {
+			addAlerter(Alerter.DWC_Phase_I);
+			addAlerter(Alerter.DWC_Phase_II);			
+		}
 		setCorrectiveRegion(BandsRegion.MID);
-		setInstantaneousBands();
-		disableHysteresis();
-		setCollisionAvoidanceBands(false);
-		setCollisionAvoidanceBandsFactor(0.0);
+		setKinematicBands(type);
+		setCollisionAvoidanceBands(true);
+		setCollisionAvoidanceBandsFactor(0.1);
 		setMinHorizontalRecovery(0.66,"nmi");
 		setMinVerticalRecovery(450,"ft");
+		//setVerticalRate(1000,"fpm");
+		setIntruderCentricAlertingLogic();
+		/** Set hysteresis parameters **/
+		setHysteresisTime(5.0);
+		setPersistenceTime(4.0);
+		setBandsPersistence(true);
+		setPersistencePreferredHorizontalDirectionResolution(15,"deg");
+		setPersistencePreferredHorizontalSpeedResolution(100,"knot");
+		setPersistencePreferredVerticalSpeedResolution(250,"fpm");
+		setPersistencePreferredAltitudeResolution(250,"ft");
+		setAlertingMofN(2,4);
+		/** Set SUM parameters **/
+		setHorizontalPositionZScore(1.5);
+		setHorizontalVelocityZScoreMin(0.5);
+		setHorizontalVelocityZScoreMax(1.0);
+		setHorizontalVelocityZDistance(5,"nmi");
+		setVerticalPositionZScore(0.75);
+		setVerticalSpeedZScore(1.5);
+		/** Set DTA parameters **/
+		setDTARadius(4.2,"nmi");
+		setDTAHeight(2000,"ft");
+		setDTAAlerter(2);
 	}
 
 	/*  
@@ -176,7 +218,6 @@ public class Daidalus implements GenericStateBands {
 		addAlerter(Alerter.Buffered_DWC_Phase_I);
 		setCorrectiveRegion(BandsRegion.MID);
 		setKinematicBands(type);
-		disableHysteresis();
 		setCollisionAvoidanceBands(true);
 		setCollisionAvoidanceBandsFactor(0.1);
 		setMinHorizontalRecovery(1.0,"nmi");
@@ -196,6 +237,23 @@ public class Daidalus implements GenericStateBands {
 		setInstantaneousBands();
 		setCollisionAvoidanceBands(true);
 		setCollisionAvoidanceBandsFactor(0.1);
+		setMinHorizontalRecovery(0.66,"nmi");
+		setMinVerticalRecovery(450,"ft");
+	}
+
+	/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to 
+	 * ideal TCASII */
+	public void set_TCASII() {
+		clearAlerters();
+		addAlerter(Alerter.TCASII);
+		setLookaheadTime(60);
+		setCorrectiveRegion(BandsRegion.NEAR);
+		setKinematicBands(true);
+		setVerticalRate(1500,"fpm");
+		setCollisionAvoidanceBands(true);
+		setCollisionAvoidanceBandsFactor(0.1);
+		setMinHorizontalRecovery(0);
+		setMinVerticalRecovery(0);
 	}
 
 	/**
@@ -652,16 +710,21 @@ public class Daidalus implements GenericStateBands {
 		return core_.mostUrgentAircraft();
 	}
 
-	/* Computation of contours, a.k.a. blobs */
+	/* Computation of contours, a.k.a. blobs, and hazard zones */
 
 	/**
 	 * Computes horizontal contours contributed by aircraft at index idx, for 
-	 * given alert level. A contour is a non-empty list of points in counter-clockwise 
-	 * direction representing a polygon.   
-	 * @param blobs list of direction contours returned by reference.
+	 * given alert level. A contour is a list of points in counter-clockwise 
+	 * direction representing a polygon. Last point should be connected to first one.
+	 * The computed polygon should only be used for display purposes since it's merely an
+	 * approximation of the actual contours defined by the violation and detection methods.
+	 * @param blobs list of horizontal contours returned by reference.
 	 * @param ac_idx is the index of the aircraft used to compute the contours.
+	 * @param alert_level is the alert level used to compute detection. The value 0
+	 * indicate the alert level of the corrective region.
 	 */
 	public void horizontalContours(List<List<Position>>blobs, int ac_idx, int alert_level) {
+		blobs.clear();
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			int code = core_.horizontal_contours(blobs,ac_idx-1,alert_level);
 			switch (code) {
@@ -681,14 +744,104 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
-	 * Computes horizontal contours contributed by aircraft at index ac_idx, the alert level 
-	 * corresponding to the corrective region. A contour is a non-empty list of points in 
-	 * counter-clockwise direction representing a polygon.   
-	 * @param blobs list of direction contours returned by reference.
+	 * Computes horizontal contours contributed by aircraft at index ac_idx, for the alert level 
+	 * corresponding to the corrective region. A contour is a list of points in 
+	 * counter-clockwise direction representing a polygon. Last point should be connected to 
+	 * first one.  
+	 * The computed polygon should only be used for display purposes since it's merely an
+	 * approximation of the actual contours defined by the violation and detection methods.
+	 * @param blobs list of horizontal contours returned by reference.
 	 * @param idx is the index of the aircraft used to compute the contours.
 	 */
 	public void horizontalContours(List<List<Position>>blobs, int ac_idx) {
 		horizontalContours(blobs,ac_idx,0);
+	}
+
+	/**
+	 * Computes horizontal contours contributed by aircraft at index idx, for 
+	 * given region. A contour is a list of points in counter-clockwise 
+	 * direction representing a polygon. Last point should be connected to first one.
+	 * The computed polygon should only be used for display purposes since it's merely an
+	 * approximation of the actual contours defined by the violation and detection methods.
+	 * @param blobs list of horizontal contours returned by reference.
+	 * @param ac_idx is the index of the aircraft used to compute the contours.
+	 * @param region is the region used to compute detection. 
+	 */
+	public void horizontalContours(List<List<Position>>blobs, int ac_idx, BandsRegion region) {
+		horizontalContours(blobs,ac_idx,alertLevelOfRegion(ac_idx,region));
+	}
+
+	/**
+	 * Computes horizontal hazard zone around aircraft at index ac_idx, for given alert level. 
+	 * A hazard zone is a list of points in counter-clockwise 
+	 * direction representing a polygon. Last point should be connected to first one.
+	 * @param haz hazard zone returned by reference.
+	 * @param ac_idx is the index of the aircraft used to compute the contours.
+	 * @param loss true means that the polygon represents the hazard zone. Otherwise, 
+	 * the polygon represents the hazard zone with an alerting time. 
+	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed 
+	 * from the intruder's point of view.
+	 * @param alert_level is the alert level used to compute detection. The value 0
+	 * indicate the alert level of the corrective region.
+	 * NOTE: The computed polygon should only be used for display purposes since it's merely an
+	 * approximation of the actual hazard zone defined by the violation and detection methods.
+	 */
+	public void horizontalHazardZone(List<Position> haz, int ac_idx, boolean loss, boolean from_ownship,
+			int alert_level) {
+		haz.clear();
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			int code = core_.horizontal_hazard_zone(haz,ac_idx-1,alert_level,loss,from_ownship);
+			switch (code) {
+			case 1: 
+				error.addError("horizontalHazardZone: detector of traffic aircraft "+ac_idx+" is not set");
+				break;
+			case 2:
+				error.addError("horizontalHazardZone: no corrective alerter level for alerter of "+ac_idx);
+				break;
+			case 3: 
+				error.addError("horizontalHazardZone: alerter of traffic aircraft "+ac_idx+" is out of bounds");
+				break;
+			}
+		} else {
+			error.addError("horizontalHazardZone: aircraft index "+ac_idx+" is out of bounds");			
+		}
+	}
+
+	/**
+	 * Computes horizontal hazard zone around aircraft at index ac_idx, for corrective alert level. 
+	 * A hazard zone is a list of points in counter-clockwise 
+	 * direction representing a polygon. Last point should be connected to first one.
+	 * @param haz hazard zone returned by reference.
+	 * @param ac_idx is the index of the aircraft used to compute the contours.
+	 * @param loss true means that the polygon represents the hazard zone. Otherwise, 
+	 * the polygon represents the hazard zone with an alerting time. 
+	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed 
+	 * from the intruder's point of view.
+	 * NOTE: The computed polygon should only be used for display purposes since it's merely an
+	 * approximation of the hazard zone defined by the violation and detection methods.
+	 */
+	public void horizontalHazardZone(List<Position> haz, int ac_idx, 
+			boolean loss, boolean from_ownship) {
+		horizontalHazardZone(haz,ac_idx,loss,from_ownship,0);
+	}
+
+	/**
+	 * Computes horizontal hazard zone around aircraft at index ac_idx, for given region. 
+	 * A hazard zone is a list of points in counter-clockwise 
+	 * direction representing a polygon. Last point should be connected to first one.
+	 * @param haz hazard zone returned by reference.
+	 * @param ac_idx is the index of the aircraft used to compute the contours.
+	 * @param loss true means that the polygon represents the hazard zone. Otherwise, 
+	 * the polygon represents the hazard zone with an alerting time. 
+	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed 
+	 * from the intruder's point of view.
+	 * @param region is the region used to compute detection. 
+	 * NOTE: The computed polygon should only be used for display purposes since it's merely an
+	 * approximation of the actual hazard zone defined by the violation and detection methods.
+	 */
+	public void horizontalHazardZone(List<Position> haz, int ac_idx, boolean loss, boolean from_ownship,
+			BandsRegion region) {
+		horizontalHazardZone(haz,ac_idx,loss,from_ownship,alertLevelOfRegion(ac_idx,region));
 	}
 
 	/* Setting and getting DaidalusParameters */
@@ -2535,7 +2688,7 @@ public class Daidalus implements GenericStateBands {
 	 * @param alerter_idx Indice of an alerter (starting from 1)
 	 * @return corrective level of alerter at alerter_idx. The corrective level 
 	 * is the first alert level that has a region equal to or more severe than corrective_region.
-	 * Return -1 if alerter_idx is out of range. Return 0 is there is no corrective alert level
+	 * Return -1 if alerter_idx is out of range of if there is no corrective alert level
 	 * for this alerter. 
 	 */
 	public int correctiveAlertLevel(int alerter_idx) {
@@ -2667,8 +2820,9 @@ public class Daidalus implements GenericStateBands {
 	/* Main interface methods */
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to conflict bands for given region.
-	 * 1 = FAR, 2 = MID, 3 = NEAR
+	 * Compute in acs list of aircraft identifiers contributing to conflict bands for given
+	 * conflict bands region.
+	 * 1 = FAR, 2 = MID, 3 = NEAR.
 	 */
 	public void conflictBandsAircraft(List<String> acs, int region) {
 		if (0 < region && region <= BandsRegion.NUMBER_OF_CONFLICT_BANDS) {
@@ -2681,14 +2835,15 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to conflict bands for given region.
+	 * Compute in acs list of aircraft identifiers contributing to conflict bands for given
+	 * conflict bands region.
 	 */
 	public void conflictBandsAircraft(List<String> acs, BandsRegion region) {
 		conflictBandsAircraft(acs,BandsRegion.orderOfRegion(region));
 	}
 
 	/**
-	 * Return time interval of violation for given bands region
+	 * Return time interval of violation for given conflict bands region
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
 	public Interval timeIntervalOfConflict(int region) {
@@ -2699,7 +2854,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
-	 * Return time interval of violation for given bands region
+	 * Return time interval of violation for given conflict bands region
 	 */
 	public Interval timeIntervalOfConflict(BandsRegion region) {
 		return timeIntervalOfConflict(BandsRegion.orderOfRegion(region));
@@ -2801,7 +2956,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands 
-	 * for given region.
+	 * for given conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
 	public void peripheralHorizontalDirectionBandsAircraft(List<String> acs, int region) {
@@ -2815,7 +2970,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands 
-	 * for given region.
+	 * for given conflict bands region.
 	 */
 	public void peripheralHorizontalDirectionBandsAircraft(List<String> acs, BandsRegion region) {
 		peripheralHorizontalDirectionBandsAircraft(acs,BandsRegion.orderOfRegion(region));
@@ -2950,7 +3105,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands 
-	 * for given region.
+	 * for given conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
 	public void peripheralHorizontalSpeedBandsAircraft(List<String> acs, int region) {
@@ -2964,7 +3119,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands 
-	 * for given region.
+	 * for given conflict bands region.
 	 */
 	public void peripheralHorizontalSpeedBandsAircraft(List<String> acs, BandsRegion region) {
 		peripheralHorizontalSpeedBandsAircraft(acs,BandsRegion.orderOfRegion(region));
@@ -3099,6 +3254,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands 
+	 * for conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
 	public void peripheralVerticalSpeedBandsAircraft(List<String> acs, int region) {
@@ -3112,7 +3268,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands 
-	 * for given region.
+	 * for conflict bands region.
 	 */
 	public void peripheralVerticalSpeedBandsAircraft(List<String> acs, BandsRegion region) {
 		peripheralVerticalSpeedBandsAircraft(acs,BandsRegion.orderOfRegion(region));
@@ -3247,7 +3403,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands 
-	 * for given region.
+	 * for conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
 	public void peripheralAltitudeBandsAircraft(List<String> acs, int region) {
@@ -3261,7 +3417,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands 
-	 * for given region.
+	 * for conflict bands region.
 	 */
 	public void peripheralAltitudeBandsAircraft(List<String> acs, BandsRegion region) {
 		peripheralAltitudeBandsAircraft(acs,BandsRegion.orderOfRegion(region));
@@ -3374,6 +3530,18 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Detects violation of alert thresholds for a given region with an
+	 * aircraft at index ac_idx.
+	 * Conflict data provides time to violation and time to end of violation 
+	 * of alert thresholds of given alert level. 
+	 * @param ac_idx is the index of the traffic aircraft 
+	 * @param region region used to compute detection.
+	 */
+	public ConflictData violationOfAlertThresholds(int ac_idx, BandsRegion region) {
+		return violationOfAlertThresholds(ac_idx,alertLevelOfRegion(ac_idx,region));
+	}
+
+	/**
 	 * Detects violation of corrective thresholds with an aircraft at index ac_idx.
 	 * Conflict data provides time to violation and time to end of violation 
 	 * @param ac_idx is the index of the traffic aircraft 
@@ -3399,6 +3567,65 @@ public class Daidalus implements GenericStateBands {
 			error.addError("timeToCorrectiveVolume: aircraft index "+ac_idx+" is out of bounds");
 			return Double.NaN;
 		}
+	}
+
+	/** 
+	 * @return region corresponding to a given alert level for a particular aircraft.
+	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric 
+	 * logic, then returns the configured region for the alerter level. It returns
+	 * UNKNOWN if the aircraft or the alert level are invalid.
+	 */
+	public BandsRegion regionOfAlertLevel(int ac_idx, int alert_level) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			TrafficState intruder = core_.traffic.get(ac_idx-1);
+			int alerter_idx = core_.alerter_index_of(intruder);
+			if (1 <= alerter_idx && alerter_idx <= core_.parameters.numberOfAlerters()) {
+				Alerter alerter = core_.parameters.getAlerterAt(alerter_idx);
+				if (0 < alert_level && alert_level <= alerter.mostSevereAlertLevel()) {
+					return alerter.getLevel(alert_level).getRegion();
+				} else {
+					error.addError("regionOfAlertLevel: alert_level "+alert_level+" for  "+ac_idx+" is not set");
+				}
+			} else {
+				error.addError("regionOfAlertLevel: alerter of traffic aircraft "+ac_idx+" is out of bounds");
+			}
+		} else {
+			error.addError("regionOfAlertLevel: aircraft index "+ac_idx+" is out of bounds");
+		}
+		return BandsRegion.UNKNOWN;	
+	}
+
+	/** 
+	 * @return alert_level corresponding to a given region for a particular aircraft.
+	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric
+	 * logic, then returns the configured region for the region. It returns -1
+	 * if the aircraft or the alert level are invalid.
+	 * 0 = NONE, 1 = FAR, 2 = MID, 3 = NEAR.
+	 */
+	public int alertLevelOfRegion(int ac_idx, int region) {
+		return alertLevelOfRegion(ac_idx,BandsRegion.regionFromOrder(region));		
+	}
+
+	/** 
+	 * @return alert_level corresponding to a given region for a particular aircraft.
+	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric
+	 * logic, then returns the configured region for the region. It returns -1
+	 * if the aircraft or its alerter are invalid. 
+	 */
+	public int alertLevelOfRegion(int ac_idx, BandsRegion region) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			TrafficState intruder = core_.traffic.get(ac_idx-1);
+			int alerter_idx = core_.alerter_index_of(intruder);
+			if (1 <= alerter_idx && alerter_idx <= core_.parameters.numberOfAlerters()) {
+				Alerter alerter = core_.parameters.getAlerterAt(alerter_idx);
+				return alerter.alertLevelForRegion(region);
+			} else {
+				error.addError("alertLevelOfRegion: alerter of traffic aircraft "+ac_idx+" is out of bounds");
+			}
+		} else {
+			error.addError("alertLevelOfRegion: aircraft index "+ac_idx+" is out of bounds");
+		}
+		return -1;	
 	}
 
 	/* Getting and Setting DaidalusParameters (note that setters stale the Daidalus object) */

@@ -1,15 +1,23 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.g-FormalATM-v2.7.4 (June-8-2020)
+Release:  v2.0.g-FormalATM-v2.7.4 (Agust-4-2020)
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
-Copyright: Copyright (c) 2014 United States Government as represented by 
+Copyright: Copyright (c) 2020 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.
 
-Release DAIDALUS-v2.0.g:
+Release DAIDALUS-v2.0.1:
 ------------------
+August 4, 2020
+
+* Implemented hazard zones (for display purposes only)
+
+Release DAIDALUS-v2.0.g 
+------------------
+June 8, 2020
+
 * DTA logic is fully implemented. When DTA lat,lon, radius, and height
    is provided, DAIDALUS automatically uses dta_alerter accordingly
    to either ownship or intruder centric alerting. When DTA is active,

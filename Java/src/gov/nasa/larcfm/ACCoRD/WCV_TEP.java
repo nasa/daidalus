@@ -1,10 +1,12 @@
 /*
-> * Copyright (c) 2012-2019 United States Government as represented by
+> * Copyright (c) 2012-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
 package gov.nasa.larcfm.ACCoRD;
+import java.util.List;
+
 import gov.nasa.larcfm.Util.*;
 
 /* Horizontal Well Clear Volume concept based on Modified TAU
@@ -87,6 +89,11 @@ public class WCV_TEP extends WCV_tvar {
 			return containsTable((WCV_tvar)cd);
 		}
 		return false;
+	}
+	
+	public void hazard_zone_far_end(List<Position> haz,
+			Position po, Velocity v, Velocity vD, double T) {
+		CDCylinder.circular_arc(haz,po.linear(v,getTTHR()+T),vD.Neg(),Math.PI,true);
 	}
 
 }

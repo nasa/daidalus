@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Various String formatting and console output operations.  */   
 final public class f {
@@ -436,6 +437,36 @@ final public class f {
 	}
 
 
+//	/**
+//	 * Insert additional newlines so that no line is longer than maxWidth characters.  Tries to only add newlines in existing spaces (if possible).
+//	 * @param in
+//	 * @param maxWidth
+//	 * @return
+//	 */
+//	public static String wrapText(String in, int maxWidth) {
+//		List<String> ss = Arrays.asList(in.split("\n"));
+//		int i = 0;
+//		while (i < ss.size()) {
+//			String line = ss.get(i);
+//			if (line.length() > maxWidth) {
+//				int last = line.length()-1;
+//				int j = last;
+//				while (j >= 0 && j > maxWidth) {
+//					j = line.lastIndexOf(' ', last);
+//					last = j-1;
+//				}
+//				if (j < 0) {
+//					j = maxWidth; // just break here
+//				}
+//				String l1 = line.substring(0,j);
+//				String l2 = line.substring(j);
+//				ss.add(i, l1); // add first substring
+//				ss.set(i+1, l2); // replace old string with 2nd substring
+//			}
+//			i++;
+//		}
+//		return ss.stream().collect(Collectors.joining("\n"));
+//	}
 
 
 

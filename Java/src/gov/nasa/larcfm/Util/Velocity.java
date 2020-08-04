@@ -3,7 +3,7 @@
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
  *
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -184,15 +184,18 @@ public final class Velocity extends Vect3 implements OutputList {
   }
   
   public Velocity Neg()  {
-	 return Velocity.make(super.Neg());
+	 //return Velocity.make(super.Neg());
+	 return mkVxyz(-x, -y, -z);
   }
   
-  public Velocity Add(Velocity v)  {
-	 return Velocity.make(super.Add(v));
+  public Velocity Add(Vect3 v)  {
+	 //return Velocity.make(super.Add(v));
+	 return mkVxyz(x+v.x, y+v.y, z+v.z);
   }
 
-  public Velocity Sub(Velocity v)  {
-	 return Velocity.make(super.Sub(v));
+  public Velocity Sub(Vect3 v)  {
+	 //return Velocity.make(super.Sub(v));
+	 return mkVxyz(x-v.x, y-v.y, z-v.z);
   }
 
   /**

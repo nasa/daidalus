@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -11,6 +11,9 @@ package gov.nasa.larcfm.Util;
 import gov.nasa.larcfm.Util.Units;
 import java.util.jar.JarFile;
 
+/** Key parameters for all of Util.  Despite the name, not everything is a constant.
+ * 
+ */
 public class Constants {
 	/**
 	 * String indicating the FormalATM version

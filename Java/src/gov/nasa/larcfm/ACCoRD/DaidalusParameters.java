@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019 United States Government as represented by
+ * Copyright (c) 2015-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -33,7 +33,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.g";
+	public static final String VERSION = "2.0.1";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
@@ -2502,7 +2502,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * @param alerter_idx Indice of an alerter (starting from 1)
 		 * @return corrective level of alerter at alerter_idx. The corrective level 
 		 * is the first alert level that has a region equal to or more severe than corrective_region.
-		 * Return -1 if alerter_idx is out of range. Return 0 is there is no corrective alert level
+		 * Return -1 if alerter_idx is out of range or if there is no corrective alert level
 		 * for this alerter. 
 		 */
 		public int correctiveAlertLevel(int alerter_idx) {

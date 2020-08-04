@@ -36,7 +36,7 @@
  * t_in  : Time to loss of separation
  * t_out : Time to recovery of loss of separation
  * 
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -49,11 +49,14 @@
 package gov.nasa.larcfm.ACCoRD;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import gov.nasa.larcfm.Util.LossData;
 import gov.nasa.larcfm.Util.ParameterData;
+import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
@@ -255,7 +258,7 @@ public class CDCylinder extends Detection3D {
 
 	public static ConflictData conflict_detection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
 		Vect3 s = so.Sub(si);
-		Velocity v = Velocity.make(vo.Sub(vi));
+		Velocity v = vo.Sub(vi);
 		double t_tca = CD3D.tccpa(s, vo, vi, D, H, B, T);
 		double dist_tca = s.linear(v,t_tca).cyl_norm(D, H);
 		LossData ld = CD3D.detection(s,vo,vi,D,H,B,T);
@@ -359,6 +362,39 @@ public class CDCylinder extends Detection3D {
 			return D_ >= cd.D_ && H_ >= cd.H_; 
 		}
 		return false;
+	}
+
+	/* Return a list of point representing a counter-clockwise circular arc centered at pc, 
+	 * whose first point is pc+v(0), and the last one is pc+v(alpha), where alpha is 
+	 * in [0,2*pi]. 
+	 */
+	public static void circular_arc(List<Position> arc, Position pc, Velocity v, 
+			double alpha, boolean include_last) {
+		alpha = Util.almost_equals(alpha,2*Math.PI,DaidalusParameters.ALMOST_) ? alpha :  Util.to_2pi(alpha);
+		double step = Math.PI/180;
+		arc.add(pc.linear(v,1));
+		double current_trk = v.trk();
+		for (double a = step; Util.almost_less(a,alpha,DaidalusParameters.ALMOST_); a += step) {
+			arc.add(pc.linear(v.mkTrk(current_trk-a),1));
+		}
+		if (include_last) {
+			arc.add(pc.linear(v.mkTrk(current_trk-alpha),1));
+		}
+	}
+
+	public void horizontalHazardZone(List<Position> haz, 
+			TrafficState ownship, TrafficState intruder, double T) {
+		haz.clear();
+		Position po = ownship.getPosition();
+		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
+		Vect3 sD = Horizontal.hmd_tangent_point(D_,v);
+		Velocity vD = Velocity.make(sD);
+		if (T == 0) {
+			circular_arc(haz,po,vD,2*Math.PI,false);
+		} else {
+			circular_arc(haz,po,vD,Math.PI,true);	
+			circular_arc(haz,po.linear(v,T),vD.Neg(),Math.PI,true);
+		}
 	}
 
 }

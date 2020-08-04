@@ -24,7 +24,6 @@ public:
 	bool raw;
 	int format;
 	std::ostream* out;
-	bool blobs;
 	double prj_t;
 
 	DaidalusBatch() {
@@ -32,7 +31,6 @@ public:
 		raw = false;
 		format = STANDARD;
 		out = &std::cout;
-		blobs = false;
 		prj_t = 0;
 	}
 
@@ -41,12 +39,11 @@ public:
 		std::cout << "  DaidalusBatch [flags] files" << std::endl;
 		std::cout << "  flags include:" << std::endl;
 		std::cout << "  --help\n\tPrint this message" << std::endl;
-		std::cout << "  --config <file>\n\tLoad configuration <file>" << std::endl;
+		std::cout << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <file>" << std::endl;
+		std::cout << "  --out <file>\n\tOutput information to <file>" << std::endl;
 		std::cout << "  --verbose\n\tPrint extra information" << std::endl;
 		std::cout << "  --raw\n\tPrint raw information" << std::endl;
-		std::cout << "  --out <file>\n\tOutput information to <file>" << std::endl;
 		std::cout << "  --pvs\n\tProduce PVS output format" << std::endl;
-		std::cout << "  --csv\n\tProduce CSV output format" << std::endl;
 		std::cout << "  --project t\n\tLinearly project all aircraft t seconds for computing bands and alerting" << std::endl;
 		std::cout << "  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]" << std::endl;
 		std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;
@@ -136,8 +133,6 @@ int main(int argc, const char* argv[]) {
 			walker.verbose = true;
 		} else if (arga == "--raw" || arga == "-raw" || arga == "-r") {
 			walker.raw = true;
-		} else if (startsWith(arga,"--blob") || startsWith(arga,"-blob")) {
-			walker.blobs = true;
 		} else if (arga == "--pvs" || arga == "-pvs") {
 			walker.format = PVS;
 		} else if (startsWith(arga,"--proj") || startsWith(arga,"-proj")) {
@@ -149,8 +144,8 @@ int main(int argc, const char* argv[]) {
 			std::istringstream(argv[a]) >> precision;
 			options += arga+" ";
 		} else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
-		      std::string keyval = arga.substr(arga.find_last_of('-')+1);
-		      params.set(keyval);
+			std::string keyval = arga.substr(arga.find_last_of('-')+1);
+			params.set(keyval);
 		} else if (argv[a][0] == '-') {
 			std::cout << "Invalid option: " << arga << std::endl;
 			exit(0);
@@ -171,10 +166,31 @@ int main(int argc, const char* argv[]) {
 	}
 	DaidalusParameters::setDefaultOutputPrecision(precision);
 	Daidalus daa;
-	daa.set_WC_DO_365();
+	daa.set_DO_365A();
 
-	if (config != "") {
-		daa.loadFromFile(config);
+	if (config == "") {
+		// Configure alerters as in DO_365A Phase I and Phase II
+		daa.set_DO_365A();
+	} else if (!daa.loadFromFile(config)) {
+		if (config == "no_sum") {
+			// Configure DAIDALUS as in DO-365A, but without SUM
+			daa.set_DO_365A(true,false);
+		} else if (config == "nom_a") {
+			// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+			daa.set_Buffered_WC_DO_365(false);
+		} else if (config == "nom_b") {
+			// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+			daa.set_Buffered_WC_DO_365(true);
+		} else if (config == "cd3d") {
+			// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+			daa.set_CD3D();
+		} else if (config == "tcasii") {
+			// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+			daa.set_TCASII();
+		} else {
+			std::cerr << "** Error: File " << config << "not found" << std::endl;
+			exit(1);
+		}
 	}
 	if (params.size() > 0) {
 		daa.setParameterData(params);
@@ -191,6 +207,8 @@ int main(int argc, const char* argv[]) {
 	case PVS:
 		(*walker.out) << "%%% " << Daidalus::release() << std::endl;
 		(*walker.out) << "%%% Options: " << options << std::endl;
+		break;
+	default:
 		break;
 	}
 	for (unsigned int i=0; i < txtFiles.size(); ++i) {

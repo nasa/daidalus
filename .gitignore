@@ -4,6 +4,7 @@
 *~
 *.old
 .*
+*.pyc
 tmp/
 mold/
 tests/

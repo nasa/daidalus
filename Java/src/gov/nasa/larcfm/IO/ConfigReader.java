@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -7,7 +7,6 @@
 
 package gov.nasa.larcfm.IO;
 
-import gov.nasa.larcfm.Util.Debug;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
@@ -16,14 +15,12 @@ import gov.nasa.larcfm.Util.ParameterReader;
 import gov.nasa.larcfm.Util.Units;
 
 import java.io.Reader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -73,11 +70,10 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	private boolean hasRead;
 	private boolean caseSensitive;
 	private ParameterData pd;
+	private List<String> includeNames;
   
 	private String preambleImage;
-    
-	//private boolean interpretUnits;
-
+ 
     /** A new, empty ConfigReader.  This may be used to store parameters, but nothing else. */
 	public ConfigReader() {
 		error = new ErrorLog("ConfigReader()");
@@ -89,6 +85,8 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		caseSensitive = false;
 		pd = ParameterData.make();
 		preambleImage = "";
+		includeNames = new ArrayList<String>(10);
+		includeNames.add(INCLUDE_FILE);
 	}
 
 	/** 
@@ -105,7 +103,8 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		Reader fr;
 		try {
 			fr = new BufferedReader(new FileReader(filename));
-			open(fr);
+			String srcPath = FileUtil.absolute_path("", filename);
+			open(fr, srcPath);
 			fr.close();
 		} catch (FileNotFoundException e) {
 			error.addError("File "+filename+" read protected or not found");
@@ -124,8 +123,11 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		}
 	}
 	
-	
 	public void open(Reader r) {
+		open(r, "");
+	}
+	
+	public void open(Reader r, String srcPath) {
 		if (r == null) {
 			error.addError("null given for open(Reader)");
 			return;
@@ -135,7 +137,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		si = new SeparatedInput(r);
 		si.setCaseSensitive(caseSensitive);
 		
-		loadfile(si);
+		loadfile(si, srcPath);
 		if (si.hasError()) {
 			error.addError(si.getMessage());
 		}
@@ -149,7 +151,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		}
 	}	
 	
-	private void loadfile(SeparatedInput input) {
+	private void loadfile(SeparatedInput input, String srcPath) {
 		hasRead = false;
 		input.setCaseSensitive(caseSensitive);
       
@@ -193,7 +195,9 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		if ( ! hasRead) {
 			pd.copy(input.getParametersRef(), true);
 		}
-		loadIncludeFile(pd.getString(INCLUDE_FILE));
+		for (String name: includeNames) {
+			loadIncludeFile(FileUtil.file_search(pd.getString(name), srcPath, "."));			
+		}
 		preambleImage = input.getPreambleImage();
 		
 	}
@@ -211,13 +215,20 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		ParameterData p = cr.getParameters();
 		pd.copy(p,false);
 		if (p.contains(INCLUDE_FILE)) {
-			String file2 = pd.getString(INCLUDE_FILE);
+			String file2 = FileUtil.file_search(pd.getString(INCLUDE_FILE), FileUtil.get_path(file), ".");
 			if ( ! file.equals(file2)) {
 				loadIncludeFile(file2);
 			}
 		}
 	}
 
+	
+	public void addIncludeName(String name) {
+		if (name != null && ! name.isEmpty()) {
+			includeNames.add(name);			
+		}
+	}
+	
 	public boolean isCaseSensitive() {
 		return caseSensitive;
 	}

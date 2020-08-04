@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019 United States Government as represented by
+ * Copyright (c) 2018-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -284,8 +284,8 @@ void DaidalusRealBands::peripheral_aircraft(DaidalusCore& core, int conflict_reg
         Detection3D* detector = alerter.getLevel(alert_level).getCoreDetectionPtr();
         double alerting_time = Util::min(core.parameters.getLookaheadTime(),
             alerter.getLevel(alert_level).getAlertingTime());
-        ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,alerting_time);
-        if (!det.conflict() && kinematic_conflict(core.parameters,core.ownship,intruder,detector,
+        ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
+        if (!det.conflictBefore(alerting_time) && kinematic_conflict(core.parameters,core.ownship,intruder,detector,
             core.epsilonH(false,intruder),core.epsilonV(false,intruder),alerting_time,
             core.DTAStatus())) {
           acs_peripheral_bands_[conflict_region].push_back(IndexLevelT(ac,alert_level,alerting_time));
@@ -602,8 +602,7 @@ double DaidalusRealBands::last_time_to_maneuver(DaidalusCore& core, const Traffi
   if (set_input(core.parameters,core.ownship,core.DTAStatus()) && alert_level > 0) {
     const AlertThresholds& alertthr = core.parameters.getAlerterAt(alert_idx).getLevel(alert_level);
     Detection3D* detector = alertthr.getCoreDetectionPtr();
-    double T = Util::min(core.parameters.getLookaheadTime(),alertthr.getEarlyAlertingTime());
-    ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,T);
+    ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
     if (det.conflict()) {
       double pivot_red = det.getTimeIn();
       if (pivot_red == 0) {
@@ -615,7 +614,8 @@ double DaidalusRealBands::last_time_to_maneuver(DaidalusCore& core, const Traffi
         TrafficState ownship_at_pivot  = core.ownship.linearProjection(pivot);
         TrafficState intruder_at_pivot = intruder.linearProjection(pivot);
         if (detector->violationAtWithTrafficState(ownship_at_pivot,intruder_at_pivot,0.0) ||
-            all_red(detector,NULL,0,0,0.0,T,core.parameters,ownship_at_pivot,intruder_at_pivot)) {
+            all_red(detector,NULL,0,0,0.0,core.parameters.getLookaheadTime(),
+                core.parameters,ownship_at_pivot,intruder_at_pivot)) {
           pivot_red = pivot;
         } else {
           pivot_green = pivot;

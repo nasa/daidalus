@@ -1,11 +1,13 @@
 /*
-> * Copyright (c) 2012-2019 United States Government as represented by
+> * Copyright (c) 2012-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
 
 package gov.nasa.larcfm.ACCoRD;
+import java.util.List;
+
 import gov.nasa.larcfm.Util.*;
 
 /* Horizontal Well Clear Volume concept based on Modified TAU
@@ -40,27 +42,34 @@ public class WCV_TAUMOD extends WCV_tvar {
 			new WCV_TAUMOD();
 
 	/**
-	 * @return DO-365 preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft,
+	 * @return DO-365 preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft,
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_Phase_I_preventive =
 			new WCV_TAUMOD(WCVTable.DO_365_Phase_I_preventive);
 
 	/**
-	 * @return DO-365 Well-Clear thresholds, i.e., DTHR=0.66nmi, ZTHR=450ft,
+	 * @return DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_DWC_Phase_I = A_WCV_TAUMOD;
 
 	/**
-	 * @return buffered preventive thresholds, i.e., DTHR=1nmi, ZTHR=750ft,
+	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
+	 * TTHR=0s, TCOA=0.
+	 */
+	public static final WCV_TAUMOD DO_365_DWC_Phase_II = 
+			new WCV_TAUMOD(WCVTable.DO_365_DWC_Phase_II);
+
+	/**
+	 * @return buffered preventive thresholds Phase I (en-route), i.e., DTHR=1nmi, ZTHR=750ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCV_TAUMOD Buffered_Phase_I_preventive =
 			new WCV_TAUMOD(WCVTable.Buffered_Phase_I_preventive);
 
 	/**
-	 * @return buffered Well-Clear thresholds, i.e., DTHR=1.0nmi, ZTHR=450ft,
+	 * @return buffered Well-Clear thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCV_TAUMOD Buffered_DWC_Phase_I =
@@ -122,6 +131,27 @@ public class WCV_TAUMOD extends WCV_tvar {
 			return containsTable((WCV_tvar)cd);
 		}
 		return false;
+	}
+
+	public static Position TAU_center(Position po, Velocity v, double TTHR, double T) {
+		Vect3 nv = v.Scal(0.5*TTHR+T);
+		return po.linear(Velocity.make(nv),1);
+	}
+
+	public static double TAU_radius(Velocity v, double DTHR, double TTHR) {
+		double inside = Util.sq(DTHR) + 0.25*Util.sq(TTHR)*v.sqv();
+		return Util.sqrt_safe(inside);
+	}
+
+	public void hazard_zone_far_end(List<Position> haz,
+			Position po, Velocity v, Velocity vD, double T) {
+		Vect3 vC = v.Scal(0.5*getTTHR());     // TAUMOD Center (relative)
+		Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
+		Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);
+		double sqa = vDC.sqv2D();
+		double alpha = Util.atan2_safe(vDC.det2D(nvDC)/sqa,vDC.dot2D(nvDC)/sqa);	
+		Velocity velDC = Velocity.make(vDC);
+		CDCylinder.circular_arc(haz,TAU_center(po,v,getTTHR(),T),velDC,alpha,true);
 	}
 
 }

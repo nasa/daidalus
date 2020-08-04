@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 United States Government as represented by
+ * Copyright (c) 2019-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -249,7 +249,7 @@ void printBands(Daidalus& daa) {
 	std::cout << std::endl;
 }
 
-void printContours(Daidalus& daa) {
+void printHorizontalContours(Daidalus& daa) {
 	std::vector< std::vector<Position> > blobs;
 	// Aircraft at index 0 is ownship
 	for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
@@ -257,7 +257,7 @@ void printContours(Daidalus& daa) {
 		daa.horizontalContours(blobs,ac_idx);
 		std::vector< std::vector<Position> >::const_iterator blob_ptr;
 		for (blob_ptr = blobs.begin(); blob_ptr != blobs.end(); ++blob_ptr) {
-			std::cout << "Counter-clockwise Conflict Contour with Aircraft " << daa.getAircraftStateAt(ac_idx).getId() << ": " << std::endl;
+			std::cout << "Counter-clockwise Corrective Contour wrt Aircraft " << daa.getAircraftStateAt(ac_idx).getId() << ": " << std::endl;
 			std::vector<Position>::const_iterator pos_ptr;
 			for (pos_ptr = blob_ptr->begin(); pos_ptr != blob_ptr->end(); ++pos_ptr) {
 				std::cout << pos_ptr->toString() << " ";
@@ -267,45 +267,79 @@ void printContours(Daidalus& daa) {
 	}
 }
 
+void printHorizontalHazardZones(Daidalus& daa) {
+	std::vector<Position> haz;
+	// Aircraft at index 0 is ownship
+	for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
+		// Compute hazard zone (violation)
+		daa.horizontalHazardZone(haz,ac_idx,true,true); // Violation
+		std::cout << "Counter-clockwise Corrective Hazard Zone wrt Aircraft " << daa.getAircraftStateAt(ac_idx).getId() << ": " << std::endl;
+		std::vector<Position>::const_iterator pos_ptr;
+		for (pos_ptr = haz.begin(); pos_ptr != haz.end(); ++pos_ptr) {
+			std::cout << pos_ptr->toString() << " ";
+		}
+		std::cout << std::endl;
+		// Compute hazard zone (conflict)
+		daa.horizontalHazardZone(haz,ac_idx,false,true); // Conflict
+		std::cout << "Counter-clockwise Corrective Hazard Zone (with alerting time) wrt Aircraft " << daa.getAircraftStateAt(ac_idx).getId() << ": " << std::endl;
+		for (pos_ptr = haz.begin(); pos_ptr != haz.end(); ++pos_ptr) {
+			std::cout << pos_ptr->toString() << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
 int main(int argc, char* argv[]) {
 	std::cout << "##" << std::endl;
 	std::cout << "## " << Daidalus::release() << std::endl;
 	std::cout << "##\n" << std::endl;
 	bool verbose = false;
 
-	// Create a Daidalus object for an unbuffered well-clear volume and instantaneous bands
+	// Declare an empty Daidalus object
 	Daidalus daa;
-
-	// Set a configuration. This can be also done through a file (see example below)
-	daa.set_Buffered_WC_DO_365(true);
 
 	// A Daidalus object can be configured either programmatically or by using a configuration file.
 	for (int a=1;a < argc; ++a) {
 		std::string arga = argv[a];
-		if (arga == "--noma" || arga == "-noma") {
-			// Configure DAIDALUS to nominal A parameters: Kinematic Bands, Turn Rate 1.5 [deg/s])
-			daa.set_Buffered_WC_DO_365(false);
-		} else if (arga == "--nomb" || arga == "-nomb") {
-			// Configure DAIDALUS to nominal B parameters: Kinematic Bands, Turn Rate 3.0 [deg/s])
-			daa.set_Buffered_WC_DO_365(true);
-		} else if ((startsWith(arga,"--conf") || startsWith(arga,"-conf")) && a+1 < argc) {
+		if ((startsWith(arga,"--conf") || startsWith(arga,"-conf")) && a+1 < argc) {
 			// Load configuration file
 			arga = argv[++a];
-			if (!daa.loadFromFile(arga)) {
-				std::cerr << "File " << arga << "not found" << std::endl;
-				exit(0);
-			} else {
+			if (daa.loadFromFile(arga)) {
 				std::cout << "Loading configuration file " << arga << std::endl;
+			} else if (arga == "no_sum") {
+				// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+				daa.set_DO_365A(true,false);
+			} else if (arga == "nom_a") {
+				// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+				daa.set_Buffered_WC_DO_365(false);
+			} else if (arga == "nom_b") {
+				// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+				daa.set_Buffered_WC_DO_365(true);
+			} else if (arga == "cd3d") {
+				// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+				daa.set_CD3D();
+			} else if (arga == "tcasii") {
+				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+				daa.set_TCASII();
+			} else {
+				std::cerr << "File " << arga << "not found" << std::endl;
+				exit(1);
 			}
 		} else if (startsWith(arga,"--verb") || startsWith(arga,"-verb")) {
 			verbose = true;
 		} else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
-			std::cerr << "Options: [--noma | --nomb | --conf <configuration file> | --help]" << std::endl;
+			std::cerr << "Options: [ --conf [<configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii] | --help]" << std::endl;
 			exit(0);
 		} else {
 			std::cerr << "Unknown option " << arga << std::endl;
 			exit(0);
 		}
+	}
+
+	if (daa.numberOfAlerters()==0) {
+		// If no alerter has been configured, configure alerters as in
+		// DO_365A Phase I and Phase II
+		daa.set_DO_365A();
 	}
 
 	double t = 0.0;
@@ -316,7 +350,7 @@ int main(int argc, char* argv[]) {
 	Velocity vo = Velocity::makeTrkGsVs(206.0,"deg", 151.0,"knot", 0.0,"fpm");
 	daa.setOwnshipState("ownship",so,vo,t);
 
-    // In case of SUM, set uncertainties of ownhip aircraft
+	// In case of SUM, set uncertainties of ownhip aircraft
 	// daa.setHorizontalPositionUncertainty(0, s_EW, s_NS, s_EN, units);
 	// daa.setVerticalPositionUncertainty(0, sz, units);
 	// daa.setHorizontalVelocityUncertainty(0, v_EW, v_NS, v_EN, units);
@@ -333,7 +367,7 @@ int main(int argc, char* argv[]) {
 	int ac_idx = daa.addTrafficState("intruder",si,vi);
 	// ... more traffic ...
 
-    // In case of SUM, set uncertainties of ac_idx'th traffic aircraft
+	// In case of SUM, set uncertainties of ac_idx'th traffic aircraft
 	// daa.setHorizontalPositionUncertainty(ac_idx, s_EW, s_NS, s_EN, units_string);
 	// daa.setVerticalPositionUncertainty(ac_idx, sz, units_string);
 	// daa.setHorizontalVelocityUncertainty(ac_idx, v_EW, v_NS, v_EN, units_string);
@@ -370,9 +404,13 @@ int main(int argc, char* argv[]) {
 	// Print bands information
 	printBands(daa);
 
-	// Print points of well-clear violation contours, i.e., blobs
-	printContours(daa);
+	if (verbose) {
+		// Print horizontal contours (for display purposes only)
+		printHorizontalContours(daa);
 
+		// Print horizontal protected areas (for display purposes only)
+		printHorizontalHazardZones(daa);
+	}
 	// go to next time step
 
 }

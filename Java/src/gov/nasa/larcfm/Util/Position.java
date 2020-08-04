@@ -5,7 +5,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  *
  *
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -1062,7 +1062,7 @@ public final class Position implements OutputList {
 		}
 		double distH = distanceH(p2);
 		double distV = distanceV(p2);
-		//f.pln ("distH "+distH+"  distV "+distV+" D "+D+" H "+H);
+ 		//f.pln ("$$$ Position.LoS: distH = "+distH+",  distV = "+distV+"; D = "+D+" H = "+H);
 		return (distH < D && distV < H);
 	}
 	

@@ -3,7 +3,7 @@
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
  *
- * Copyright (c) 2013-2019 United States Government as represented by
+ * Copyright (c) 2013-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -89,20 +89,6 @@ public class Debug {
 		VERBOSE = level;
 	}
 
-	public static void setBuffer(boolean use) {
-		if (use) {
-			buffer = new StringBuffer(1024);
-		} else {
-			buffer = null;
-		}
-	}
-	
-	public static String getBuffer() {
-		String ret = buffer.toString();
-		buffer.setLength(0);
-		return ret;
-	}
-	
 	/**
 	 * Return the verbosity level
 	 * <ul>
@@ -116,6 +102,20 @@ public class Debug {
 	 */
 	public static int getVerbose() {
 		return VERBOSE;
+	}
+	
+	public static void setBuffer(boolean use) {
+		if (use) {
+			buffer = new StringBuffer(1024);
+		} else {
+			buffer = null;
+		}
+	}
+	
+	public static String getBuffer() {
+		String ret = buffer.toString();
+		buffer.setLength(0);
+		return ret;
 	}
 	
 	// Returns "simpleClassName.MethodName(lineNumber)" of calling method (outside of Debug)
@@ -180,7 +180,7 @@ public class Debug {
 	}
 	
 	/**
-	 * <p>Check if the <i>condition</i> is false, then output the error message.
+	 * <p>Check the <i>condition</i>, if true, do nothing. If false, then output the error message.
 	 * Also, in fail-fast mode, then the program will exit (perhaps
 	 * with a stack trace). </p>
 	 * 
@@ -199,24 +199,38 @@ public class Debug {
 		}
 	}
 
+	/**
+	 * <p>Check the <i>condition</i>, if true, do nothing. If false, then get the output message
+	 * from the supplier. Also, in fail-fast mode, then the program will exit (perhaps
+	 * with a stack trace). </p>
+	 * 
+	 * <p>
+	 * In general this method should not be used.  Instead use, <i>error</i>. This method
+	 * conditionally prints an error message.  In general, one wants the error messages
+	 * to always come out for errors.
+	 * </p>
+	 * 
+	 * @param condition representation of the nominal or correct state (NO error condition)
+	 * @param f a function that produces a string through the Supplier interface.
+	 */
 	public static void checkErrorLazy(boolean condition, Supplier<String> f) {
 		if (! condition) {
 			error(f.get());
 		}
 	}
 	
-	/**
-	 * Potentially output the <i>msg>/i> to the console with the prepended <i>tag</i>.  This method
-	 * is not subject to either the FAIL_FAST or the VERBOSE flag (see notes for Debug).
-	 * 
-	 * @param condition representation of the nominal or correct state (NO warning condition).
-	 *                  Thus, if the <i>condition</i> is <b>false</b>, then output.
-	 * @param tag the tag to indicate the location of this debug message.
-	 * @param msg message to indicate what has gone wrong.
-	 */
-	public static void checkWarning(boolean condition, String tag, String msg) {
-		pln(tag, msg, ! condition);
-	}
+//	/**
+//	 * Potentially output the <i>msg>/i> to the console with the prepended <i>tag</i>.  This method
+//	 * is not subject to either the FAIL_FAST or the VERBOSE flag (see notes for Debug).
+//	 * 
+//	 * @param condition representation of the nominal or correct state (NO warning condition).
+//	 *                  Thus, if the <i>condition</i> is <b>false</b>, then output.
+//	 * @param tag the tag to indicate the location of this debug message.
+//	 * @param msg message to indicate what has gone wrong.
+//	 */
+//	public static void checkWarning(boolean condition, String tag, String msg) {
+//		pln(tag, msg, ! condition);
+//	}
 	
 	/**
 	 * Output the <i>msg</i> to the console with the prepended <i>tag</i>.  Warnings are always
@@ -291,7 +305,6 @@ public class Debug {
 	 * @param verbose if true, the display status message
 	 */
 	public static void pln(String msg, boolean verbose) {
-		//f.pln(" $$$$$$$$$$$ HERE I AM verbose = "+verbose+" msg = "+msg);
 		pln("", msg, verbose);
 	}
 	

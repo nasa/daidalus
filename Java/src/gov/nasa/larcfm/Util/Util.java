@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 United States Government as represented by
+ * Copyright (c) 2011-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -1138,6 +1138,17 @@ public final class Util {
 		return r;
 	}
 
+	/**
+	 * Basic relative error test for double float values
+	 * @param testValue 
+	 * @param baseValue
+	 * @param acceptibleError The percentage (1.0 = 100%) of error allowable before failure
+	 * @return True if error is less than error threshold.
+	 */
+	public static boolean relErrorTest(double testValue, double baseValue, double acceptibleError) {
+		return ((Math.abs(testValue-baseValue) / baseValue) < acceptibleError);
+	}
+	
 	//	/**
 	//	 * Create a List from a list of literals
 	//	 * @param elements

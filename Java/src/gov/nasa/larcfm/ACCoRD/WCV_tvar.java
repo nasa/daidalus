@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2012-2019 United States Government as represented by
+ * Copyright (c) 2012-2020 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
 package gov.nasa.larcfm.ACCoRD;
+
+import java.util.List;
 
 import gov.nasa.larcfm.Util.*;
 
@@ -199,6 +201,24 @@ public abstract class WCV_tvar extends Detection3D {
 	public void setIdentifier(String s) {
 		id = s;
 	}
+
+	public void horizontalHazardZone(List<Position> haz, 
+			TrafficState ownship, TrafficState intruder, double T) {
+		haz.clear();
+		Position po = ownship.getPosition();
+		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
+		Vect3 sD = Horizontal.hmd_tangent_point(getDTHR(),v);
+		Velocity vD = Velocity.make(sD);
+		if (getTTHR()+T == 0) {
+			CDCylinder.circular_arc(haz,po,vD,2*Math.PI,false);
+		} else {
+			CDCylinder.circular_arc(haz,po,vD,Math.PI,true);	
+			hazard_zone_far_end(haz,po,v,vD,T);
+		}
+	}
+
+	public void hazard_zone_far_end(List<Position> haz,
+			Position po, Velocity v, Velocity vD, double T) {}
 
 	@Override
 	public boolean equals(Object obj) {

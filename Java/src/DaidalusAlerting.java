@@ -58,9 +58,9 @@ public class DaidalusAlerting {
 
 	public static void main(String[] args) {
 
-		// Create a Daidalus object for an unbuffered well-clear volume and instantaneous bands
+		// Create an empty Daidalus object
 		Daidalus daa = new Daidalus();
-		daa.set_WC_DO_365();
+		
 		String input_file = "";
 		String output_file = "";
 		PrintWriter out = new PrintWriter(System.out);
@@ -71,30 +71,36 @@ public class DaidalusAlerting {
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
-			if (arga.equals("--noma") || arga.equals("-noma")) {
-				// Configure DAIDALUS to WC nominal A parameters: Kinematic Bands, Turn Rate 1.5 [deg/s])
-				daa.set_Buffered_WC_DO_365(false);
-				conf = "noma";
-			} else if (arga.equals("--nomb") || arga.equals("-nomb")) {
-				// Configure DAIDALUS to WC nominal B parameters: Kinematic Bands, Turn Rate 3.0 [deg/s])
-				daa.set_Buffered_WC_DO_365(true);
-				conf = "nomb";
-			} else if (arga.equals("--std") || arga.equals("-std")) {
-				// Configure DAIDALUS to WC standard parameters: Instantaneous Bands
-				daa.set_WC_DO_365();
-				conf = "std";
-			} else if (arga.equals("--cd3d") || arga.equals("-cd3d")) {
-				// Configure DAIDALUS to CD3D: Instantaneous Bands, Cylinder 
-				daa.set_CD3D();
-				conf = "cd3d";
-			} else if ((arga.startsWith("--c") || arga.startsWith("-c")) && a+1 < args.length) {
+			if ((arga.startsWith("--c") || arga.startsWith("-c")) && a+1 < args.length) {
 				// Load configuration file
 				arga = args[++a];
 				conf = FileSystems.getDefault().getPath(arga).getFileName().toString();				
 				conf = conf.substring(0,conf.lastIndexOf('.'));
-				if (!daa.loadFromFile(arga)) {
-					System.err.println("** Error: File "+arga+" not found");
-					System.exit(1);
+				if (!daa.loadFromFile(args[a])) {
+					if (arga.equals("no_sum")) {
+						// Configure DAIDALUS as in DO-365A, but without SUM
+						daa.set_DO_365A(true,false);
+						conf = "no_sum";
+					} else if (arga.equals("nom_a")) {
+						// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+						daa.set_Buffered_WC_DO_365(false);
+						conf = "nom_a";
+					} else if (arga.equals("nom_b")) {
+						// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+						daa.set_Buffered_WC_DO_365(true);
+						conf = "nom_b";
+					} else if (arga.equals("cd3d")) {
+						// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+						daa.set_CD3D();
+						conf = "cd3d";
+					} else if (arga.equals("tcasii")) {
+						// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+						daa.set_TCASII();
+						conf = "tcasii";
+					} else {
+						System.err.println("** Error: File "+args[a]+" not found");
+						System.exit(1);
+					}
 				} else {
 					System.out.println("Loading configuration file "+arga);
 				}
@@ -112,8 +118,7 @@ public class DaidalusAlerting {
 				System.err.println("Usage:");
 				System.err.println("  DaidalusAlerting [<option>] <daa_file>");
 				System.err.println("  <option> can be");
-				System.err.println("  --std --noma --nomb --cd3d");
-				System.err.println("  --config <config_file>\n\tLoad configuration <config_file>");
+				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <config_file>");
 				System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --echo\n\tEcho configuration and traffic list in standard outoput");
@@ -129,6 +134,11 @@ public class DaidalusAlerting {
 				System.err.println("** Error: Only one input file can be provided ("+a+")");
 				System.exit(1);
 			}				
+		}
+		if (daa.numberOfAlerters()==0) {
+			// If no alerter has been configured, configure alerters as in 
+			// DO_365A Phase I and Phase II
+			daa.set_DO_365A();			
 		}
 		if (params.size() > 0) {
 			daa.setParameterData(params);
