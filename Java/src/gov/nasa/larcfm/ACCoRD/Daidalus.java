@@ -237,8 +237,8 @@ public class Daidalus implements GenericStateBands {
 		setInstantaneousBands();
 		setCollisionAvoidanceBands(true);
 		setCollisionAvoidanceBandsFactor(0.1);
-		setMinHorizontalRecovery(0.66,"nmi");
-		setMinVerticalRecovery(450,"ft");
+		setMinHorizontalRecovery(5.0,"nmi");
+		setMinVerticalRecovery(1000.0,"ft");
 	}
 
 	/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to 
