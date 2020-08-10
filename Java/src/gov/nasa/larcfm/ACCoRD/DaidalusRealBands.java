@@ -806,32 +806,28 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		List<Integerval> bands_int = new ArrayList<Integerval>();
 		int mino = maxdown(parameters,ownship);
 		int maxo = maxup(parameters,ownship);
-		if (instantaneous_bands(parameters)) {
-			instantaneous_bands_combine(bands_int,conflict_det,recovery_det,B,T,0.0,B,
-					mino,maxo,parameters,ownship,traffic,epsh,epsv); 
-		} else {
-			kinematic_bands_combine(bands_int,conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-					mino,maxo,parameters,ownship,traffic,epsh,epsv); 
-		}		
+		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	
+		integer_bands_combine(bands_int,conflict_det,recovery_det,tstep,
+				B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv);  
 		toIntervalSet(noneset,bands_int,get_step(parameters),own_val(ownship));
 	}
 
 	public boolean any_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
 			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		return instantaneous_bands(parameters) ? 
-				any_instantaneous_red(conflict_det,recovery_det,B,T,0.0,B,
-						maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0):
-							any_int_red(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-									maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0);
+		int mino = maxdown(parameters,ownship);
+		int maxo = maxup(parameters,ownship);
+		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	
+		return any_integer_red(conflict_det,recovery_det,tstep,
+				B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 	}
 
 	public boolean all_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
 			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		return instantaneous_bands(parameters) ? 
-				all_instantaneous_red(conflict_det,recovery_det,B,T,0,B,
-						maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0):
-							all_int_red(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-									maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0);
+		int mino = maxdown(parameters,ownship);
+		int maxo = maxup(parameters,ownship);
+		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	
+		return all_integer_red(conflict_det,recovery_det,tstep,
+				B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 	}
 
 	public boolean all_green(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
@@ -842,35 +838,6 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	public boolean any_green(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
 			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
 		return !all_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
-	}
-
-	/**
-	 * This function returns a resolution maneuver that is valid from B to T. 
-	 * It returns NaN if there is no conflict and +/- infinity, depending on dir, if there 
-	 * are no resolutions. 
-	 * The value dir=false is down and dir=true is up. 
-	 */
-	public double resolution(Detection3D conflict_det, Optional<Detection3D> recovery_det, TrafficState repac, 
-			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
-			boolean dir) {
-		int maxn;
-		int sign;
-		if (dir) {
-			maxn = maxup(parameters,ownship);
-			sign = 1;
-		} else {
-			maxn = maxdown(parameters,ownship);
-			sign = -1;
-		}
-		int ires = first_green(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-				dir,maxn,parameters,ownship,traffic,epsh,epsv);
-		if (ires == 0) {
-			return Double.NaN;
-		} else if (ires < 0) {
-			return sign*Double.POSITIVE_INFINITY;
-		} else {
-			return Util.safe_modulo(own_val(ownship)+sign*ires*get_step(parameters),mod_);
-		}
 	}
 
 	public String rawString() {

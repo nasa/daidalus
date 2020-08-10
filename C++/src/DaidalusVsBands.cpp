@@ -64,10 +64,12 @@ double DaidalusVsBands::time_step(const DaidalusParameters& parameters, const Tr
   return get_step(parameters)/parameters.getVerticalAcceleration();
 }
 
-std::pair<Vect3, Velocity> DaidalusVsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir) const {
+std::pair<Vect3, Velocity> DaidalusVsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   std::pair<Position,Velocity> posvel;
-  if (instantaneous_bands(parameters)) {
-    double vs = ownship.velocityXYZ().vs()+(dir?1:-1)*j_step_*get_step(parameters);
+  if (time == 0 && target_step == 0) {
+    return std::pair<Vect3, Velocity>(ownship.get_s(),ownship.get_v());
+  } else if (instantaneous_bands(parameters)) {
+    double vs = ownship.velocityXYZ().vs()+(dir?1:-1)*target_step*get_step(parameters);
     posvel = std::pair<Position, Velocity>(ownship.positionXYZ(),ownship.velocityXYZ().mkVs(vs));
   } else {
     posvel = ProjectedKinematics::vsAccel(ownship.positionXYZ(),ownship.velocityXYZ(),time,(dir?1:-1)*parameters.getVerticalAcceleration());

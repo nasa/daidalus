@@ -70,13 +70,13 @@ public class DaidalusAltBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		return 1;
+		return 1.0;
 	}
 
-	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir) {
-		double target_alt = get_min_val_()+j_step_*get_step(parameters);
+	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {
+		double target_alt = get_min_val_()+target_step*get_step(parameters);
 		Pair<Position,Velocity> posvel;
-		if (instantaneous_bands(parameters)) {
+		if (instantaneous) {
 			posvel = Pair.make(ownship.positionXYZ().mkZ(target_alt),ownship.velocityXYZ().mkVs(0));
 		} else {
 			double tsqj = ProjectedKinematics.vsLevelOutTime(ownship.positionXYZ(),ownship.velocityXYZ(),parameters.getVerticalRate(),
@@ -93,13 +93,13 @@ public class DaidalusAltBands extends DaidalusRealBands {
 
 	// In PVS: alt_bands@conflict_free_traj_step
 	private boolean conflict_free_traj_step(Detection3D conflict_det, Optional<Detection3D> recovery_det, double B, double T, double B2, double T2,
-			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
+			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, int target_step, boolean instantaneous) {
 		boolean trajdir = true;
-		if (instantaneous_bands(parameters)) {
-			return no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,0.0,parameters,ownship,traffic);
+		if (instantaneous) {
+			return no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,0.0,parameters,ownship,traffic,target_step,instantaneous);
 		} else {
-			double tstep = 1.0;
-			double target_alt = get_min_val_()+j_step_*get_step(parameters);
+			double tstep = time_step(parameters,ownship);
+			double target_alt = get_min_val_()+target_step*get_step(parameters);
 			Tuple5<Double,Double,Double,Double,Double> tsqj = Kinematics.vsLevelOutTimes(ownship.positionXYZ().alt(),ownship.velocityXYZ().vs(),
 					parameters.getVerticalRate(),target_alt,parameters.getVerticalAcceleration(),-parameters.getVerticalAcceleration(),true);
 			double tsqj1 = tsqj.first+0.0;
@@ -107,43 +107,42 @@ public class DaidalusAltBands extends DaidalusRealBands {
 			double tsqj3 = tsqj.third+tstep;
 			for (int i=0; i<=Math.floor(tsqj1/tstep);++i) {
 				double tsi = i*tstep;
-				if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic)) ||
+				if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
 						(recovery_det.isPresent() && B2 <= tsi && tsi <= T2 && 
-						LOS_at(recovery_det.get(),trajdir,tsi,parameters,ownship,traffic))) { 
+						LOS_at(recovery_det.get(),trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous))) { 
 					return false;
 				}
 			}
 			if ((tsqj2>=B && 
-					CD_future_traj(conflict_det,B,Util.min(T,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic)) || 
+					CD_future_traj(conflict_det,B,Util.min(T,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous)) || 
 					(recovery_det.isPresent() && tsqj2>=B2 && 
-					CD_future_traj(recovery_det.get(),B2,Util.min(T2,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic))) {
+					CD_future_traj(recovery_det.get(),B2,Util.min(T2,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous))) {
 				return false;
 			}
 			for (int i=(int)Math.ceil(tsqj2/tstep); i<=Math.floor(tsqj3/tstep);++i) {
 				double tsi = i*tstep;
-				if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic)) ||
+				if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
 						(recovery_det.isPresent() && B2 <= tsi && tsi <= T2 && 
-						LOS_at(recovery_det.get(),trajdir,tsi,parameters,ownship,traffic))) { 
+						LOS_at(recovery_det.get(),trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous))) { 
 					return false;
 				}
 			}
-			return no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,Util.max(tsqj3,0),parameters,ownship,traffic);
+			return no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,Util.max(tsqj3,0),parameters,ownship,traffic,target_step,instantaneous);
 		}
 	}
 
 	// In PVS: alt_bands@alt_bands_generic
 	private void alt_bands_generic(List<Integerval> l,
 			Detection3D conflict_det, Optional<Detection3D> recovery_det, double B, double T, double B2, double T2,
-			int maxup, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
+			int maxup, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean instantaneous) {
 		int d = -1; // Set to the first index with no conflict
 		for (int k = 0; k <= maxup; ++k) {
-			j_step_ = k;
-			if (d >=0 && conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic)) {
+			if (d >=0 && conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,k,instantaneous)) {
 				continue;
 			} else if (d >=0) {
 				l.add(new Integerval(d,k-1));
 				d = -1;
-			} else if (conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic)) {
+			} else if (conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,k,instantaneous)) {
 				d = k;
 			}
 		}
@@ -156,34 +155,32 @@ public class DaidalusAltBands extends DaidalusRealBands {
 			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {	
 		int maxup = (int)Math.floor((get_max_val_()-get_min_val_())/get_step(parameters))+1;
 		List<Integerval> altint = new ArrayList<Integerval>();
-		alt_bands_generic(altint,conflict_det,recovery_det,B,T,0,B,maxup,parameters,ownship,traffic);
+		alt_bands_generic(altint,conflict_det,recovery_det,B,T,0,B,maxup,parameters,ownship,traffic,instantaneous_bands(parameters));
 		toIntervalSet(noneset,altint,get_step(parameters),get_min_val_());
 	}
 
 	public boolean any_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, int epsh, int epsv,
 			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		return first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,true,false) >= 0 ||
-				first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,false,false) >= 0;
+		return first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,true,false,instantaneous_bands(parameters)) >= 0 ||
+				first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,false,false,instantaneous_bands(parameters)) >= 0;
 	}
 
 	public boolean all_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, int epsh, int epsv,
 			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		return first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,true,true) < 0 &&
-				first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,false,true) < 0;
+		return first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,true,true,instantaneous_bands(parameters)) < 0 &&
+				first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,false,true,instantaneous_bands(parameters)) < 0;
 	}
 
 	private int first_nat(int mini, int maxi, boolean dir, Detection3D conflict_det, Optional<Detection3D> recovery_det,
-			double B, double T, double B2, double T2, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean green) {
+			double B, double T, double B2, double T2, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean green, boolean instantaneous) {
 		while (mini <= maxi) {
-			j_step_ = mini;
-			if (dir && green == conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic)) {
-				return j_step_; 
+			if (dir && green == conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,mini,instantaneous)) {
+				return mini; 
 			} else if (dir) {
 				++mini;
 			} else {
-				j_step_ = maxi;
-				if (green == conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic)) {
-					return j_step_;
+				if (green == conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,maxi,instantaneous)) {
+					return maxi;
 				} else if (maxi == 0) {
 					return -1;
 				} else {
@@ -196,25 +193,14 @@ public class DaidalusAltBands extends DaidalusRealBands {
 
 	private int first_band_alt_generic(Detection3D conflict_det, Optional<Detection3D> recovery_det,
 			double B, double T, double B2, double T2,
-			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean dir, boolean green) {
+			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean dir, boolean green, boolean instantaneous) {
 		int upper = (int)(dir ? Math.floor((get_max_val_()-get_min_val_())/get_step(parameters))+1 : 
 			Math.floor((ownship.positionXYZ().alt()-get_min_val_())/get_step(parameters)));
 		int lower = dir ? (int)(Math.ceil(ownship.positionXYZ().alt()-get_min_val_())/get_step(parameters)) : 0;
 		if (ownship.positionXYZ().alt() < get_min_val_() || ownship.positionXYZ().alt() > get_max_val_()) {
 			return -1;
 		} else {
-			return first_nat(lower,upper,dir,conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,green);
-		}
-	}
-
-	// dir=false is down, dir=true is up
-	public double resolution(Detection3D conflict_det, Optional<Detection3D> recovery_det, int epsh, int epsv,
-			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean dir) {
-		int ires = first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,dir,true);
-		if (ires < 0) {
-			return (dir ? 1 : -1)*Double.POSITIVE_INFINITY;
-		} else {
-			return get_min_val_()+ires*get_step(parameters);
+			return first_nat(lower,upper,dir,conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,green,instantaneous);
 		}
 	}
 

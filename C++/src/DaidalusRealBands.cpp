@@ -721,75 +721,42 @@ void DaidalusRealBands::toIntervalSet(IntervalSet& noneset, const std::vector<In
  * values (or [0,mod] in the case of circular bands, i.e., when mod == 0).
  */
 void DaidalusRealBands::none_bands(IntervalSet& noneset, const Detection3D* conflict_det, const Detection3D* recovery_det,
-    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) {
+    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   std::vector<Integerval> bands_int;
   int mino = maxdown(parameters,ownship);
   int maxo = maxup(parameters,ownship);
-  if (instantaneous_bands(parameters)) {
-    instantaneous_bands_combine(bands_int,conflict_det,recovery_det,B,T,0.0,B,
-        mino,maxo,parameters,ownship,traffic,epsh,epsv);
-  } else {
-    kinematic_bands_combine(bands_int,conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-        mino,maxo,parameters,ownship,traffic,epsh,epsv);
-  }
+  double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);
+  integer_bands_combine(bands_int,conflict_det,recovery_det,tstep,
+      B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv);
   toIntervalSet(noneset,bands_int,get_step(parameters),own_val(ownship));
 }
 
 bool DaidalusRealBands::any_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) {
-  return instantaneous_bands(parameters) ?
-      any_instantaneous_red(conflict_det,recovery_det,B,T,0.0,B,
-          maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0):
-          any_int_red(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-              maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0);
+    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
+  int mino = maxdown(parameters,ownship);
+  int maxo = maxup(parameters,ownship);
+  double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);
+  return any_integer_red(conflict_det,recovery_det,tstep,
+      B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 }
 
 bool DaidalusRealBands::all_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) {
-  return instantaneous_bands(parameters) ?
-      all_instantaneous_red(conflict_det,recovery_det,B,T,0,B,
-          maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0):
-          all_int_red(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-              maxdown(parameters,ownship),maxup(parameters,ownship),parameters,ownship,traffic,epsh,epsv,0);
+    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
+  int mino = maxdown(parameters,ownship);
+  int maxo = maxup(parameters,ownship);
+  double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);
+  return all_integer_red(conflict_det,recovery_det,tstep,
+      B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 }
 
 bool DaidalusRealBands::all_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) {
+    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   return !any_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
 }
 
 bool DaidalusRealBands::any_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) {
+    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   return !all_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
-}
-
-/**
- * This function returns a resolution maneuver that is valid from B to T.
- * It returns NaN if there is no conflict and +/- infinity, depending on dir, if there
- * are no resolutions.
- * The value dir=false is down and dir=true is up.
- */
-double DaidalusRealBands::resolution(const Detection3D* conflict_det, const Detection3D* recovery_det, const TrafficState& repac,
-    int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
-    bool dir) {
-  int maxn;
-  int sign;
-  if (dir) {
-    maxn = maxup(parameters,ownship);
-    sign = 1;
-  } else {
-    maxn = maxdown(parameters,ownship);
-    sign = -1;
-  }
-  int ires = first_green(conflict_det,recovery_det,time_step(parameters,ownship),B,T,0.0,B,
-      dir,maxn,parameters,ownship,traffic,epsh,epsv);
-  if (ires == 0) {
-    return NaN;
-  } else if (ires < 0) {
-    return sign*PINFINITY;
-  } else {
-    return Util::safe_modulo(own_val(ownship)+sign*ires*get_step(parameters),mod_);
-  }
 }
 
 std::string DaidalusRealBands::rawString() const {

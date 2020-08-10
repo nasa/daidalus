@@ -59,10 +59,12 @@ public class DaidalusHsBands extends DaidalusRealBands {
 		return get_step(parameters)/parameters.getHorizontalAcceleration();
 	}
 
-	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir) {    
+	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {    
 		Pair<Position,Velocity> posvel;
-		if (instantaneous_bands(parameters)) {
-			double gs = ownship.velocityXYZ().gs()+(dir?1:-1)*j_step_*get_step(parameters); 
+		if (time == 0 && target_step == 0) {
+			return Pair.make(ownship.get_s(),ownship.get_v());
+		} else if (instantaneous) {
+			double gs = ownship.velocityXYZ().gs()+(dir?1:-1)*target_step*get_step(parameters); 
 			posvel = Pair.make(ownship.positionXYZ(),ownship.velocityXYZ().mkGs(gs));
 		} else {
 			posvel = ProjectedKinematics.gsAccel(ownship.positionXYZ(),ownship.velocityXYZ(),time,
