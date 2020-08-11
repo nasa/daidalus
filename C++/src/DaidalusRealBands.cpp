@@ -727,7 +727,7 @@ void DaidalusRealBands::none_bands(IntervalSet& noneset, const Detection3D* conf
   int maxo = maxup(parameters,ownship);
   double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);
   integer_bands_combine(bands_int,conflict_det,recovery_det,tstep,
-      B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv);
+      B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv);
   toIntervalSet(noneset,bands_int,get_step(parameters),own_val(ownship));
 }
 
@@ -737,7 +737,7 @@ bool DaidalusRealBands::any_red(const Detection3D* conflict_det, const Detection
   int maxo = maxup(parameters,ownship);
   double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);
   return any_integer_red(conflict_det,recovery_det,tstep,
-      B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
+      B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 }
 
 bool DaidalusRealBands::all_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
@@ -746,7 +746,7 @@ bool DaidalusRealBands::all_red(const Detection3D* conflict_det, const Detection
   int maxo = maxup(parameters,ownship);
   double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);
   return all_integer_red(conflict_det,recovery_det,tstep,
-      B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
+      B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 }
 
 bool DaidalusRealBands::all_green(const Detection3D* conflict_det, const Detection3D* recovery_det,

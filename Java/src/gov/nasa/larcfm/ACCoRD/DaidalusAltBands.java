@@ -92,11 +92,11 @@ public class DaidalusAltBands extends DaidalusRealBands {
 	}
 
 	// In PVS: alt_bands@conflict_free_traj_step
-	private boolean conflict_free_traj_step(Detection3D conflict_det, Optional<Detection3D> recovery_det, double B, double T, double B2, double T2,
+	private boolean conflict_free_traj_step(Detection3D conflict_det, Optional<Detection3D> recovery_det, double B, double T,
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, int target_step, boolean instantaneous) {
 		boolean trajdir = true;
 		if (instantaneous) {
-			return no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,0.0,parameters,ownship,traffic,target_step,instantaneous);
+			return no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,0.0,parameters,ownship,traffic,target_step,instantaneous);
 		} else {
 			double tstep = time_step(parameters,ownship);
 			double target_alt = get_min_val_()+target_step*get_step(parameters);
@@ -108,41 +108,41 @@ public class DaidalusAltBands extends DaidalusRealBands {
 			for (int i=0; i<=Math.floor(tsqj1/tstep);++i) {
 				double tsi = i*tstep;
 				if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
-						(recovery_det.isPresent() && B2 <= tsi && tsi <= T2 && 
+						(recovery_det.isPresent() && 0 <= tsi && tsi <= B && 
 						LOS_at(recovery_det.get(),trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous))) { 
 					return false;
 				}
 			}
 			if ((tsqj2>=B && 
 					CD_future_traj(conflict_det,B,Util.min(T,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous)) || 
-					(recovery_det.isPresent() && tsqj2>=B2 && 
-					CD_future_traj(recovery_det.get(),B2,Util.min(T2,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous))) {
+					(recovery_det.isPresent() && tsqj2 >= 0 && 
+					CD_future_traj(recovery_det.get(),0,Util.min(B,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous))) {
 				return false;
 			}
 			for (int i=(int)Math.ceil(tsqj2/tstep); i<=Math.floor(tsqj3/tstep);++i) {
 				double tsi = i*tstep;
 				if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
-						(recovery_det.isPresent() && B2 <= tsi && tsi <= T2 && 
+						(recovery_det.isPresent() && 0 <= tsi && tsi <= B && 
 						LOS_at(recovery_det.get(),trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous))) { 
 					return false;
 				}
 			}
-			return no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,Util.max(tsqj3,0),parameters,ownship,traffic,target_step,instantaneous);
+			return no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,Util.max(tsqj3,0),parameters,ownship,traffic,target_step,instantaneous);
 		}
 	}
 
 	// In PVS: alt_bands@alt_bands_generic
 	private void alt_bands_generic(List<Integerval> l,
-			Detection3D conflict_det, Optional<Detection3D> recovery_det, double B, double T, double B2, double T2,
+			Detection3D conflict_det, Optional<Detection3D> recovery_det, double B, double T,
 			int maxup, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean instantaneous) {
 		int d = -1; // Set to the first index with no conflict
 		for (int k = 0; k <= maxup; ++k) {
-			if (d >=0 && conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,k,instantaneous)) {
+			if (d >=0 && conflict_free_traj_step(conflict_det,recovery_det,B,T,parameters,ownship,traffic,k,instantaneous)) {
 				continue;
 			} else if (d >=0) {
 				l.add(new Integerval(d,k-1));
 				d = -1;
-			} else if (conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,k,instantaneous)) {
+			} else if (conflict_free_traj_step(conflict_det,recovery_det,B,T,parameters,ownship,traffic,k,instantaneous)) {
 				d = k;
 			}
 		}
@@ -155,31 +155,31 @@ public class DaidalusAltBands extends DaidalusRealBands {
 			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {	
 		int maxup = (int)Math.floor((get_max_val_()-get_min_val_())/get_step(parameters))+1;
 		List<Integerval> altint = new ArrayList<Integerval>();
-		alt_bands_generic(altint,conflict_det,recovery_det,B,T,0,B,maxup,parameters,ownship,traffic,instantaneous_bands(parameters));
+		alt_bands_generic(altint,conflict_det,recovery_det,B,T,maxup,parameters,ownship,traffic,instantaneous_bands(parameters));
 		toIntervalSet(noneset,altint,get_step(parameters),get_min_val_());
 	}
 
 	public boolean any_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, int epsh, int epsv,
 			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		return first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,true,false,instantaneous_bands(parameters)) >= 0 ||
-				first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,false,false,instantaneous_bands(parameters)) >= 0;
+		return first_band_alt_generic(conflict_det,recovery_det,B,T,parameters,ownship,traffic,true,false,instantaneous_bands(parameters)) >= 0 ||
+				first_band_alt_generic(conflict_det,recovery_det,B,T,parameters,ownship,traffic,false,false,instantaneous_bands(parameters)) >= 0;
 	}
 
 	public boolean all_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, int epsh, int epsv,
 			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		return first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,true,true,instantaneous_bands(parameters)) < 0 &&
-				first_band_alt_generic(conflict_det,recovery_det,B,T,0,B,parameters,ownship,traffic,false,true,instantaneous_bands(parameters)) < 0;
+		return first_band_alt_generic(conflict_det,recovery_det,B,T,parameters,ownship,traffic,true,true,instantaneous_bands(parameters)) < 0 &&
+				first_band_alt_generic(conflict_det,recovery_det,B,T,parameters,ownship,traffic,false,true,instantaneous_bands(parameters)) < 0;
 	}
 
 	private int first_nat(int mini, int maxi, boolean dir, Detection3D conflict_det, Optional<Detection3D> recovery_det,
-			double B, double T, double B2, double T2, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean green, boolean instantaneous) {
+			double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean green, boolean instantaneous) {
 		while (mini <= maxi) {
-			if (dir && green == conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,mini,instantaneous)) {
+			if (dir && green == conflict_free_traj_step(conflict_det,recovery_det,B,T,parameters,ownship,traffic,mini,instantaneous)) {
 				return mini; 
 			} else if (dir) {
 				++mini;
 			} else {
-				if (green == conflict_free_traj_step(conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,maxi,instantaneous)) {
+				if (green == conflict_free_traj_step(conflict_det,recovery_det,B,T,parameters,ownship,traffic,maxi,instantaneous)) {
 					return maxi;
 				} else if (maxi == 0) {
 					return -1;
@@ -192,7 +192,7 @@ public class DaidalusAltBands extends DaidalusRealBands {
 	}
 
 	private int first_band_alt_generic(Detection3D conflict_det, Optional<Detection3D> recovery_det,
-			double B, double T, double B2, double T2,
+			double B, double T,
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, boolean dir, boolean green, boolean instantaneous) {
 		int upper = (int)(dir ? Math.floor((get_max_val_()-get_min_val_())/get_step(parameters))+1 : 
 			Math.floor((ownship.positionXYZ().alt()-get_min_val_())/get_step(parameters)));
@@ -200,7 +200,7 @@ public class DaidalusAltBands extends DaidalusRealBands {
 		if (ownship.positionXYZ().alt() < get_min_val_() || ownship.positionXYZ().alt() > get_max_val_()) {
 			return -1;
 		} else {
-			return first_nat(lower,upper,dir,conflict_det,recovery_det,B,T,B2,T2,parameters,ownship,traffic,green,instantaneous);
+			return first_nat(lower,upper,dir,conflict_det,recovery_det,B,T,parameters,ownship,traffic,green,instantaneous);
 		}
 	}
 

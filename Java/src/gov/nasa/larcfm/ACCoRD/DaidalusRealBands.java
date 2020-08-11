@@ -808,7 +808,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		int maxo = maxup(parameters,ownship);
 		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	
 		integer_bands_combine(bands_int,conflict_det,recovery_det,tstep,
-				B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv);  
+				B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv);  
 		toIntervalSet(noneset,bands_int,get_step(parameters),own_val(ownship));
 	}
 
@@ -818,7 +818,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		int maxo = maxup(parameters,ownship);
 		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	
 		return any_integer_red(conflict_det,recovery_det,tstep,
-				B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
+				B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 	}
 
 	public boolean all_red(Detection3D conflict_det, Optional<Detection3D> recovery_det, 
@@ -827,7 +827,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		int maxo = maxup(parameters,ownship);
 		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	
 		return all_integer_red(conflict_det,recovery_det,tstep,
-				B,T,0.0,B,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
+				B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 	}
 
 	public boolean all_green(Detection3D conflict_det, Optional<Detection3D> recovery_det, 

@@ -46,7 +46,7 @@ public:
    * In PVS:
    * NOT CD_future_traj(CD,B,T,traj,kts,si,vi)) AND (NOT (useLOS2 AND CD_future_traj(CD2,B2,T2,traj,kts,si,vi)
    */
-  bool no_CD_future_traj(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T, double B2, double T2, bool trajdir, double tsk,
+  bool no_CD_future_traj(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T,  bool trajdir, double tsk,
       const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic, int target_step, bool instantaneous) const;
 
   /**
@@ -66,30 +66,30 @@ private:
 
   // In PVS: kinematic_bands@first_los_search_index
   int kinematic_first_los_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2, bool trajdir, int max,
+      double B, double T,  bool trajdir, int max,
       const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const;
 
   // In PVS: kinematic_bands@bands_search_index
   // epsh == epsv == 0, if traffic is not the repulsive aircraft
   int kinematic_bands_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   // In PVS: int_bands@traj_conflict_only_band, int_bands@nat_bands, and int_bands@nat_bands_rec
   void kinematic_traj_conflict_only_bands(std::vector<Integerval>& l,
-      const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep, double B, double T, double B2, double T2,
+      const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep, double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic)  const;
 
   // In PVS: kinematic_bands@kinematic_bands
   void kinematic_bands(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   // In PVS: kinematic_bands_exist@first_green
   int first_kinematic_green(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
@@ -113,61 +113,61 @@ private:
 
   // In PVS: kinematic_bands_exist@red_band_exist
   bool kinematic_red_band_exist(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   int first_instantaneous_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
-      double B, double T, double B2, double T2,
+      double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   //In PVS: inst_bands@conflict_free_track_step, inst_bands@conflict_free_gs_step, inst_bands@conflict_free_vs_step
-  bool no_instantaneous_conflict(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T, double B2, double T2,
+  bool no_instantaneous_conflict(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T,
       bool trajdir, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int target_step) const;
 
   //In PVS: int_bands@nat_bands, int_bands@nat_bands_rec
   void instantaneous_bands(std::vector<Integerval>& l,
-      const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T, double B2, double T2,
+      const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   bool instantaneous_red_band_exist(const Detection3D* conflict_det, const Detection3D* recovery_det,
-      double B, double T, double B2, double T2,
+      double B, double T,
       bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   // In PVS: combine_bands@kinematic_bands_combine
   void kinematic_bands_combine(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
 
   // In PVS: inst_bands@instant_track_bands, inst_bands@instant_gs_bands, inst_bands@instant_vs_bands
   void instantaneous_bands_combine(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   bool all_kinematic_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int dir) const;
 
   bool all_instantaneous_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int dir) const;
 
   bool any_kinematic_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int dir) const;
 
   bool any_instantaneous_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int dir) const;
 
@@ -180,17 +180,17 @@ public:
   // INTERFACE FUNCTIONS
 
   void integer_bands_combine(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   bool all_integer_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int dir) const;
 
   bool any_integer_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T, double B2, double T2,
+      double B, double T,
       int maxl, int maxr, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv, int dir) const;
 

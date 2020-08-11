@@ -32,12 +32,12 @@ bool DaidalusIntegerBands::CD_future_traj(const Detection3D* det, double B, doub
 
 /**
  * In PVS:
- * NOT CD_future_traj(CD,B,T,traj,kts,si,vi)) AND (NOT (useLOS2 AND CD_future_traj(CD2,B2,T2,traj,kts,si,vi)
+ * NOT CD_future_traj(CD,B,T,traj,kts,si,vi)) AND (NOT (useLOS2 AND CD_future_traj(CD2,traj,kts,si,vi)
  */
-bool DaidalusIntegerBands::no_CD_future_traj(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T, double B2, double T2, bool trajdir, double tsk,
+bool DaidalusIntegerBands::no_CD_future_traj(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T,  bool trajdir, double tsk,
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic, int target_step, bool instantaneous) const {
   return !CD_future_traj(conflict_det,B,T,trajdir,tsk,parameters,ownship,traffic,target_step,instantaneous) &&
-      !(recovery_det != NULL && CD_future_traj(recovery_det,B2,T2,trajdir,tsk,parameters,ownship,traffic,target_step,instantaneous));
+      !(recovery_det != NULL && CD_future_traj(recovery_det,0,B,trajdir,tsk,parameters,ownship,traffic,target_step,instantaneous));
 }
 
 /**
@@ -73,12 +73,12 @@ int DaidalusIntegerBands::kinematic_first_los_step(const Detection3D* det, doubl
 
 // In PVS: kinematic_bands@first_los_search_index
 int DaidalusIntegerBands::kinematic_first_los_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2, bool trajdir, int max,
+    double B, double T,  bool trajdir, int max,
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   int FirstLosK = (int)std::ceil(B/tstep); // first k such that k*ts>=B
   int FirstLosN = Util::min((int)std::floor(T/tstep),max); // last k<=MaxN such that k*ts<=T
-  int FirstLosK2 = (int)std::ceil(B2/tstep);
-  int FirstLosN2 = Util::min((int)std::floor(T2/tstep),max);
+  int FirstLosK2 = 0;
+  int FirstLosN2 = Util::min((int)std::floor(B/tstep),max);
   int FirstLosInit = recovery_det != NULL ? kinematic_first_los_step(recovery_det,tstep,trajdir,FirstLosK2,FirstLosN2,parameters,ownship,traffic) : -1;
   int FirstLos = kinematic_first_los_step(conflict_det,tstep,trajdir,FirstLosK,FirstLosN,parameters,ownship,traffic);
   int LosInitIndex = FirstLosInit < 0 ? max+1 : FirstLosInit;
@@ -89,12 +89,12 @@ int DaidalusIntegerBands::kinematic_first_los_search_index(const Detection3D* co
 // In PVS: kinematic_bands@bands_search_index
 // epsh == epsv == 0, if traffic is not the repulsive aircraft
 int DaidalusIntegerBands::kinematic_bands_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   bool usehcrit = epsh != 0;
   bool usevcrit = epsv != 0;
-  int FirstLos = kinematic_first_los_search_index(conflict_det,recovery_det,tstep,B,T,B2,T2,trajdir,max,parameters,ownship,traffic);
+  int FirstLos = kinematic_first_los_search_index(conflict_det,recovery_det,tstep,B,T,trajdir,max,parameters,ownship,traffic);
   int FirstNonHRep = !usehcrit || FirstLos == 0 ? FirstLos :
       kinematic_first_nonrepulsive_step(tstep,trajdir,FirstLos-1,parameters,ownship,traffic,epsh);
   int FirstProbHcrit = FirstNonHRep < 0 ? max+1 : FirstNonHRep;
@@ -108,17 +108,17 @@ int DaidalusIntegerBands::kinematic_bands_search_index(const Detection3D* confli
 // In PVS: int_bands@traj_conflict_only_band, int_bands@nat_bands, and int_bands@nat_bands_rec
 
 void DaidalusIntegerBands::kinematic_traj_conflict_only_bands(std::vector<Integerval>& l,
-    const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep, double B, double T, double B2, double T2,
+    const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep, double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   int d = -1; // Set to the first index with no conflict
   for (int k = 0; k <= max; ++k) {
     double tsk = tstep*k;
-    if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       continue;
     } else if (d >=0) {
       l.push_back( Integerval(d,k-1));
       d = -1;
-    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       d = k;
     }
   }
@@ -129,19 +129,19 @@ void DaidalusIntegerBands::kinematic_traj_conflict_only_bands(std::vector<Intege
 
 // In PVS: kinematic_bands@kinematic_bands
 void DaidalusIntegerBands::kinematic_bands(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   l.clear();
-  int bsi = kinematic_bands_search_index(conflict_det,recovery_det,tstep,B,T,B2,T2,trajdir,max,parameters,ownship,traffic,epsh,epsv);
+  int bsi = kinematic_bands_search_index(conflict_det,recovery_det,tstep,B,T,trajdir,max,parameters,ownship,traffic,epsh,epsv);
   if  (bsi != 0) {
-    kinematic_traj_conflict_only_bands(l,conflict_det,recovery_det,tstep,B,T,B2,T2,trajdir,bsi-1,parameters,ownship,traffic);
+    kinematic_traj_conflict_only_bands(l,conflict_det,recovery_det,tstep,B,T,trajdir,bsi-1,parameters,ownship,traffic);
   }
 }
 
 // In PVS: kinematic_bands_exist@first_green
 int DaidalusIntegerBands::first_kinematic_green(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   bool usehcrit = epsh != 0;
@@ -149,12 +149,12 @@ int DaidalusIntegerBands::first_kinematic_green(const Detection3D* conflict_det,
   for (int k=0; k <= max; ++k) {
     double tsk = tstep*k;
     if ((tsk >= B && tsk <= T && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
-        (recovery_det != NULL && tsk >= B2 && tsk <= T2 &&
+        (recovery_det != NULL && 0 <= tsk && tsk <= B &&
             LOS_at(recovery_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
             (usehcrit && !kinematic_repulsive_at(tstep,trajdir,k,parameters,ownship,traffic,epsh)) ||
             (usevcrit && !kinematic_vert_repul_at(tstep,trajdir,k,parameters,ownship,traffic,epsv))) {
       return -1;
-    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       return k;
     }
   }
@@ -260,7 +260,7 @@ bool DaidalusIntegerBands::kinematic_any_conflict_step(const Detection3D* det, d
 
 // In PVS: kinematic_bands_exist@red_band_exist
 bool DaidalusIntegerBands::kinematic_red_band_exist(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   bool usehcrit = epsh != 0;
@@ -268,15 +268,15 @@ bool DaidalusIntegerBands::kinematic_red_band_exist(const Detection3D* conflict_
   return (usehcrit && kinematic_first_nonrepulsive_step(tstep,trajdir,max,parameters,ownship,traffic,epsh) >= 0) ||
       (usevcrit && kinematic_first_nonvert_repul_step(tstep,trajdir,max,parameters,ownship,traffic,epsv) >= 0) ||
       kinematic_any_conflict_step(conflict_det,tstep,B,T,trajdir,max,parameters,ownship,traffic) ||
-      (recovery_det != NULL && kinematic_any_conflict_step(recovery_det,tstep,B2,T2,trajdir,max,parameters,ownship,traffic));
+      (recovery_det != NULL && kinematic_any_conflict_step(recovery_det,tstep,0,B,trajdir,max,parameters,ownship,traffic));
 }
 
 int DaidalusIntegerBands::first_instantaneous_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    double B, double T, double B2, double T2,
+    double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   for (int k = 0; k <= max; ++k) {
-    if (no_instantaneous_conflict(conflict_det,recovery_det,B,T,B2,T2,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
+    if (no_instantaneous_conflict(conflict_det,recovery_det,B,T,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
       return k;
     }
   }
@@ -284,7 +284,7 @@ int DaidalusIntegerBands::first_instantaneous_green(const Detection3D* conflict_
 }
 
 //In PVS: inst_bands@conflict_free_track_step, inst_bands@conflict_free_gs_step, inst_bands@conflict_free_vs_step
-bool DaidalusIntegerBands::no_instantaneous_conflict(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T, double B2, double T2,
+bool DaidalusIntegerBands::no_instantaneous_conflict(const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T,
     bool trajdir,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int target_step) const {
   bool usehcrit = epsh != 0;
@@ -299,23 +299,23 @@ bool DaidalusIntegerBands::no_instantaneous_conflict(const Detection3D* conflict
   return
       (!usehcrit || CriteriaCore::horizontal_new_repulsive_criterion(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),epsh)) &&
       (!usevcrit || CriteriaCore::vertical_new_repulsive_criterion(s,vo,vi,nvo,epsv)) &&
-      no_CD_future_traj(conflict_det,recovery_det,B,T,B2,T2,trajdir,0.0,parameters,ownship,traffic,target_step,true);
+      no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,0.0,parameters,ownship,traffic,target_step,true);
 }
 
 //In PVS: int_bands@nat_bands, int_bands@nat_bands_rec
 void DaidalusIntegerBands::instantaneous_bands(std::vector<Integerval>& l,
-    const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T, double B2, double T2,
+    const Detection3D* conflict_det, const Detection3D* recovery_det, double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   int d = -1; // Set to the first index with no conflict
   for (int k = 0; k <= max; ++k) {
-    if (d >=0 && no_instantaneous_conflict(conflict_det,recovery_det,B,T,B2,T2,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
+    if (d >=0 && no_instantaneous_conflict(conflict_det,recovery_det,B,T,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
       continue;
     } else if (d >=0) {
       Integerval iv = Integerval(d,k-1);
       l.push_back(iv);
       d = -1;
-    } else if (no_instantaneous_conflict(conflict_det,recovery_det,B,T,B2,T2,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
+    } else if (no_instantaneous_conflict(conflict_det,recovery_det,B,T,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
       d = k;
     }
   }
@@ -326,11 +326,11 @@ void DaidalusIntegerBands::instantaneous_bands(std::vector<Integerval>& l,
 }
 
 bool DaidalusIntegerBands::instantaneous_red_band_exist(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    double B, double T, double B2, double T2,
+    double B, double T,
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   for (int k = 0; k <= max; ++k) {
-    if (!no_instantaneous_conflict(conflict_det,recovery_det,B,T,B2,T2,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
+    if (!no_instantaneous_conflict(conflict_det,recovery_det,B,T,trajdir,parameters,ownship,traffic,epsh,epsv,k)) {
       return true;
     }
   }
@@ -371,103 +371,103 @@ void DaidalusIntegerBands::neg(std::vector<Integerval>& l) {
 
 // In PVS: combine_bands@kinematic_bands_combine
 void DaidalusIntegerBands::kinematic_bands_combine(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
-  kinematic_bands(l,conflict_det,recovery_det,tstep,B,T,B2,T2,false,maxl,parameters,ownship,traffic,epsh,epsv);
+  kinematic_bands(l,conflict_det,recovery_det,tstep,B,T,false,maxl,parameters,ownship,traffic,epsh,epsv);
   std::vector<Integerval> r;
-  kinematic_bands(r,conflict_det,recovery_det,tstep,B,T,B2,T2,true,maxr,parameters,ownship,traffic,epsh,epsv);
+  kinematic_bands(r,conflict_det,recovery_det,tstep,B,T,true,maxr,parameters,ownship,traffic,epsh,epsv);
   neg(l);
   append_intband(l,r);
 }
 
 // In PVS: inst_bands@instant_track_bands, inst_bands@instant_gs_bands, inst_bands@instant_vs_bands
 void DaidalusIntegerBands::instantaneous_bands_combine(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
-  instantaneous_bands(l,conflict_det,recovery_det,B,T,B2,T2,false,maxl,parameters,ownship,traffic,epsh,epsv);
+  instantaneous_bands(l,conflict_det,recovery_det,B,T,false,maxl,parameters,ownship,traffic,epsh,epsv);
   std::vector<Integerval> r;
-  instantaneous_bands(r,conflict_det,recovery_det,B,T,B2,T2,true,maxr,parameters,ownship,traffic,epsh,epsv);
+  instantaneous_bands(r,conflict_det,recovery_det,B,T,true,maxr,parameters,ownship,traffic,epsh,epsv);
   neg(l);
   append_intband(l,r);
 }
 
 bool DaidalusIntegerBands::all_kinematic_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int dir) const {
-  bool leftans = dir > 0 || first_kinematic_green(conflict_det,recovery_det,tstep,B,T,B2,T2,false,maxl,parameters,ownship,traffic,epsh,epsv) < 0;
-  bool rightans = dir < 0 || first_kinematic_green(conflict_det,recovery_det,tstep,B,T,B2,T2,true,maxr,parameters,ownship,traffic,epsh,epsv) < 0;
+  bool leftans = dir > 0 || first_kinematic_green(conflict_det,recovery_det,tstep,B,T,false,maxl,parameters,ownship,traffic,epsh,epsv) < 0;
+  bool rightans = dir < 0 || first_kinematic_green(conflict_det,recovery_det,tstep,B,T,true,maxr,parameters,ownship,traffic,epsh,epsv) < 0;
   return leftans && rightans;
 }
 
 bool DaidalusIntegerBands::all_instantaneous_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int dir) const {
-  bool leftans = dir > 0 || first_instantaneous_green(conflict_det,recovery_det,B,T,B2,T2,false,maxl,parameters,ownship,traffic,epsh,epsv) < 0;
-  bool rightans = dir < 0 || first_instantaneous_green(conflict_det,recovery_det,B,T,B2,T2,true,maxr,parameters,ownship,traffic,epsh,epsv) < 0;
+  bool leftans = dir > 0 || first_instantaneous_green(conflict_det,recovery_det,B,T,false,maxl,parameters,ownship,traffic,epsh,epsv) < 0;
+  bool rightans = dir < 0 || first_instantaneous_green(conflict_det,recovery_det,B,T,true,maxr,parameters,ownship,traffic,epsh,epsv) < 0;
   return leftans && rightans;
 }
 
 bool DaidalusIntegerBands::any_kinematic_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int dir) const {
-  bool leftred = dir <= 0 && kinematic_red_band_exist(conflict_det,recovery_det,tstep,B,T,B2,T2,false,maxl,parameters,ownship,traffic,epsh,epsv);
-  bool rightred = dir >= 0 && kinematic_red_band_exist(conflict_det,recovery_det,tstep,B,T,B2,T2,true,maxr,parameters,ownship,traffic,epsh,epsv);
+  bool leftred = dir <= 0 && kinematic_red_band_exist(conflict_det,recovery_det,tstep,B,T,false,maxl,parameters,ownship,traffic,epsh,epsv);
+  bool rightred = dir >= 0 && kinematic_red_band_exist(conflict_det,recovery_det,tstep,B,T,true,maxr,parameters,ownship,traffic,epsh,epsv);
   return leftred || rightred;
 }
 
 bool DaidalusIntegerBands::any_instantaneous_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int dir) const {
-  bool leftred = dir <= 0 && instantaneous_red_band_exist(conflict_det,recovery_det,B,T,B2,T2,false,maxl,parameters,ownship,traffic,epsh,epsv);
-  bool rightred = dir >= 0 && instantaneous_red_band_exist(conflict_det,recovery_det,B,T,B2,T2,true,maxr,parameters,ownship,traffic,epsh,epsv);
+  bool leftred = dir <= 0 && instantaneous_red_band_exist(conflict_det,recovery_det,B,T,false,maxl,parameters,ownship,traffic,epsh,epsv);
+  bool rightred = dir >= 0 && instantaneous_red_band_exist(conflict_det,recovery_det,B,T,true,maxr,parameters,ownship,traffic,epsh,epsv);
   return leftred || rightred;
 }
 
 // INTERFACE FUNCTIONS
 void DaidalusIntegerBands::integer_bands_combine(std::vector<Integerval>& l, const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   if (tstep == 0) {
     instantaneous_bands_combine(l,conflict_det,recovery_det,
-        B,T,B2,T2,maxl,maxr,parameters,ownship,traffic,
+        B,T,maxl,maxr,parameters,ownship,traffic,
         epsh,epsv);
   } else {
     kinematic_bands_combine(l,conflict_det,recovery_det,tstep,
-        B,T,B2,T2,maxl,maxr,parameters,ownship,traffic,
+        B,T,maxl,maxr,parameters,ownship,traffic,
         epsh,epsv);
   }
 }
 
 bool DaidalusIntegerBands::all_integer_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int dir) const {
   return tstep == 0 ?
       all_instantaneous_red(conflict_det,recovery_det,
-          B,T,B2,T2,maxl,maxr, parameters,ownship,traffic,
+          B,T,maxl,maxr, parameters,ownship,traffic,
           epsh,epsv,dir)
           : all_kinematic_red(conflict_det,recovery_det,tstep,
-              B,T,B2,T2,maxl,maxr, parameters,ownship,traffic,
+              B,T,maxl,maxr, parameters,ownship,traffic,
               epsh,epsv,dir);
 }
 
 bool DaidalusIntegerBands::any_integer_red(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T, double B2, double T2,
+    double B, double T,
     int maxl, int maxr,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv, int dir) const {
   return tstep == 0 ?
       any_instantaneous_red(conflict_det,recovery_det,
-          B,T,B2,T2,maxl,maxr, parameters,ownship,traffic,
+          B,T,maxl,maxr, parameters,ownship,traffic,
           epsh,epsv,dir)
           : any_kinematic_red(conflict_det,recovery_det,tstep,
-              B,T,B2,T2,maxl,maxr, parameters,ownship,traffic,
+              B,T,maxl,maxr, parameters,ownship,traffic,
               epsh,epsv,dir);
 }
 
