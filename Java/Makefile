@@ -1,9 +1,9 @@
 # Simple Makefile to build DAIDALUS library and example applications
 NAME=DAIDALUS
 MAJOR=2
-MINOR=g
+MINOR=.0.1
 VERSION=$(NAME)$(MAJOR)
-RELEASE=$(NAME)$(MAJOR)$(MINOR)
+RELEASE=$(NAME)v$(MAJOR)$(MINOR)
 
 SRCS=$(wildcard src/gov/nasa/larcfm/IO/*.java src/gov/nasa/larcfm/Util/*.java src/gov/nasa/larcfm/ACCoRD/*.java)
 OBJS  = $(SRCS:.java=.class)
