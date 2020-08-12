@@ -1,6 +1,6 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.g-FormalATM-v2.7.4 (Agust-4-2020)
+Release:  v2.0.1-FormalATM-v2.7.4 (Agust-12-2020)
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
@@ -10,9 +10,14 @@ Rights Reserved.
 
 Release DAIDALUS-v2.0.1:
 ------------------
-August 4, 2020
+* August 12, 2020
+- Updated Makefile
+- Removed global variable j_step_ (using instead local parameters
+targe_step and instantaneous) in integer bands and altitude bands
+- Removed parameters B2, T2 using instead 0,T.
 
-* Implemented hazard zones (for display purposes only)
+* August 4, 2020
+- Implemented hazard zones (for display purposes only)
 
 Release DAIDALUS-v2.0.g 
 ------------------
