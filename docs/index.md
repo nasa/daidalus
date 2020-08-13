@@ -1,6 +1,6 @@
 ![](DAIDALUS.jpeg)
 
-* Documentation on DAIDALUS-v2 is not yet available. Please see
+Documentation on DAIDALUS-v2 is not yet available. Please see
   sample code in `DaidalusExample` for examples of uses of most of the
   functionality provided by DAIDALUS.  This
   [presentation](DAIDALUSv2.pdf) provides a high-level briefing of the
