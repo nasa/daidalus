@@ -26,7 +26,7 @@ preferred resolution).
 
 ### Documentation
 
-A draft of user guide is available at https://nasa.github.io/WellClear. 
+A draft of user guide is available at https://nasa.github.io/daidalus. 
 
 ### Software Library
 The library can be compiled using the Unix utility `make` with the
