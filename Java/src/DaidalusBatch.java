@@ -24,19 +24,19 @@ public class DaidalusBatch extends DaidalusProcessor {
 	static double prj_t = 0;
 
 	static void printHelpMsg() {
-		System.out.println("Usage:");
-		System.out.println("  DaidalusBatch [flags] files");
-		System.out.println("  flags include:");
-		System.out.println("  --help\n\tPrint this message");
-		System.out.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <file>");
-		System.out.println("  --out <file>\n\tOutput information to <file>");
-		System.out.println("  --verbose\n\tPrint extra information");
-		System.out.println("  --raw\n\tPrint raw information");
-		System.out.println("  --pvs\n\tProduce PVS output format");
-		System.out.println("  --project t\n\tLinearly project all aircraft t seconds for computing bands and alerting");
-		System.out.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
-		System.out.println("  --precision <n>\n\tOutput decimal precision");
-		System.out.println(getHelpString());
+		System.err.println("Usage:");
+		System.err.println("  DaidalusBatch [flags] files");
+		System.err.println("  flags include:");
+		System.err.println("  --help\n\tPrint this message");
+		System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <configuration-file>");
+		System.err.println("  --out <file>\n\tOutput information to <file>");
+		System.err.println("  --verbose\n\tPrint extra information");
+		System.err.println("  --raw\n\tPrint raw information");
+		System.err.println("  --pvs\n\tProduce PVS output format");
+		System.err.println("  --project t\n\tLinearly project all aircraft t seconds for computing bands and alerting");
+		System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
+		System.err.println("  --precision <n>\n\tOutput decimal precision");
+		System.err.println(getHelpString());
 		System.exit(0);
 	}
 

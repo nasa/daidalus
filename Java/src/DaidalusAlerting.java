@@ -118,7 +118,7 @@ public class DaidalusAlerting {
 				System.err.println("Usage:");
 				System.err.println("  DaidalusAlerting [<option>] <daa_file>");
 				System.err.println("  <option> can be");
-				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <config_file>");
+				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
 				System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --echo\n\tEcho configuration and traffic list in standard outoput");

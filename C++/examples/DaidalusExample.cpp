@@ -328,7 +328,10 @@ int main(int argc, char* argv[]) {
 		} else if (startsWith(arga,"--verb") || startsWith(arga,"-verb")) {
 			verbose = true;
 		} else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
-			std::cerr << "Options: [ --conf [<configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii] | --help]" << std::endl;
+			std::cerr << "Options:" << std::endl;
+			std::cerr << "  --help\n\tPrint this message" << std::endl;
+			std::cerr << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
+			std::cerr << "  --verbose\n\tPrint more information" << std::endl;
 			exit(0);
 		} else {
 			std::cerr << "Unknown option " << arga << std::endl;

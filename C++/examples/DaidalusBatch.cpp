@@ -39,7 +39,7 @@ public:
 		std::cout << "  DaidalusBatch [flags] files" << std::endl;
 		std::cout << "  flags include:" << std::endl;
 		std::cout << "  --help\n\tPrint this message" << std::endl;
-		std::cout << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad configuration <file>" << std::endl;
+		std::cout << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
 		std::cout << "  --out <file>\n\tOutput information to <file>" << std::endl;
 		std::cout << "  --verbose\n\tPrint extra information" << std::endl;
 		std::cout << "  --raw\n\tPrint raw information" << std::endl;
@@ -166,7 +166,6 @@ int main(int argc, const char* argv[]) {
 	}
 	DaidalusParameters::setDefaultOutputPrecision(precision);
 	Daidalus daa;
-	daa.set_DO_365A();
 
 	if (config == "") {
 		// Configure alerters as in DO_365A Phase I and Phase II

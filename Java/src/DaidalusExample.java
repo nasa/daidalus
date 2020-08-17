@@ -85,7 +85,10 @@ class DaidalusExample {
 			} else if (arga.startsWith("--verb") || arga.startsWith("-verb")) {
 				verbose = true;
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
-				System.err.println("Options: [ --config [<configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii] | --verbose | --help]");
+				System.err.println("Options:");
+				System.err.println("  --help\n\tPrint this message");
+				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
+				System.err.println("  --verbose\n\tPrint more information");
 				System.exit(0);
 			} else {
 				System.err.println("Unknown option "+arga);
