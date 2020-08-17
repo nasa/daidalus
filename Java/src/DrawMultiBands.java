@@ -54,14 +54,14 @@ import gov.nasa.larcfm.Util.f;
 public class DrawMultiBands {
 
 	static void printHelpMsg() {
-		System.out.println("Version: DAIDALUS V-"+DaidalusParameters.VERSION);
-		System.out.println("Generates a file that can be processed with the Python script drawmultibands.py");
-		System.out.println("Usage:");
-		System.out.println("  DrawMultiBands [options] file");
-		System.out.println("Options:");
-		System.out.println("  --help\n\tPrint this message");
-		System.out.println("  --config <file.txt>\n\tLoad configuration <file.txt>");
-		System.out.println("  --output <file.draw>\n\tOutout file <file.draw>");
+		System.err.println("Version: DAIDALUS V-"+DaidalusParameters.VERSION);
+		System.err.println("Generates a file that can be processed with the Python script drawmultibands.py");
+		System.err.println("Usage:");
+		System.err.println("  DrawMultiBands [options] file");
+		System.err.println("Options:");
+		System.err.println("  --help\n\tPrint this message");
+		System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
+		System.err.println("  --output <file.draw>\n\tOutout file <file.draw>");
 		System.exit(0);
 	}
 
@@ -110,7 +110,7 @@ public class DrawMultiBands {
 			String name = file.getName();
 			scenario = name.contains(".") ? name.substring(0, name.lastIndexOf('.')):name;
 			if (output == null) {
-				output = scenario+".draw";
+				output = scenario+(config == null ? "" : "-"+config)+".draw";
 			} 
 			out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
 			System.out.println("Writing file "+output+", which can be processed with the Python script drawmultibands.py");
@@ -121,13 +121,29 @@ public class DrawMultiBands {
 
 		/* Create Daidalus object and setting the configuration parameters */
 		Daidalus daa  = new Daidalus();
-
-		if (config != null && !daa.loadFromFile(config)) {
-		    System.err.println("** Error: Configuration file "+config+" not found");
-		    System.exit(1);
+		if (config == null) {
+			daa.set_DO_365A();		
+		} else if (!daa.loadFromFile(config)) {
+			if (config.equals("no_sum")) {
+				// Configure DAIDALUS as in DO-365A, but without SUM
+				daa.set_DO_365A(true,false);
+			} else if (config.equals("nom_a")) {
+				// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+				daa.set_Buffered_WC_DO_365(false);
+			} else if (config.equals("nom_b")) {
+				// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+				daa.set_Buffered_WC_DO_365(true);
+			} else if (config.equals("cd3d")) {
+				// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+				daa.set_CD3D();
+			} else if (config.equals("tcasii")) {
+				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+				daa.set_TCASII();
+			} else {
+				System.err.println("** Error: File "+args[a]+" not found");
+				System.exit(1);
+			}
 		}
-		
-		//System.out.println(daa);
 
 		/* Creating a DaidalusFileWalker */
 		DaidalusFileWalker walker = new DaidalusFileWalker(input);
@@ -153,7 +169,7 @@ public class DrawMultiBands {
 		/* Processing the input file time step by time step and writing output file */
 		while (!walker.atEnd()) {
 			walker.readState(daa);
-			
+
 			str_to += f.FmPrecision(daa.getCurrentTime())+" ";
 
 			double trko = Util.to_pi(daa.getOwnshipState().horizontalDirection());
@@ -220,7 +236,7 @@ public class DrawMultiBands {
 		out.print(str_gs);
 		out.print(str_vs);
 		out.print(str_alt);
-		
+
 		out.println("MostSevereAlertLevel:"+daa.mostSevereAlertLevel(1));
 		for (String key: alerting_times.keySet()) {
 			out.println(alerting_times.get(key));

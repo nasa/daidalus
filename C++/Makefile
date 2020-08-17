@@ -28,7 +28,7 @@ examples:
 	@echo "** To run DaidalusExample type:"
 	@echo "./DaidalusExample"
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../configs/HYS-nom_b.txt ../scenarios/H1.daa"
+	@echo "./DaidalusAlerting --conf ../Configurations/DO365A_no_SUM.conf ../scenarios/H1.daa"
 
 clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a

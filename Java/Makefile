@@ -25,9 +25,9 @@ examples:
 	@echo "** To run DaidalusExample type:"
 	@echo "./DaidalusExample"
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../configs/HYS-nom_b.txt ../scenarios/H1.daa"
+	@echo "./DaidalusAlerting --conf ../Configurations/DO365A_no_SUM.conf ../scenarios/H1.daa"
 	@echo "** To run DrawMultiBands, first type, e.g.,"
-	@echo "./DrawMultiBands --conf ../configs/HYS-nom_b.txt ../scenarios/H1.daa"
+	@echo "./DrawMultiBands ../scenarios/H1.daa"
 	@echo "** and then type, e.g.,"
 	@echo "../scripts/drawmultibands.py H1.draw"
 
