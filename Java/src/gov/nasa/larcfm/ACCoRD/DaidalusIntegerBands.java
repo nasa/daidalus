@@ -31,6 +31,7 @@ public abstract class DaidalusIntegerBands {
 	 */
 	public boolean CD_future_traj(Detection3D det, double B, double T, boolean trajdir, double tsk, 
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, int target_step, boolean instantaneous) {
+		T = Util.min(parameters.getLookaheadTime(),T);
 		if (tsk > T || B > T) return false;
 		Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 		Vect3 sot = sovot.first;
@@ -61,6 +62,9 @@ public abstract class DaidalusIntegerBands {
 	 */ 
 	public boolean LOS_at(Detection3D det, boolean trajdir, double tsk, 
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, int target_step, boolean instantaneous) {
+		if (tsk >= parameters.getLookaheadTime()) {
+			return false;
+		}
 		Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 		Vect3 sot = sovot.first;
 		Velocity vot = sovot.second;
@@ -84,10 +88,9 @@ public abstract class DaidalusIntegerBands {
 
 	// In PVS: kinematic_bands@first_los_search_index
 	private int kinematic_first_los_search_index(Detection3D conflict_det, Optional<Detection3D> recovery_det, double tstep,
-			double B, double T, boolean trajdir, int max,
-			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) { 
+			double B, boolean trajdir, int max, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) { 
 		int FirstLosK = (int)Math.ceil(B/tstep); // first k such that k*ts>=B
-		int FirstLosN = Util.min((int)Math.floor(T/tstep),max); // last k<=MaxN such that k*ts<=T
+		int FirstLosN = Util.min((int)Math.floor(parameters.getLookaheadTime()/tstep),max); // last k<=MaxN such that k*ts<=T
 		int FirstLosK2 = 0;
 		int FirstLosN2 = Util.min((int)Math.floor(B/tstep),max); 
 		int FirstLosInit = recovery_det.isPresent() ? kinematic_first_los_step(recovery_det.get(),tstep,trajdir,FirstLosK2,FirstLosN2,parameters,ownship,traffic) : -1;
@@ -100,12 +103,11 @@ public abstract class DaidalusIntegerBands {
 	// In PVS: kinematic_bands@bands_search_index
 	// epsh == epsv == 0, if traffic is not the repulsive aircraft
 	private int kinematic_bands_search_index(Detection3D conflict_det, Optional<Detection3D> recovery_det, double tstep,
-			double B, double T, 
-			boolean trajdir, int max, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
+			double B, boolean trajdir, int max, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
 			int epsh, int epsv) {
 		boolean usehcrit = epsh != 0;
 		boolean usevcrit = epsv != 0;
-		int FirstLos = kinematic_first_los_search_index(conflict_det,recovery_det,tstep,B,T,trajdir,max,parameters,ownship,traffic);
+		int FirstLos = kinematic_first_los_search_index(conflict_det,recovery_det,tstep,B,trajdir,max,parameters,ownship,traffic);
 		int FirstNonHRep = !usehcrit || FirstLos == 0 ? FirstLos :
 			kinematic_first_nonrepulsive_step(tstep,trajdir,FirstLos-1,parameters,ownship,traffic,epsh);
 		int FirstProbHcrit = FirstNonHRep < 0 ? max+1 : FirstNonHRep;
@@ -123,12 +125,12 @@ public abstract class DaidalusIntegerBands {
 		int d = -1; // Set to the first index with no conflict
 		for (int k = 0; k <= max; ++k) {
 			double tsk = tstep*k;
-			if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				continue;
 			} else if (d >=0) {
 				l.add(new Integerval(d,k-1));
 				d = -1;
-			} else if (no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			} else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				d = k;
 			}
 		}
@@ -143,7 +145,7 @@ public abstract class DaidalusIntegerBands {
 			boolean trajdir, int max, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
 			int epsh, int epsv) {
 		l.clear();
-		int bsi = kinematic_bands_search_index(conflict_det,recovery_det,tstep,B,T,trajdir,max,parameters,ownship,traffic,epsh,epsv);
+		int bsi = kinematic_bands_search_index(conflict_det,recovery_det,tstep,B,trajdir,max,parameters,ownship,traffic,epsh,epsv);
 		if  (bsi != 0) {
 			kinematic_traj_conflict_only_bands(l,conflict_det,recovery_det,tstep,B,T,trajdir,bsi-1,parameters,ownship,traffic);
 		}
@@ -158,13 +160,13 @@ public abstract class DaidalusIntegerBands {
 		boolean usevcrit = epsv != 0;    
 		for (int k=0; k <= max; ++k) {
 			double tsk = tstep*k;
-			if ((tsk >= B && tsk <= T && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
+			if ((B <= tsk && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
 					(recovery_det.isPresent() && 0 <= tsk && tsk <= B &&
 					LOS_at(recovery_det.get(),trajdir,tsk,parameters,ownship,traffic,0,false)) ||
 					(usehcrit && !kinematic_repulsive_at(tstep,trajdir,k,parameters,ownship,traffic,epsh)) ||
 					(usevcrit && !kinematic_vert_repul_at(tstep,trajdir,k,parameters,ownship,traffic,epsv))) {
 				return -1;
-			} else if (no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			} else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				return k;
 			} 
 		}      
@@ -261,7 +263,8 @@ public abstract class DaidalusIntegerBands {
 	private boolean kinematic_any_conflict_step(Detection3D det, double tstep, double B, double T, boolean trajdir, int max, 
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
 		for (int k=0; k <= max; ++k) {
-			if (CD_future_traj(det,B,T,trajdir,tstep*k,parameters,ownship,traffic,0,false)) {
+			double tsk = tstep*k;
+			if (CD_future_traj(det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				return true;
 			}
 		}
