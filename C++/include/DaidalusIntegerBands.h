@@ -66,14 +66,13 @@ private:
 
   // In PVS: kinematic_bands@first_los_search_index
   int kinematic_first_los_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T,  bool trajdir, int max,
+      double B, bool trajdir, int max,
       const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const;
 
   // In PVS: kinematic_bands@bands_search_index
   // epsh == epsv == 0, if traffic is not the repulsive aircraft
   int kinematic_bands_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-      double B, double T,
-      bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
+      double B, bool trajdir, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
       int epsh, int epsv) const;
 
   // In PVS: int_bands@traj_conflict_only_band, int_bands@nat_bands, and int_bands@nat_bands_rec

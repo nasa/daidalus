@@ -94,32 +94,34 @@ bool DaidalusAltBands::conflict_free_traj_step(const Detection3D* conflict_det, 
     double target_alt = get_min_val_()+target_step*get_step(parameters);
     Tuple5<double,double,double,double,double> tsqj = Kinematics::vsLevelOutTimes(ownship.positionXYZ().alt(),ownship.velocityXYZ().vs(),
         parameters.getVerticalRate(),target_alt,parameters.getVerticalAcceleration(),-parameters.getVerticalAcceleration(),true);
-    double tsqj1 = tsqj.first+0.0;
-    double tsqj2 = tsqj.second+0.0;
+    double tsqj1 = tsqj.first;
+    double tsqj2 = tsqj.second;
     double tsqj3 = tsqj.third+tstep;
     for (int i=0; i<=std::floor(tsqj1/tstep);++i) {
       double tsi = i*tstep;
-      if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
+      if ((B <= tsi && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
           (recovery_det != NULL && 0 <= tsi && tsi <= B &&
               LOS_at(recovery_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous))) {
         return false;
       }
     }
-    if ((tsqj2>=B &&
-        CD_future_traj(conflict_det,B,std::min(T,tsqj2),trajdir,std::max(tsqj1,0.0),parameters,ownship,traffic,target_step,instantaneous)) ||
+    double tsk1 = Util::max(tsqj1,0.0);
+    if ((tsqj2 >= B &&
+        CD_future_traj(conflict_det,B,std::min(T+tsk1,tsqj2),trajdir,tsk1,parameters,ownship,traffic,target_step,instantaneous)) ||
         (recovery_det != NULL && tsqj2 >= 0 &&
-            CD_future_traj(recovery_det,0,std::min(B,tsqj2),trajdir,std::max(tsqj1,0.0),parameters,ownship,traffic,target_step,instantaneous))) {
+            CD_future_traj(recovery_det,0,Util::min(B,tsqj2),trajdir,tsk1,parameters,ownship,traffic,target_step,instantaneous))) {
       return false;
     }
     for (int i=(int)std::ceil(tsqj2/tstep); i<=std::floor(tsqj3/tstep);++i) {
       double tsi = i*tstep;
-      if ((B<=tsi && tsi<=T && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
+      if ((B <= tsi && LOS_at(conflict_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous)) ||
           (recovery_det != NULL && 0 <= tsi && tsi <= B &&
               LOS_at(recovery_det,trajdir,tsi,parameters,ownship,traffic,target_step,instantaneous))) {
         return false;
       }
     }
-    return no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,std::max(tsqj3,0.0),parameters,ownship,traffic,target_step,instantaneous);
+    double tsk3 = Util::max(tsqj3,0.0);
+    return no_CD_future_traj(conflict_det,recovery_det,B,T+tsk3,trajdir,tsk3,parameters,ownship,traffic,target_step,instantaneous);
   }
 }
 

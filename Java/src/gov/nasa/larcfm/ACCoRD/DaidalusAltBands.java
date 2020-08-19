@@ -113,11 +113,11 @@ public class DaidalusAltBands extends DaidalusRealBands {
 					return false;
 				}
 			}
-			double tsk1 = Util.max(tsqj1,0);
+			double tsk1 = Util.max(tsqj1,0.0);
 			if ((tsqj2 >= B && 
 					CD_future_traj(conflict_det,B,Util.min(T+tsk1,tsqj2),trajdir,tsk1,parameters,ownship,traffic,target_step,instantaneous)) || 
 					(recovery_det.isPresent() && tsqj2 >= 0 && 
-					CD_future_traj(recovery_det.get(),0,B,trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous))) {
+					CD_future_traj(recovery_det.get(),0,Util.min(B,tsqj2),trajdir,Util.max(tsqj1,0),parameters,ownship,traffic,target_step,instantaneous))) {
 				return false;
 			}
 			for (int i=(int)Math.ceil(tsqj2/tstep); i<=Math.floor(tsqj3/tstep);++i) {
@@ -128,7 +128,7 @@ public class DaidalusAltBands extends DaidalusRealBands {
 					return false;
 				}
 			}
-			double tsk3 = Util.max(tsqj3,0);
+			double tsk3 = Util.max(tsqj3,0.0);
 			return no_CD_future_traj(conflict_det,recovery_det,B,T+tsk3,trajdir,tsk3,parameters,ownship,traffic,target_step,instantaneous);
 		}
 	}

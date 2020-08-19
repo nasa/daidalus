@@ -19,6 +19,7 @@ namespace larcfm {
  */
 bool DaidalusIntegerBands::CD_future_traj(const Detection3D* det, double B, double T, bool trajdir, double tsk,
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic, int target_step, bool instantaneous) const {
+  T = Util::min(parameters.getLookaheadTime(),T);
   if (tsk > T || B > T) return false;
   std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
   Vect3 sot = sovot.first;
@@ -49,6 +50,9 @@ bool DaidalusIntegerBands::no_CD_future_traj(const Detection3D* conflict_det, co
  */
 bool DaidalusIntegerBands::LOS_at(const Detection3D* det, bool trajdir, double tsk,
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic, int target_step, bool instantaneous) const {
+  if (tsk >= parameters.getLookaheadTime()) {
+      return false;
+  }
   std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
   Vect3 sot = sovot.first;
   Velocity vot = sovot.second;
@@ -73,10 +77,10 @@ int DaidalusIntegerBands::kinematic_first_los_step(const Detection3D* det, doubl
 
 // In PVS: kinematic_bands@first_los_search_index
 int DaidalusIntegerBands::kinematic_first_los_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T,  bool trajdir, int max,
+    double B,  bool trajdir, int max,
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   int FirstLosK = (int)std::ceil(B/tstep); // first k such that k*ts>=B
-  int FirstLosN = Util::min((int)std::floor(T/tstep),max); // last k<=MaxN such that k*ts<=T
+  int FirstLosN = Util::min((int)std::floor(parameters.getLookaheadTime()/tstep),max); // last k<=MaxN such that k*ts<=T
   int FirstLosK2 = 0;
   int FirstLosN2 = Util::min((int)std::floor(B/tstep),max);
   int FirstLosInit = recovery_det != NULL ? kinematic_first_los_step(recovery_det,tstep,trajdir,FirstLosK2,FirstLosN2,parameters,ownship,traffic) : -1;
@@ -89,12 +93,11 @@ int DaidalusIntegerBands::kinematic_first_los_search_index(const Detection3D* co
 // In PVS: kinematic_bands@bands_search_index
 // epsh == epsv == 0, if traffic is not the repulsive aircraft
 int DaidalusIntegerBands::kinematic_bands_search_index(const Detection3D* conflict_det, const Detection3D* recovery_det, double tstep,
-    double B, double T,
-    bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
+    double B, bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   bool usehcrit = epsh != 0;
   bool usevcrit = epsv != 0;
-  int FirstLos = kinematic_first_los_search_index(conflict_det,recovery_det,tstep,B,T,trajdir,max,parameters,ownship,traffic);
+  int FirstLos = kinematic_first_los_search_index(conflict_det,recovery_det,tstep,B,trajdir,max,parameters,ownship,traffic);
   int FirstNonHRep = !usehcrit || FirstLos == 0 ? FirstLos :
       kinematic_first_nonrepulsive_step(tstep,trajdir,FirstLos-1,parameters,ownship,traffic,epsh);
   int FirstProbHcrit = FirstNonHRep < 0 ? max+1 : FirstNonHRep;
@@ -113,12 +116,12 @@ void DaidalusIntegerBands::kinematic_traj_conflict_only_bands(std::vector<Intege
   int d = -1; // Set to the first index with no conflict
   for (int k = 0; k <= max; ++k) {
     double tsk = tstep*k;
-    if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       continue;
     } else if (d >=0) {
       l.push_back( Integerval(d,k-1));
       d = -1;
-    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       d = k;
     }
   }
@@ -133,7 +136,7 @@ void DaidalusIntegerBands::kinematic_bands(std::vector<Integerval>& l, const Det
     bool trajdir, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic,
     int epsh, int epsv) const {
   l.clear();
-  int bsi = kinematic_bands_search_index(conflict_det,recovery_det,tstep,B,T,trajdir,max,parameters,ownship,traffic,epsh,epsv);
+  int bsi = kinematic_bands_search_index(conflict_det,recovery_det,tstep,B,trajdir,max,parameters,ownship,traffic,epsh,epsv);
   if  (bsi != 0) {
     kinematic_traj_conflict_only_bands(l,conflict_det,recovery_det,tstep,B,T,trajdir,bsi-1,parameters,ownship,traffic);
   }
@@ -148,13 +151,13 @@ int DaidalusIntegerBands::first_kinematic_green(const Detection3D* conflict_det,
   bool usevcrit = epsv != 0;
   for (int k=0; k <= max; ++k) {
     double tsk = tstep*k;
-    if ((tsk >= B && tsk <= T && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
+    if ((B <= tsk && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
         (recovery_det != NULL && 0 <= tsk && tsk <= B &&
             LOS_at(recovery_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
             (usehcrit && !kinematic_repulsive_at(tstep,trajdir,k,parameters,ownship,traffic,epsh)) ||
             (usevcrit && !kinematic_vert_repul_at(tstep,trajdir,k,parameters,ownship,traffic,epsv))) {
       return -1;
-    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       return k;
     }
   }
@@ -251,7 +254,8 @@ int DaidalusIntegerBands::kinematic_first_nonvert_repul_step(double tstep, bool 
 bool DaidalusIntegerBands::kinematic_any_conflict_step(const Detection3D* det, double tstep, double B, double T, bool trajdir, int max,
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   for (int k=0; k <= max; ++k) {
-    if (CD_future_traj(det,B,T,trajdir,tstep*k,parameters,ownship,traffic,0,false)) {
+    double tsk = tstep*k;
+    if (CD_future_traj(det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       return true;
     }
   }

@@ -21,7 +21,7 @@
 
 namespace larcfm {
 
-const std::string DaidalusParameters::VERSION = "2.0.1";
+const std::string DaidalusParameters::VERSION = "2.0.2";
 const INT64FM DaidalusParameters::ALMOST_ = PRECISION5;
 bool DaidalusParameters::initialized = false;
 
