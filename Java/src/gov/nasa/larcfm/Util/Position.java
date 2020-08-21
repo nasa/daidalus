@@ -1072,8 +1072,8 @@ public final class Position implements OutputList {
 			return "Position.makeLatLonAlt("+ f.Fm12(Units.to("deg",lat()))
 			       +", "+f.Fm12(Units.to("deg",lon()))+", "+f.Fm12(Units.to("ft",alt()))+")";
 		} else {
-			return "Position.makeXYZ("+(f.Fm8(Units.to("NM",x()))+", "+f.Fm8(Units.to("NM",y()))
-			       +", "	+f.Fm8(Units.to("ft",z()))+")");
+			return "Position.makeXYZ("+(f.Fm12(Units.to("NM",x()))+", "+f.Fm12(Units.to("NM",y()))
+			       +", "	+f.Fm12(Units.to("ft",z()))+")");
 		}
 	}
 
@@ -1081,7 +1081,7 @@ public final class Position implements OutputList {
 		if (latlon) {
 			return "Position.mkLatLonAlt("+ f.Fm12(lat())+", "+f.Fm12(lon())+", "+f.Fm12(alt())+")";
 		} else {
-			return "Position.mkXYZ("+(f.Fm8(x())+", "+f.Fm8(y())+", "+f.Fm8(z())+")");
+			return "Position.mkXYZ("+(f.Fm12(x())+", "+f.Fm12(y())+", "+f.Fm12(z())+")");
 		}
 	}
 
