@@ -431,6 +431,7 @@ double Util::turnDelta(double alpha, double beta, bool turnRight) {
 
 	 /* Execute regular expression */
 	 reti = regexec(&regex, sb.c_str(), 0, NULL, 0);
+	 regfree(&regex);
 	 return !reti;
  }
 #endif
