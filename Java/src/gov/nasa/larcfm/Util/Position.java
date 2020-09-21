@@ -1069,19 +1069,19 @@ public final class Position implements OutputList {
 	
 	public String toUnitTest() {
 		if (latlon) {
-			return "Position.makeLatLonAlt("+ f.Fm12(Units.to("deg",lat()))
-			       +", "+f.Fm12(Units.to("deg",lon()))+", "+f.Fm12(Units.to("ft",alt()))+")";
+			return "Position.makeLatLonAlt("+ f.Fm16(Units.to("deg",lat()))
+			       +", "+f.Fm16(Units.to("deg",lon()))+", "+f.Fm16(Units.to("ft",alt()))+")";
 		} else {
-			return "Position.makeXYZ("+(f.Fm12(Units.to("NM",x()))+", "+f.Fm12(Units.to("NM",y()))
-			       +", "	+f.Fm12(Units.to("ft",z()))+")");
+			return "Position.makeXYZ("+(f.Fm16(Units.to("NM",x()))+", "+f.Fm16(Units.to("NM",y()))
+			       +", "	+f.Fm16(Units.to("ft",z()))+")");
 		}
 	}
 
 	public String toUnitTestSI() {
 		if (latlon) {
-			return "Position.mkLatLonAlt("+ f.Fm12(lat())+", "+f.Fm12(lon())+", "+f.Fm12(alt())+")";
+			return "Position.mkLatLonAlt("+ f.Fm16(lat())+", "+f.Fm16(lon())+", "+f.Fm16(alt())+")";
 		} else {
-			return "Position.mkXYZ("+(f.Fm12(x())+", "+f.Fm12(y())+", "+f.Fm12(z())+")");
+			return "Position.mkXYZ("+(f.Fm16(x())+", "+f.Fm16(y())+", "+f.Fm12(z())+")");
 		}
 	}
 

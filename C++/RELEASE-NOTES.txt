@@ -10,6 +10,12 @@ Rights Reserved.
 
 Release DAIDALUS-v2.0.1:
 ------------------
+* September 21, 2020
+- Fixed error in DaidalusCore copy constructor (C++ only). Thanks to V-ALICE
+
+* August 21, 2020
+- Fixed memory leak in non _MSC_VER compiled branch (C++ only). Thanks to B. Shimanuki
+
 * August 12, 2020
 - Updated Makefile
 - Removed global variable j_step_ (using instead local parameters

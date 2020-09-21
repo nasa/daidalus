@@ -35,8 +35,9 @@ public class DaidalusCore {
 	public Velocity wind_vector;  
 	/* Kinematic bands parameters */
 	public DaidalusParameters parameters;
-	public UrgencyStrategy urgency_strategy; // Strategy for most urgent aircraft
-
+	/* Strategy for most urgent aircraft */
+	public UrgencyStrategy urgency_strategy; 
+	
 	/**** CACHED VARIABLES ****/
 
 	/* Variable to control re-computation of cached values */
@@ -132,7 +133,7 @@ public class DaidalusCore {
 		current_time = core.current_time;
 		wind_vector = core.wind_vector;
 		parameters = new DaidalusParameters(core.parameters);
-		urgency_strategy = core.urgency_strategy.copy();
+		urgency_strategy = core.urgency_strategy != null ? core.urgency_strategy.copy() : NoneUrgencyStrategy.NONE_URGENCY_STRATEGY;
 
 		// Cached_ variables are cleared
 		cache_ = 0; 

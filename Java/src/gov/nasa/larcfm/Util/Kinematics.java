@@ -1983,6 +1983,68 @@ public final class Kinematics {
 	}
 
 	
+	/** distance traveled when accelerating from gs0 to gsTarget for time dt (acceleration stops after gsTarget is reached)
+	 * 
+	 * 
+ 	 * @param gs0             initial ground speed
+	 * @param gsTarget        target ground speed
+	 * @param gsAccel         positive ground speed acceleration
+	 * @param dt              total time traveling
+	 * 
+	 * @return                total distance traveled 
+	 * 
+	 * Note: if gsAccel = 0 it returns gs0*dt
+	 */
+	public static Pair<Double,Double> distanceWithGsAccel(double gs0, double gsTarget, double gsAccel, double dt) {		
+		double ds = -1;
+		if (Util.almost_equals(gsAccel, 0)) {
+			return new Pair<Double,Double>(gs0*dt,gs0);
+		}
+		double deltaGs = gsTarget-gs0;
+        double t0 = Math.abs(deltaGs/gsAccel);  // time to reach gsTarget
+        double a = Util.sign(deltaGs)*gsAccel;	// sign of acceleration
+        double gsFinal = gsTarget;
+        if (dt < t0) {
+        	ds = gs0*dt + 0.5*a*dt*dt;
+        	gsFinal = gs0 + a*dt;
+        }  else ds = gs0*t0 +0.5*a*t0*t0 + (dt-t0)*gsTarget;
+		return new Pair<Double,Double>(ds,gsFinal); 
+	}
+	
+	/** distance traveled when accelerating from gsIn to gsTarget 
+	 * 
+ 	 * @param gsIn            initial ground speed
+	 * @param gsTarget        target ground speed
+	 * @param gsAccel         positive ground speed acceleration
+	 * 
+	 * See also gsAccelDist  will give same answer
+	 * 
+	 * @return                total distance traveled when accelerating from gs0 to gsTarget
+	 */ 
+	public static double neededDistGsAccel(double gsIn, double gsTarget, double gsAccel) {
+		double accelTime = Math.abs((gsIn - gsTarget)/gsAccel);
+		double neededDist = accelTime*(gsIn+gsTarget)/2.0;
+		//f.pln(" $$$$$$$$$>>>>>>>>>>> neededDistGsAccel: gsIn = "+gsIn+" targetGs = "+targetGs+" gsAccel = "+gsAccel+" neededDist = "+neededDist);
+		return neededDist;
+	}
+	
+	/**
+	 * Distance traveled when accelerating from gs1 to gs2
+	 * 
+	 * @param gs1 starting gs
+	 * @param gs2 ending gs
+	 * @param a acceleration value (unsigned)
+	 * 
+	 * @return distance needed to accelerate from gs1 to gs2 with acceleration a.  This returns 0 if a=0 or gs1=gs2.
+	 */
+	public static double gsAccelDist(double gs1, double gs2, double a) {
+		if (gs1 == gs2 || a == 0.0) return 0.0; 
+		int sign = Util.sign(gs2-gs1);
+		double t = (gs2-gs1)/(sign*a);
+		return gs1*t + sign*0.5*a*t*t;
+	}
+
+
 	/** Test for LoS(D,H) between two aircraft when only ownship gs accelerates, compute trajectories up to time stopTime
 	 * 
 	 * @param so    initial position of ownship
@@ -2011,20 +2073,7 @@ public final class Kinematics {
 		}
 		return rtn;
 	}
-	
-	/**
-	 * Distance needed to accelerate
-	 * @param gs1 starting gs
-	 * @param gs2 ending gs
-	 * @param a acceleration value (unsigned)
-	 * @return distance needed to accelerate from gs1 to gs2 with acceleration a.  This returns 0 if a=0 or gs1=gs2.
-	 */
-	public static double gsAccelDist(double gs1, double gs2, double a) {
-		if (gs1 == gs2 || a == 0.0) return 0.0; 
-		int sign = Util.sign(gs2-gs1);
-		double t = (gs2-gs1)/(sign*a);
-		return gs1*t + sign*0.5*a*t*t;
-	}
+
 	
 	// ****************************** Vertical Speed KINEMATIC CALCULATIONS *******************************  
 
@@ -2157,8 +2206,37 @@ public final class Kinematics {
 		//return new Pair<Vect3,Velocity>(ns,nv);
 		return vsAccelUntil(sv0.first, sv0.second,t,goalVs, vsAccel);
 	}
+	
+	
+	/**
+	 * Time to achieve an altitude change of size deltaZ, assumes vertical speed is
+	 * initially 0 and final vertical speed is also 0.
+	 * 
+	 * Note: the initial and final vertical speeds are zero
+	 * 
+	 * @param deltaZ   change in altitude
+	 * @param vsFLC    vertical speed of flight level change
+	 * @param vsAccel  vertical acceleration
+	 * @param kinematic if true, include the extra time for acceleration and
+	 *                 deceleration
+	 * @return
+	 */
+	public static double timeNeededForFLC(double deltaZ, double vsFLC, double vsAccel, boolean kinematic) {
+		double rtn;
+		if (kinematic) {
+			rtn = Math.abs(deltaZ / vsFLC) + Math.abs(vsFLC / vsAccel);
+		} else {
+			rtn = Math.abs(deltaZ / vsFLC);
+		}
+		return rtn;
+	}
 
-	// z positon while in ramp up accel
+	public static double timeNeededForFLC(double deltaZ, double vsFLC, double vsAccel) {
+		boolean kinematic = true;
+		return timeNeededForFLC(deltaZ, vsFLC, vsAccel, kinematic);
+	}
+	
+	// z position while in ramp up accel
 	private static double gamma(double voz, double alpha, double Tr, double t) {
 		if (Tr == 0) return 0.0;
 		return voz*t+(1.0/6.0)*alpha*t*t*t/Tr;

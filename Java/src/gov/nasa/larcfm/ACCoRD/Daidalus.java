@@ -699,8 +699,10 @@ public class Daidalus implements GenericStateBands {
 	 * Set strategy for computing most urgent aircraft.
 	 */
 	public void setUrgencyStrategy(UrgencyStrategy strat) { 
-		core_.urgency_strategy = strat.copy();
-		reset();
+		if (strat != null) {
+			core_.urgency_strategy = strat.copy();
+			reset();
+		}
 	}
 
 	/**
