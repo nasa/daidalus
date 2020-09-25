@@ -1961,6 +1961,29 @@ public:
   double horizontalDirectionResolution(bool dir, const std::string& u);
 
   /**
+   * Compute horizontal direction *raw* resolution maneuver for a given direction.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is right (true)/left (false) of ownship current direction
+   * @return direction resolution in internal units [rad] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no resolution to the right, and negative infinity if there
+   * is no resolution to the left.
+   */
+  double horizontalDirectionRawResolution(bool dir);
+
+  /**
+   * Compute horizontal direction *raw* resolution maneuver for a given direction.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is right (true)/left (false) of ownship current direction
+   * @parameter u units
+   * @return direction resolution in specified units [u] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no resolution to the right, and negative infinity if there
+   * is no resolution to the left.
+   */
+  double horizontalDirectionRawResolution(bool dir, const std::string& u);
+
+  /**
    * Compute preferred horizontal direction based on resolution that is closer to current direction.
    * @return True: Right. False: Left.
    */
@@ -2067,6 +2090,29 @@ public:
    * is no down resolution.
    */
   double horizontalSpeedResolution(bool dir, const std::string& u);
+
+  /**
+   * Compute horizontal speed *raw* resolution maneuver.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+   * @return horizontal speed resolution in internal units [m/s] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no up resolution, and negative infinity if there
+   * is no down resolution.
+   */
+  double horizontalSpeedRawResolution(bool dir);
+
+  /**
+   * Compute horizontal speed *raw* resolution maneuver for corrective region.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+   * @parameter u units
+   * @return horizontal speed resolution in specified units [u] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no up resolution, and negative infinity if there
+   * is no down resolution.
+   */
+  double horizontalSpeedRawResolution(bool dir, const std::string& u);
 
   /**
    * Compute preferred horizontal speed direction on resolution that is closer to current horizontal speed.
@@ -2177,6 +2223,29 @@ public:
   double verticalSpeedResolution(bool dir, const std::string& u);
 
   /**
+   * Compute vertical speed *raw* resolution maneuver for given direction.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is up (true)/down (false) of ownship current vertical speed
+   * @return vertical speed resolution in internal units [m/s] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no up resolution, and negative infinity if there
+   * is no down resolution.
+   */
+  double verticalSpeedRawResolution(bool dir);
+
+  /**
+   * Compute vertical speed *raw* resolution maneuver for given direction.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is up (true)/down (false) of ownship current vertical speed
+   * @parameter u units
+   * @return vertical speed resolution in specified units [u] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no up resolution, and negative infinity if there
+   * is no down resolution.
+   */
+  double verticalSpeedRawResolution(bool dir, const std::string& u);
+
+  /**
    * Compute preferred  vertical speed direction based on resolution that is closer to current vertical speed.
    * True: Increase speed, False: Decrease speed.
    */
@@ -2284,6 +2353,29 @@ public:
    * is no down resolution.
    */
   double altitudeResolution(bool dir, const std::string& u);
+
+  /**
+   * Compute altitude *raw* resolution maneuver for given direction.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is up (true)/down (false) of ownship current altitude
+   * @return altitude resolution in internal units [m] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no up resolution, and negative infinity if there
+   * is no down resolution.
+   */
+  double altitudeRawResolution(bool dir);
+
+  /**
+   * Compute altitude *raw* resolution maneuver for given direction.
+   * Raw resolution is the resolution without persistence
+   * @parameter dir is up (true)/down (false) of ownship current altitude
+   * @parameter u units
+   * @return altitude resolution in specified units [u] in specified direction.
+   * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+   * positive infinity if there is no up resolution, and negative infinity if there
+   * is no down resolution.
+   */
+  double altitudeRawResolution(bool dir, const std::string& u);
 
   /**
    * Compute preferred  altitude direction on resolution that is closer to current altitude.

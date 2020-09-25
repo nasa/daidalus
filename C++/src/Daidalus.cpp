@@ -2916,6 +2916,33 @@ double Daidalus::horizontalDirectionResolution(bool dir, const std::string& u) {
 }
 
 /**
+ * Compute horizontal direction *raw* resolution maneuver for a given direction.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is right (true)/left (false) of ownship current direction
+ * @return direction resolution in internal units [rad] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no resolution to the right, and negative infinity if there
+ * is no resolution to the left.
+ */
+double Daidalus::horizontalDirectionRawResolution(bool dir){
+  return hdir_band_.raw_resolution(core_,dir);
+}
+
+/**
+ * Compute horizontal direction *raw* resolution maneuver for a given direction.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is right (true)/left (false) of ownship current direction
+ * @parameter u units
+ * @return direction resolution in specified units [u] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no resolution to the right, and negative infinity if there
+ * is no resolution to the left.
+ */
+double Daidalus::horizontalDirectionRawResolution(bool dir, const std::string& u){
+  return Units::to(u,horizontalDirectionRawResolution(dir));
+}
+
+/**
  * Compute preferred horizontal direction based on resolution that is closer to current direction.
  * @return True: Right. False: Left.
  */
@@ -3061,6 +3088,33 @@ double Daidalus::horizontalSpeedResolution(bool dir) {
  */
 double Daidalus::horizontalSpeedResolution(bool dir, const std::string& u) {
   return Units::to(u,horizontalSpeedResolution(dir));
+}
+
+/**
+ * Compute horizontal speed *raw* resolution maneuver.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+ * @return horizontal speed resolution in internal units [m/s] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no up resolution, and negative infinity if there
+ * is no down resolution.
+ */
+double Daidalus::horizontalSpeedRawResolution(bool dir) {
+  return hs_band_.raw_resolution(core_,dir);
+}
+
+/**
+ * Compute horizontal speed *raw* resolution maneuver for corrective region.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+ * @parameter u units
+ * @return horizontal speed resolution in specified units [u] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no up resolution, and negative infinity if there
+ * is no down resolution.
+ */
+double Daidalus::horizontalSpeedRawResolution(bool dir, const std::string& u) {
+  return Units::to(u,horizontalSpeedRawResolution(dir));
 }
 
 /**
@@ -3212,6 +3266,33 @@ double Daidalus::verticalSpeedResolution(bool dir, const std::string& u) {
 }
 
 /**
+ * Compute vertical speed *raw* resolution maneuver for given direction.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is up (true)/down (false) of ownship current vertical speed
+ * @return vertical speed resolution in internal units [m/s] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no up resolution, and negative infinity if there
+ * is no down resolution.
+ */
+double Daidalus::verticalSpeedRawResolution(bool dir) {
+  return vs_band_.raw_resolution(core_,dir);
+}
+
+/**
+ * Compute vertical speed *raw* resolution maneuver for given direction.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is up (true)/down (false) of ownship current vertical speed
+ * @parameter u units
+ * @return vertical speed resolution in specified units [u] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no up resolution, and negative infinity if there
+ * is no down resolution.
+ */
+double Daidalus::verticalSpeedRawResolution(bool dir, const std::string& u) {
+  return Units::to(u,verticalSpeedRawResolution(dir));
+}
+
+/**
  * Compute preferred  vertical speed direction based on resolution that is closer to current vertical speed.
  * True: Increase speed, False: Decrease speed.
  */
@@ -3357,6 +3438,33 @@ double Daidalus::altitudeResolution(bool dir) {
  */
 double Daidalus::altitudeResolution(bool dir, const std::string& u) {
   return Units::to(u,altitudeResolution(dir));
+}
+
+/**
+ * Compute altitude *raw* resolution maneuver for given direction.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is up (true)/down (false) of ownship current altitude
+ * @return altitude resolution in internal units [m] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no up resolution, and negative infinity if there
+ * is no down resolution.
+ */
+double Daidalus::altitudeRawResolution(bool dir) {
+  return alt_band_.raw_resolution(core_,dir);
+}
+
+/**
+ * Compute altitude *raw* resolution maneuver for given direction.
+ * Raw resolution is the resolution without persistence
+ * @parameter dir is up (true)/down (false) of ownship current altitude
+ * @parameter u units
+ * @return altitude resolution in specified units [u] in specified direction.
+ * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * positive infinity if there is no up resolution, and negative infinity if there
+ * is no down resolution.
+ */
+double Daidalus::altitudeRawResolution(bool dir, const std::string& u) {
+  return Units::to(u,altitudeRawResolution(dir));
 }
 
 /**
