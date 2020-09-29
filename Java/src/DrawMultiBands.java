@@ -110,10 +110,9 @@ public class DrawMultiBands {
 			String name = file.getName();
 			scenario = name.contains(".") ? name.substring(0, name.lastIndexOf('.')):name;
 			if (output == null) {
-				output = scenario+(config == null ? "" : "-"+config)+".draw";
+				output = scenario+".draw";
 			} 
 			out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
-			System.out.println("Writing file "+output+", which can be processed with the Python script drawmultibands.py");
 		} catch (Exception e) {
 			System.err.println("** Error: "+e);
 			System.exit(1);
@@ -140,10 +139,12 @@ public class DrawMultiBands {
 				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
 				daa.set_TCASII();
 			} else {
-				System.err.println("** Error: File "+args[a]+" not found");
+				System.err.println("** Error: File "+config+" not found");
 				System.exit(1);
 			}
 		}
+
+		System.out.println("Writing file "+output+", which can be processed with the Python script drawmultibands.py");
 
 		/* Creating a DaidalusFileWalker */
 		DaidalusFileWalker walker = new DaidalusFileWalker(input);

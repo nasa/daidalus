@@ -116,7 +116,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
 				daa.set_TCASII();
 			} else {
-				System.err.println("** Error: File "+args[a]+" not found");
+				System.err.println("** Error: File "+config+" not found");
 				System.exit(1);
 			}
 		}   

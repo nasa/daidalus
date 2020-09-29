@@ -24,12 +24,17 @@ examples:
 	@echo
 	@echo "** To run DaidalusExample type:"
 	@echo "./DaidalusExample"
+	@echo
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../Configurations/DO365A_no_SUM.conf ../scenarios/H1.daa"
+	@echo "./DaidalusAlerting --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
+	@echo
 	@echo "** To run DrawMultiBands, first type, e.g.,"
-	@echo "./DrawMultiBands ../scenarios/H1.daa"
+	@echo "./DrawMultiBands -conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
 	@echo "** and then type, e.g.,"
 	@echo "../scripts/drawmultibands.py H1.draw"
+
+doc:
+	javadoc -d doc -sourcepath src gov.nasa.larcfm.Util gov.nasa.larcfm.IO gov.nasa.larcfm.ACCoRD
 
 clean:
 	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar

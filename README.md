@@ -22,7 +22,7 @@ The core functionalities implemented by DAIDALUS include
 *  alerting logic based on hazard and non-hazard volumes, and
 *  instantaneous and kinematic maneuver guidance in the form of
 suggestive guidance (i.e., bands) and directive guidance (i.e.,
-preferred resolution).
+preferred direction and velocity vector).
 
 ### Documentation
 
