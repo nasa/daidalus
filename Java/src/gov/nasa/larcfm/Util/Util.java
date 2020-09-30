@@ -692,7 +692,7 @@ public final class Util {
 	 * 
 	 * @param alpha one angle
 	 * @param beta another angle
-	 * @return difference in angle
+	 * @return non-negative difference in angle
 	 */
 	public static double turnDelta(double alpha, double beta) {
 		double a = Util.to_2pi(alpha);

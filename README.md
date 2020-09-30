@@ -22,7 +22,7 @@ The core functionalities implemented by DAIDALUS include
 *  alerting logic based on hazard and non-hazard volumes, and
 *  instantaneous and kinematic maneuver guidance in the form of
 suggestive guidance (i.e., bands) and directive guidance (i.e.,
-preferred resolution).
+preferred direction and velocity vector).
 
 ### Documentation
 
@@ -60,7 +60,7 @@ repository, visit https://shemesh.larc.nasa.gov/fm/DAIDALUS.
 
 ### Current Release
 
-v2.0.1, August 12, 2020
+Pre-v2.0.2, September-24-2020
 
 ### License
 

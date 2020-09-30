@@ -1783,10 +1783,20 @@ public final class GreatCircle {
 		return distance_from_angle(theta,0.0);
 	}
 
+	/** Return the chord distance, given a radius of a "small" circle. 
+	 * 
+	 * @param surface_radius radius of small circle, across the surface
+	 * @return chord distance
+	 */
 	public static double to_chordal_radius(double surface_radius) {
 		return chord_distance(surface_radius*2.0)/2.0;
 	}
 
+	/** Return the surface distance, given a radius of a "small" circle. 
+	 * 
+	 * @param chord_radius radius of small circle, cutting through the Earth on a chord
+	 * @return surface distance
+	 */
 	public static double to_surface_radius(double chord_radius) {
 		return surface_distance(chord_radius*2.0)/2.0;
 	}

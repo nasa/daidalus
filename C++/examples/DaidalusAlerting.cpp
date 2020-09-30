@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
 					daa.set_TCASII();
 					conf = "tcasii";
 				} else {
-					std::cerr << "** Error: File " << arga << "not found" << std::endl;
+					std::cerr << "** Error: File " << arga << " not found" << std::endl;
 					exit(1);
 				}
 			} else {

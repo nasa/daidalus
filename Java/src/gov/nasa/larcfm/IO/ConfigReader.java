@@ -54,9 +54,10 @@ import java.util.List;
  * 
  * <p>A special parameter called "importConfigFile = file.cfg"
  * will read the parameters from that file and include those parameters as if they were parameters in this file.
- * The file may also have an "importConfigFile" option.
+ * The file imported may also have an "importConfigFile" option.
  * Only one importConfigFile option is allowed per file.
- * Parameters read from secondary files will not overwrite parameters set in their parent files.</p>
+ * Parameters read from a secondary file will not overwrite parameters set in their parent file.
+ * </p>
  */
 public final class ConfigReader implements ParameterReader, ParameterProvider, ErrorReporter {
 	private static final String INCLUDE_FILE = "importConfigFile";

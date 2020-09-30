@@ -27,8 +27,16 @@ examples:
 	@echo
 	@echo "** To run DaidalusExample type:"
 	@echo "./DaidalusExample"
+	@echo
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../Configurations/DO365A_no_SUM.conf ../scenarios/H1.daa"
+	@echo "./DaidalusAlerting --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
+	@echo
+	@echo "** To run DaidalusBatch type, e.g.,"
+	@echo "./DaidalusBatch --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
+	@echo
+
+doc:
+	doxygen 
 
 clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a

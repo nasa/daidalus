@@ -2028,19 +2028,36 @@ public final class Kinematics {
 		return neededDist;
 	}
 	
+//	/** Given a starting ground speed, ending ground speed, and a ground speed acceleration value, this function
+//	 *  well determine the distance traveled to attain the speed conditions.
+//	 * 
+//	 * @param startGs
+//	 * @param finalGs
+//	 * @param gsAccel
+//	 * @return Distance travels over the speed changes
+//	 */
+//	public static double distanceAccel(double startGs, double finalGs, double gsAccel) {
+//		double deltaGs = finalGs - startGs;
+//		double a = Util.sign(deltaGs)*gsAccel;
+//		double dt = Math.abs(deltaGs/a);
+//        return startGs*dt + 0.5*a*dt*dt;
+//	}
+
+	
 	/**
 	 * Distance traveled when accelerating from gs1 to gs2
 	 * 
-	 * @param gs1 starting gs
-	 * @param gs2 ending gs
+	 * @param gs1 starting ground speed
+	 * @param gs2 ending ground speed
 	 * @param a acceleration value (unsigned)
 	 * 
 	 * @return distance needed to accelerate from gs1 to gs2 with acceleration a.  This returns 0 if a=0 or gs1=gs2.
 	 */
 	public static double gsAccelDist(double gs1, double gs2, double a) {
 		if (gs1 == gs2 || a == 0.0) return 0.0; 
-		int sign = Util.sign(gs2-gs1);
-		double t = (gs2-gs1)/(sign*a);
+		double deltaGs = gs2 - gs1;
+		int sign = Util.sign(deltaGs);
+		double t = (deltaGs)/(sign*a);
 		return gs1*t + sign*0.5*a*t*t;
 	}
 

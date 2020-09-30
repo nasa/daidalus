@@ -1,6 +1,6 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  Pre-v2.0.2-FormalATM-v2.7.4 (September-24-2020)
+Release:  Pre-v2.0.2-FormalATM-v2.7.4 (Java), September-24-2020
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
@@ -10,6 +10,9 @@ Rights Reserved.
 
 Release DAIDALUS-Pre-v2.0.2:
 ------------------
+* September 29, 2020
+  - Added documentation (automatically generated from code), updated README.
+
 * September 24, 2020
   -  Alerting time *only* counts after capture.
   -  Added raw resolutions (without persistence)

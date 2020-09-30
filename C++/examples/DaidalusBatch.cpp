@@ -187,7 +187,7 @@ int main(int argc, const char* argv[]) {
 			// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
 			daa.set_TCASII();
 		} else {
-			std::cerr << "** Error: File " << config << "not found" << std::endl;
+			std::cerr << "** Error: File " << config << " not found" << std::endl;
 			exit(1);
 		}
 	}
