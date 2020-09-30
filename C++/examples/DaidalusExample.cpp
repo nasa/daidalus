@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
 				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
 				daa.set_TCASII();
 			} else {
-				std::cerr << "File " << arga << "not found" << std::endl;
+				std::cerr << "File " << arga << " not found" << std::endl;
 				exit(1);
 			}
 		} else if (startsWith(arga,"--verb") || startsWith(arga,"-verb")) {
