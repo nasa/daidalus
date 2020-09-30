@@ -1,7 +1,7 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 ---------------------------------------------------------
 
-Release: v2.0.1, August 12, 2020
+Release: v2.0.1 (Java), August 12, 2020
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
@@ -11,18 +11,20 @@ Rights Reserved.
 Description of Files
 ----------------
 
-* [`LICENSES`](LICENSES): Directory containing NASA's Open Source Agreements.
-* [`src`](src): Directory of Java code.
-* [`lib`](lib): Directory containing jar file.
-* [`doc`](doc): Directory of documentation.
+* [`LICENSES`](LICENSES/): Directory containing NASA's Open Source Agreements.
+* [`src`](src/): Directory of Java code.
+* [`lib`](lib/): Directory containing jar file.
+* [`doc`](doc/): Directory of documentation.
 * [`DaidalusExample.java`](src/DaidalusExample.java): Simple
   application that illustrates the main functionalities provided by DAIDALUS.
 * [`DaidalusAlerting.java`](src/DaidalusAlerting.java): Batch application
-  that produces a CSV file with alerting information  from encounter file.
+  that produces a CSV file with alerting information  from
+  configuration and encounter files.
 * [`DaidalusBatch.java`](src/DaidalusBatch.java): Batch application
-that produces alerting and banding information from encounter file.
-* [`DrawMultiBands.java`](src/DaidalusBatch.java): Batch application
-  that can be used to produce graphical alerting and banding information from encounter file.
+that produces alerting and banding information from configuration and encounter files.
+* [`DrawMultiBands.java`](src/DrawMultiBands.java): Batch application
+  that can be used to produce graphical alerting and banding
+  information from configuration and encounter files.
 * [`Makefile`](Makefile): Unix make file to compile example applications.
 
 Requirements
@@ -63,9 +65,10 @@ $ ./DaidalusAlerting --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H
 Loading configuration file ../Configurations/DO_365A_no_SUM.conf
 Processing DAIDALUS file ../Scenarios/H1.daa
 Generating CSV file H1_DO_365A_no_SUM.csv
+```
 
 The generated file ` H1_DO_365A_no_SUM.csv` contains  alerting information computed by DAIDALUS
-for the encounter [H1.daa](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.txt) configuration.
+for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration.
 
 The sample program `DaidalusBatch` generates alerting and banding
 information from a given encounter file, e.g.,
@@ -74,7 +77,7 @@ information from a given encounter file, e.g.,
 $ ./DaidalusBatch --conf  ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa
 
 ```
-prints alerting and banding information time-step by time-step for the encounter [H1.daa](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.txt) configuration.
+prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration.
 
 Scripts are provided to produce graphs containing guidance and alerting
 information. For example, 
@@ -84,19 +87,20 @@ information. For example,
 Writing file H1.draw, which can be processed with the Python script drawmultibands.py
 ```
 
-produces a file `H1.draw` assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.txt) configuration. This file can be processed with the Python
-script `drawmultibands.py` to produce a PDF file displaying manuever
-guidance information for the given encounter file, e.g.,
+produces a file `H1.draw`  for the encounter
+[`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration. This file can be processed with the Python
+script [`drawmultibands.py`](../Scripts/drawmultibands.py) to produce a PDF file displaying manuever
+guidance information for the given configuration and encounter files, e.g.,
 
 ```
 ../Scripts/drawmultibands.py H1.draw
 Writing PDF file H1.pdf
 ``` 
 
-The script `daidalize.py` takes as input a DAIDALUS log file and
+The Perl script [`daidalize.pl`](../Scripts/daidalize.pl) takes as input a DAIDALUS log file and
 generates configuration (`.conf`) and encounter (`.daa`) files that can
 be used with the previous programs. A DAIDALUS log file is a text file
-produced by printing the string `daa.toString()`, where `daa` is a `Daidalus` object.
+produced by printing the string `daa.toString()` at every time step, where `daa` is a `Daidalus` object.
 
 ### Contact
 

@@ -1,6 +1,6 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.1-FormalATM-v2.7.4 (Agust-12-2020)
+Release: v2.0.1-FormalATM-v2.7.4 (C++), Agust-12-2020
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
@@ -10,6 +10,9 @@ Rights Reserved.
 
 Release DAIDALUS-v2.0.1:
 ------------------
+* September 29, 2020
+- Added documentation (automatically generated from code), updated README.
+
 * September 21, 2020
 - Fixed error in DaidalusCore copy constructor (C++ only). Thanks to V-ALICE
 
