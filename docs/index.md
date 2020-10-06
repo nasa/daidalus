@@ -33,15 +33,16 @@ Reference Manual - DAIDALUS-v2.0.x
          * [Adding Sensor Uncertainty](#adding-sensor-uncertainty)
       * [Dealing with Asynchronous Inputs](#dealing-with-asynchronous-inputs)
    * [DAIDALUS Outputs](#daidalus-outputs)
+      * [Detection Logic](#detection-logic)
       * [Alerting Logic](#alerting-logic)
       * [Maneuver Guidance Logic](#maneuver-guidance-logic)
-   * [The Class KinematicMultiBands](#the-class-kinematicmultibands)
-      * [Track (or Heading) Bands](#track-or-heading-bands)
-      * [Ground Speed (or Air Speed) Bands](#ground-speed-or-air-speed-bands)
-      * [Vertical Speed Bands](#vertical-speed-bands)
-      * [Altitude Bands](#altitude-bands)
-      * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
-      * [Resolutions](#resolutions)
+         * [Horizontal Direction Bands](#horizontal-direction-bands)
+         * [Horizontal Speed Bands](#horizontal-speed-bands)
+         * [Vertical Speed Bands](#vertical-speed-bands)
+         * [Altitude Bands](#altitude-bands)
+         * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
+         * [Directive Guidance](#directive-guidance)
+   * [Performance Metrics](#performance-metrics)
       * [Time to Recovery](#time-to-recovery)
       * [Last Time to Maneuver](#last-time-to-maneuver)
    * [Alerters](#alerters)
@@ -55,7 +56,7 @@ Reference Manual - DAIDALUS-v2.0.x
       * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
    * [Contact](#contact)
 
-<!-- Added by: cmunoz, at: Tue Oct  6 10:58:31 EDT 2020 -->
+<!-- Added by: cmunoz, at: Tue Oct  6 18:48:07 EDT 2020 -->
 
 <!--te-->
 
@@ -114,10 +115,13 @@ larger alert thresholds.
 #  Software Library
 DAIDALUS is provided as a software library implemented in both Java
 and C++. Except for programming language idiosyncrasies, both Java and
-C++ application programming interfaces are identical. DAIDALUS code is
+C++ application programming interfaces are identical. This document
+uses `Java` as example, but diferences with the `C++` code are noted.
+
+DAIDALUS code is
 available under
-[NASA's Open Source Agreement](https://github.com/nasa/daidalus/tree/master/LICENSES/).
-DAIDALUS algorithms are highly configurable and configuration can be
+[NASA's Open Source Agreement](https://github.com/nasa/daidalus/tree/master/LICENSES/). The
+library is highly configurable and configuration can be
 done either programmatically or by loading a configuration file. The core algorithms have
 been
 [formally specified and verified](https://github.com/nasa/WellClear/tree/master/PVS)
@@ -495,7 +499,7 @@ daa.loadFromFile("DO_365A_SUM.conf");
 ```
 
 The more general method call
-```
+```java
 daa.set_DO_365A(type,sum);
 ```
 where both `type` and `sum` are boolean variables, set `daa` to DO 365A default values but
@@ -545,12 +549,12 @@ of insufficient permissions.
 ## Providing Wind Information
 If available, a wind vector can be provided to a `Daidalus` object
 `daa` using the method call
-```
+```java
 daa.setWindVelocityTo(wind_to);
 ```
 
 or, alternatively,
-```
+```java
 daa.setWindVelocityFrom(wind_from);
 ```
 
@@ -605,7 +609,7 @@ where `idi`, `si`, and `vi` are the traffic identifier, position, and
 velocity, respectively.  Traffic states do not require a time stamp since it is
 assumed to be the same the ownship's. If a time stamp is 
 provided, e.g.,
-```
+```java
 daa.addTrafficState(idi,si,vi,ti);
 ```
 the position of the traffic aircraft is linearly projected (forwards or
@@ -619,7 +623,7 @@ of aircraft.
 ### Adding Sensor Uncertainty
 If a SUM configuration is enabled and sensor uncertainties for the
 ownship/traffic aircraft are available, they can be set as follows.
-```
+```java
 daa.setHorizontalPositionUncertainty(ac_idx, s_EW, s_NS, s_EN, xy_units);
 daa.setVerticalPositionUncertainty(ac_idx, sz, z_units);
 daa.setHorizontalVelocityUncertainty(ac_idx, v_EW, v_NS, v_EN, vxy_units);
@@ -658,7 +662,7 @@ aircraft B, whose last state information was received at time t<sub>B</sub>, but
 no information was not received during the current time step.
 At the end of the current time step, when the synchronous process executes, the following can be done:
 
-```
+```java
 daa.setOwnshipState(own,...,t_own);
 daa.addTrafficState(A,...,t_A); 
 daa.addTrafficState(C,...,t_C); 
@@ -672,7 +676,7 @@ frequency of its sensor works at a slower rate, the synchronous
 process could provide the old state information and DAIDALUS will project that state information forward
 (t<sub>own</sub>-t<sub>B</sub>) seconds, e.g., 
 
-```
+```java
 daa.addTrafficState(B,...,t_C); 
 ```
 
@@ -690,96 +694,108 @@ states forward and backward in time.
 # DAIDALUS Outputs
 The class `Daidalus` is the main interface to the core DAA capabilities provided by
 DAIDALUS: detection, alerting, and maneuver guidance. As in previous
-example, the folling examples assume that `daa`  is an object of type `Daidalus`.
+example, the following examples assume that `daa`  is an object of type `Daidalus`.
 
 ## Detection Logic
 The time, in seconds, to violation of the corrective volume between
-the ownship and the traffic aircraft at index `idx` can be computed as
+the ownship and the traffic aircraft at index `ac_idx` can be computed as
 follows
 ```java
-double t2v = daa.timeToCorrectiveVolume(idx);
+double t2v = daa.timeToCorrectiveVolume(ac_idx);
 ```
-If `t2v` is zero, the aircraft are in violation at current time. The
-method `timeToCorrectiveVolume` returns positive infinity when the
+If `t2v` is zero, the aircraft are in violation at current time. It
+`t2v` is positive, it is the time to violation of the corrective volume
+relative to ownship's time. 
+
+The time returned by `timeToCorrectiveVolume` is positive infinity when the
 aircraft are not in conflict within the lookahead time. It returns
-Not-A-Number (NaN) value when `idx` is not a valid aircraft index.
-
-The method
-```
-ConflictData violationOfAlertThresholds(int ac_idx, int alert_level)
-```
-computes time to loss of a particular alert level
-
-alert level, see Section [Advanced Features](#advanced-features).
+Not-A-Number (NaN) value when `ac_idx` is not a valid aircraft index.
 
 ## Alerting Logic
-Given a `Daidalus` object `daa` of type `Daidalus`, 
-the alert level between the ownship and the traffic aircraft at
-index `idx` can be computed as follows
+The alert level between the ownship and the traffic aircraft at
+index `ac_idx` can be computed as follows
 ```java
-int alert_level = daa.alerting(idx);
+int alert_level = daa.alertLevel(ac_idx);
 ```
-The value of `alert_level` is negative when `idx` is not a valid
-aircraft index in `daa`. If `alert_level` is zero, no alert is issued
-for the ownship and the traffic aircraft at index `idx` at
-time of applicability. Otherwise, `alert_level` is a positive
-numerical value that indicates the alert level, which by default are
-configured as follows.
 
-| `alert_level` | RTCA SC-228 Alert Level |
+The value of `alert_level` is negative when `ac_idx` is not a valid
+aircraft index in `daa`. If `alert_level` is zero, no alert is issued
+for the ownship and the traffic aircraft at index `ac_idx` at
+time of applicability. Otherwise, `alert_level` is a positive
+numerical value that indicates an alert level, which for DO-365A
+configurations is defined as follows.
+
+| `alert_level` | DO-365A Alert Level |
 | -- | -- |
 | `1` | Preventive |
 | `2` | Corrective |
 | `3` | Warning |
 
+The following method, in the class `Daidalus`,
+```java
+ConflictData violationOfAlertThresholds(int ac_idx, int alert_level);
+```
+computes the time interval of
+violation, with respect to aircraft at index `ac_idx`, to the volume defined by `alert_level`. 
+It returns an object of type `ConflictData`, which
+provides, among others, the following functions.
+* `boolean conflict()`: Returns `true` if the time interval is
+  non-empty and `false` otherwise.
+* `double getTimeIn()`: When the time interval is non-empty, returns
+time to first loss relative to ownship's time.
+* `double getTimeOut()`: When the time interval is non-empty, returns
+time to last loss relative to ownship's time.
+
+The following code uses these functions to print for each traffic
+aircraft alert level, the predicted time to violation of the corrective volume, and
+for each alert level the time to loss of the corresponding alert thresholds.
+
+```java
+ for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
+	TrafficState intruder = daa.getAircraftStateAt(ac_idx);
+	int alert = daa.alertLevel(ac_idx);
+	if (alert > 0) {
+		System.out.println("Alert Level "+alert+" with "+intruder.getId());
+	}
+	double t2los = daa.timeToCorrectiveVolume(ac_idx);
+	if (Double.isFinite(t2los)) {
+		System.out.println("Predicted Time to Violation of Corrective Volume with "
+		+intruder.getId()+": "+f.Fm2(t2los)+" [s]");
+	}
+ 	for (int alert_level=1;alert_level <= daa.mostSevereAlertLevel(ac_idx);++alert_level) {
+		ConflictData det = daa.violationOfAlertThresholds(ac_idx, alert_level);
+		if (det.conflict()) {
+			System.out.println("Predicted Time to Violation of Alert Thresholds at Level "
+			+alert_level+" with "+intruder.getId()+": "+f.Fm2(det.getTimeIn())+" [s]");
+	    }	
+	}
+}
+```
+		
 The `Daidalus` object `daa` can be configured to an arbitrary number
-of alert levels and each alert level is highly configurable
-(see Section [Advanced Features](#advanced-features)). The only
-restriction is that alert levels are ordered by increased level of
-severity.
+of alert levels and the [alert logic](#alerters) is highly configurable.
 
 ## Maneuver Guidance Logic
-In DAIDALUS, maneuver guidance is provided by the class `KinematicMultiBands`.
-The following code creates an object `bands` of type `KinematicMultiBands` for the
-aircraft in the `Daidalus` object `daa`.
-```java  
-KinematicMultiBands bands = daa.getMultiDaidalus();  
-``` 
-The previous code is written in Java. The corresponding code in C++ is
-as follows.
-```c++
-KinematicMultiBands bands;
-daa.multiDaidalus(bands); 
-```
-For efficiency reasons, bands are computed in a lazy way, i.e., the
-methods `getKinematicMutliBands` (in Java) and `kinematicMultiBands` (in
-C++) do not actually compute the bands. Section [The Class `KinematicMultiBands`](#the-class-kinematicmultibands),
-bands are computed when the object `bands` is used. 
-
-# The Class `KinematicMultiBands`
-DAIDALUS provides maneuver guidance in the form of ranges of ownship
+DAIDALUS provides sugestive maneuver guidance in the form of ranges of ownship
 maneuvers called *bands*.
-Four dimensions of bands are computed by DAIDALUS:
-
-1. Horizontal maneuver ranges. These maneuvers indicate true track ranges,
-except when wind information is provided. If that is the case, these
-maneuvers indicate true heading ranges.
-1. Horizontal speed ranges. These maneuvers indicate ground speed ranges,
-except when wind information is provided. If that is the case, these
-maneuvers indicate  air speed ranges.
-1. Vertical speed ranges.
-1. Altitude ranges.
+Four independent dimensions of bands are computed by DAIDALUS:
+1. Horizontal Direction: ranges of track or heading maneuvers, depending on configuration
+   of wind vector.
+1. Horizontal Speed: ranges of ground speed or airspeed maneuvers, depending on configuration
+   of wind vector.
+1. Vertical Speed: ranges of vertical speed maneuvers.
+1. Altitude: ranges of altitude maneuvers.
 
 In each dimension, bands are represented by an ordered list of
-intervals that are disjoint except at the boundaries. These intervals
-completely partition a range of values from a configurable minimum
+intervals that are disjoint except at the boundaries.
+These intervals completely partition a range of values from a configurable minimum
 value to a configurable maximum value. Each interval is associated
 with a `BandsRegion`, which is defined as an enumerated type
 consisting of the following values.
 
 * `NONE`: Maneuvers indicated by intervals of this type are conflict free.
-* `FAR`: This type of intervals is not configured by default in the
-  maneuver guidance logic. However, it could be configured to indicate
+* `FAR`: This type of intervals is not configured in DO-365A
+  configurations. However, it could be configured to indicate
   maneuvers that lead to a preventive alert.
 * `MID`: The maneuvers indicated by intervals of this type lead to a corrective
 alert.
@@ -789,108 +805,116 @@ alert.
 well-clear status in a timely manner and without violating
 configurable separation minima. By definition of the maneuver guidance logic, intervals of type
 `RECOVERY` are computed only when there are no intervals of type
-`NONE`.
+`NONE`. 
 *  `UNKNOWN`: This type of intervals signals an unexpected result, i.e., values that are outside the configured minimum/maximum values.
 
- Ownship performance limits and other parameters that govern the
- maneuver guidance logic can be configured  in either the
- `Daidalus` object from which the `bands` object
-is constructed or in the `bands` object directly. The methods to set
-and get these configuration parameters are described in 
- Section [Parameters](#parameters).
+ Ownship performance limits and other [parameters](#parameters) that govern the
+ maneuver guidance logic can be configured  in the 
+ `Daidalus` object. 
 
-## Track (or Heading) Bands
-The computation of track bands (heading bands, when wind information is
-provided) requires either a turn rate or a bank angle. If both the turn rate
-and the bank angle are zero, track/heading bands are computed assuming
-instantaneous track/heading manevuers.  The following loop iterates the list of
-intervals in the track/heading  bands and for each interval gets its upper and
+### Horizontal Direction Bands
+The computation of horizontal speed bands (track or, when wind
+information is provided, heading maneuvers)
+uses either turn rate or bank angle, which are provided by configuration. If both the turn rate
+and the bank angle are zero, horizontal direction bands are computed assuming
+instantaneous manevuers.  The following loop iterates the list of
+intervals in the horizontal direction bands and for each interval gets its upper and
 lower bounds and its type.
 ```java
-  for (int i = 0; i < bands.trackLength(); i++ ) {  
-    Interval iv = bands.track(i,"deg"); //i-th band region
+  for (int i = 0; i < daa.horizontalDirectionBandsLength(); ++i ) {  
+    Interval iv = daa.horizontalDirectionIntervalAt(i,"deg"); //i-th interval in degrees
     double lower_trk = iv.low; //[deg]
     double upper_trk = iv.up;  //[deg]
-    BandsRegion regionType = bands.trackRegion(i);
+    BandsRegion regionType = daa.horizontalDirectionRegionAt(i);
 	...
   } 
 ```
 
-## Ground Speed (or Air Speed) Bands
-The computation of ground speed bands (air speed bands, when wind
-information is provided) requires a horizontal acceleration. If this
-acceleration is zero, ground speed/ air speed bands are computed
-assuming instantaneous ground speed/air speed manevuers.  The following loop iterates the list of
-intervals in the ground speed/air speed  bands and for each interval gets its upper and
+### Horizontal Speed Bands
+The computation of horizontal speed bands (ground speed or, when wind
+information is provided, air speed maneuvers) user horizontal acceleration, which is provided by configuration. If this
+acceleration is zero, horizontal speed bands are computed
+assuming instantaneous manevuers.  The following loop iterates the list of
+intervals in the horizontal speed  bands and for each interval gets its upper and
 lower bounds and its type.
 ```java
-  for (int i = 0; i < bands.groundSpeedLength(); i++ ) {  
-    Interval iv = bands.groundSpeed(i,"knot"); //i-th band region
+  for (int i = 0; i < daa.horizontalSpeedBandsLength(); ++i ) {  
+    Interval iv = daa.horizontalSpeedIntervalAt(i,"knot"); //i-th interval in knots
     double lower_gs = iv.low; //[knot]
     double upper_gs = iv.up;  //[knot]
-    BandsRegion regionType = bands.groundSpeedRegion(i);
+    BandsRegion regionType = daa.horizontalSpeedRegionAt(i);
     ... 
   } 
 ```
 
-## Vertical Speed Bands
-The computation of vertical speed bands requires a vertical acceleration. If this
+### Vertical Speed Bands
+The computation of vertical speed bands uses vertical acceleration, which is provided by configuration. If this
 acceleration is zero, vertical speed bands are computed
-assuming instantaneous vertical speed manevuers.  The following loop iterates the list of
+assuming instantaneous manevuers.  The following loop iterates the list of
 intervals in the vertical speed  bands and for each interval gets its upper and
 lower bounds and its type.
 ```java
-  for (int i = 0; i < bands.verticalSpeedLength(); i++ ) {  
-    Interval iv = bands.verticalSpeed(i,"fpm"); //i-th band region
+  for (int i = 0; i < daa.verticalSpeedBandsLength(); i++ ) {  
+    Interval iv = daa.verticalSpeedIntervalAt(i,"fpm"); //i-th interval in fpm
     double lower_vs = iv.low; //[fpm]
     double upper_vs = iv.up;  //[fpm]
-    BandsRegion regionType = bands.verticalSpeedRegion(i);
+    BandsRegion regionType = daa.verticalSpeedRegionAt(i);
     ... 
   } 
 ```
 
-## Altitude Bands
-The computation of altitude bands requires a vertical acceleration and
-a vertical rate. If both the vertical acceleration and the vertical
+### Altitude Bands
+The computation of altitude bands uses vertical acceleration and
+vertical rate, which are provided by configuration. If both the vertical acceleration and the vertical
 rate are zero, altitude bands are computed
-assuming instantaneous altitude manevuers.  The following loop iterates the list of
+assuming instantaneous manevuers.  The following loop iterates the list of
 intervals in the altitude bands and for each interval gets its upper and
 lower bounds and its type.
 
 ```java
-  for (int i = 0; i < bands.altitudeLength(); i++ ) {  
-    Interval iv = bands.altitude(i,"ft"); //i-th band region
+  for (int i = 0; i < daa.altitudeBandsLength(); i++ ) {  
+    Interval iv = daa.altitudeIntervalAt(i,"ft"); //i-th interval in ft
     double lower_alt = iv.low; //[ft]
     double upper_alt = iv.up;  //[ft]
-    BandsRegion regionType = bands.altitudeRegion(i);
+    BandsRegion regionType = daa.altitudeRegionAt(i);
     ... 
   } 
 ```
 
-## Aircraft Contributing to Bands
+### Aircraft Contributing to Bands
 Bands that are in the current path of the ownship are called 
 conflict bands. Conflict bands simultaneously  appear for all type of
 maneuvers, e.g., horizontal direction, horizontal speed, vertical
-speed, and altitude. The list of aircraft contributing to conflict
-bands for a particular alert level can be obtained as follows:
+speed, and altitude. The list of identifiers of aircraft contributing to conflict
+bands for a particular region can be obtained as follows.
 ```java
-List<TrafficState> acs = bands.conflictAircraft(alert_level);
+List<String> acs = new ArrayList<String>();
+daa.conflictBandsAircraft(acs,region);
 ```
-The variable `alert_level` denotes a level between 1 and the most
-severe alert level that has been configured.
+The list  of strings `acs` is passed by reference. The variable `region` has the type `BandsRegion` and is one of `FAR`, `MID`, or `NEAR`.
 
 Bands that are not in the current path of the ownship are called 
 peripheral bands. Peripheral bands are different for different type
 of maneuvers. The list of aircraft contributing to each type of 
-bands for a particular alert level can be obtained as follows:
+peripheral bands for a particular region can be obtained as follows:
 ```java
-List<TrafficState> acs_trk = bands.peripheralTrackAircraft(alert_level);
-List<TrafficState> acs_gs = bands.peripheralGroundSpeedAircraft(alert_level);
-List<TrafficState> acs_vs = bands.peripheralVerticalSpeedAircraft(alert_level);
-List<TrafficState> acs_alt = bands.peripheralAltitudeAircraft(alert_level);
+List<String> acs = new ArrayList<String>();
+daa.peripheralHorizontalDirectionBandsAircraft(acs,region);
+daa.peripheralHorizontalSpeedBandsAircraft(acs,region);
+daa.peripheralVerticalSpeedBandsAircraft(acs,region);
+daa.peripheralAltitudeBandsAircraft(acs,region);
 ```
 
-## Resolutions
+### Directive Guidance
+
+# Performance Metrics
+* `double HMD(double T)`: Returns horizontal miss distance within
+lookahead time `T` in seconds.
+* `double VMD(double T)`: Returns vertical miss distance within
+lookahead time `T` in seconds.
+* `double horizontalSeparation(String u)`: Returns horizontal
+  separation at current time, 
+
 
 ## Time to Recovery
 
