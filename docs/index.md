@@ -1,16 +1,16 @@
 ![](DAIDALUS.jpeg)
 
-Reference Manual - DAIDALUS-v2.0.x
-===
-
 Note
 ====
 This documentation concerns version 2 of DAIDALUS. Documentation on
 version 1 is available from https://nasa.github.io/WellClear.
 
+Reference Manual - DAIDALUS-v2.0.x
+===
+
 <!--ts-->
-   * [Reference Manual - DAIDALUS-v2.0.x](#reference-manual---daidalus-v20x)
    * [Note](#note)
+   * [Reference Manual - DAIDALUS-v2.0.x](#reference-manual---daidalus-v20x)
    * [Introduction](#introduction)
    * [Software Library](#software-library)
       * [DAIDALUS v2 vs. DAIDALUS v1](#daidalus-v2-vs-daidalus-v1)
@@ -31,6 +31,7 @@ version 1 is available from https://nasa.github.io/WellClear.
          * [Adding Ownship State](#adding-ownship-state)
          * [Adding Traffic State](#adding-traffic-state)
          * [Adding Sensor Uncertainty](#adding-sensor-uncertainty)
+      * [Dealing with Asynchronous Inputs](#dealing-with-asynchronous-inputs)
    * [DAIDALUS Outputs](#daidalus-outputs)
       * [Alerting Logic](#alerting-logic)
       * [Maneuver Guidance Logic](#maneuver-guidance-logic)
@@ -54,7 +55,7 @@ version 1 is available from https://nasa.github.io/WellClear.
       * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
    * [Contact](#contact)
 
-<!-- Added by: cmunoz, at: Tue Oct  6 10:26:52 EDT 2020 -->
+<!-- Added by: cmunoz, at: Tue Oct  6 10:58:31 EDT 2020 -->
 
 <!--te-->
 
@@ -84,7 +85,14 @@ state-less algorithms that
 * Determine pairwise alert level between ownship and
 traffic aircraft (**Alerting Logic**)
 
-![Figure 1: DAIDALUS High-Level Architecture](DAIDALUS_block_diag.png)
+The following diagram illustrates the high-level architecture of the
+DAIDALUS library.
+
+<p/>
+<div align="center">
+<img src="DAIDALUS_block_diag.png" width="550" />
+</div>
+<p/>
 
 DAIDALUS' maneuver guidance logic assumes non-maneuvering traffic
 aircraft and supports, by configuration, either instantaneous or
@@ -626,6 +634,14 @@ standard deviations of the horizontal position in `xy_units` [units](#units).
 * `v_EW`, `v_NS`, `v_EN` are the East-West, North-South, East-North
 standard deviations of the horizontal velocity in `vxy_units` [units](#units).
 * `vz` is the vertical speed uncertainty in `vz_units` [units](#units).
+
+## Dealing with Asynchronous Inputs
+
+<p/>
+<div align="center">
+<img src="asynchronous-inputs.png" width="550" />
+</div>
+<p/>
 
 # DAIDALUS Outputs
 The time to loss of well-clear, in seconds, between the ownship and the traffic aircraft at index `idx` for
