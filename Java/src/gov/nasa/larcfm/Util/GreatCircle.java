@@ -1041,12 +1041,13 @@ public final class GreatCircle {
 	 * 
 	 * 
 	 * @param s     a position
-	 * @param track the second point to define the great circle
-	 * @param dist  distance from point #1 over the surface of the Earth [m]
+	 * @param track the initial course coming from point s, assuming a great circle is followed
+	 * @param dist  distance from point #1 over the surface of the Earth [m], for very small distances, this 
+	 *              method returns inaccurate results.
 	 * @return a new position that is distance d from point #1
 	 */
 	public static LatLonAlt linear_initial(LatLonAlt s, double track, double dist) {
-		return linear_initial_impl(s, track, angle_from_distance(dist) , 0.0);
+		return linear_initial_impl(s, track, angle_from_distance(dist), 0.0);
 	}
 
 
@@ -1758,9 +1759,17 @@ public final class GreatCircle {
 		return v1.Sub(v2).norm();
 	}
 
-//	public static double chord_distance(LatLonAlt lla1, LatLonAlt lla2) {
-//		return chord_distance(lla1.lat(), lla1.lon(), lla2.lat(), lla2.lon());
-//	}
+	/**
+	 * Return the straight-line chord distance (through a spherical earth) from 
+	 * two points on the surface of the earth. 
+	 * 
+	 * @param lla1 first point
+	 * @param lla2 second point
+	 * @return the chord distance
+	 */
+	public static double chord_distance(LatLonAlt lla1, LatLonAlt lla2) {
+		return chord_distance(lla1.lat(), lla1.lon(), lla2.lat(), lla2.lon());
+	}
 
 	/**
 	 * Return the chord distance (through the earth) corresponding to a given surface distance (at the nominal earth radius).
@@ -1781,24 +1790,6 @@ public final class GreatCircle {
 	public static double surface_distance(double chord_distance) {
 		double theta = 2.0*Util.asin_safe(chord_distance*0.5 / GreatCircle.spherical_earth_radius);
 		return distance_from_angle(theta,0.0);
-	}
-
-	/** Return the chord distance, given a radius of a "small" circle. 
-	 * 
-	 * @param surface_radius radius of small circle, across the surface
-	 * @return chord distance
-	 */
-	public static double to_chordal_radius(double surface_radius) {
-		return chord_distance(surface_radius*2.0)/2.0;
-	}
-
-	/** Return the surface distance, given a radius of a "small" circle. 
-	 * 
-	 * @param chord_radius radius of small circle, cutting through the Earth on a chord
-	 * @return surface distance
-	 */
-	public static double to_surface_radius(double chord_radius) {
-		return surface_distance(chord_radius*2.0)/2.0;
 	}
 
 	/**

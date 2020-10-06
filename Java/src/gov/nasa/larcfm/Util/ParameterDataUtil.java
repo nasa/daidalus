@@ -17,7 +17,7 @@ public class ParameterDataUtil {
 	 * Create a ParameterData object based on the values of instance variables in an object.
 	 * If the object is a ParameterProvider, then this will simply call getParameters() on it.
 	 * Otherwise this uses some Java reflection tricks to attempt to make a ParameterData object from the non-final fields of an object.
-	 * If an inferred sub-field XXX is a ParameterProvider, then its parameters will be added with the prefix XXX__ (double underscore). 
+	 * If an inferred sub-field <b>X</b> is a ParameterProvider, then its parameters will be added with the prefix <b>X</b>__ (double underscore). 
 	 * This does not always correctly guess the "value" of objects without a defined toString() method.
 	 * 
 	 * This is primarily intended as a debugging inspection utility and can reveal private data members.
@@ -42,8 +42,7 @@ public class ParameterDataUtil {
 					try {
 						field.setAccessible(true);
 					} catch (SecurityException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						return pd; // if security problem, then just skip.
 					}
 
 					if ((field.getModifiers() & Modifier.FINAL) == 0) {
@@ -73,11 +72,9 @@ public class ParameterDataUtil {
 								pd.set(id, ""+value);
 							}
 						} catch (IllegalArgumentException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							continue; // if error, then skip
 						} catch (IllegalAccessException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							continue; // if error, then skip
 						}
 					}
 				}
@@ -92,7 +89,7 @@ public class ParameterDataUtil {
 	 * 
 	 * Otherwise this uses Java reflection to try to set some of its fields.
 	 * This will only set fields of type boolean, double, float, String, and ParameterAcceptor.
-	 * ParameterAcceptor information for object XXX will be expected to have a XXX__ prefix.
+	 * ParameterAcceptor information for object <b>X</b> will be expected to have a <b>X</b>__ prefix.
 	 * 
 	 * This is primarily intended as a debugging tool and can fill your object with random gibberish.
 	 * 
@@ -113,8 +110,7 @@ public class ParameterDataUtil {
 					try {
 						field.setAccessible(true);
 					} catch (SecurityException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						return; // if security problem, then skip
 					}
 
 					// do not modify final parameters
@@ -144,11 +140,9 @@ public class ParameterDataUtil {
 									((ParameterAcceptor)value).setParameters(sub);
 								}
 							} catch (IllegalArgumentException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								continue; // if problem, then skip
 							} catch (IllegalAccessException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								continue; // if problem, then skip
 							}
 						}
 					}

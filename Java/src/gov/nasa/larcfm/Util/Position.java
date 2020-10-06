@@ -66,7 +66,7 @@ public final class Position implements OutputList {
 	/** An invalid position.  Note that this is not necessarily equal to other invalid positions -- use the isInvalid() test instead. */
 	public static final Position INVALID = make(Vect3.INVALID);
 
-	public static final double minDist = 1E-9;    // TODO:  this should probably go into GreatCircle.initial_course, and should probably be increased, as something like 4E-9 causes problems in PlanTest.test_UAM_nel3
+	public static final double minDist = 1E-9;    // this should probably go into GreatCircle.initial_course, and should probably be increased, as something like 4E-9 causes problems in PlanTest.test_UAM_nel3
 
 	
 	/** Construct a new Position object from a LatLonAlt object. The position will be a Lat/Lon position. 

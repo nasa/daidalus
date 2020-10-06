@@ -10,6 +10,10 @@ Rights Reserved.
 
 Release DAIDALUS-Pre-v2.0.2:
 ------------------
+* October 5, 2020
+- Fixed bug in Daidalus class, where numberOfAircraft was used instead
+of lastTrafficIndex.
+
 * September 29, 2020
   - Added documentation (automatically generated from code), updated README.
 

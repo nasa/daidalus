@@ -28,7 +28,7 @@ that produces alerting and banding information from configuration and encounter 
 
 Requirements
 ------------
-This C++ code has been compiled in Mac OSX and Linux using
+This C++ code has been compiled in Mac OSX using
 
 ```
 Apple clang version 11.0.0 (clang-1100.0.33.17)

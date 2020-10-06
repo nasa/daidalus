@@ -550,7 +550,7 @@ public class Daidalus implements GenericStateBands {
 	 * at ac_idx. 
 	 */
 	public int alerterIndexBasedOnAlertingLogic(int ac_idx) {
-		if (0 <= ac_idx && ac_idx <= numberOfAircraft()) {
+		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			return core_.alerter_index_of(getAircraftStateAt(ac_idx));
 		}
 		return 0;
@@ -579,7 +579,7 @@ public class Daidalus implements GenericStateBands {
 	 * s_EN_std: East/North position standard deviation in internal units
 	 */
 	public void setHorizontalPositionUncertainty(int ac_idx, double s_EW_std, double s_NS_std, double s_EN_std) {
-		if (0 <= ac_idx && ac_idx <= numberOfAircraft()) {
+		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			if (ac_idx == 0) {
 				core_.ownship.setHorizontalPositionUncertainty(s_EW_std,s_NS_std,s_EN_std);
 			} else {
@@ -604,7 +604,7 @@ public class Daidalus implements GenericStateBands {
 	 * sz_std : Vertical position standard deviation in internal units
 	 */
 	public void setVerticalPositionUncertainty(int ac_idx, double sz_std) {
-		if (0 <= ac_idx && ac_idx <= numberOfAircraft()) {
+		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			if (ac_idx == 0) {
 				core_.ownship.setVerticalPositionUncertainty(sz_std);
 			} else {
@@ -629,7 +629,7 @@ public class Daidalus implements GenericStateBands {
 	 * v_EN_std: East/North position standard deviation in internal units
 	 */
 	public void setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std) {
-		if (0 <= ac_idx && ac_idx <= numberOfAircraft()) {
+		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			if (ac_idx == 0) {
 				core_.ownship.setHorizontalVelocityUncertainty(v_EW_std,v_NS_std,v_EN_std);
 			} else {
@@ -654,7 +654,7 @@ public class Daidalus implements GenericStateBands {
 	 * vz_std : Vertical speed standard deviation in internal units
 	 */
 	public void setVerticalSpeedUncertainty(int ac_idx, double vz_std) {
-		if (0 <= ac_idx && ac_idx <= numberOfAircraft()) {
+		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			if (ac_idx == 0) {
 				core_.ownship.setVerticalSpeedUncertainty(vz_std);
 			} else {
@@ -676,7 +676,7 @@ public class Daidalus implements GenericStateBands {
 	 * Reset all uncertainties of aircraft at index ac_idx
 	 */
 	public void resetUncertainty(int ac_idx) {
-		if (0 <= ac_idx && ac_idx <= numberOfAircraft()) {
+		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			if (ac_idx == 0) {
 				core_.ownship.resetUncertainty();
 			} else {
