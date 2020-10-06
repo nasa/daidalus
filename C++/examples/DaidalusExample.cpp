@@ -60,7 +60,7 @@ void printDetection(Daidalus& daa) {
 			}
 		}
 		double t2los = daa.timeToCorrectiveVolume(ac_idx);
-		if (t2los >= 0) {
+		if (ISFINITE(t2los)) {
 			std::cout << "Predicted Time to Violation of Corrective Volume with "+intruder.getId()+
 					": "+Fm2(t2los)+" [s]" << std::endl;
 		}

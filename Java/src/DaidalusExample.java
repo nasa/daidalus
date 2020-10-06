@@ -187,7 +187,7 @@ class DaidalusExample {
 				}	
 			}
 			double t2los = daa.timeToCorrectiveVolume(ac_idx);
-			if (t2los >= 0) {
+			if (Double.isFinite(t2los)) {
 				System.out.println("Predicted Time to Violation of Corrective Volume with "+intruder.getId()+
 						": "+f.Fm2(t2los)+" [s]");
 			}

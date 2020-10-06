@@ -637,27 +637,80 @@ standard deviations of the horizontal velocity in `vxy_units` [units](#units).
 
 ## Dealing with Asynchronous Inputs
 
+The following figure illustrates a hypothetical situation where sensors for
+different aircraft are providing information in an asynchronous way.
+
 <p/>
 <div align="center">
 <img src="asynchronous-inputs.png" width="550" />
 </div>
 <p/>
 
+In this case, synchrony can be introduced by having a process that
+executes at a given frequency (e.g., 1hz). The execution of that
+process is represented by the blue markers in the picture above. The time between two
+consecutive executions of this process represents a time step (the gray
+area on the time line in the figure). For example, during
+the current time step, ownship information is received at time t<sub>own</sub>, state
+information for traffic aircraft A is received at time t<sub>A</sub> and for
+traffic aircraft C at time t<sub>C</sub>. In this example, there is a traffic
+aircraft B, whose last state information was received at time t<sub>B</sub>, but
+no information was not received during the current time step.
+At the end of the current time step, when the synchronous process executes, the following can be done:
+
+```
+daa.setOwnshipState(own,...,t_own);
+daa.addTrafficState(A,...,t_A); 
+daa.addTrafficState(C,...,t_C); 
+```
+DAIDALUS will project forwards the state of A (t<sub>own</sub> -
+t<sub>A</sub>) seconds and the state of C (t<sub>C</sub> - t<sub>own</sub>)
+to synchronize with ownship time, the time of applicability of the
+current time step. The synchronous process could just ignore aircraft
+B for the current time step. However, if B is still relevant, but the
+frequency of its sensor works at a slower rate, the synchronous
+process could provide the old state information and DAIDALUS will project that state information forward
+(t<sub>own</sub>-t<sub>B</sub>) seconds, e.g., 
+
+```
+daa.addTrafficState(B,...,t_C); 
+```
+
+For this schema to work, the host application is responsible for
+queueing the state information that is received during a time step and
+to provide this information to DAIDALUS as needed. As explained
+before, DAIDALUS does not keep aircraft state information from one
+time-step to the next. Furthermore, this schema assumes that ownship
+information is always available during a time step. If that is not
+true, the synchronous process could either skip the current time step
+or, alternatively, project the previous ownship information to current
+time. DAIDALUS utility code provides functions to project aircraft
+states forward and backward in time.
+
 # DAIDALUS Outputs
-The time to loss of well-clear, in seconds, between the ownship and the traffic aircraft at index `idx` for
-the corrective alert level and lookahead time
-configured in the `Daidalus` object `daa` can be 
-computed as follows.
+The class `Daidalus` is the main interface to the core DAA capabilities provided by
+DAIDALUS: detection, alerting, and maneuver guidance. As in previous
+example, the folling examples assume that `daa`  is an object of type `Daidalus`.
+
+## Detection Logic
+The time, in seconds, to violation of the corrective volume between
+the ownship and the traffic aircraft at index `idx` can be computed as
+follows
 ```java
-double t2v = daa.timeToViolation(idx);
+double t2v = daa.timeToCorrectiveVolume(idx);
 ```
 If `t2v` is zero, the aircraft are in violation at current time. The
-method `timeToViolation` returns positive infinity when the
+method `timeToCorrectiveVolume` returns positive infinity when the
 aircraft are not in conflict within the lookahead time. It returns
-Not-A-Number when `idx` is not a valid aircraft index.
+Not-A-Number (NaN) value when `idx` is not a valid aircraft index.
 
-To compute time to loss of well-clear with respect to
-any alert level, see Section [Advanced Features](#advanced-features).
+The method
+```
+ConflictData violationOfAlertThresholds(int ac_idx, int alert_level)
+```
+computes time to loss of a particular alert level
+
+alert level, see Section [Advanced Features](#advanced-features).
 
 ## Alerting Logic
 Given a `Daidalus` object `daa` of type `Daidalus`, 
