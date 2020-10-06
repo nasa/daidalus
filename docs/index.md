@@ -1,52 +1,67 @@
 ![](DAIDALUS.jpeg)
 
-Documentation on DAIDALUS-v2 is not yet available. Please see
-  sample code in `DaidalusExample` for examples of uses of most of the
-  functionality provided by DAIDALUS.  This
-  [presentation](DAIDALUSv2.pdf) provides a high-level briefing of the
-  the changes in v2 compared to v1. Detailed changes are listed in the
-  `RELEASE-NOTES`.
-
-Reference Manual - DAIDALUS-v1.0.1 (Work in Progress)
+Reference Manual - DAIDALUS-v2.0.x
 ===
 
-Table of Contents
-=================
+Note
+====
+This documentation concerns version 2 of DAIDALUS. Documentation on
+version 1 is available from https://nasa.github.io/WellClear.
 
+<!--ts-->
+   * [Reference Manual - DAIDALUS-v2.0.x](#reference-manual---daidalus-v20x)
+   * [Note](#note)
    * [Introduction](#introduction)
    * [Software Library](#software-library)
+      * [DAIDALUS v2 vs. DAIDALUS v1](#daidalus-v2-vs-daidalus-v1)
+      * [Getting the Code](#getting-the-code)
+      * [Compiling the Code](#compiling-the-code)
+      * [Example Applications](#example-applications)
    * [Preliminaries](#preliminaries)
       * [Packages and Name Space](#packages-and-name-space)
       * [Units](#units)
       * [Earth Projection and Aircraft States](#earth-projection-and-aircraft-states)
-      * [Conventions, Misnomers, and Gotchas](#conventions-misnomers-and-gotchas)
-   * [The Class `Daidalus`](#the-class-daidalus)
-      * [Creating a Daidalus Object](#creating-and-configuring-a-daidalus-object)
-      * [Adding Ownship and Traffic States](#adding-ownship-and-traffic-states)
+      * [Winds](#winds)
+      * [Invalid Values](#invalid-values)
+   * [The Class Daidalus](#the-class-daidalus)
+      * [Creating a Daidalus Object](#creating-a-daidalus-object)
+      * [Configuring Daidalus Object](#configuring-daidalus-object)
       * [Providing Wind Information](#providing-wind-information)
+      * [Adding Ownship State](#adding-ownship-state)
+      * [Adding Traffic State](#adding-traffic-state)
       * [Conflict Detection Logic](#conflict-detection-logic)
       * [Alerting Logic](#alerting-logic)
       * [Maneuver Guidance Logic](#maneuver-guidance-logic)
-   * [The Class `KinematicMultiBands`](#the-class-kinematicmultibands)
+   * [The Class KinematicMultiBands](#the-class-kinematicmultibands)
       * [Track (or Heading) Bands](#track-or-heading-bands)
       * [Ground Speed (or Air Speed) Bands](#ground-speed-or-air-speed-bands)
       * [Vertical Speed Bands](#vertical-speed-bands)
       * [Altitude Bands](#altitude-bands)
-   * [The Class `KinematicBandsParameters`](#the-class-kinematicbandsparameters)
-     * [Basic Parameters](#basic_parameters)
-     * [Pre-Defined Configurations](#pre-defined-configurations)
+      * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
+      * [Resolutions](#resolutions)
+      * [Time to Recovery](#time-to-recovery)
+      * [Last Time to Maneuver](#last-time-to-maneuver)
+   * [The Class DaidalusParameters](#the-class-daidalusparameters)
+      * [Basic Parameters](#basic-parameters)
+      * [Alert Thresholds](#alert-thresholds)
+      * [Detectors](#detectors)
+      * [Pre-Defined Configurations](#pre-defined-configurations)
    * [Advanced Features](#advanced-features)
-     * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools) 
+      * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
    * [Contact](#contact)
+
+<!-- Added by: cmunoz, at: Mon Oct  5 19:02:37 EDT 2020 -->
+
+<!--te-->
 
 # Introduction
 
 DAIDALUS (Detect and AvoID Alerting Logic for Unmanned Systems) is a
 reference implementation of the detect and avoid (DAA) functional
-requirements  described in
-Appendix G of the Minimum Operational Performance Standards (MOPS)
-Phase I for Unmanned Aircraft Systems (UAS) developed by RTCA
+requirements  described in RTCA's Minimum Operational Performance
+Standards (MOPS)  DO-365 and RTCA DO-365A developed by RTCA
 Special Committee 228 (SC-228).
+
 At the core of the  RTCA SC-228 DAA concept,
 there is a mathematical definition of the well-clear concept. Two
 aircraft are considered to be *well clear* of each other if
@@ -56,165 +71,200 @@ values. These distance and time variables are closely related to
 variables used in the Resolution Advisory (RA) logic of the Traffic
 Alert and Collision Avoidance System Version II (TCAS II).
 
-DAIDALUS includes algorithms for determining the current well-clear
-status between two aircraft and for predicting a well-clear violation
-within a lookahead time, assuming non-maneuvering trajectories. In the
-case of a predicted well-clear violation, DAIDALUS also includes an
-algorithm that computes the time interval of well-clear
-violation. DAIDALUS implements algorithms for computing maneuver
-guidance, assuming a simple kinematic trajectory model for the
-ownship. Manuever guidance is computed in the form of range of track,
-ground speed, vertical speed, and altitude values called
-*bands*. These bands represent areas in the airspace the ownship has
-to avoid in order to maintain well-clear with respect to traffic
-aircraft. In the case of a loss of well-clear, or when a well-clear
-violation is unavoidable, the maneuver guidance algorithms provide
-well-clear recovery bands. Recovery bands represents areas in the
-airspace that allow the ownship to to regain well-clear status in a
-timely manner according to its performance limits. Recovery bands are
-designed so that they also protect against a user-specified minimum
-horizontal and vertical separation.  DAIDALUS also implements a
-pair-wise alerting logic that is based on a set set of increasingly
-conservative alert levels called *preventive*, *corrective*, and
-*warning*.
+DAIDALUS core logic is based on ownship-centric,
+state-less algorithms that
+* Determine the current pairwise well-clear status between ownship and
+  traffic aircraft (**Detection Logic**)
+* Compute maneuver guidance for the ownship to maintain or regain well- clear status
+(**Maneuver Guidance Logic**)
+* Determine pairwise alert level between ownship and
+traffic aircraft (**Alerting Logic**)
 
-DAIDALUS is implemented in C++ and Java and the code is available
-under [NASA's Open Source Agreement](https://github.com/nasa/WellClear/tree/master/LICENSES/).  The
-implementations are modular and highly configurable. The DAIDALUS core
-algorithms have been [formally specified and verified](https://github.com/nasa/WellClear/tree/master/PVS) in the Prototype
-Verification System ([PVS](http://pvs.csl.sri.com)).  The examples
-provided in this document are written in Java.  Except for language
-idiosyncrasies, both Java and C++ interfaces are identical.
+![Figure 1: DAIDALUS High-Level Architecture](DAIDALUS_block_diag.png)
+
+DAIDALUS' maneuver guidance logic assumes non-maneuvering traffic
+aircraft and supports, by configuration, either instantaneous or
+kinematic maneuvers by the ownship. Manuever guidance is provided as
+suggestive guidance (i.e., bands) and directive guidance (i.e.,
+preferred direction and velocity vector).  Suggestive guidance is
+computed in the form of range of track, ground speed, vertical speed,
+and altitude values called *bands*. These bands represent ranges of
+ownship maneuvers tha maintain well-clear status with respect to
+traffic aircraft. In the case of a loss of well-clear, or when a
+well-clear violation is unavoidable, well-clear recovery bands
+represent ranges of ownship maneuvers to regain well-clear status.
+Recovery bands are designed so that they improve the distance at
+closest point of approach in a timely manner.  DAIDALUS' alerting
+logic assumes non-maneuvering ownship and traffic aircraft. It
+computes a numerical alert level based on a set set of increasingly
+larger alert thresholds.
 
 #  Software Library
-DAIDALUS is available as a software library. After getting the source
-code from [GitHub/WellClear](https://github.com/nasa/WellClear), the
-library can be compiled using the Unix utility `make` with the
-provided `Makefile` in both the [Java](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Java/Makefile) and [C++](https://github.com/nasa/WellClear/blob/master/DAIDALUS/C%2B%2B/Makefile) directories. In Java,
-the `make` command produces a jar file:
+DAIDALUS is provided as a software library implemented in both Java
+and C++. Except for programming language idiosyncrasies, both Java and
+C++ application programming interfaces are identical. DAIDALUS code is
+available under
+[NASA's Open Source Agreement](https://github.com/nasa/daidalus/tree/master/LICENSES/).
+DAIDALUS algorithms are highly configurable and configuration can be
+done either programmatically or by loading a configuration file. The core algorithms have
+been
+[formally specified and verified](https://github.com/nasa/WellClear/tree/master/PVS)
+in the Prototype Verification System ([PVS](http://pvs.csl.sri.com)).
+
+## DAIDALUS v2 vs. DAIDALUS v1
+DAIDALUS v2 and v1 share the same logic and, by design, configuration
+files are backward compatible. DAIDALUS v2 application programming
+interface differs from DAIDALUS v1 and provides new and enhanced
+functionality.  In particular, DAIDALUS v2 implements
+* Multiple and dynamic alerting logic
+* Sensor Uncertainty Mitigation (SUM)
+* Hysteresis logic
+* DAA Terminal Area (DTA) logic
+* Enhanced alerting time logic
+
+The application
+[DAA-Displays](https://shemesh.larc.nasa.gov/fm/DAA-Displays) provides
+a graphical interface that enables the side-by-side comparison of
+(possibly) different versions of DAIDALUS on (possibly) different
+configurations on a given encounter. 
+
+## Getting the Code
+The source code of DAIDALUS is available at
+[GitHub/daidalus](https://github.com/nasa/daidalus). The following
+git command gets the development version of DAIDALUS (the dollar sign
+`$` represents the prompt of a Unix terminal):
 
 ```
-$ make lib
-** Building library lib/DAIDALUS.jar
+$ git clone https://github.com/nasa/daidalus.git
+```
+
+In addition to the development version, three other releases are
+available: v1.0.1 (October 11, 2017), v1.0.2 (April 21, 2019), and
+v2.0.1 (August 12, 2020). These releases are available as branches in
+the Git repository, e.g.,
+
+```
+$ git checkout v2.0.1
+```
+
+This documentation concerns version 2 of DAIDALUS. Documentation on
+version 1 is available from https://nasa.github.io/WellClear.
+
+## Compiling the Code
+The code is self-contained and does not require any particular
+library.
+
+The Java code has been compiled in Mac OSX and Linux using
+
+```
+Java version "1.8.0_191"
+Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+```
+
+The C++ code has been compiled in Mac OSX using
+
+```
+Apple clang version 11.0.0 (clang-1100.0.33.17)
+Target: x86_64-apple-darwin18.7.0
+Thread model: posix
+```
+and in Linux using:
+
+```
+g++ 7.4.0
+```
+
+The library and example applications can be compiled using the Unix utility `make` with the
+provided `Makefile` in both the
+[Java](https://github.com/nasa/daidalus/blob/master/Java/Makefile) and
+[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/Makefile)
+directories. In Java, the `make` command will produce the jar file
+`lib/DAIDALUSv2.X.x.jar`, where `X.x` are the major and minor release
+numbers, e.g.,
+
+```
+$ make
+** Building library lib/DAIDALUSv2.X.x.jar
+javac src/gov/nasa/larcfm/IO/*.java src/gov/nasa/larcfm/Util/*.java src/gov/nasa/larcfm/ACCoRD/*.java
 ...
-** Library lib/DAIDALUS.jar built
+** Building example applications
+javac -cp lib/DAIDALUSv2.X.x.jar src/*.java
 ```
-
 In C++, the `make` command will generate the static library
-`lib/DAIDALUS.a`.
+`lib/lib/DAIDALUSv2.X.x.a`.
 
-The sample application `DaidalusExample`, which is available in
-[Java](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Java/src/DaidalusExample.java) and
-[C++](https://github.com/nasa/WellClear/blob/master/DAIDALUS/C%2B%2B/src/DaidalusExample.cpp), illustrates the main
+## Example Applications
+In addition to Jar and library files, the `make` command compiles
+several example applications.
+The applications `DaidalusExample`, whose
+source code is available in
+[Java](https://github.com/nasa/daidalus/blob/master/Java/src/DaidalusExample.java) and
+[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusExample.cpp), illustrates the main
 functionalities provided by DAIDALUS including reading/writing
 configuration files, detection logic, alerting logic, maneuver
-guidance logic, and computation of loss of well-clear contours.  This
-application can be compiled using the provided `Makefile`. In Java:
-
-```
-** Building example applications
-/usr/bin/c++ -o DaidalusExample -Iinclude  -Wall -O  src/DaidalusExample.cpp lib/DAIDALUS.a
-/usr/bin/c++ -o DaidalusAlerting -Iinclude  -Wall -O
-src/DaidalusAlerting.cpp lib/DAIDALUS.a
-** To run DaidalusExample type:
-./DaidalusExample
-** To run DaidalusAlerting type, e.g.,
-./DaidalusAlerting --nomb --out H1.csv ../Scenarios/H1.daa
-```
-To run the example application in a Unix environment, type
+guidance logic, and computation of loss of well-clear contours for 
+hard coded ownship and traffic states.
+To run this program in a Unix environment, type
 
 ```
 $ ./DaidalusExample
 ```
-
-Several DAA metrics can be computed in batch mode for a given encounter using the sample
-program `DaidalusAlerting`, which is available in
-[Java](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Java/src/DaidalusAlerting.java) and
-[C++](https://github.com/nasa/WellClear/blob/master/DAIDALUS/C%2B%2B/src/DaidalusAlerting.cpp), e.g.,
+This very simple program can be executed with several
+configurations. For a list of options, type
 
 ```
-./DaidalusAlerting --conf ../Configurations/WC_SC_228_std.txt ../Scenarios/H1.daa
-Generating CSV file H1.csv
+$ ./DaidalusExample --help
 ```
 
-The generated file `H1.csv` contains  alerting information computed by DAIDALUS
-for the encounter [H1.daa](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Scenarios/H1.daa) assuming [Nominal
-B](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_nom_b.txt) configuration.
-
-Scripts are provided to produce graphs containing guidance and alerting
-information. For example, 
-
-```
-./DrawMultiBands --conf ../Configurations/WC_SC_228_std.txt ../Scenarios/H1.daa
-Writing file H1.draw, which can be processed with the Python script drawmultibands.py
-```
-
-produces a file `H1.draw`, which can be processed with the Python
-script `drawmultibands.py` to produce a PDF file displaying manuever
-guidance information for the given encounter, e.g.,
-
-```
-../Scripts/drawmultibands.py H1.draw
-Writing H1.pdf
-```
-
-The script `drawgraph.py` (thanks to Rachael Shudde, NASA Intern
-2017)  can be used to produce graphs of the information produced by
-`DaidalusAlerting`, e.g.,
-
-```
-../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --hd H12.daa
-Writing PDF file H12_horizontal_distance.pdf
-
-../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --taumod H12.daa
-Writing PDF file H12_taumod.pdf
-
-../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --hmd H12.daa
-Writing PDF file H12_hmd.pdf
-```
+More sophisticated applications are also provided in the DAIDALUS
+distribution (see  [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)).
 
 # Preliminaries
 
 ## Packages and Name Space
 In Java, DAIDALUS consists of three packages in the hierarchy
 `gov.nasa.larcfm`: `IO`, `Util`, and `ACCoRD`. In C++, the DAIDALUS
-code uses the name space `larcfm`. This document
+code is provided under the name space `larcfm`.
+This document
 will refer to classes in these packages and name space through unqualified
-names.  The following table lists the Java packages for the main
-DAIDALUS classes and interfaces.
+names.  The following table lists the main
+DAIDALUS classes (including interfaces and enumerations) and, in the
+case of Java, the package under which the class is defined. 
 
-| Class/Interface | Package |
-| --|--|
-| `AlertLevels` | `ACCoRD` |
-| `AlertThresholds` | `ACCoRD` |
-| `BandsRegion` | `ACCoRD` |
-| `CD3DTable` |  `ACCoRD` |
-| `CDCylinder` |  `ACCoRD` |
-| `ConflictData` |  `ACCoRD` |
-| `Daidalus` |  `ACCoRD` |
-| `DaidalusFileWalker` |  `ACCoRD` |
-| `Detection3D` |  `ACCoRD` |
-| `Horizontal` |  `ACCoRD` |
-| `KinematicBandsParameters` |  `ACCoRD` |
-| `KinematicMultiBands` |  `ACCoRD` |
-| `TCASTable` |  `ACCoRD` |
-| `TCAS3D` |  `ACCoRD` |
-| `TrafficState` | `ACCoRD` |
-| `Vertical` |  `ACCoRD` |
-| `WCVTable` |  `ACCoRD` |
-| `WCV_TAUMOD` |  `ACCoRD` |
-| `WCV_TCPA` |  `ACCoRD` |
-| `WCV_TEP` |  `ACCoRD` |
-| `Interval` | `Util` |
-| `Position` |  `Util` |
-| `Units` |  `Util` |
-| `Vect2` | `Util` |
-| `Vect3` | `Util` |
-| `Velocity` |  `Util` |
+| Java Class | Java Package | C++ Header | C++ Code |
+|--|--|--|--|
+| [`Alerter.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Alerter.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Alerter.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Alerter.cpp) | 
+| [`AlertThresholds.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/AlertThresholds.java) | `ACCoRD` |  [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/AlertThresholds.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/AlertThresholds.cpp) | 
+| [`BandsRange.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/BandsRange.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/BandsRange.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/BandsRange.cpp) | 
+| [`BandsRegion.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/BandsRegion.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/BandsRegion.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/BandsRegion.cpp) |
+| [`CD3DTable.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/CD3DTable.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/CD3DTable.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/CD3DTable.cpp) | 
+| [`CDCylinder.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/CDCylinder.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/CDCylinder.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/CDCylinder.cpp) |
+| [`ConflictData.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/ConflictData.java)  | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/ConflictData.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/ConflictData.cpp)|
+| [`Daidalus.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Daidalus.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Daidalus.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Daidalus.cpp) |
+| [`DaidalusFileWalker.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/DaidalusFileWalker.java)  | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/DaidalusFileWalker.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/DaidalusFileWalker.cpp) |
+| [`DaidalusParameters.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/DaidalusParameters.java) |  `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/DaidalusParameters.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/DaidalusParameters.cpp) |
+| [`Detection3D.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Detection3D.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Detection3D.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Detection3D.cpp) |
+| [`Horizontal.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Horizontal.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Horizontal.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Horizontal.cpp) |
+| [`TCASTable.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/TCASTable.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/TCASTable.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/TCASTable.cpp) |
+| [`TCAS3D.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/TCAS3D.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/TCAS3D.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/TCAS3D.cpp) |
+| [`TrafficState.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/TrafficState.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/TrafficState.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/TrafficState.cpp) |
+| [`Vertical.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Vertical.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Vertical.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Vertical.cpp) |
+| [`WCVTable.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/WCVTable.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/WCVTable.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/WCVTable.cpp) |
+| [`WCV_TAUMOD.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/WCV_TAUMOD.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/WCV_TAUMOD.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/WCV_TAUMOD.cpp) |
+| [`WCV_TAUMOD_SUM.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/WCV_TAUMOD_SUM.java) |  `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/WCV_TAUMOD_SUM.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/WCV_TAUMOD_SUM.cpp) |
+| [`WCV_TCPA.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/WCV_TCPA.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/WCV_TCPA.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/WCV_TCPA.cpp) |
+| [`WCV_TEP.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/WCV_TEP.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/WCV_TEP.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/WCV_TEP.cpp) |
+| [`Interval.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/Util/Interval.java) | `Util` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Interval.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Interval.cpp) |
+| [`Position.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/Util/Position.java) |  `Util` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Position.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Position.cpp) |
+| [`Units.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/Util/Units.java) |  `Util` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Units.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Units.cpp) |
+| [`Vect2.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/Util/Vect2.java) | `Util` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Vect2.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Vect2.cpp) |
+| [`Vect3.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/Util/Vect3.java) | `Util` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Vect3.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Vect3.cpp) |
+| [`Velocity.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/Util/Velocity.java) |  `Util` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Velocity.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Velocity.cpp) |
 
 ## Units
 DAIDALUS core algorithms use as internal units meters, seconds, and
-radians. However,  interface methods that set or get a value have a String argument, where the units are
+radians. However,  interface methods that set or get a value have a string argument, where the units are
 explicitly specified. The following table provides a list of symbols and the corresponding
 string representation supported by DAIDALUS.
 
@@ -240,7 +290,7 @@ string representation supported by DAIDALUS.
 | radians per second | `"rad/s"` |
 
 The class `Units` provides the following static methods for converting
-to and from internal units and  from one unit into another one.
+to/from internal units and  from one unit into another one.
 
  * `static double to(String unit, double value)`: Converts `value` to the units indicated by
   the parameter `unit` from internal units.
@@ -251,204 +301,258 @@ value)`: Converts `value` from the units indicated by the parameter `fromUnit` t
 `toUnit`.
   
 ## Earth Projection and Aircraft States
-DAIDALUS core algorithms use a Euclidean a local East, North, Up (ENU)
-Cartesian coordinate system.  However, aircraft sates can be
-provided in geodesic coordinates. In this case, DAIDALUS uses an
+The main DAIDALUS interface methods support inputs
+in geodesic coordinates (latitude, longitude, and altitude) and this
+is the preferred way to provide inputs to DAIDALUS.
+Internally, the core algorithms use a Euclidean local East, North, Up (ENU)
+Cartesian coordinate system. DAIDALUS uses an
 orthogonal projection of the ownship and traffic geodesic coordinates
 onto a plane tangent to the projected ownship position on the surface
 of the earth. The vertical component is not transformed.
 
 Aircraft positions are represented by the class
-`Position`. Positions can be specified in either geodesic
-coordinates or ENU Cartesian coordinates through
-the following static methods. 
+`Position`. Positions are specified in geodesic
+coordinates using
+the following static method, where  northern latitudes and eastern longitudes are positive. 
 
 * `static Position makeLatLonAlt(double lat, String lat_unit, double
-  lon, String lon_unit, double alt, String alt_unit) `: Creates  
-  geodesic position at latitude `lat`, longitude `lon`, and altitude
+  lon, String lon_unit, double alt, String alt_unit) `: Creates geodesic position at latitude `lat`, longitude `lon`, and altitude
   `alt` given in `lat_unit`, `lon_unit`, and `alt_unit` units, respectively.
-  Northern latitudes and eastern longitudes are positive. 
-* `static Position makeXYZ(double x, double x_unit, double y, double
-  y_unit, double z, double z_unit)`: Creates  ENU position with
-  Euclidean coordinates (`x`,`y`,`z`) given in 
-  `x_unit`, `y_unit`, and `z_unit` units, respectively.
 
 Aircraft velocities are represented by the class
 `Velocity`. Velocities are specified relative to the ground in
-either polar or ENU Cartesian coordinates using the following static
-methods.
+polar coordinates using the following static
+method, where track is given in true north clockwise convention.
 
 * `static Velocity makeTrkGsVs(double trk, String trk_unit, double gs, String gs_unit,
-      double vs, String vs_unit)`: Creates velocity with horizontal direction `trk` (true north,
-      clockwise convention),  horizontal  magnitude `gs`, and vertical component `vs` given in
+      double vs, String vs_unit)`: Creates velocity with track`trk`,
+      ground speed `gs`, and vertical speed `vs` given in
 	  `trk_unit`, `gs_unit`, and `vs_unit` units, respectively.
+
+For testing and debugging purposes, position and velocities can
+alternatively be given using a Euclidean local ENU Cartesian coordinate system. In
+this case, DAIDALUS assumes that 
+all traffic aircraft states are provided using the same coordinate
+system as the one used by the ownship . The static methods to create `Position`
+and `Velocity` objects using a Cartesian system are:
+
+* `static Position makeXYZ(double x, double x_unit, double y, double 
+  y_unit, double z, double z_unit)`: Creates  ENU position with 
+  Euclidean coordinates (`x`,`y`,`z`) given in 
+  `x_unit`, `y_unit`, and `z_unit` units, respectively. 
+
 * `static Velocity makeVxyz(double vx,
 	  double vy, String
       vxy_unit, double vz, String vz_unit)`: Creates ENU velocity
       with Euclidean coordinates (`vx`,`vy`,`vz`) given in `vxy_unit`,
       `vxy_unit`, and `vz_unit` units respectively.
 
-## Conventions, Misnomers, and Gotchas
-The following conventions are used through the code.
-
-* Northern latitudes and eastern longitudes are positive.
-* Angles representing aircraft direction are specified in true north clockwise convention.
-* Wind velocities are specified  using the *TO* direction, i.e., the
-direction the wind blows, as opposed to the *FROM* direction, i.e., the direction the wind originates. Furthermore, the
-vertical component of a wind velocity is assumed to be `0`. 
-* Aircraft positions can be specified in geodesic or ENU
-  coordinates. However, one of the two systems has to be used
-  consistently for all aircraft.
-* DAIDALUS input states are assumed to be ground-based. DAIDALUS
-  outputs are ground-based except when a wind vector is provided, in
-  which case outputs are air-based.
-
-DAIDALUS uses a simple wind model. When a wind vector is provided,
-DAIDALUS uniformly applies the wind vector to all aircraft states.  An
+## Winds
+DAIDALUS implements a simple wind model that is globally applied using
+a velocity vector. When a wind vector is provided, DAIDALUS uniformly
+applies the wind vector to all current and future aircraft states
+until another vector (possibly zero, i.e., "no-wind") is set.  This
+vector can be provided using either a "TO" (wind blowing direction) or
+a "FROM" (direction wind source from ownship's point of view) convention. An
 important consequence of setting a wind vector is that all
-computations and outputs become relative to the wind. In this case,
-methods whose names use the word *Track* and *GroundSpeed* become
-misnomers. These methods will indeed provide heading and airspeed
-information, respectively.
+computations and outputs become relative to the wind.
 
-DAIDALUS provides methods to retrieve aircraft states as they are
-passed to its core logics. However, these states are not necessarily
-the same states provided as inputs. In particular, before any
-computation, aircraft states may be projected in time to synchronize
-them in time to the applicability time. Furthermore, if wind vector is
-provided, ground-based input velocities are transformed relative to the
-wind.
-
+## Invalid Values
 Methods in DAIDALUS fail silently and return invalid values when
 called with invalid parameters. The following tables list methods that
 check the validity of values in DAIDALUS classes.
 
-| Class/Type | Validity Check (Java) |
-| -- | -- |
-| `double d;` | `Double.isFinite(d)` |
+| Class/Type | Validity Check (Java) | Invalidity Check (Java) | 
+| -- | -- | -- |
+| `double d;` | `Double.isFinite(d)`, `Double.isInfinite(d)`| `Double.isNaN(d)` |
+|`AlertThresholds athr` | `athr.isValid()` |
+| `Alerter a;` | `a.isValid()` |
 | `BandsRegion r;` | `r.isValidBand()` |
 | `Interval i;` | `i.isEmpty()` |
-| `Velocity v;` | `!v.isInvalid()` |
-| `Position p;` | `!p.isInvalid()` |
+| `Velocity v;` | | `v.isInvalid()` |
+| `Position p;` | |`p.isInvalid()` |
 | `TrafficState s;` | `s.isValid()` |
 
 In C++, the methods are the same except in the following cases.
 
-| Class/Type | Validity Check (C++) |
-| -- | -- |
-| `double d;` | `ISFINITE(d)` |
+| Class/Type | Validity Check (C++) | Invalidity Check (C++) | 
+| -- | -- |--|
+| `double d;` | `ISFINITE(d)`, `ISINF(d)` | `ISNAN(d)` |
 | `BandsRegion r;` | `BandsRegion::isValidBand(r)` |
 
-Furthermore, negative integer values are returned as invalid values
-in methods that under normal conditions return a natural number. 
+Furthermore, a negative integer value is returned as an invalid value
+in methods that under normal conditions return a natural number, e.g.,
+`int aircraftIndex(String name)` returns the index of an aircraft state given an aircraft identifier, e.g., `name`. The
+index is `0` if `name` is the ownship identifier and a positive number if `name` is the identifier of a traffic state. A negative value `-1` is returned when there is no aircraft identified with the string `name`.
 
 # The Class `Daidalus`
 
 The DAIDALUS software library is ownship
 centric. Its main functional features are provided through the class
-`Daidalus`, which maintains and computes information from
-the point of view of the ownship. In a multi-threaded application, a
-`Daidalus` object should not be shared by different threads.
+`Daidalus`, which maintains the global configuration, the wind configuration, and the current ownship and traffic aircraft states. In a multi-threaded application, there should only a
+`Daidalus` object per ownship and it should not be simultaneously written by different threads.
 
-Except for the information kept in a `Daidalus` object, DAIDALUS
-functionalities are memoryless, i.e., they process information at a
-given moment in time and do not keep information computed in
-previous calls. A typical DAIDALUS application has the
-following steps:
+Except for the configuration maintained in a `Daidalus` object,
+DAIDALUS functions are memoryless, i.e., they compute information
+using the current aircraft states and do not keep memory of
+previous aircraft states. However, DAIDALUS uses an eager computational
+approach, where some information is pre-computed and cached, and then
+reused when needed. The cache memory is
+conservatively cleared by methods that modify the configuration of the `Daidalus`
+object.
 
-1. Create and configure a `Daidalus` object. A `Daidalus` object can
+DAIDALUS assumes that there is a notion of time-step that is provide
+by the host application using the DAIDALUS library. At every time step
+the ownship state is first set and then traffic aircraft states are
+provided. DAIDALUS does not provide any functionality to filter, fuse,
+or pre-process aircraft state information. If needed, any
+pre-processing has to be implemented by the host application.  Within
+the same time-step, alerting and guidance information is computed. A
+typical DAIDALUS application has the following steps:
+
+1. [Create a `Daidalus` object](#creating-a-daidalus-object), e.g., `daa`, to provide DAA functionality to the ownship.
+1. [Configure `daa`](#configuring-daidalus-object). This object can
 be reconfigured at any time. However, in a typical application, a `Daidalus` object is
 configured at the beginning of the application and the configuration
 remains invariant through the execution of the program.
-1. Get state information for ownship and traffic aircraft from avionics systems.
-    DAIDALUS does not provide any functionality to filter or
-   pre-process state information. If needed, any pre-processing has to be
-   implemented outside DAIDALUS.
-1. Set ownship and traffic states into `Daidalus`
-   object. 
-1. If available, set wind information into `Daidalus` object.
-1. Get detection, alerting, and guidance information from `Daidalus`
-object.
-1. Display information. DAIDALUS does not provide any functionality to
+1. If available, set wind vector. This wind vector is applied to all aircraft states (ownship and traffic) until another wind vector is set.
+1. At every time-step:
+   1. Set ground-based state information for ownship into `daa`. If available, set standard and co-standard deviations for ownship position and velocity. 
+   1. Set ground-based state information for all traffic aircraft into `daa`. If available, set standard and co-standard deviations for each traffic position and velocity. 
+   1. Get detection, alerting, and guidance information from `daa`.
+   1. Use output information as appropriate. DAIDALUS does not provide any functionality to
 display or post-process its outputs. If needed, any
-post-processing has to be implemented outside DAIDALUS.
-1. Repeat from 2.
+post-processing has to be implemented by the host application.
+	1. Repeat from either 3, if new wind information is available, or 4 to start a new time-step.
 
-## Creating and Configuring a `Daidalus` Object
-In Java, a `Daidalus` object is created through the invokation
+## Creating a `Daidalus` Object
+In Java, a `Daidalus` object is created through the call
 ```java
 Daidalus daa = new Daidalus();
 ```
-The variable `daa` is initialized to default values, which corresponds
-to an unbuffered well-clear volume, i.e., DMOD=HMD=0.66 nmi, TAUMOD=35 s,
-ZTHR=450 ft, with kinematic bands computations.  The default configuration can
-be changed either programmatically or via a configuration file. For
-instance,
+The same can be accomplished in C++, using stack memory:
 
-```java
-daa.set_Buffered_WC_SC_228_MOPS(nom);
+```C++
+Daidalus daa;
 ```
-changes the configuration of the `daa` object to a buffered well-clear
-volume, i.e.,  DMOD=HMD=1.0 nmi, TAUMOD=35 s,
-ZTHR=450 ft, and TCOA=20 s, with kinematic bands computation. The parameter `nom`
-represents a boolean value. When this value is `false` the configuration
-is called *Nominal A* and sets the maximum turn rate of the ownship to 1.5 deg/s.
-The configuration *Nominal B* is obtained by
-setting the parameter `nom` to `true`. This configuration is exactly as
-Nominal A, but sets the ownship maximum turn rate to 3.0 deg/s.
+In both cases, the variable `daa` is initialized to an empty DAA logic.
+
+## Configuring `Daidalus` Object
+A `Daidalus` object can be configured either programmatically or via a
+configuration file. For instance,
+```java
+daa.set_DO_365A();
+```
+set `daa` to DO 365A default values, i.e.,
+- Alerting logic for two alerters using, respectively, Phase I and Phase II, thresholds is enabled
+- Maneuver guidance logic is set to kinematic maneuvers
+- Turn rate is set to 3 deg/s
+- Sensor Uncertainty Mitigation (SUM) is enabled
+- Recovery bands are enabled and maneuver guidance is set such that bands do not saturate until NMAC
+- Hysteresis logic is enabled
+- DAA Terminal Area (DTA) is enabled
+
+The same configuration can be achieved by loading the configuration file [`DO_365A_SUM.conf`](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365A_SUM.conf) provided in the distribution, e.g.,
+```java
+daa.loadFromFile("DO_365A_SUM.conf");
+```
+
+The more general method call
+```
+daa.set_DO_365A(type,sum);
+```
+where both `type` and `sum` are boolean variables, set `daa` to DO 365A default values but
+- turn rate is set to 3 deg/s when `type` is `true` and to 1.5 deg/s when `type` is `false`
+- SUM is enabled when `sum` is `true` and disabled when `sum` is `false`.
+
+For instance, the call
+```java
+daa. set_DO_365A(true,false);
+```
+is equivalent to loading the configuration file [`DO_365A_no_SUM.conf`](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365A_no_SUM.conf) provided in the distribution, e.g.,
+```java
+daa.loadFromFile("DO_365A_no_SUM.conf");
+```
 
 DAIDALUS supports a large set of configurable parameters that
 govern the behavior of the detection, alerting, and
 maneuver guidance logics. These parameters are described in the
-Section [Parameters](#parameters). The simplest way to configure a
+Section [The Class `DaidalusParameters`](#the-class-daidalusparameters). The simplest way to configure a
 `Daidalus` object is through a configuration file. Examples of
 configuration files are provided in the directory
-[`Configurations`](Configurations/), which are 
+[`Configurations`](https://github.com/nasa/daidalus/blob/master/Configurations/). These  configurations and programatic methods to achieve them are 
 explained in the Section
-[Pre-Defined Configurations](#pre-defined-configurations).  A
-configuration file only needs to provide values to the
-parameters that change. The method call
+[Pre-Defined Configurations](#pre-defined-configurations).
+
+As seen in previous examples, the method call
 ```java
-daa.parameters.loadFromFile(filename);
+daa.loadFromFile(filename);
 ```
 loads a configuration file, whose name is indicated by 
-`filename`, into the `parameters` field of the `Daidalus` object `daa`.
-The current configurations of a `Daidalus` object `daa` can be written into a file
-using the method call
+`filename`, into the `Daidalus` object `daa`.
+Generally, a configuration file set values to all configurable parameters. However,
+a configuration file may only provide values to the parameters that change with respect
+to the current configuration in `daa`.  At any time, the current configurations can be written
+into a file using the method call
 ```java
-daa.parameters.saveToFile(filename);
+daa.saveToFile(filename);
 ```
+
 The methods
-`loadFromFile` and `saveToFile` of the class `KinematicBandsParameters` return a boolean value. The value
-`false` indicates that an input/output error has occurred, e.g.,a file
+`loadFromFile` and `saveToFile` of the class `Daidalus` return a boolean value. The value
+`false` indicates that an input/output error has occurred, e.g., a file
 cannot be read because it does not exist or a file cannot be written because
 of insufficient permissions.
 
-## Adding Ownship and Traffic States
-A `Daidalus` object `daa` maintains a list of aircraft states at a
-given time of applicability. The ownship state
-can be added into a `Daidalus` object `daa`  through the method invokation
+## Providing Wind Information
+If available, a wind vector can be provided to a `Daidalus` object
+`daa` using the method call
+```
+daa.setWindVelocityTo(wind_to);
+```
+
+or, alternatively,
+```
+daa.setWindVelocityFrom(wind_from);
+```
+
+where `wind_to` and `wind_from` are `Velocity` objects. The vector `wind_to` specifies the clockwise true north direction the wind blows. The vector `wind_from` specifies the  clockwise  true north direction of the wind source from the point of view of the ownship. The wind vector is applied to current and future aircraft states (ownship and traffic) until another wind vector is set.
+
+The method call `daa.setNoWind()` disables wind computations for current and future aircraft states (ownship and traffic) until a wind vector is configured.
+
+## Adding Ownship State
+A `Daidalus` object `daa` maintains the ownship state and a list of traffic aircraft states at a
+given time of applicability, which is the time of the ownship state.
+
+
+The ownship state
+can be added into a `Daidalus` object `daa`  using the method call
 ```java
 daa.setOwnshipState(ido,so,vo,to);
 ```
-where `ido` is a string that indicates the ownship identifier (string), `so` is a
+where `ido` is the ownship identifier (string), `so` is a
 `Position` object that indicates ownship position, `vo` is a
-`Velocity` object that indicates ownship velocity, and `to` is a time
+`Velocity` object that indicates ownship velocity, and `to` is an absolute time
 stamp in seconds of the ownship state, i.e., the time of applicability. Setting the ownship state into
-a `daa` object, resets the list of aircraft. Thus, for a given time of
+a `daa` object clear the list of traffic aircraft states. Thus, for a given time of
 applicability, the ownship state has to be added before any other
 aircraft state.
 
-Traffic states can be added into `daa` using the method invokation
+## Adding Traffic State
+
+Traffic states can be added into `daa` using the method call
 ```java
 daa.addTrafficState(idi,si,vi);
 ```
 where `idi`, `si`, and `vi` are the traffic identifier, position, and
 velocity, respectively.  Traffic states do not require a time stamp since it is
 assumed to be the same the ownship's. If a time stamp is 
-provided, e.g., ` daa.addTrafficState(idi,si,vi,ti)`, the
-position of the traffic aircraft is linearly projected (forwards or
-backwards) from `ti` to `to`, the time stamp of the ownship, so that
+provided, e.g.,
+```
+daa.addTrafficState(idi,si,vi,ti);
+```
+the position of the traffic aircraft is linearly projected (forwards or
+backwards in time) from `ti` to `to`, the time stamp of the ownship, so that
 all traffic states are synchronized in time with the ownship.
 
 Aircraft identifiers are assumed to be unique within a `daa`
@@ -474,17 +578,6 @@ aircraft added to the list of aircraft.
   `time`, which is specified in seconds, and sets that time as the time
   of applicability.
 
-## Providing Wind Information
-If available, a wind vector can be provided to a `Daidalus` object
-`daa` using the method call
-```java
-daa.setWindField(wind);
-```
-where `wind` is a `Velocity` object, whose vertical component
-is assumed to be `0`.  The wind velocity is specified in the direction
-the wind blows. The specified wind vector is uniformity applied to all
-traffic states before any computation. Therefore, after this method call, all
-computations become relative to the wind.
 
 ## Conflict Detection Logic
 The time to loss of well-clear, in seconds, between the ownship and the traffic aircraft at index `idx` for
@@ -533,13 +626,13 @@ In DAIDALUS, maneuver guidance is provided by the class `KinematicMultiBands`.
 The following code creates an object `bands` of type `KinematicMultiBands` for the
 aircraft in the `Daidalus` object `daa`.
 ```java  
-KinematicMultiBands bands = daa.getMultiKinematicBands();  
+KinematicMultiBands bands = daa.getMultiDaidalus();  
 ``` 
 The previous code is written in Java. The corresponding code in C++ is
 as follows.
 ```c++
 KinematicMultiBands bands;
-daa.multiKinematicBands(bands); 
+daa.multiDaidalus(bands); 
 ```
 For efficiency reasons, bands are computed in a lazy way, i.e., the
 methods `getKinematicMutliBands` (in Java) and `kinematicMultiBands` (in
@@ -686,13 +779,13 @@ List<TrafficState> acs_alt = bands.peripheralAltitudeAircraft(alert_level);
 
 ## Last Time to Maneuver
 
-# The Class `KinematicBandsParameters`
+# The Class `DaidalusParameters`
 
 DAIDALUS objects can be configured through the class variable
-`parameters` of type `KinematicBandsParameters`. The configuration can
+`parameters` of type `DaidalusParameters`. The configuration can
 be done either programmatically using getter/setter methods or via a
 configuration file using the method `loadFromFile`.  These methods are
-defined in the class `KinematicBandsParameters`.
+defined in the class `DaidalusParameters`.
 
 ## Basic Parameters
 The following is a list of parameters that can be configured
@@ -778,7 +871,7 @@ max_gs = 700.0 [knot]
 ```
 The following configuration can also be achieved using the method
 ```java
-daa.parameters.setMaxGroundSpeed(700.0,"knot");
+daa.setMaxGroundSpeed(700.0,"knot");
 ```
 If no units are provided, internal units are assumed, i.e., meters for
 distance, seconds for time, radians for angles, and so on.
@@ -792,10 +885,10 @@ first level is 1) in a configuration file.
 ## Detectors
 
 ## Pre-Defined Configurations
-The directory [`Configurations`](https://github.com/nasa/WellClear/tree/master/DAIDALUS/Configurations) includes the following configurations files
+The directory [`Configurations`](https://github.com/nasa/daidalus/tree/master/Configurations) includes the following configurations files
 that are related to RTCA SC-228 MOPS Phase I.
 
-* [`WC_SC_228_std.txt`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_std.txt):
+* [`WC_SC_228_std.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_std.txt):
   This configuration implements the alerting and maneuvering guidance
   logics for a the standard definiton of DAA Well-Clear provided in 
   MOPS  Section 2.2.4.3.1 (also see Appendix C). The configuration uses
@@ -812,7 +905,7 @@ that are related to RTCA SC-228 MOPS Phase I.
   Daidalus daa  = new Daidalus();
   ```
   
-* [`WC_SC_228_nom_a.txt`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_nom_a.txt): This
+* [`WC_SC_228_nom_a.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_a.txt): This
   configuration corresponds to a nominal instantiation of DAIDALUS for
   the class of aircraft that are able to perform a turn rate of 1.5
   deg/s and meet the performance maneuverability listed in
@@ -830,7 +923,7 @@ that are related to RTCA SC-228 MOPS Phase I.
   daa.set_Buffered_WC_SC_228_MOPS(false);
   ```
 
-* [`WC_SC_228_nom_b.txt`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_nom_b.txt): This
+* [`WC_SC_228_nom_b.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_b.txt): This
   configuration corresponds to a nominal instantiation of DAIDALUS for
   the class of aircraft that are able to perform a turn rate of 3.0
   deg/s and meet the performance maneuverability listed in
@@ -848,7 +941,7 @@ that are related to RTCA SC-228 MOPS Phase I.
   daa.set_Buffered_WC_SC_228_MOPS(true);
   ```
 
-* [`WC_SC_228_min.txt`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_min.txt): This
+* [`WC_SC_228_min.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_min.txt): This
   configuration corresponds to the minimum detect and avoid
   threshold values used for the generation of the encounter
   characterization files in Appendix P.
@@ -860,7 +953,7 @@ that are related to RTCA SC-228 MOPS Phase I.
   implementation against the minimum values in the
   encounter characterization files in Appendix P.
   
-* [`WC_SC_228_max.txt`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_max.txt): This
+* [`WC_SC_228_max.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_max.txt): This
   configuration corresponds to the maximum detect and avoid
   threshold values used for the generation of the encounter
   characterization files in Appendix P.
@@ -880,20 +973,20 @@ computing detection, alerting, and maneuver guidance from pre-defined
 encounters.
 
 These utilities work with two text files: a DAIDALUS configuration file `name.conf`
-such as [`WC_SC_228_nom_b.txt`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Configurations/WC_SC_228_nom_b.txt)
+such as [`WC_SC_228_nom_b.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_b.txt)
 and an encounter file `name.daa` such as
-[`H1.daa`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Scenarios/H1.daa). The
+[`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa). The
 encounter file may list multiple aircraft, the first one is considered
 to be the ownship. The aircraft states can be given geodesic
 coordinates, e.g.,
-[`MultiAircraft.daa`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Scenarios/MultiAircraft.daa).
+[`MultiAircraft.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/MultiAircraft.daa).
 
 The configuration and encounter files can be generated from a Daidalus
 log file. A Daidalus log file is produced by writing into a text file
 the string `daa.toString()`, where `daa` is a `Daidalus` object.
 To generate the configuration and encounter file from a Daidalus log
 file, i.e., `name.log`, use the script
-[`daidalize`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Scripts/daidalize.pl),
+[`daidalize`](https://github.com/nasa/daidalus/blob/master/Scripts/daidalize.pl),
 e.g.,
 ```
 $ ./daidalize.pl name.log 
@@ -910,7 +1003,7 @@ that the time column of the generated encounter strictly increases at
 every time step.
 
 To produce alerting and state-based metrics, 
-use the Java program [`DaidalusAlerting`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Java/DaidalusAlerting), e.g.,
+use the Java program [`DaidalusAlerting`](https://github.com/nasa/daidalus/blob/master/Java/DaidalusAlerting), e.g.,
 ```
 $ ./DaidalusAlerting --conf name.conf name.daa
 Loading configuration file name.conf
@@ -919,7 +1012,7 @@ Generating CSV file name.csv
 ```
 
 The script
-[`drawgraphs`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Scripts/drawgraphs.py)
+[`drawgraphs`](https://github.com/nasa/daidalus/blob/master/Scripts/drawgraphs.py)
 can be used to generate PDFs of the information produced by
 `DaidalusAlerting`, e.g.,
 ```
@@ -928,20 +1021,76 @@ Writing PDF file name_horizontal_distance.pdf
 ```
 
 To produce maneuver guidance graphs, 
-use the Java program [`DrawMultiBands`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Java/DrawMultiBands), e.g.,
+use the Java program [`DrawMultiBands`](https://github.com/nasa/daidalus/blob/master/Java/DrawMultiBands), e.g.,
 ```
  $ ./DrawMultiBands  --conf name.conf name.daa
 Writing file name.draw, which can be processed with the Python script drawmultibands.py
 ```
 
 Then, to produce a PDF file use the script
-[`drawmultibands`](https://github.com/nasa/WellClear/blob/master/DAIDALUS/Scripts/drawmultibands.py),
+[`drawmultibands`](https://github.com/nasa/daidalus/blob/master/Scripts/drawmultibands.py),
 e.g.,
 ```
 $ ./drawmultibands.py name.draw 
 Reading name.draw
 Writing name.pdf
 ```
+
+---
+These applications
+use the DAIDALUS library in batch mode on a configuration (`.conf`)
+and encounter (`.daa`) file. 
+
+The application
+`DaidalusAlerting` computes several performance metrics in batch mode
+for a given congir
+
+encounter using the example
+program `DaidalusAlerting`, which is available in
+[Java](https://github.com/nasa/daidalus/blob/master/Java/src/DaidalusAlerting.java) and
+[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusAlerting.cpp), e.g.,
+
+```
+./DaidalusAlerting --conf ../Configurations/WC_SC_228_std.txt ../Scenarios/H1.daa
+Generating CSV file H1.csv
+```
+
+The generated file `H1.csv` contains  alerting information computed by DAIDALUS
+for the encounter [H1.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa) assuming [Nominal
+B](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_b.txt) configuration.
+
+Scripts are provided to produce graphs containing guidance and alerting
+information. For example, 
+
+```
+./DrawMultiBands --conf ../Configurations/WC_SC_228_std.txt ../Scenarios/H1.daa
+Writing file H1.draw, which can be processed with the Python script drawmultibands.py
+```
+
+produces a file `H1.draw`, which can be processed with the Python
+script `drawmultibands.py` to produce a PDF file displaying manuever
+guidance information for the given encounter, e.g.,
+
+```
+../Scripts/drawmultibands.py H1.draw
+Writing H1.pdf
+```
+
+The script `drawgraph.py` (thanks to Rachael Shudde, NASA Intern
+2017)  can be used to produce graphs of the information produced by
+`DaidalusAlerting`, e.g.,
+
+```
+../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --hd H12.daa
+Writing PDF file H12_horizontal_distance.pdf
+
+../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --taumod H12.daa
+Writing PDF file H12_taumod.pdf
+
+../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --hmd H12.daa
+Writing PDF file H12_hmd.pdf
+```
+----
 
 Finally, DAIDALUS encounter can be simulated in the visualization tool
 [`UASChorus`](https://shemesh.larc.nasa.gov/fm/ACCoRD/UASChorus.jar).
