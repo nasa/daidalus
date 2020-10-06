@@ -23,13 +23,15 @@ version 1 is available from https://nasa.github.io/WellClear.
       * [Earth Projection and Aircraft States](#earth-projection-and-aircraft-states)
       * [Winds](#winds)
       * [Invalid Values](#invalid-values)
-   * [The Class Daidalus](#the-class-daidalus)
+   * [DAIDALUS Inputs](#daidalus-inputs)
       * [Creating a Daidalus Object](#creating-a-daidalus-object)
       * [Configuring Daidalus Object](#configuring-daidalus-object)
       * [Providing Wind Information](#providing-wind-information)
-      * [Adding Ownship State](#adding-ownship-state)
-      * [Adding Traffic State](#adding-traffic-state)
-      * [Conflict Detection Logic](#conflict-detection-logic)
+      * [Adding Aircraft States](#adding-aircraft-states)
+         * [Adding Ownship State](#adding-ownship-state)
+         * [Adding Traffic State](#adding-traffic-state)
+         * [Adding Sensor Uncertainty](#adding-sensor-uncertainty)
+   * [DAIDALUS Outputs](#daidalus-outputs)
       * [Alerting Logic](#alerting-logic)
       * [Maneuver Guidance Logic](#maneuver-guidance-logic)
    * [The Class KinematicMultiBands](#the-class-kinematicmultibands)
@@ -41,16 +43,18 @@ version 1 is available from https://nasa.github.io/WellClear.
       * [Resolutions](#resolutions)
       * [Time to Recovery](#time-to-recovery)
       * [Last Time to Maneuver](#last-time-to-maneuver)
-   * [The Class DaidalusParameters](#the-class-daidalusparameters)
+   * [Alerters](#alerters)
+   * [Sensor Uncertainty Mitigation](#sensor-uncertainty-mitigation)
+   * [Hysteresis Logic](#hysteresis-logic)
+   * [DTA Logic](#dta-logic)
+   * [Configurable Parameters](#configurable-parameters)
       * [Basic Parameters](#basic-parameters)
-      * [Alert Thresholds](#alert-thresholds)
-      * [Detectors](#detectors)
       * [Pre-Defined Configurations](#pre-defined-configurations)
    * [Advanced Features](#advanced-features)
       * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
    * [Contact](#contact)
 
-<!-- Added by: cmunoz, at: Mon Oct  5 19:02:37 EDT 2020 -->
+<!-- Added by: cmunoz, at: Tue Oct  6 10:26:52 EDT 2020 -->
 
 <!--te-->
 
@@ -116,10 +120,10 @@ DAIDALUS v2 and v1 share the same logic and, by design, configuration
 files are backward compatible. DAIDALUS v2 application programming
 interface differs from DAIDALUS v1 and provides new and enhanced
 functionality.  In particular, DAIDALUS v2 implements
-* Multiple and dynamic alerting logic
-* Sensor Uncertainty Mitigation (SUM)
-* Hysteresis logic
-* DAA Terminal Area (DTA) logic
+* [Multiple and dynamic alerting logic](#alerters)
+* [Sensor Uncertainty Mitigation](#sensor-uncertainty-mitigation) (SUM)
+* [Hysteresis logic](#hysteresis-logic)
+* [DAA Terminal Area (DTA) logic](#dta-logic)
 * Enhanced alerting time logic
 
 The application
@@ -385,7 +389,7 @@ in methods that under normal conditions return a natural number, e.g.,
 `int aircraftIndex(String name)` returns the index of an aircraft state given an aircraft identifier, e.g., `name`. The
 index is `0` if `name` is the ownship identifier and a positive number if `name` is the identifier of a traffic state. A negative value `-1` is returned when there is no aircraft identified with the string `name`.
 
-# The Class `Daidalus`
+# DAIDALUS Inputs
 
 The DAIDALUS software library is ownship
 centric. Its main functional features are provided through the class
@@ -415,15 +419,40 @@ typical DAIDALUS application has the following steps:
 be reconfigured at any time. However, in a typical application, a `Daidalus` object is
 configured at the beginning of the application and the configuration
 remains invariant through the execution of the program.
-1. If available, set wind vector. This wind vector is applied to all aircraft states (ownship and traffic) until another wind vector is set.
 1. At every time-step:
-   1. Set ground-based state information for ownship into `daa`. If available, set standard and co-standard deviations for ownship position and velocity. 
-   1. Set ground-based state information for all traffic aircraft into `daa`. If available, set standard and co-standard deviations for each traffic position and velocity. 
-   1. Get detection, alerting, and guidance information from `daa`.
-   1. Use output information as appropriate. DAIDALUS does not provide any functionality to
+   1. Provide Inputs
+	  1. If available,
+         [set wind vector](#providing-wind-information). This wind
+         vector is applied to current and future aircraft states (ownship and traffic) until another wind vector is set. 
+	  1. [Set ground-based state information for ownship](#adding-ownship-state)
+         into `daa`. If available,
+         [set standard and co-standard deviations](#adding-sensor-uncertainty)
+         for ownship position and velocity information. 
+	  1. Set ground-based state information for all traffic aircraft
+         into `daa`. If available, [set standard and co-standard
+         deviations](#adding-sensor-uncertainty) for traffic position
+         and velocity information.
+   1. Compute Outputs
+	  1. Get detection, alerting, and guidance information from `daa`.
+	  1. Use output information as appropriate. DAIDALUS does not provide any functionality to
 display or post-process its outputs. If needed, any
 post-processing has to be implemented by the host application.
-	1. Repeat from either 3, if new wind information is available, or 4 to start a new time-step.
+
+Because of the eager computational approach used by DAIDALUS, the
+steps above are the *preferred* way to use DAIDALUS: at each
+time step there is a first phase where all inputs for a given
+time-step  are provided and then a
+second phase where all outputs for the given time-step are computed
+and processed. If outputs are computed before all inputs are provided,
+cache memory may be clear resulting in a sound but more inefficient
+computation. Furthermore, if hysteresis logic is enabled clearing the
+cache memory will also result in clearing hysteresis information.
+
+In a real DAA application, not every input is available at the same
+time. Different sensors may have different frequencies and 
+traffic information is available in an asynchronous way.  In that
+case, synchrony could be introduced by the host application, for
+example by running a process that executes at a given frequency (e.g., 1hz).
 
 ## Creating a `Daidalus` Object
 In Java, a `Daidalus` object is created through the call
@@ -474,10 +503,11 @@ is equivalent to loading the configuration file [`DO_365A_no_SUM.conf`](https://
 daa.loadFromFile("DO_365A_no_SUM.conf");
 ```
 
-DAIDALUS supports a large set of configurable parameters that
+DAIDALUS supports a large set of
+[configurable parameters](#configurable-parameters)
+that
 govern the behavior of the detection, alerting, and
-maneuver guidance logics. These parameters are described in the
-Section [The Class `DaidalusParameters`](#the-class-daidalusparameters). The simplest way to configure a
+maneuver guidance logics. The simplest way to configure a
 `Daidalus` object is through a configuration file. Examples of
 configuration files are provided in the directory
 [`Configurations`](https://github.com/nasa/daidalus/blob/master/Configurations/). These  configurations and programatic methods to achieve them are 
@@ -520,10 +550,29 @@ where `wind_to` and `wind_from` are `Velocity` objects. The vector `wind_to` spe
 
 The method call `daa.setNoWind()` disables wind computations for current and future aircraft states (ownship and traffic) until a wind vector is configured.
 
-## Adding Ownship State
+## Adding Aircraft States
 A `Daidalus` object `daa` maintains the ownship state and a list of traffic aircraft states at a
 given time of applicability, which is the time of the ownship state.
+Aircraft identifiers are assumed to be unique within a `daa`
+object. The order in which traffic aircraft are added is
+relevant. Indeed, several `Daidalus` methods use the index of an
+aircraft in the list of aircraft as a reference to the aircraft. The
+index `0` is reserved for the ownship. It should be noted that
+aircraft indices may change from time-step to time-step. 
+The following methods are provided by the class 
+`Daidalus`. 
 
+* `int aircraftIndex(String id)`: Returns the index of the aircraft
+identified by the string value of `id`.
+The returned value is negative if the list of aircraft does not
+include an aircraft identified by the string value of `id`.
+* `int numberOfAircraft()`: Returns the number of aircraft in the list
+of aircraft, including the ownship.
+* `int lastTrafficIndex()`: Returns the index of the last
+aircraft added to the list of aircraft.
+* `double getCurrentTime()`: Returns the time of applicability in seconds.
+
+### Adding Ownship State
 
 The ownship state
 can be added into a `Daidalus` object `daa`  using the method call
@@ -538,11 +587,11 @@ a `daa` object clear the list of traffic aircraft states. Thus, for a given time
 applicability, the ownship state has to be added before any other
 aircraft state.
 
-## Adding Traffic State
+### Adding Traffic State
 
 Traffic states can be added into `daa` using the method call
 ```java
-daa.addTrafficState(idi,si,vi);
+aci_idx = daa.addTrafficState(idi,si,vi);
 ```
 where `idi`, `si`, and `vi` are the traffic identifier, position, and
 velocity, respectively.  Traffic states do not require a time stamp since it is
@@ -554,32 +603,31 @@ daa.addTrafficState(idi,si,vi,ti);
 the position of the traffic aircraft is linearly projected (forwards or
 backwards in time) from `ti` to `to`, the time stamp of the ownship, so that
 all traffic states are synchronized in time with the ownship.
+The returned value `aci_idx` is the index of an aircraft `idi` after
+it has been added
+to the list
+of aircraft.
 
-Aircraft identifiers are assumed to be unique within a `daa`
-object. Furthermore, the order in which traffic aircraft are added is
-relevant. Indeed, several `Daidalus` methods use the index of an
-aircraft in the list of aircraft as a reference to the aircraft. The
-index `0` is reserved for the ownship.
-The method `addTrafficState`
-returns the index of an aircraft after it has been added to the list
-of aircraft. The following methods are provided by the class
-`Daidalus`.
+### Adding Sensor Uncertainty
+If a SUM configuration is enabled and sensor uncertainties for the
+ownship/traffic aircraft are available, they can be set as follows.
+```
+daa.setHorizontalPositionUncertainty(ac_idx, s_EW, s_NS, s_EN, xy_units);
+daa.setVerticalPositionUncertainty(ac_idx, sz, z_units);
+daa.setHorizontalVelocityUncertainty(ac_idx, v_EW, v_NS, v_EN, vxy_units);
+daa.setVerticalSpeedUncertainty(ac_idx, vz, vz_units);
+```
+where
+* `ac_idx` is the index of the aircraft related to the
+  uncertainties. The index `0` represents the ownship.
+* `s_EW`, `s_NS`, `s_EN` are the East-West, North-South, East-North
+standard deviations of the horizontal position in `xy_units` [units](#units).
+* `sz` is the altitude uncertainty in `z_units` [units](#units).
+* `v_EW`, `v_NS`, `v_EN` are the East-West, North-South, East-North
+standard deviations of the horizontal velocity in `vxy_units` [units](#units).
+* `vz` is the vertical speed uncertainty in `vz_units` [units](#units).
 
-* `int aircraftIndex(String id)`: Returns the index of the aircraft
-identified by the string value of `id`.
-The returned value is negative if the list of aircraft does not
-include an aircraft identified by the string value of `id`.
-* `int numberOfAircraft()`: Returns the number of aircraft in the list
-of aircraft, including the ownship.
-* `int lastTrafficIndex()`: Returns the index of the last
-aircraft added to the list of aircraft.
-* `double getCurrentTime()`: Returns the time of applicability in seconds.
-* `void setCurrentTime(double time)`: Projects aircraft states to time
-  `time`, which is specified in seconds, and sets that time as the time
-  of applicability.
-
-
-## Conflict Detection Logic
+# DAIDALUS Outputs
 The time to loss of well-clear, in seconds, between the ownship and the traffic aircraft at index `idx` for
 the corrective alert level and lookahead time
 configured in the `Daidalus` object `daa` can be 
@@ -779,7 +827,19 @@ List<TrafficState> acs_alt = bands.peripheralAltitudeAircraft(alert_level);
 
 ## Last Time to Maneuver
 
-# The Class `DaidalusParameters`
+# Alerters
+
+DAIDALUS also enables the configuration of alert level thresholds.
+The following parameters can be configured per alert level (The
+first level is 1) in a configuration file.
+
+# Sensor Uncertainty Mitigation 
+
+# Hysteresis Logic
+
+# DTA Logic
+
+# Configurable Parameters
 
 DAIDALUS objects can be configured through the class variable
 `parameters` of type `DaidalusParameters`. The configuration can
@@ -875,14 +935,6 @@ daa.setMaxGroundSpeed(700.0,"knot");
 ```
 If no units are provided, internal units are assumed, i.e., meters for
 distance, seconds for time, radians for angles, and so on.
-
-## Alert Thresholds
-
-DAIDALUS also enables the configuration of alert level thresholds.
-The following parameters can be configured per alert level (The
-first level is 1) in a configuration file.
-
-## Detectors
 
 ## Pre-Defined Configurations
 The directory [`Configurations`](https://github.com/nasa/daidalus/tree/master/Configurations) includes the following configurations files
