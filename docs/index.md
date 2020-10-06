@@ -905,6 +905,10 @@ daa.peripheralVerticalSpeedBandsAircraft(acs,region);
 daa.peripheralAltitudeBandsAircraft(acs,region);
 ```
 
+
+** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **
+===
+
 ### Directive Guidance
 
 # Performance Metrics
