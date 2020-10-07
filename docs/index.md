@@ -42,6 +42,7 @@ Reference Manual - DAIDALUS-v2.0.x
          * [Altitude Bands](#altitude-bands)
          * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
          * [Directive Guidance](#directive-guidance)
+   * [** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **](#-documents-has-been-updated-upto-this-point-)
    * [Performance Metrics](#performance-metrics)
       * [Time to Recovery](#time-to-recovery)
       * [Last Time to Maneuver](#last-time-to-maneuver)
@@ -50,13 +51,21 @@ Reference Manual - DAIDALUS-v2.0.x
    * [Hysteresis Logic](#hysteresis-logic)
    * [DTA Logic](#dta-logic)
    * [Configurable Parameters](#configurable-parameters)
-      * [Basic Parameters](#basic-parameters)
+      * [Bands Parameters](#bands-parameters)
+      * [Kinematic Parameters](#kinematic-parameters)
+      * [Recovery Bands Parameters](#recovery-bands-parameters)
+      * [Collision Avoidance Bands Parameters](#collision-avoidance-bands-parameters)
+      * [Alerting Logic Parameters](#alerting-logic-parameters)
+      * [Hysteresis Parameters](#hysteresis-parameters)
+      * [Sensor Uncertainty Mitigation Parameters](#sensor-uncertainty-mitigation-parameters)
+      * [DAA Terminal Area (DTA) Parameters](#daa-terminal-area-dta-parameters)
+      * [Considerations](#considerations)
       * [Pre-Defined Configurations](#pre-defined-configurations)
    * [Advanced Features](#advanced-features)
       * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
    * [Contact](#contact)
 
-<!-- Added by: cmunoz, at: Tue Oct  6 18:48:07 EDT 2020 -->
+<!-- Added by: cmunoz, at: Wed Oct  7 10:24:36 EDT 2020 -->
 
 <!--te-->
 
@@ -445,7 +454,7 @@ remains invariant through the execution of the program.
          deviations](#adding-sensor-uncertainty) for traffic position
          and velocity information.
    1. Compute Outputs
-	  1. Get detection, alerting, and guidance information from `daa`.
+	  1. Get [detection](#detection-logic), [alerting](#alerting-logic), and [guidance](#maneuver-guidance-logic) information from `daa`.
 	  1. Use output information as appropriate. DAIDALUS does not provide any functionality to
 display or post-process its outputs. If needed, any
 post-processing has to be implemented by the host application.
@@ -709,7 +718,7 @@ relative to ownship's time.
 
 The time returned by `timeToCorrectiveVolume` is positive infinity when the
 aircraft are not in conflict within the lookahead time. It returns
-Not-A-Number (NaN) value when `ac_idx` is not a valid aircraft index.
+a Not-A-Number (NaN) value when `ac_idx` is not a valid aircraft index.
 
 ## Alerting Logic
 The alert level between the ownship and the traffic aircraft at
@@ -808,14 +817,13 @@ configurable separation minima. By definition of the maneuver guidance logic, in
 `NONE`. 
 *  `UNKNOWN`: This type of intervals signals an unexpected result, i.e., values that are outside the configured minimum/maximum values.
 
- Ownship performance limits and other [parameters](#parameters) that govern the
- maneuver guidance logic can be configured  in the 
- `Daidalus` object. 
+ Ownship performance limits and other [parameters](#configurable-parameters) that govern the
+ maneuver guidance logic can be configured  in the `Daidalus` object. 
 
 ### Horizontal Direction Bands
-The computation of horizontal speed bands (track or, when wind
-information is provided, heading maneuvers)
-uses either turn rate or bank angle, which are provided by configuration. If both the turn rate
+The computation of horizontal speed bands (track or, when [wind
+information is provided](#providing-wind-information), heading maneuvers)
+uses either turn rate or bank angle, which are provided by [configuration](#kinematic-parameters). If both the turn rate
 and the bank angle are zero, horizontal direction bands are computed assuming
 instantaneous manevuers.  The following loop iterates the list of
 intervals in the horizontal direction bands and for each interval gets its upper and
@@ -831,8 +839,8 @@ lower bounds and its type.
 ```
 
 ### Horizontal Speed Bands
-The computation of horizontal speed bands (ground speed or, when wind
-information is provided, air speed maneuvers) user horizontal acceleration, which is provided by configuration. If this
+The computation of horizontal speed bands (ground speed or, when  [wind
+information is provided](#providing-wind-information), air speed maneuvers) user horizontal acceleration, which is provided by [configuration](#kinematic-parameters). If this
 acceleration is zero, horizontal speed bands are computed
 assuming instantaneous manevuers.  The following loop iterates the list of
 intervals in the horizontal speed  bands and for each interval gets its upper and
@@ -848,7 +856,7 @@ lower bounds and its type.
 ```
 
 ### Vertical Speed Bands
-The computation of vertical speed bands uses vertical acceleration, which is provided by configuration. If this
+The computation of vertical speed bands uses vertical acceleration, which is provided by [configuration](#kinematic-parameters). If this
 acceleration is zero, vertical speed bands are computed
 assuming instantaneous manevuers.  The following loop iterates the list of
 intervals in the vertical speed  bands and for each interval gets its upper and
@@ -865,7 +873,7 @@ lower bounds and its type.
 
 ### Altitude Bands
 The computation of altitude bands uses vertical acceleration and
-vertical rate, which are provided by configuration. If both the vertical acceleration and the vertical
+vertical rate, which are provided by [configuration](#kinematic-parameters). If both the vertical acceleration and the vertical
 rate are zero, altitude bands are computed
 assuming instantaneous manevuers.  The following loop iterates the list of
 intervals in the altitude bands and for each interval gets its upper and
@@ -905,11 +913,68 @@ daa.peripheralVerticalSpeedBandsAircraft(acs,region);
 daa.peripheralAltitudeBandsAircraft(acs,region);
 ```
 
+### Directive Guidance
+In addition to suggestive guidance, i.e., bands, DAIDALUS computes
+directive guidance, e.g, velocity vectors that solve an impending
+conflict or that recover from a loss of separation. These velocity
+vectors are computed from the maneuver bands and, unless persistence
+logic is enabled, they correspond to the maneuvers that are free of
+conflict for the lookahead time and that are geometrically closest to
+the current velocity of the ownship for the given dimension
+(horizontal direction, horizontal speed, vertical speed, and altitude).
+
+Directive guidance is provided by the following `Daidalus` methods.
+* `double horizontalDirectionResolution(boolean dir, String u)`:
+  Returns horizontal direction resolution maneuver for a given
+  Boolean value `dir` and [unit](#units) `u`. When `dir` is `true`
+  (resp. `false`),
+ resolution maneuver is right (resp. left) relative to ownship
+ horizontal direction. When a
+  [wind vector is configured](#providing-wind-information) this method
+  returns heading; otherwise, it returns track.
+ * `double horizontalSpeedResolution(boolean dir, String u)`:
+  Returns horizontal speed resolution maneuver for a given
+  Boolean value  `dir` and [unit](#units) `u`. When `dir` is `true`
+  (resp. `false`),
+ resolution maneuver is up (resp. down) relative to ownship horizontal
+  speed. When a
+  [wind vector is configured](#providing-wind-information) this method
+  returns airspeed; otherwise, it returns ground speed.
+* `double verticalSpeedResolution(boolean dir, String u)`:
+  Returns vertical speed resolution maneuver for a given
+  Boolean value  `dir` and [unit](#units) `u`. When `dir` is `true`
+  (resp. `false`),
+ resolution maneuver is up (resp. down) relative to ownship vertical speed.
+* `double altitudeResolution(boolean dir, String u)`:
+  Returns altitude resolution maneuver for a given
+  Boolean value  `dir` and [unit](#units) `u`. When `dir` is `true`
+  (resp. `false`),
+ resolution maneuver is up (resp. down) relative to ownship altitude.
+
+The resolutions maneuvers returned by these methods are conflict free
+with respect to all aircraft at least until lookahead time. They return a Not-A-Number (NaN) value
+when the ownship is not in conflict and an infinite value (either
+positive or negative infinite) if a resolution in the `dir` is not
+available (for example, because of performance limits of the ownship).
+
+DAIDALUS also computes a preferred resolution for each dimension that
+can be used to provide a value to the `dir` parameter in the
+methods above. For instance, the following code computes preferred
+resolution maneuvers for horizontal direction in degrees, horizontal
+speed in knots, vertical speed in feet per minute, and altitude in feet. 
+
+```
+double hdir_deg = daa.horizontalDirectionResolution(daa.preferredHorizontalDirectionRightOrLeft(),"deg"); 
+double hs_knot = daa. horizontalSpeedResolution(daa.preferredHorizontalSpeedUpOrDown(),"knot"); 
+double vs_fpm = daa. verticalSpeedResolution(daa.preferredVerticalSpeedUpOrDown(),"fpm");
+double alt_ft = altitudeResolution(daa.preferredAltitudeUpOrDown(),"ft");
+```
+
 
 ** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **
 ===
 
-### Directive Guidance
+
 
 # Performance Metrics
 * `double HMD(double T)`: Returns horizontal miss distance within
@@ -944,11 +1009,11 @@ be done either programmatically using getter/setter methods or via a
 configuration file using the method `loadFromFile`.  These methods are
 defined in the class `DaidalusParameters`.
 
-## Basic Parameters
+## Bands Parameters
 The following is a list of parameters that can be configured
 in DAIDALUS.
 
-| Configuration Parameter | Getter/Setter | Description (Type) |
+| Configuration Parameter | Programatic Getter/Setter | Description (Type) |
 | -- | -- | -- |
 | `lookahead_time` | `get/setLookaheadTime` | Time horizon of all DAIDALUS functions (Time) |
 | `left_trk` | `get/setLeftTrack` | Relative maximum horizontal direction maneuver to the left of current ownship direction (Angle) |
@@ -963,18 +1028,33 @@ in DAIDALUS.
 | `gs_step` | `get/setGroundSpeedStep` | Granularity of horizontal speed maneuvers (Speed)|
 | `vs_step` | `get/setVerticalSpeedStep` | Granularity of vertical speed maneuvers (Speed)|
 | `alt_step` | `get/setAltitudeStep` | Granularity of altitude maneuvers (Altitude)|
+
+## Kinematic Parameters
+
+| Configuration Parameter | Programatic Getter/Setter | Description (Type) |
+| -- | -- | -- |
 | `horizontal_accel` | `get/setHorizontalAcceleration` | Horizontal acceleration used in the computation of horizontal speed maneuvers (Acceleration)|
 | `vertical_accel` | `get/setVerticalAcceleration` | Vertical acceleration used in the computation of horizontal speed maneuvers (Acceleration)|
 | `turn_rate` | `get/setTurnRate` | Turn rate used in the computation of horizontal direction manevuers (Angle/Time)|
 | `bank_angle` | `get/setBankAngle` | Bank angle used in the computation of horizontal direction manevuers (Angle)|
 | `vertical_rate` | `get/setVerticalRate` | Vertical rate used in the computation of altitude maneuvers (Speed)|
 | `recovery_stability_time` | `get/setRecoveryStabilityTime` | Time |Time delay to stabilize recovery manevuers |
+
+## Recovery Bands Parameters
+
+| Configuration Parameter | Programatic Getter/Setter | Description (Type) |
+| -- | -- | -- |
 | `min_horizontal_recovery` | `get/setMinHorizontalRecovery` | Minimum horizontal separation used in the computation of recovery maneuvers (Distance)|
 | `min_vertical_recovery` | `get/setMinVerticalRecovery` | Minimum vertical separation used in the computation of recovery maneuvers (Distance)|
 | `recovery_trk` | `isEnabled/setRecoveryTrackBands` | Enable computation of horizontal direction recovery maneuvers (Boolean)|
 | `recovery_gs` | `isEnabled/setRecoveryGroundSpeedBands` | Enable computation of horizontal speed recovery maneuvers (Boolean)|
 | `recovery_vs` | `isEnabled/setRecoveryVerticalSpeedBands` | Enable computation of vertical speed recovery maneuvers (Boolean)|
 | `recovery_alt` | `isEnabled/setRecoveryAltitudeBands` | Enable computation of altitude recovery maneuvers (Boolean)|
+
+## Collision Avoidance Bands Parameters
+
+| Configuration Parameter | Programatic Getter/Setter | Description (Type) |
+| -- | -- | -- |
 | `ca_bands` | `isEnabled/setCollisionAvoidanceBands` | Enable computation of collision avoidance maneuvers (Boolean)|
 | `ca_factor` | `get/setCollisionAvoidanceBandsFactor` | Factor to reduce min horizontal/vertical recovery separation when computing collision avoidance maneuvers (Scalar in (0,1])|
 | `horizontal_nmac` | `get/setHorizontalNMAC` | Horizontal NMAC (Distance) |
@@ -982,6 +1062,16 @@ in DAIDALUS.
 | `contour_thr` | `get/setHorizontalContourThreshold` | Threshold
 | relative to ownship horizontal direction for the computation of
 | horizontal contours a.k.a. "blobs" (Angle) |
+
+## Alerting Logic Parameters
+
+## Hysteresis Parameters
+
+## Sensor Uncertainty Mitigation Parameters
+
+## DAA Terminal Area (DTA) Parameters
+
+## Considerations
 
 The following restrictions apply to these parameters.
 * `lookahead_time` is positive.
