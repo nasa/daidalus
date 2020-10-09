@@ -562,6 +562,16 @@ public final class Position implements OutputList {
 		}
 	}
 
+	public double distanceChordH(Position p) {
+		if (latlon && p.latlon) {
+			return GreatCircle.chord_distance(ll,p.ll);
+		} else if (!latlon && !p.latlon) {
+			return s3.vect2().Sub(p.vect2()).norm(); 
+		} else {
+			return Double.MAX_VALUE;
+		}
+	}
+	
 	/** Return the vertical distance between the current Position and the given Position. 
 	 * 
 	 * @param p another position

@@ -428,7 +428,7 @@ public final class Kinematics {
 	 */
 	public static Pair<Vect3,Velocity> turnByDist2D(Vect3 so, Vect3 center, int dir, double d, double gsAtd) {
 		//f.pln(" $$$$ turnByDist: so = "+so+" center = "+center);
-        double R = so.distanceH(center);    // TODO: should we test for 0?
+        double R = so.distanceH(center);    // TODO: should we test for 0?  Also, add code for turn on small circle.
         if (R==0.0) return new Pair<Vect3,Velocity>(so,Velocity.INVALID);
 		double alpha = dir*d/R;
 		double trkFromCenter = Velocity.track(center, so);
@@ -453,7 +453,7 @@ public final class Kinematics {
 	 * @return Position   after turning distance d
 	 */
 	public static Vect3 turnByDist2D(Vect3 so, Vect3 center, int dir, double d) {
-        double R = so.distanceH(center);    // TODO: should we test for 0?
+        double R = so.distanceH(center);    // TODO: should we test for 0? Also, add code for turn on small circle
         if (R==0.0) return so;
 		double alpha = dir*d/R;
 		double trkFromCenter = Velocity.track(center, so);

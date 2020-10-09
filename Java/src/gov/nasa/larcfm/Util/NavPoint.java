@@ -212,10 +212,15 @@ public class NavPoint {
 	 * @return a string label
 	 * */
 	public String name() {
-//		String name = "";
-//		if (label != null) {
-//			name = label;
-//		}
+		return name;
+	}
+
+	/** Return the label of this point, if set.  If no name has been set, then 
+	 * return the empty string. 
+	 * 
+	 * @return a string label
+	 * */
+	public String label() {
 		return name;
 	}
 
@@ -227,7 +232,7 @@ public class NavPoint {
 		if (name == null) {
 			return false;
 		}
-		return ! name.equals("");
+		return ! name.isEmpty();
 	}
 
 	/** Return the latitude 

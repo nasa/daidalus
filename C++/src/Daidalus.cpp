@@ -2894,7 +2894,7 @@ void Daidalus::peripheralHorizontalDirectionBandsAircraft(std::vector<std::strin
  * Compute horizontal direction resolution maneuver for a given direction.
  * @parameter dir is right (true)/left (false) of ownship current direction
  * @return direction resolution in internal units [rad] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no resolution to the right, and negative infinity if there
  * is no resolution to the left.
  */
@@ -2907,7 +2907,7 @@ double Daidalus::horizontalDirectionResolution(bool dir) {
  * @parameter dir is right (true)/left (false) of ownship current direction
  * @parameter u units
  * @return direction resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no resolution to the right, and negative infinity if there
  * is no resolution to the left.
  */
@@ -2920,7 +2920,7 @@ double Daidalus::horizontalDirectionResolution(bool dir, const std::string& u) {
  * Raw resolution is the resolution without persistence
  * @parameter dir is right (true)/left (false) of ownship current direction
  * @return direction resolution in internal units [rad] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no resolution to the right, and negative infinity if there
  * is no resolution to the left.
  */
@@ -2934,7 +2934,7 @@ double Daidalus::horizontalDirectionRawResolution(bool dir){
  * @parameter dir is right (true)/left (false) of ownship current direction
  * @parameter u units
  * @return direction resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no resolution to the right, and negative infinity if there
  * is no resolution to the left.
  */
@@ -3069,7 +3069,7 @@ void Daidalus::peripheralHorizontalSpeedBandsAircraft(std::vector<std::string>& 
  * Compute horizontal speed resolution maneuver.
  * @parameter dir is up (true)/down (false) of ownship current horizontal speed
  * @return horizontal speed resolution in internal units [m/s] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3082,7 +3082,7 @@ double Daidalus::horizontalSpeedResolution(bool dir) {
  * @parameter dir is up (true)/down (false) of ownship current horizontal speed
  * @parameter u units
  * @return horizontal speed resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3095,7 +3095,7 @@ double Daidalus::horizontalSpeedResolution(bool dir, const std::string& u) {
  * Raw resolution is the resolution without persistence
  * @parameter dir is up (true)/down (false) of ownship current horizontal speed
  * @return horizontal speed resolution in internal units [m/s] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3109,7 +3109,7 @@ double Daidalus::horizontalSpeedRawResolution(bool dir) {
  * @parameter dir is up (true)/down (false) of ownship current horizontal speed
  * @parameter u units
  * @return horizontal speed resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3244,7 +3244,7 @@ void Daidalus::peripheralVerticalSpeedBandsAircraft(std::vector<std::string>& ac
  * Compute vertical speed resolution maneuver for given direction.
  * @parameter dir is up (true)/down (false) of ownship current vertical speed
  * @return vertical speed resolution in internal units [m/s] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3257,7 +3257,7 @@ double Daidalus::verticalSpeedResolution(bool dir) {
  * @parameter dir is up (true)/down (false) of ownship current vertical speed
  * @parameter u units
  * @return vertical speed resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3270,7 +3270,7 @@ double Daidalus::verticalSpeedResolution(bool dir, const std::string& u) {
  * Raw resolution is the resolution without persistence
  * @parameter dir is up (true)/down (false) of ownship current vertical speed
  * @return vertical speed resolution in internal units [m/s] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3284,7 +3284,7 @@ double Daidalus::verticalSpeedRawResolution(bool dir) {
  * @parameter dir is up (true)/down (false) of ownship current vertical speed
  * @parameter u units
  * @return vertical speed resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3419,7 +3419,7 @@ void Daidalus::peripheralAltitudeBandsAircraft(std::vector<std::string>& acs, Ba
  * Compute altitude resolution maneuver for given direction.
  * @parameter dir is up (true)/down (false) of ownship current altitude
  * @return altitude resolution in internal units [m] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3432,7 +3432,7 @@ double Daidalus::altitudeResolution(bool dir) {
  * @parameter dir is up (true)/down (false) of ownship current altitude
  * @parameter u units
  * @return altitude resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3445,7 +3445,7 @@ double Daidalus::altitudeResolution(bool dir, const std::string& u) {
  * Raw resolution is the resolution without persistence
  * @parameter dir is up (true)/down (false) of ownship current altitude
  * @return altitude resolution in internal units [m] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3459,7 +3459,7 @@ double Daidalus::altitudeRawResolution(bool dir) {
  * @parameter dir is up (true)/down (false) of ownship current altitude
  * @parameter u units
  * @return altitude resolution in specified units [u] in specified direction.
- * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict,
+ * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
  * positive infinity if there is no up resolution, and negative infinity if there
  * is no down resolution.
  */
@@ -3647,7 +3647,295 @@ int Daidalus::alertLevelOfRegion(int ac_idx, BandsRegion::Region region) {
   return -1;
 }
 
-/* Getting and Setting DaidalusParameters (note that setters stale the Daidalus object) */
+/* DAA Performance Metrics */
+
+/**
+ * Returns current horizontal separation, in internal units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::currentHorizontalSeparation(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect3 s = core_.ownship.get_s()-core_.traffic[ac_idx-1].get_s();
+    return s.norm2D();
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns current horizontal separation, in given units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::currentHorizontalSeparation(int ac_idx,const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,currentHorizontalSeparation(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns current vertical separation, in internal units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::currentVerticalSeparation(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    double  sz = core_.ownship.get_s().z - core_.traffic[ac_idx-1].get_s().z;
+    return std::abs(sz);
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns current vertical separation, in given units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::currentVerticalSeparation(int ac_idx,const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,currentVerticalSeparation(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::horizontalClosureRate(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect3 v = core_.ownship.get_v()-core_.traffic[ac_idx-1].get_v();
+    return v.norm2D();
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns current closure rate, in given units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::horizontalClosureRate(int ac_idx,const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,horizontalClosureRate(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::verticalClosureRate(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    double  vz = core_.ownship.get_v().z - core_.traffic[ac_idx-1].get_v().z;
+    return std::abs(vz);
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns vertical closure rate, in given units, with aircraft at index ac_idx.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::verticalClosureRate(int ac_idx,const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,verticalClosureRate(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time),
+ * assuming straight line trajectory. Returns NaN if aircraft index is not valid
+ */
+double Daidalus::predictedHorizontalMissDistance(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect3 s = core_.ownship.get_s()-core_.traffic[ac_idx-1].get_s();
+    Vect3 v = core_.ownship.get_v()-core_.traffic[ac_idx-1].get_v();
+    return Horizontal::hmd(s.vect2(),v.vect2(),getLookaheadTime());
+  } else {
+    return NaN;
+  }
+}
+/**
+ * Returns predicted HMD, in provided units, with aircraft at index ac_idx (up to lookahead time),
+ * assuming straight line trajectory. Returns NaN if aircraft index is not valid
+ */
+double Daidalus::predictedHorizontalMissDistance(int ac_idx, const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,predictedHorizontalMissDistance(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns predicted VMD, in internal units, with aircraft at index ac_idx (up to lookahead time),
+ * assuming straight line trajectory. Returns NaN if aircraft index is not valid
+ */
+double Daidalus::predictedVerticalMissDistance(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect3 s = core_.ownship.get_s()-core_.traffic[ac_idx-1].get_s();
+    Vect3 v = core_.ownship.get_v()-core_.traffic[ac_idx-1].get_v();
+    return Vertical::vmd(s.z,v.z,getLookaheadTime());
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns predicted VMD, in provided units, with aircraft at index ac_idx (up to lookahead time),
+ * assuming straight line trajectory. Return NaN if aircraft index is not valid
+ */
+double Daidalus::predictedVerticalMissDistance(int ac_idx, const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,predictedVerticalMissDistance(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns time, in seconds, to horizontal closest point of approach with aircraft
+ * at index ac_idx, assuming straight line trajectory.
+ * If aircraft are diverging, the returned time is 0.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::timeToHorizontalClosestPointOfApproach(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect3 s = core_.ownship.get_s()-core_.traffic[ac_idx-1].get_s();
+    Vect3 v = core_.ownship.get_v()-core_.traffic[ac_idx-1].get_v();
+    return Util::max(0.0,Horizontal::tcpa(s.vect2(),v.vect2()));
+  } else {
+    return NaN;
+  }
+}
+
+
+/**
+ * Returns time, in given units, to horizontal closest point of approach with aircraft
+ * at index ac_idx, assuming straight line trajectory.
+ * If aircraft are diverging, the returned time is 0.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::timeToHorizontalClosestPointOfApproach(int ac_idx, const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,timeToHorizontalClosestPointOfApproach(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns distance, in internal units, at horizontal closest point of approach with aircraft
+ * at index ac_idx, assuming straight line trajectory.
+ * If aircraft are diverging, the returned distance is current horizontal separation.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::distanceAtHorizontalClosestPointOfApproach(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect3 s = core_.ownship.get_s()-core_.traffic[ac_idx-1].get_s();
+    Vect3 v = core_.ownship.get_v()-core_.traffic[ac_idx-1].get_v();
+    double tcpa = Horizontal::tcpa(s.vect2(),v.vect2());
+    if (tcpa <= 0) {
+      return s.norm2D();
+    } else {
+      return s.AddScal(tcpa,v).norm2D();
+    }
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns distance, in given units, at horizontal closest point of approach with aircraft
+ * at index ac_idx, assuming straight line trajectory.
+ * If aircraft are diverging, the returned distance is current horizontal separation.
+ * Returns NaN if aircraft index is not valid
+ */
+double Daidalus::distanceAtHorizontalClosestPointOfApproach(int ac_idx, const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,distanceAtHorizontalClosestPointOfApproach(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns time, in seconds, to co-altitude with aircraft
+ * at index ac_idx, assuming straight line trajectory.
+ * If aircraft are diverging, returns negative time. If
+ * vertical closure is 0, returns negative infinite.
+ * Returns NaN if aircraft index is not valid or if vertical closure is 0.
+ */
+double Daidalus::timeToCoAltitude(int ac_idx) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    double sz = core_.ownship.get_s().z-core_.traffic[ac_idx-1].get_s().z;
+    double vz = core_.ownship.get_v().z-core_.traffic[ac_idx-1].get_v().z;
+    if (Util::almost_equals(vz,0.0)) {
+      return NINFINITY;
+    }
+    return Vertical::time_coalt(sz,vz);
+  } else {
+    return NaN;
+  }
+}
+
+
+/**
+ * Returns time, in given units, to co-altitude with aircraft
+ * at index ac_idx, assuming straight line trajectory.
+ * If aircraft are diverging, returns negative value.
+ * Returns NaN if aircraft index is not valid or if vertical closure is 0
+ */
+double Daidalus::timeToCoAltitude(int ac_idx, const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,timeToCoAltitude(ac_idx));
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns modified tau time, in seconds, for distance DMOD (given in internal units),
+ * with respect to aircraft at index ac_idx.
+ * If aircraft are diverging or DMOD is greater than current range, returns -1.
+ * Returns NaN if aircraft index is not valid or if vertical closure is 0
+ */
+double Daidalus::modifiedTau(int ac_idx, double DMOD) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    Vect2 s = (core_.ownship.get_s()-core_.traffic[ac_idx-1].get_s()).vect2();
+    Vect2 v = (core_.ownship.get_v()-core_.traffic[ac_idx-1].get_v()).vect2();
+    double sdotv = s.dot(v);
+    double dmod2 = Util::sq(DMOD)-s.sqv();
+    if (dmod2 < 0 && sdotv < 0) {
+      return dmod2/sdotv;
+    }
+    return -1;
+  } else {
+    return NaN;
+  }
+}
+
+/**
+ * Returns modified tau time, in given units, for distance DMOD (given in DMODu units),
+ * with respect to aircraft at index ac_idx.
+ * If aircraft are diverging or DMOD is greater than current range, returns -1.
+ * Returns NaN if aircraft index is not valid or if vertical closure is 0
+ */
+double Daidalus::modifiedTau(int ac_idx, double DMOD, const std::string& DMODu, const std::string& u) const {
+  if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+    return Units::to(u,modifiedTau(ac_idx,Units::from(DMODu,DMOD)));
+  } else {
+    return NaN;
+  }
+}
+
 
 /* Input/Output methods */
 

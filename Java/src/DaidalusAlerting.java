@@ -60,7 +60,7 @@ public class DaidalusAlerting {
 
 		// Create an empty Daidalus object
 		Daidalus daa = new Daidalus();
-		
+
 		String input_file = "";
 		String output_file = "";
 		PrintWriter out = new PrintWriter(System.out);
@@ -238,37 +238,32 @@ public class DaidalusAlerting {
 						out.print(", "+f.FmPrecision(Units.to("nmi",dh)));
 					}
 				}
-				ConflictData det=null;
 				for (int level=1; level <= max_alert_level; ++level) {
 					out.print(", ");
 					if (level <= alerter.mostSevereAlertLevel()) {
-						det = daa.violationOfAlertThresholds(ac,level);
+						ConflictData det = daa.violationOfAlertThresholds(ac,level);
 						out.print(f.FmPrecision(det.getTimeIn()));
 					}
 				}
-				if (det != null) {
-					out.print(", "+f.FmPrecision(det.horizontalSeparation(uhor)));
-					out.print(", "+f.FmPrecision(det.verticalSeparation(uver)));
-					out.print(", "+f.FmPrecision(det.horizontalClosureRate(uhs)));
-					out.print(", "+f.FmPrecision(det.verticalClosureRate(uvs)));
-					out.print(", "+f.FmPrecision(det.HMD(uhor,daa.getLookaheadTime())));
-					out.print(", "+f.FmPrecision(det.VMD(uver,daa.getLookaheadTime())));
-					double tcpa  = det.tcpa2D();
-					out.print(", "+f.FmPrecision(tcpa));
-					double dcpa =  det.horizontalSeparationAtTime(uhor,tcpa);
-					out.print(", "+f.FmPrecision(dcpa));
-					double tcoa = det.tcoa();
-					out.print(", ");
-					if (tcoa >= 0) {
-						out.print(f.FmPrecision(tcoa));
-					}
-					out.print(", ");
-					if (detector instanceof WCV_tvar) {
-						double tau_mod  = ((WCV_tvar)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());
-						if (tau_mod > 0) {
-							out.print(f.FmPrecision(tau_mod));
-						}						
-					}
+				out.print(", "+f.FmPrecision(daa.currentHorizontalSeparation(ac,uhor)));
+				out.print(", "+f.FmPrecision(daa.currentVerticalSeparation(ac,uver)));
+				out.print(", "+f.FmPrecision(daa.horizontalClosureRate(ac,uhs)));
+				out.print(", "+f.FmPrecision(daa.verticalClosureRate(ac,uvs)));
+				out.print(", "+f.FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor)));
+				out.print(", "+f.FmPrecision(daa.predictedVerticalMissDistance(ac,uver)));
+				out.print(", "+f.FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac)));
+				out.print(", "+f.FmPrecision(daa.distanceAtHorizontalClosestPointOfApproach(ac,uhor)));
+				out.print(", ");
+				double tcoa = daa.timeToCoAltitude(ac);
+				if (tcoa >= 0) {
+					out.print(f.FmPrecision(tcoa));
+				}
+				out.print(", ");
+				if (detector instanceof WCV_tvar) {
+					double tau_mod  = daa.modifiedTau(ac,((WCV_tvar)detector).getDTHR());
+					if (tau_mod >= 0) {
+						out.print(f.FmPrecision(tau_mod));
+					}						
 				}
 				out.println();
 			}

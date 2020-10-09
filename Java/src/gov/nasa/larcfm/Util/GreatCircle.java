@@ -438,11 +438,7 @@ public final class GreatCircle {
 	 * @return minimum latitude
 	 */
 	public static double min_latitude_gc(double lat1, double lon1, double lat2, double lon2) {
-		return min_latitude_gc_course(lat1, initial_course(lat1,lon1,lat2,lon2));
-	}
-
-	private static double min_latitude_gc_course(double lat1, double trk) {
-		return -Util.acos_safe(Math.abs(Math.sin(trk)*Math.cos(lat1)));
+		return -max_latitude_gc_course(lat1, initial_course(lat1,lon1,lat2,lon2));
 	}
 
 	/**
@@ -525,14 +521,14 @@ public final class GreatCircle {
 				if (lat1 < 0 && (trk <= 0.5*Math.PI || trk >= 1.5*Math.PI)) {
 					return lat1;
 				} else {
-					minLat = min_latitude_gc_course(lat1,trk);
+					minLat = -max_latitude_gc_course(lat1,trk); // negative max is a min
 				}
 			} else {
 				double trk = initial_course(lat2, lon2, lat1, lon1);
 				if (lat2 < 0 && (trk <= 0.5*Math.PI || trk >= 1.5*Math.PI)) {
 					return lat2;
 				} else {
-					minLat = min_latitude_gc_course(lat2,trk);
+					minLat = -max_latitude_gc_course(lat2,trk); // negative max is a min
 				}
 			}
 			// END BLOCK
@@ -606,7 +602,7 @@ public final class GreatCircle {
 
 	/**
 	 * Return the relative time a great circle will next cross the given latitude.
-	 * Returns a negative value if it will never cross that longitude (or velocity has zero gs).
+	 * Returns a negative value if it will never cross that latitude (or velocity has zero gs).
 	 * Returns zero for time to cross the equator if you are on the equator.
 	 * @param lla starting position
 	 * @param v initial velocity at starting position
@@ -615,7 +611,7 @@ public final class GreatCircle {
 	 */
 	public static double latitude_cross_time_gs(LatLonAlt lla, Velocity v, double lat) {
 		LatLonAlt lla2 = GreatCircle.linear_initial(lla, v, 100.0);
-		double maxLat = max_latitude_gc(lla,lla2); //TODO check this!!!
+		double maxLat = max_latitude_gc(lla,lla2); //this is an estimate
 		if (maxLat > Math.abs(lat) || v.gs() == 0.0) return -1.0; // fail, will never cross
 		if (Util.almost_equals(lat, 0.0) && Util.almost_equals(lla.lat(), 0.0) && (Util.almost_equals(v.trk(), Math.PI/2) || Util.almost_equals(v.trk(), -Math.PI/2))) return 0.0; // on equator
 		double targetlon = GreatCircle.lonCross(lla.lat(), lla.lon(), lla2.lat(), lla2.lon(), lat);
@@ -725,7 +721,7 @@ public final class GreatCircle {
 	 */
 	public static Triple<Double,Double,Double> side_side_angle(double b, double a, double A, boolean firstSolution) {
 		// This function follows the convention of "Spherical Trigonometry" by Todhunter, Macmillan, 1886
-		//   Note, angles are labelled counter-clockwise a, b, c
+		//   Note, angles are labeled counter-clockwise a, b, c
 
 		// Law of sines
 		double B = Util.asin_safe(Math.sin(b)*Math.sin(A)/Math.sin(a));  // asin returns [-pi/2,pi/2]
@@ -767,7 +763,7 @@ public final class GreatCircle {
 	 */
 	public static Triple<Double,Double,Double> side_angle_angle(double a, double A, double B, boolean firstSolution) {
 		// This function follows the convention of "Spherical Trigonometry" by Todhunter, Macmillan, 1886
-		//   Note, angles are labelled counter-clockwise a, b, c
+		//   Note, angles are labeled counter-clockwise a, b, c
 
 		// Law of sines
 		double b = Util.asin_safe(Math.sin(a)*Math.sin(B)/Math.sin(A));  // asin returns [-pi/2,pi/2]
@@ -809,7 +805,7 @@ public final class GreatCircle {
 
 	private static boolean gauss_check(double a, double b, double c, double A, double B, double C) {
 		// This function follows the convention of "Spherical Trigonometry" by Todhunter, Macmillan, 1886
-		//   Note, angles are labelled counter-clockwise a, b, c
+		//   Note, angles are labeled counter-clockwise a, b, c
 		A = Util.to_pi(A);
 		B = Util.to_pi(B);
 		C = Util.to_pi(C);
@@ -954,7 +950,7 @@ public final class GreatCircle {
 	 * @param s position
 	 * @param v velocity
 	 * @param t time
-	 * @param firstSolution true, return first solution
+	 * @param firstSolution if true, return first solution.  Most of the time there is no difference between the solutions, so this arbitrary.
 	 * @return linear extrapolation of point
 	 */
 	public static LatLonAlt linear_final(LatLonAlt s, Velocity v, double t, boolean firstSolution) {
@@ -964,9 +960,9 @@ public final class GreatCircle {
 
 		double b;
 		if (s.lat() > 0) {
-			b = Math.PI/2 - s.lat();
+			b = Math.PI/2 - s.lat(); // use north pole in northern hemisphere
 		} else { 
-			b = Math.PI/2 + s.lat();
+			b = Math.PI/2 + s.lat(); // use south pole in southern hemisphere
 		}
 
 		// Solution #1
@@ -1294,35 +1290,11 @@ public final class GreatCircle {
 		return a.distanceH(b) <= a.distanceH(c) && c.distanceH(b) <= c.distanceH(a);
 	}
 
-//	/**
-//	 * EXPERIMENTAL
-//	 * @param T
-//	 * @param so
-//	 * @param vo
-//	 * @param si
-//	 * @param si2
-//	 * @return (lla1, lla2), where is lla1 is invalid, there is no intersection, if lla2 is null, there is a single point of intersection, if lla2 is not null, then there is an overlap in segments
-//	 */
-//	public static Pair<LatLonAlt,LatLonAlt> intersectSegmentsWithOverlap(LatLonAlt so, LatLonAlt so2, LatLonAlt si, LatLonAlt si2) {
-//		if (GreatCircle.collinear(so, so2, si) && GreatCircle.collinear(so,  so2, si2)) {
-//			boolean acb = collinearBetween(so, si, so2);
-//			boolean adb = collinearBetween(so, si2, so2);
-//			boolean cad = collinearBetween(si, so, si2);
-//			boolean cbd = collinearBetween(si, so2, si2);
-//			if (acb && adb) return Pair.make(si, si2); // 2 inside 1
-//			if (cad && cbd) return Pair.make(so, so2); // 1 inside 2
-//			if (acb && cbd) return Pair.make(si, so2); // 1 then 2
-//			if (acb && cad) return Pair.make(so, si);  // 1 then 2
-//			if (adb && cbd) return Pair.make(so2, si); // 2 then 1
-//			if (adb && cad) return Pair.make(so2, si); // 2 then 1
-//		}		
-//		LatLonAlt ret = intersectSegments(so, so2, si, si2);
-//		return Pair.make(ret, null);
-//	}
 
 	/**
 	 * Given two great circles defined by so, so2 and si, si2 return the intersection point that is closest to so.
-	 * (Note. because on a sphere there are two intersection points)
+	 * (Note: because on a sphere there are two intersection points, we have to choose one of them, we choose the
+	 * one closest to so.)
 	 * Calculate altitude of intersection using the average of the altitudes of the two closest points to the
 	 * intersection.
 	 * 
@@ -1779,7 +1751,7 @@ public final class GreatCircle {
 	 */
 	public static double chord_distance(double surface_dist) {
 		double theta = angle_from_distance(surface_dist,0.0);
-		return 2.0*Math.sin(theta/2.0)*GreatCircle.spherical_earth_radius;
+		return 2.0*Math.sin(theta/2.0)*spherical_earth_radius;
 	}
 
 	/**
@@ -1788,8 +1760,13 @@ public final class GreatCircle {
 	 * @return surface distance
 	 */
 	public static double surface_distance(double chord_distance) {
-		double theta = 2.0*Util.asin_safe(chord_distance*0.5 / GreatCircle.spherical_earth_radius);
+		double theta = 2.0*Util.asin_safe(chord_distance*0.5 / spherical_earth_radius);
 		return distance_from_angle(theta,0.0);
+	}
+	
+	public static double small_circle_radius(double chord) {
+		double r = Util.sqrt_safe(chord*chord*(1-(chord*chord/(4*spherical_earth_radius*spherical_earth_radius))));
+		return r;
 	}
 
 	/**
