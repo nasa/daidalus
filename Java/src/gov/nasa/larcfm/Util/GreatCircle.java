@@ -956,7 +956,13 @@ public final class GreatCircle {
 	public static LatLonAlt linear_final(LatLonAlt s, Velocity v, double t, boolean firstSolution) {
 		double c = GreatCircle.angle_from_distance(v.gs() * t);  // angular distance between initial and final point
 
-		double B = v.trk() - Math.PI;
+		double B;
+		double trk = v.trk();
+		if (Math.abs(trk) > Math.PI/2 && Math.abs(trk) < Math.PI) {
+			B = trk - Math.PI;
+		} else {
+			B = 2*Math.PI - trk;			
+		}
 
 		double b;
 		if (s.lat() > 0) {

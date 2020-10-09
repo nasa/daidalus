@@ -2953,6 +2953,40 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Return last time to horizontal direction maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalDirectionManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = hdir_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToHorizontalDirectionManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to horizontal direction maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalDirectionManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToHorizontalDirectionManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
+	}
+
+	/**
 	 * @return recovery information for horizontal direction bands.
 	 */
 	public RecoveryInformation horizontalDirectionRecoveryInformation() {
@@ -3126,6 +3160,40 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public double lastTimeToHorizontalSpeedManeuver(TrafficState ac) {
 		return hs_band_.last_time_to_maneuver(core_,ac);
+	}
+
+	/**
+	 * Return last time to horizontal speed maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalSpeedManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = hs_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToHorizontalSpeedManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to horizontal speed maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalSpeedManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToHorizontalSpeedManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
 	}
 
 	/**
@@ -3305,6 +3373,40 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Return last time to vertical speed maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToVerticalSpeedManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = vs_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToVerticalSpeedManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to vertical speed maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToVerticalSpeedManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToVerticalSpeedManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
+	}
+
+	/**
 	 * @return recovery information for vertical speed bands.
 	 */
 	public RecoveryInformation verticalSpeedRecoveryInformation() {
@@ -3478,6 +3580,40 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public double lastTimeToAltitudeManeuver(TrafficState ac) {
 		return alt_band_.last_time_to_maneuver(core_,ac);
+	}
+
+	/**
+	 * Return last time to altitude maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToAltitudeManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = alt_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToAltitudeManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to altitude maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToAltitudeManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToAltitudeManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
 	}
 
 	/**
@@ -4699,11 +4835,12 @@ public class Daidalus implements GenericStateBands {
 
 	@Deprecated
 	/**
-	 * Use verticalSpeedRegionAt instead
+	 * 
 	 */
 	public BandsRegion verticalSpeedRegion(int i) {
 		return verticalSpeedRegionAt(i);
 	}
+
 
 }
 

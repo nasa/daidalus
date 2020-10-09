@@ -10,7 +10,8 @@ Rights Reserved.
 
 Release DAIDALUS-Pre-v2.0.2:
 ------------------
-* October 5, 2020
+* October 9, 2020
+- Added performance metrics methods to Daidalus class
 - Fixed bug in Daidalus class, where numberOfAircraft was used instead
 of lastTrafficIndex.
 

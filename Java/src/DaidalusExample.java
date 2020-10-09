@@ -206,10 +206,8 @@ class DaidalusExample {
 
 	// Converts numbers, possible NaN or infinities, to string
 	static String num2str(double res, String u) {
-		if (Double.isNaN(res)) {
+		if (!Double.isFinite(res)) {
 			return "N/A";
-		} else if (!Double.isFinite(res)) {
-			return "None";
 		} else {
 			return f.Fm2(res)+" ["+u+"]";
 		}
@@ -367,10 +365,10 @@ class DaidalusExample {
 		for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 			TrafficState ac = daa.getAircraftStateAt(ac_idx);
 			System.out.println("Last Times to Maneuver with Respect to "+ac.getId()+":");
-			System.out.println("  "+hdstr+" Maneuver: "+num2str(daa.lastTimeToHorizontalDirectionManeuver(ac),"s")); 
-			System.out.println("  "+hsstr+" Maneuver: "+num2str(daa.lastTimeToHorizontalSpeedManeuver(ac),"s")); 
-			System.out.println("  Vertical Speed Maneuver: "+num2str(daa.lastTimeToVerticalSpeedManeuver(ac),"s")); 
-			System.out.println("  Altitude Maneuver: "+num2str(daa.lastTimeToAltitudeManeuver(ac),"s")); 
+			System.out.println("  "+hdstr+" Maneuver: "+num2str(daa.lastTimeToHorizontalDirectionManeuver(ac_idx),"s")); 
+			System.out.println("  "+hsstr+" Maneuver: "+num2str(daa.lastTimeToHorizontalSpeedManeuver(ac_idx),"s")); 
+			System.out.println("  Vertical Speed Maneuver: "+num2str(daa.lastTimeToVerticalSpeedManeuver(ac_idx),"s")); 
+			System.out.println("  Altitude Maneuver: "+num2str(daa.lastTimeToAltitudeManeuver(ac_idx),"s")); 
 		}
 		System.out.println();
 	}

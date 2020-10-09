@@ -474,7 +474,7 @@ public final class Kinematics {
 	 * @return position   after turn
 	 */
 	public static Vect3 turnByAngle2D(Vect3 so, Vect3 center, double alpha) {
-		double R = so.distanceH(center);
+		double R = so.distanceH(center);  // TODO:  add code for turn on small circle
  		double trkFromCenter = Velocity.track(center, so);
 		double nTrk = trkFromCenter + alpha;
 		Vect3 sn = center.linearByDist2D(nTrk, R);

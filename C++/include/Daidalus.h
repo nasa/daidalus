@@ -1922,6 +1922,22 @@ public:
   double lastTimeToHorizontalDirectionManeuver(const TrafficState& ac);
 
   /**
+   * Return last time to horizontal direction maneuver, in seconds, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToHorizontalDirectionManeuver(int ac_idx);
+
+  /**
+   * Return last time to horizontal direction maneuver, in given units, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToHorizontalDirectionManeuver(int ac_idx, const std::string& u);
+
+  /**
    * @return recovery information for horizontal direction bands.
    */
   RecoveryInformation horizontalDirectionRecoveryInformation();
@@ -2051,6 +2067,22 @@ public:
    * lookahead time. Return negative infinity if there is no time to maneuver.
    */
   double lastTimeToHorizontalSpeedManeuver(const TrafficState& ac);
+
+  /**
+   * Return last time to horizontal speed maneuver, in seconds, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToHorizontalSpeedManeuver(int ac_idx);
+
+  /**
+   * Return last time to horizontal speed maneuver, in given units, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToHorizontalSpeedManeuver(int ac_idx, const std::string& u);
 
   /**
    * @return recovery information for horizontal speed bands.
@@ -2184,6 +2216,22 @@ public:
   double lastTimeToVerticalSpeedManeuver(const TrafficState& ac);
 
   /**
+   * Return last time to vertical speed maneuver, in seconds, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToVerticalSpeedManeuver(int ac_idx);
+
+  /**
+   * Return last time to vertical speed maneuver, in given units, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToVerticalSpeedManeuver(int ac_idx, const std::string& u);
+
+  /**
    * @return recovery information for vertical speed bands.
    */
   RecoveryInformation verticalSpeedRecoveryInformation();
@@ -2314,6 +2362,22 @@ public:
    * lookahead time. Return negative infinity if there is no time to maneuver.
    */
   double lastTimeToAltitudeManeuver(const TrafficState& ac);
+
+  /**
+   * Return last time to altitude maneuver, in seconds, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToAltitudeManeuver(int ac_idx);
+
+  /**
+   * Return last time to altitude maneuver, in given units, for ownship with respect to traffic
+   * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
+   * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+   * Return NaN if ac_idx is not a valid index.
+   */
+  double lastTimeToAltitudeManeuver(int ac_idx, const std::string& u);
 
   /**
    * @return recovery information for altitude speed bands.
