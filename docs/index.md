@@ -40,12 +40,11 @@ Reference Manual - DAIDALUS-v2.0.x
          * [Horizontal Speed Bands](#horizontal-speed-bands)
          * [Vertical Speed Bands](#vertical-speed-bands)
          * [Altitude Bands](#altitude-bands)
+         * [Recovery Bands Information](#recovery-bands-information)
          * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
          * [Directive Guidance](#directive-guidance)
+      * [DAA Performance Metrics](#daa-performance-metrics)
    * [** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **](#-documents-has-been-updated-upto-this-point-)
-   * [Performance Metrics](#performance-metrics)
-      * [Time to Recovery](#time-to-recovery)
-      * [Last Time to Maneuver](#last-time-to-maneuver)
    * [Alerters](#alerters)
    * [Sensor Uncertainty Mitigation](#sensor-uncertainty-mitigation)
    * [Hysteresis Logic](#hysteresis-logic)
@@ -65,7 +64,7 @@ Reference Manual - DAIDALUS-v2.0.x
       * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
    * [Contact](#contact)
 
-<!-- Added by: cmunoz, at: Wed Oct  7 10:24:36 EDT 2020 -->
+<!-- Added by: cmunoz, at: Sat Oct 10 11:23:30 EDT 2020 -->
 
 <!--te-->
 
@@ -271,6 +270,7 @@ case of Java, the package under which the class is defined.
 | [`DaidalusParameters.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/DaidalusParameters.java) |  `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/DaidalusParameters.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/DaidalusParameters.cpp) |
 | [`Detection3D.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Detection3D.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Detection3D.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Detection3D.cpp) |
 | [`Horizontal.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/Horizontal.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/Horizontal.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/Horizontal.cpp) |
+| [`RecoveryInformation.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/RecoveryInformation.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/RecoveryInformation.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/RecoveryInformation.cpp) |
 | [`TCASTable.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/TCASTable.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/TCASTable.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/TCASTable.cpp) |
 | [`TCAS3D.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/TCAS3D.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/TCAS3D.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/TCAS3D.cpp) |
 | [`TrafficState.java`](https://github.com/nasa/daidalus/blob/master/Java/src/gov/nasa/larcfm/ACCoRD/TrafficState.java) | `ACCoRD` | [`.h`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/include/TrafficState.h) |  [`.cpp`](https://github.com/nasa/daidalus/blob/master/C%2B%2B/src/TrafficState.cpp) |
@@ -704,6 +704,8 @@ states forward and backward in time.
 The class `Daidalus` is the main interface to the core DAA capabilities provided by
 DAIDALUS: detection, alerting, and maneuver guidance. As in previous
 example, the following examples assume that `daa`  is an object of type `Daidalus`.
+These outputs depend on the configuration of the `daa` object and in particular the configuration of the alerting logic. An important element of this configuration is the *corrective volume*, which is defined by a set of distance and time thresholds. Most of the detection and maneuver guidance functionality in DAIDALUS are computed with  respect to
+this volume.
 
 ## Detection Logic
 The time, in seconds, to violation of the corrective volume between
@@ -718,7 +720,7 @@ relative to ownship's time.
 
 The time returned by `timeToCorrectiveVolume` is positive infinity when the
 aircraft are not in conflict within the lookahead time. It returns
-a Not-A-Number (NaN) value when `ac_idx` is not a valid aircraft index.
+the Not-A-Number (NaN) value when `ac_idx` is not a valid aircraft index.
 
 ## Alerting Logic
 The alert level between the ownship and the traffic aircraft at
@@ -887,7 +889,13 @@ lower bounds and its type.
     BandsRegion regionType = daa.altitudeRegionAt(i);
     ... 
   } 
-```
+  ```
+
+### Recovery Bands Information
+When a loss of a the corrective volume cannot be avoided, the maneuver
+guidance logic turns from maintaining well-clear into regaining
+well-clear. The methods to compute bands remain the same, but the
+returned bands  include `RECOVERY` regions instead of `NONE`.
 
 ### Aircraft Contributing to Bands
 Bands that are in the current path of the ownship are called 
@@ -952,7 +960,8 @@ Directive guidance is provided by the following `Daidalus` methods.
  resolution maneuver is up (resp. down) relative to ownship altitude.
 
 The resolutions maneuvers returned by these methods are conflict free
-with respect to all aircraft at least until lookahead time. They return a Not-A-Number (NaN) value
+with respect to all aircraft at least until lookahead time. They
+return the Not-A-Number (NaN) value
 when the ownship is not in conflict and an infinite value (either
 positive or negative infinite) if a resolution in the `dir` is not
 available (for example, because of performance limits of the ownship).
@@ -970,24 +979,56 @@ double vs_fpm = daa. verticalSpeedResolution(daa.preferredVerticalSpeedUpOrDown(
 double alt_ft = altitudeResolution(daa.preferredAltitudeUpOrDown(),"ft");
 ```
 
+## DAA Performance Metrics
+(Note, some of these methods are only available in release v2.0.2 and up)
+
+Assuming `daa` is an object of type `Daidalus`,  the following methods
+compute DAA performance metrics between ownship and aircraft
+at index `ac_idx` in `u` [units](#units). These methods return the
+Not-A-Number (NaN) value if `ac_idx` is not a valid index. If the
+unit parameters are  not provided the returned values are in internal
+units, i.e., meters, seconds, etc.
+
+* `daa.currentHorizontalSeparation(ac_idx,u)`: Returns current
+  horizontal separation.
+* `daa.currentVerticalSeparation(ac_idx,u)`: Returns current
+  vertical separation.
+* `daa.horizontalClosureRate(ac_idx,u)`: Returns current
+  horizontal closure rate. 
+* `daa.verticalClosureRate(ac_idx,u)`: Returns current
+  vertical closure rate.
+* `daa.predictedHorizontalMissDistance(ac_idx,u)`: Returns predicted
+  horizontal miss distance, within lookahead time.
+* `daa.predictedVerticalMissDistance(ac_idx,u)`: Returns predicted
+  vertical miss distance, within lookahead time. 
+* `daa.timeToHorizontalClosestPointOfApproach(ac_idx,u)`: Returns time
+to horizontal closest point of approach, relative to ownship time. The
+returned time is 0 when aircraft are horizontally divergent or parallel.
+* `daa.distanceAtHorizontalClosestPointOfApproach(ac_idx,u)`: Returns
+distance at horizontal closest point of approach. The returned value
+is current horizontal range when aircraft are diverging or parallel.
+* `daa.timeToCoAltitude(ac_idx,u)`: Returns time to co-altitude. The
+  returned time is negative if aircraft are diverging. Negative
+  infinity is returned when vertical closure rate is zero.
+* `daa.modifiedTau(ac_idx,DMOD,DMODu,u)`: Returns modified Tau with
+  respect to a modified distance `DMOD` provided in `DMODu` [units](#units).
+
+For each type of manevuer,
+the following methods  return the last time to maneuver, relative to
+current time, before a loss of the corrective volume cannot avoided according to
+aircraft performance limits. These methods return Not-A-Number (NaN)
+value if `ac_idx` is not a valid index. They return positive infinity
+if the aircraft are not in conflict  and return negative infinity if
+there is no time to maneuver.
+
+* `daa.lastTimeToHorizontalDirectionManeuver(ac_idx,u)`
+* `daa.lastTimeToHorizontalSpeedManeuver(ac_idx,u)`
+* `daa.lastTimeToVerticalSpeedManeuver(ac_idx,u)`
+* `daa.lastTimeToAltitudeManeuver(ac_idx,u)`
 
 ** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **
 ===
 
-
-
-# Performance Metrics
-* `double HMD(double T)`: Returns horizontal miss distance within
-lookahead time `T` in seconds.
-* `double VMD(double T)`: Returns vertical miss distance within
-lookahead time `T` in seconds.
-* `double horizontalSeparation(String u)`: Returns horizontal
-  separation at current time, 
-
-
-## Time to Recovery
-
-## Last Time to Maneuver
 
 # Alerters
 
@@ -1003,11 +1044,8 @@ first level is 1) in a configuration file.
 
 # Configurable Parameters
 
-DAIDALUS objects can be configured through the class variable
-`parameters` of type `DaidalusParameters`. The configuration can
-be done either programmatically using getter/setter methods or via a
-configuration file using the method `loadFromFile`.  These methods are
-defined in the class `DaidalusParameters`.
+DAIDALUS DAA capabilities can be configured either programmatically, i.e.,  using getter/setter methods ìn the class `Daidalus` or
+via a configuration file, using the method `loadFromFile` in the class `Daidalus.
 
 ## Bands Parameters
 The following is a list of parameters that can be configured
