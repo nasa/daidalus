@@ -900,11 +900,13 @@ bands. The types of regions that can be returned by the recovery bands
 algorithms, depending on configuration, are `RECOVERY`, `FAR`, `MID`,
 `NEAR`, and `UNKNOWN`.
 
-In addition to recovery bands, the regain well-clear logic
-computes distance and time information that can be accessed
-through the class `RecoveryInformation`. The code below returns
-an object `RecoveryInformation` for each dimension of suggestive
-maneuver guidance.
+The regain well-clear logic attempts to recover from well-clear by
+maximizing a recovery volume and minimizing the time to recovery.  The
+original size of the recovery volume is provided by configuration.
+The size of the computed recovery volume and the time to recovery can
+be accessed through the class `RecoveryInformation`. The code below
+returns an object `RecoveryInformation` for each dimension of
+suggestive maneuver guidance.
 
 ```
 RecoveryInformation recovery_hdir = daa.horizontalDirectionRecoveryInformation();
@@ -928,7 +930,11 @@ algorithm, as opposed to well-clear bands algorithm, was used.
 * `double recoveryHorizontalDistance(String u)`: Returns lower bound
   to horizontal distance at time of closes approach during recovery  maneuver. 
 * `double recoveryVerticalDistance(String u)`: Returns lower bound to
-  vertical distance at time of closest approach during recovery maneuver.
+  vertical distance at time of closest approach during recovery
+  maneuver.
+* `int nFactor()`: Returns number of times the configured recovery volume was reduced in
+  order to compute recovery maneuvers. The greater this number, the
+  smaller the separation that can be maintained during recovery.
 
 ### Aircraft Contributing to Bands
 Bands that are in the current path of the ownship are called 
