@@ -894,8 +894,41 @@ lower bounds and its type.
 ### Recovery Bands Information
 When a loss of a the corrective volume cannot be avoided, the maneuver
 guidance logic turns from maintaining well-clear into regaining
-well-clear. The methods to compute bands remain the same, but the
-returned bands  include `RECOVERY` regions instead of `NONE`.
+well-clear. The method interfaces that provide bands do not change,
+but the bands algorithms compute recovery bands instead of well-clear
+bands. The types of regions that can be returned by the recovery bands
+algorithms, depending on configuration, are `RECOVERY`, `FAR`, `MID`,
+`NEAR`, and `UNKNOWN`.
+
+In addition to recovery bands, the regain well-clear logic
+computes distance and time information that can be accessed
+through the class `RecoveryInformation`. The code below returns
+an object `RecoveryInformation` for each dimension of suggestive
+maneuver guidance.
+
+```
+RecoveryInformation recovery_hdir = daa.horizontalDirectionRecoveryInformation();
+RecoveryInformation recovery_hs = daa.horizontalSpeedRecoveryInformation();
+RecoveryInformation recovery_vs = daa.verticalSpeedRecoveryInformation();
+RecoveryInformation recovery_alt = daa.altitudeRecoveryInformation();
+```
+
+The following methods are available in the class
+`RecoveryInformation`. Times and distance are returned in `u`
+[units](#units). If units are not provided, the values are returned in
+internal units, i.e., meters, seconds, etc.
+
+* `boolean recoveryBandsComputed()`: Returns `true` if the recovery bands
+algorithm, as opposed to well-clear bands algorithm, was used.
+* `boolean recoveryBandsSaturated()`: Returns `true` if recovery bands
+  saturate. This may happen if recovery bands are disabled or
+  well-clear recovery is not possible according to the configuration parameters.
+* `double timeToToRecovery(String u)`: Returns upper bound to time to
+  recover violation of corrective volume. 
+* `double recoveryHorizontalDistance(String u)`: Returns lower bound
+  to horizontal distance at time of closes approach during recovery  maneuver. 
+* `double recoveryVerticalDistance(String u)`: Returns lower bound to
+  vertical distance at time of closest approach during recovery maneuver.
 
 ### Aircraft Contributing to Bands
 Bands that are in the current path of the ownship are called 
@@ -959,7 +992,7 @@ Directive guidance is provided by the following `Daidalus` methods.
   (resp. `false`),
  resolution maneuver is up (resp. down) relative to ownship altitude.
 
-The resolutions maneuvers returned by these methods are conflict free
+The resolution maneuvers returned by these methods are conflict free
 with respect to all aircraft at least until lookahead time. They
 return the Not-A-Number (NaN) value
 when the ownship is not in conflict and an infinite value (either
