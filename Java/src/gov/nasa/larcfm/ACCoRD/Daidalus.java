@@ -11,6 +11,9 @@ import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Util;
+import gov.nasa.larcfm.Util.Vect2;
+import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Velocity;
@@ -2950,6 +2953,40 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Return last time to horizontal direction maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalDirectionManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = hdir_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToHorizontalDirectionManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to horizontal direction maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalDirectionManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToHorizontalDirectionManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
+	}
+
+	/**
 	 * @return recovery information for horizontal direction bands.
 	 */
 	public RecoveryInformation horizontalDirectionRecoveryInformation() {
@@ -2982,7 +3019,7 @@ public class Daidalus implements GenericStateBands {
 	 * Compute horizontal direction resolution maneuver for a given direction.
 	 * @parameter dir is right (true)/left (false) of ownship current direction
 	 * @return direction resolution in internal units [rad] in specified direction.
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no resolution to the right, and negative infinity if there 
 	 * is no resolution to the left.
 	 */
@@ -2995,7 +3032,7 @@ public class Daidalus implements GenericStateBands {
 	 * @parameter dir is right (true)/left (false) of ownship current direction
 	 * @parameter u units
 	 * @return direction resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no resolution to the right, and negative infinity if there 
 	 * is no resolution to the left.
 	 */
@@ -3099,6 +3136,40 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Return last time to horizontal speed maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalSpeedManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = hs_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToHorizontalSpeedManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to horizontal speed maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToHorizontalSpeedManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToHorizontalSpeedManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
+	}
+
+	/**
 	 * @return recovery information for horizontal speed bands.
 	 */
 	public RecoveryInformation horizontalSpeedRecoveryInformation() {
@@ -3131,7 +3202,7 @@ public class Daidalus implements GenericStateBands {
 	 * Compute horizontal speed resolution maneuver.
 	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
 	 * @return horizontal speed resolution in internal units [m/s] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
 	 * is no down resolution.
 	 */
@@ -3144,7 +3215,7 @@ public class Daidalus implements GenericStateBands {
 	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
 	 * @parameter u units
 	 * @return horizontal speed resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
 	 * is no down resolution.
 	 */
@@ -3248,6 +3319,40 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Return last time to vertical speed maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToVerticalSpeedManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = vs_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToVerticalSpeedManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to vertical speed maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToVerticalSpeedManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToVerticalSpeedManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
+	}
+
+	/**
 	 * @return recovery information for vertical speed bands.
 	 */
 	public RecoveryInformation verticalSpeedRecoveryInformation() {
@@ -3280,7 +3385,7 @@ public class Daidalus implements GenericStateBands {
 	 * Compute vertical speed resolution maneuver for given direction.
 	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
 	 * @return vertical speed resolution in internal units [m/s] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
 	 * is no down resolution.
 	 */
@@ -3293,7 +3398,7 @@ public class Daidalus implements GenericStateBands {
 	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
 	 * @parameter u units
 	 * @return vertical speed resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
 	 * is no down resolution.
 	 */
@@ -3397,6 +3502,40 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Return last time to altitude maneuver, in seconds, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToAltitudeManeuver(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  lt2m = alt_band_.last_time_to_maneuver(core_,core_.traffic.get(ac_idx-1));
+			if (Double.isNaN(lt2m)) {
+				return Double.POSITIVE_INFINITY;
+			}
+			return lt2m;
+		} else {
+			error.addError("lastTimeToAltitudeManeuver: aircraft index "+ac_idx+" is out of bounds");
+			return Double.NaN;
+		} 
+	}
+
+	/**
+	 * Return last time to altitude maneuver, in given units, for ownship with respect to traffic
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
+	 * Return NaN if ac_idx is not a valid index.
+	 */
+	public double lastTimeToAltitudeManeuver(int ac_idx, String u) {
+		double lt2m = lastTimeToAltitudeManeuver(ac_idx);
+		if (Double.isFinite(lt2m)) {
+			return Units.to(u,lt2m);
+		} else {
+			return lt2m;
+		}
+	}
+
+	/**
 	 * @return recovery information for altitude speed bands.
 	 */
 	public RecoveryInformation altitudeRecoveryInformation() {
@@ -3429,7 +3568,7 @@ public class Daidalus implements GenericStateBands {
 	 * Compute altitude resolution maneuver for given direction.
 	 * @parameter dir is up (true)/down (false) of ownship current altitude
 	 * @return altitude resolution in internal units [m] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
 	 * is no down resolution.
 	 */
@@ -3442,7 +3581,7 @@ public class Daidalus implements GenericStateBands {
 	 * @parameter dir is up (true)/down (false) of ownship current altitude
 	 * @parameter u units
 	 * @return altitude resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for early alerting time seconds. Return NaN if there is no conflict, 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
 	 * is no down resolution.
 	 */
@@ -3630,7 +3769,293 @@ public class Daidalus implements GenericStateBands {
 		return -1;	
 	}
 
-	/* Getting and Setting DaidalusParameters (note that setters stale the Daidalus object) */
+	/* DAA Performance Metrics */
+
+	/** 
+	 * Returns current horizontal separation, in internal units, with aircraft at index ac_idx.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double currentHorizontalSeparation(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Vect3 s = core_.ownship.get_s().Sub(core_.traffic.get(ac_idx-1).get_s());
+			return s.norm2D();
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns current horizontal separation, in given units, with aircraft at index ac_idx. 
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double currentHorizontalSeparation(int ac_idx,String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,currentHorizontalSeparation(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns current vertical separation, in internal units, with aircraft at index ac_idx.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double currentVerticalSeparation(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  sz = core_.ownship.get_s().z - core_.traffic.get(ac_idx-1).get_s().z;
+			return Math.abs(sz);
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns current vertical separation, in given units, with aircraft at index ac_idx. 
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double currentVerticalSeparation(int ac_idx,String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,currentVerticalSeparation(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double horizontalClosureRate(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Velocity v = core_.ownship.get_v().Sub(core_.traffic.get(ac_idx-1).get_v());
+			return v.norm2D();
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns current closure rate, in given units, with aircraft at index ac_idx. 
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double horizontalClosureRate(int ac_idx,String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,horizontalClosureRate(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double verticalClosureRate(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  vz = core_.ownship.get_v().z - core_.traffic.get(ac_idx-1).get_v().z;
+			return Math.abs(vz);
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns vertical closure rate, in given units, with aircraft at index ac_idx. 
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double verticalClosureRate(int ac_idx,String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,verticalClosureRate(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time), 
+	 * assuming straight line trajectory. Returns NaN if aircraft index is not valid
+	 */
+	public double predictedHorizontalMissDistance(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Vect3 s = core_.ownship.get_s().Sub(core_.traffic.get(ac_idx-1).get_s());
+			Velocity v = core_.ownship.get_v().Sub(core_.traffic.get(ac_idx-1).get_v());
+			return Horizontal.hmd(s.vect2(),v.vect2(),getLookaheadTime());
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns predicted HMD, in provided units, with aircraft at index ac_idx (up to lookahead time), 
+	 * assuming straight line trajectory. Returns NaN if aircraft index is not valid
+	 */
+	public double predictedHorizontalMissDistance(int ac_idx, String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,predictedHorizontalMissDistance(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns predicted VMD, in internal units, with aircraft at index ac_idx (up to lookahead time), 
+	 * assuming straight line trajectory. Returns NaN if aircraft index is not valid
+	 */
+	public double predictedVerticalMissDistance(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Vect3 s = core_.ownship.get_s().Sub(core_.traffic.get(ac_idx-1).get_s());
+			Velocity v = core_.ownship.get_v().Sub(core_.traffic.get(ac_idx-1).get_v());
+			return Vertical.vmd(s.z,v.z,getLookaheadTime());
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns predicted VMD, in provided units, with aircraft at index ac_idx (up to lookahead time), 
+	 * assuming straight line trajectory. Return NaN if aircraft index is not valid
+	 */
+	public double predictedVerticalMissDistance(int ac_idx, String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,predictedVerticalMissDistance(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns time, in seconds, to horizontal closest point of approach with aircraft 
+	 * at index ac_idx, assuming straight line trajectory. 
+	 * If aircraft are diverging, the returned time is 0.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double timeToHorizontalClosestPointOfApproach(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Vect3 s = core_.ownship.get_s().Sub(core_.traffic.get(ac_idx-1).get_s());
+			Velocity v = core_.ownship.get_v().Sub(core_.traffic.get(ac_idx-1).get_v());
+			return Util.max(0.0,Horizontal.tcpa(s.vect2(),v.vect2()));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns time, in given units, to horizontal closest point of approach with aircraft 
+	 * at index ac_idx, assuming straight line trajectory. 
+	 * If aircraft are diverging, the returned time is 0.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double timeToHorizontalClosestPointOfApproach(int ac_idx, String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,timeToHorizontalClosestPointOfApproach(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns distance, in internal units, at horizontal closest point of approach with aircraft 
+	 * at index ac_idx, assuming straight line trajectory. 
+	 * If aircraft are diverging, the returned distance is current horizontal separation.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double distanceAtHorizontalClosestPointOfApproach(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Vect3 s = core_.ownship.get_s().Sub(core_.traffic.get(ac_idx-1).get_s());
+			Velocity v = core_.ownship.get_v().Sub(core_.traffic.get(ac_idx-1).get_v());
+			double tcpa = Horizontal.tcpa(s.vect2(),v.vect2());
+			if (tcpa <= 0) {
+				return s.norm2D();
+			} else {
+				return s.AddScal(tcpa,v).norm2D();
+			}
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns distance, in given units, at horizontal closest point of approach with aircraft 
+	 * at index ac_idx, assuming straight line trajectory. 
+	 * If aircraft are diverging, the returned distance is current horizontal separation.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double distanceAtHorizontalClosestPointOfApproach(int ac_idx, String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,distanceAtHorizontalClosestPointOfApproach(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns time, in seconds, to co-altitude with aircraft 
+	 * at index ac_idx, assuming straight line trajectory. 
+	 * If aircraft are diverging, returns negative time. If 
+	 * vertical closure is 0, returns negative infinite.
+	 * Returns NaN if aircraft index is not valid or if vertical closure is 0.
+	 */
+	public double timeToCoAltitude(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double sz = core_.ownship.get_s().z-core_.traffic.get(ac_idx-1).get_s().z;
+			double vz = core_.ownship.get_v().z-core_.traffic.get(ac_idx-1).get_v().z;
+			if (Util.almost_equals(vz,0.0)) {
+				return Double.NEGATIVE_INFINITY;
+			}
+			return Vertical.time_coalt(sz,vz);
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns time, in given units, to co-altitude with aircraft 
+	 * at index ac_idx, assuming straight line trajectory. 
+	 * If aircraft are diverging, returns negative value.
+	 * Returns NaN if aircraft index is not valid or if vertical closure is 0
+	 */
+	public double timeToCoAltitude(int ac_idx, String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,timeToCoAltitude(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns modified tau time, in seconds, for distance DMOD (given in internal units), 
+	 * with respect to aircraft at index ac_idx. 
+	 * If aircraft are diverging or DMOD is greater than current range, returns -1.
+	 * Returns NaN if aircraft index is not valid or if vertical closure is 0
+	 */
+	public double modifiedTau(int ac_idx, double DMOD) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			Vect2 s = core_.ownship.get_s().Sub(core_.traffic.get(ac_idx-1).get_s()).vect2();
+			Vect2 v = core_.ownship.get_v().Sub(core_.traffic.get(ac_idx-1).get_v()).vect2();
+			double sdotv = s.dot(v);
+			double dmod2 = Util.sq(DMOD)-s.sqv();
+			if (dmod2 < 0 && sdotv < 0) {
+				return dmod2/sdotv;
+			}
+			return -1;
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/** 
+	 * Returns modified tau time, in given units, for distance DMOD (given in DMODu units), 
+	 * with respect to aircraft at index ac_idx. 
+	 * If aircraft are diverging or DMOD is greater than current range, returns -1.
+	 * Returns NaN if aircraft index is not valid or if vertical closure is 0
+	 */
+	public double modifiedTau(int ac_idx, double DMOD, String DMODu, String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,modifiedTau(ac_idx,Units.from(DMODu,DMOD)));
+		} else {
+			return Double.NaN;
+		}
+	}
 
 	/* Input/Output methods */
 
