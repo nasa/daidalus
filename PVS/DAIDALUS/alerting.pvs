@@ -1,0 +1,148 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+alerting : THEORY
+
+  BEGIN
+
+ IMPORTING 
+   get_kinematic_bands
+
+ Spread : TYPE = [real, real] 
+ Alerting: TYPE = [{nza: Aircraft | sqv(vect2(nza`v)) > 0}->[Aircraft->bool]]
+ 
+
+ is_thresh_alert(at:AlertTable) : bool  = 
+   at`spread_trk = (0,0) AND 
+   at`spread_gs = (0,0) AND 
+   at`spread_vs = (0,0) AND 
+   at`spread_alt = (0,0)
+
+ %% creating a thresholds alertor %% 
+
+ WCV_from_table(wcvtable: WCVTable): ConfDetector = 
+    wcv_taumod_cd(wcvtable`TTHR, wcvtable`TCOA, wcvtable`DTHR, wcvtable`ZTHR)
+
+ alertor_from_conf(cd: ConfDetector, lookahead: nnreal)(aco:Aircraft)(aci:Aircraft): bool = 
+    LET ent_ex = cd(0,lookahead, aco, aci) IN
+        ent_ex`2-ent_ex`1 >0  
+
+ thresh_alertor_from_table(at: AlertTable)(aco:{nza: Aircraft | sqv(vect2(nza`v)) > 0})(aci:Aircraft): bool =
+    LET wcv = WCV_from_table(at`wcv) IN
+    alertor_from_conf(wcv, at`alerting_time)(aco)(aci)
+
+ %% creating a bands alertor %% 
+ 
+ bands_param_from_table(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), at:AlertTable) : [nnreal, nnreal, posreal, posreal, real, real, real, real] = 
+   let gs = gs(ucore`ownship`v), 
+       vs = ucore`ownship`v`z, 
+       ps = ucore`ownship`s`z IN 
+	   (IF at`spread_trk`1 < 0 THEN par`left_trk ELSE min(par`left_trk,at`spread_trk`1) ENDIF, 
+	    IF at`spread_trk`2 < 0 THEN par`right_trk ELSE min(par`right_trk,at`spread_trk`2) ENDIF,
+ 	    IF at`spread_gs`1 < 0 THEN par`min_gs ELSE max(par`min_gs, gs-at`spread_gs`1) ENDIF,
+	    IF at`spread_gs`2 < 0 THEN par`max_gs ELSE min(par`max_gs, gs+at`spread_gs`2) ENDIF, 
+	    IF at`spread_vs`1 < 0 THEN par`min_vs ELSE max(par`min_vs, vs-at`spread_vs`1) ENDIF, 
+	    IF at`spread_vs`2 < 0 THEN par`max_vs ELSE min(par`max_vs, vs+at`spread_vs`2) ENDIF, 
+	    IF at`spread_alt`1 < 0 THEN par`min_alt ELSE max(par`min_alt, ps-at`spread_alt`1) ENDIF, 
+	    IF at`spread_alt`2 < 0 THEN par`max_alt ELSE min(par`max_alt, ps+at`spread_alt`2) ENDIF  
+	    )
+       
+ bands_alertor_from_table(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), at:AlertTable)(aco:{nza: Aircraft | sqv(vect2(nza`v)) > 0})(aci:Aircraft): bool = 
+   LET bpar = bands_param_from_table(par, ucore, at),
+       CD  =  WCV_from_table(at`wcv), 
+       cd = cd2CD(CD),
+       los = cd2LOS(CD), 
+       los_cd = (# cd:=cd, los:=los #) IN 
+        (IF at`spread_trk = (0,0) THEN FALSE ELSE 
+	  any_trk_red(ucore`turn_rate,bpar`1, 
+	    bpar`2,par`trk_step)(los_cd)(los_cd)
+            (0,at`alerting_time, ucore`ownship)((:aci:)) ENDIF )
+
+%             any_kinematic_track_red(los,cd,los,cd,FALSE,aco`s,
+%             aco`v,(:aci:),gen_most_urg,1,1,FALSE,FALSE,ucore`turn_rate,1,FALSE)
+%             (0,at`alerting_time,0,0,round(bpar`1/par`trk_step), 
+% 	    round(bpar`2/par`trk_step),par`trk_step) 
+% 	    ENDIF) 
+	  OR
+	  (IF at`spread_vs = (0,0) THEN FALSE ELSE  
+	    any_vs_red(par`vertical_accel, bpar`5, bpar`6, par`vs_step)(los_cd)(los_cd)
+	    (0,at`alerting_time, ucore`ownship)((:aci:)) ENDIF )
+	  % any_kinematic_vs_red(los,cd,los,cd,FALSE,aco`s,
+  	  %   aco`v,(:aci:),gen_most_urg,1,1,FALSE,FALSE,par`vertical_accel,1,FALSE, 
+          %   bpar`5, bpar`6)(0,at`alerting_time,0,0,par`vs_step)
+	  %  ENDIF)
+	  OR
+	  (IF at`spread_gs = (0,0) THEN FALSE ELSE  
+	    any_gs_red(par`horizontal_accel, bpar`3, bpar`4, par`gs_step)(los_cd)(los_cd)
+	    (0,at`alerting_time, ucore`ownship)((:aci:)) ENDIF )
+	  % any_kinematic_gs_red(los,cd,los,cd,FALSE,aco`s,
+   	  %   aco`v,(:aci:),gen_most_urg,1,1,FALSE,FALSE,par`horizontal_accel,1,FALSE, 
+   	  %   bpar`3, bpar`4)(0,at`alerting_time,0,0,par`gs_step)
+	  %  ENDIF)
+	  OR
+	  (IF at`spread_alt = (0,0) THEN FALSE ELSE
+          % LET los_cd = (# cd:= cd, los:= los #) IN  		
+	  any_alt_red(par`vertical_accel, par`min_alt, par`max_alt, par`alt_step, par`vertical_rate)
+	    (los_cd)(los_cd)(0, at`alerting_time, aco)((: aci :))
+   	    ENDIF)
+	     
+    
+ %%% Creates a single alertor. If "spreads" are all (0,0), it's a 
+ %%% WCV alertor. Otherwise it's a bands alertor.   
+ 
+ alertor(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), at:AlertTable): Alerting = 
+   IF is_thresh_alert(at) THEN 
+      thresh_alertor_from_table(at) 
+   ELSE 
+      bands_alertor_from_table(par, ucore, at) 
+   ENDIF  
+
+ %%% Gives a single alert from a list of alert tables. 
+
+ alert_from_at_list(par: Parameters,(ucore: UpdatedCore | pc_comp(ucore, par)), at_list: list[AlertTable])(aco:{nza: Aircraft | sqv(vect2(nza`v)) > 0})(aci:Aircraft): RECURSIVE below(length(at_list)+1) = 
+    IF null?(at_list) THEN 0
+    ELSE LET alert_table = car(at_list), alert_rest = cdr(at_list) IN
+       IF alertor(par, ucore, alert_table)(aco)(aci) THEN length(at_list)
+       ELSE alert_from_at_list(par, ucore, alert_rest)(aco)(aci)
+       ENDIF
+    ENDIF
+    MEASURE length(at_list) 
+
+ alerting(par: Parameters,(ucore: UpdatedCore | pc_comp(ucore, par)))(traffic:Traffic): list[below(length(par`alertor`2)+1)] = 
+   LET alertor = alert_from_at_list(par, ucore, reverse(par`alertor`2))(ucore`ownship) IN 
+    map[Aircraft, below(length(par`alertor`2)+1)](alertor)(traffic)
+     
+  
+
+  END alerting

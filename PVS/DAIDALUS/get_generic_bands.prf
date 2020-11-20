@@ -1,0 +1,1891 @@
+(get_generic_bands
+ (split_list_init_TCC1 0
+  (split_list_init_TCC1-1 nil 3683562993
+   ("" (skeep)
+    (("" (skeep) (("" (expand "length") (("" (assert) nil nil)) nil))
+      nil))
+    nil)
+   ((length def-decl "nat" list_props nil)) nil
+   (split_list_init subtype "get_generic_bands.traffic"
+    "(list_adt[Aircraft].cons?)")))
+ (split_list_init_TCC2 0
+  (split_list_init_TCC2-1 nil 3683562993
+   ("" (skeep)
+    (("" (skeep)
+      (("" (expand "length" 2 2)
+        (("" (assert)
+          (("" (expand "length" 1)
+            (("" (lift-if 1)
+              (("" (split 1)
+                (("1" (propax) nil nil)
+                 ("2" (flatten) (("2" (assert) nil nil)) nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (length def-decl "nat" list_props nil))
+   nil
+   (split_list_init termination
+    "get_generic_bands.split_list_init(get_generic_bands.p)(list_adt[Aircraft].cdr(get_generic_bands.traffic))"
+    "nil")))
+ (split_list_init_TCC3 0
+  (split_list_init_TCC3-1 nil 3683562993
+   ("" (skeep) (("" (expand "length") (("" (assert) nil nil)) nil))
+    nil)
+   ((length def-decl "nat" list_props nil)) nil
+   (split_list_init subtype "get_generic_bands.traffic"
+    "(list_adt[Aircraft].cons?)")))
+ (first_time_it_TCC1 0
+  (first_time_it_TCC1-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil))
+   nil
+   (first_time_it subtype "get_generic_bands.T"
+    "{Z: real_types.nnreal | booleans.AND(reals.<=(Z, get_generic_bands.T), get_generic_bands.F(Z) = get_generic_bands.b)}")))
+ (first_time_it_TCC2 0
+  (first_time_it_TCC2-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil))
+   nil
+   (first_time_it subtype "get_generic_bands.B"
+    "{Z: real_types.nnreal | booleans.AND(reals.<=(Z, get_generic_bands.T), get_generic_bands.F(Z) = get_generic_bands.b)}")))
+ (first_time_it_TCC3 0
+  (first_time_it_TCC3-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype "get_generic_bands.B"
+    "{B | (booleans.NOT)(get_generic_bands.F(get_generic_bands.B))}")))
+ (first_time_it_TCC4 0
+  (first_time_it_TCC4-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype "get_generic_bands.mid"
+    "{T | booleans.AND(reals.<(get_generic_bands.B, get_generic_bands.T), get_generic_bands.F(get_generic_bands.T))}")))
+ (first_time_it_TCC5 0
+  (first_time_it_TCC5-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype "(number_fields.-)(get_generic_bands.n, 1)"
+    "nat")))
+ (first_time_it_TCC6 0
+  (first_time_it_TCC6-1 nil 3683562993 ("" (termination-tcc) nil nil)
+   ((nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it termination
+    "get_generic_bands.first_time_it(get_generic_bands.F, get_generic_bands.B, get_generic_bands.mid, (number_fields.-)(get_generic_bands.n, 1), get_generic_bands.b)"
+    "nil")))
+ (first_time_it_TCC7 0
+  (first_time_it_TCC7-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype
+    "get_generic_bands.first_time_it(get_generic_bands.F, get_generic_bands.B, get_generic_bands.mid, (number_fields.-)(get_generic_bands.n, 1), get_generic_bands.b)"
+    "{Z: real_types.nnreal | booleans.AND(reals.<=(Z, get_generic_bands.T), get_generic_bands.F(Z) = get_generic_bands.b)}")))
+ (first_time_it_TCC8 0
+  (first_time_it_TCC8-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype "get_generic_bands.mid"
+    "{B | (booleans.NOT)(get_generic_bands.F(get_generic_bands.B))}")))
+ (first_time_it_TCC9 0
+  (first_time_it_TCC9-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype "get_generic_bands.T"
+    "{T | booleans.AND(reals.<(get_generic_bands.mid, get_generic_bands.T), get_generic_bands.F(get_generic_bands.T))}")))
+ (first_time_it_TCC10 0
+  (first_time_it_TCC10-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it subtype "(number_fields.-)(get_generic_bands.n, 1)"
+    "nat")))
+ (first_time_it_TCC11 0
+  (first_time_it_TCC11-1 nil 3683562993 ("" (termination-tcc) nil nil)
+   ((nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (first_time_it termination
+    "get_generic_bands.first_time_it(get_generic_bands.F, get_generic_bands.mid, get_generic_bands.T, (number_fields.-)(get_generic_bands.n, 1), get_generic_bands.b)"
+    "nil")))
+ (first_time_TCC1 0
+  (first_time_TCC1-1 nil 3683562993 ("" (subtype-tcc) nil nil) nil nil
+   (first_time subtype "get_generic_bands.B"
+    "{B | (booleans.NOT)(get_generic_bands.F(get_generic_bands.B))}")))
+ (first_time_TCC2 0
+  (first_time_TCC2-1 nil 3683562993 ("" (subtype-tcc) nil nil) nil nil
+   (first_time subtype "get_generic_bands.T"
+    "{T | booleans.AND(reals.<(get_generic_bands.B, get_generic_bands.T), get_generic_bands.F(get_generic_bands.T))}")))
+ (cyl_meas_TCC1 0
+  (cyl_meas_TCC1-1 nil 3685347312 ("" (subtype-tcc) nil nil) nil nil
+   (cyl_meas subtype "get_generic_bands.n"
+    "{i: integers.int | booleans.OR(get_generic_bands.fac /= 0, reals.>=(i, 0))}")))
+ (cyl_meas_TCC2 0
+  (cyl_meas_TCC2-1 nil 3685347312 ("" (subtype-tcc) nil nil)
+   ((^ const-decl "real" exponentiation nil)
+    (posreal_expt application-judgement "posreal" exponentiation nil))
+   nil
+   (cyl_meas subtype "((number_fields.-)(get_generic_bands.n, 1))"
+    "{i: integers.int | booleans.OR(get_generic_bands.fac /= 0, reals.>=(i, 0))}")))
+ (cyl_meas_TCC3 0
+  (cyl_meas_TCC3-1 nil 3685353059
+   (""
+    (name "F"
+          "LAMBDA (data: [posreal, posreal, {fac: posreal | fac < 1}]): choose({n:nat |IF data`2 <= data`1 THEN n = 0
+                                   ELSE data`2 * data`3 ^ n <= data`1 AND
+                                         data`2 * data`3 ^ (n - 1) > data`1
+                                   ENDIF })")
+    (("1" (inst 1 "F") nil nil)
+     ("2" (hide 2)
+      (("2" (skeep)
+        (("2" (expand "nonempty?")
+          (("2" (expand "empty?")
+            (("2" (case "data`2<=data`1")
+              (("1" (inst -2 "0") (("1" (assert) nil nil)) nil)
+               ("2" (flip-ineq 1)
+                (("2"
+                  (case "FORALL (d, c: {p:posreal| p<1}, m:posnat, (n:nat | n<=m), MM:nat):
+                   (MM = m-n AND c^m<=d and c^(n-1)>d) IMPLIES (EXISTS (k:nat): c^k<=d and c^(k-1)>d)")
+                  (("1"
+                    (case "FORALL (d, c: {p:posreal | p < 1}): EXISTS (m:posnat): c^m<=d")
+                    (("1" (inst -1 "data`1/data`2" "data`3")
+                      (("1" (skeep)
+                        (("1"
+                          (inst -2 "data`1/data`2" "data`3" "m!1" "1"
+                           "m!1-1")
+                          (("1" (simplify -2)
+                            (("1" (expand "^" -2 2)
+                              (("1"
+                                (expand "expt")
+                                (("1"
+                                  (ground)
+                                  (("1"
+                                    (skeep)
+                                    (("1"
+                                      (inst -5 "k")
+                                      (("1"
+                                        (cross-mult -1)
+                                        (("1"
+                                          (cross-mult -2)
+                                          (("1" (assert) nil nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil)
+                                   ("2" (cross-mult 1) nil nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil)
+                           ("2" (cross-mult 1) (("2" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil)
+                       ("2" (cross-mult 1) (("2" (assert) nil nil))
+                        nil))
+                      nil)
+                     ("2" (hide -)
+                      (("2" (lemma "small_expt")
+                        (("2" (skeep)
+                          (("2" (inst -1 "c")
+                            (("2" (assert)
+                              (("2"
+                                (inst -1 "d")
+                                (("2"
+                                  (skeep)
+                                  (("2"
+                                    (inst 1 "n+1")
+                                    (("2"
+                                      (expand "^")
+                                      (("2"
+                                        (expand "expt" 1)
+                                        (("2"
+                                          (typepred "c")
+                                          (("2"
+                                            (mult-ineq -3 -4)
+                                            (("2" (assert) nil nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil)
+                   ("2" (hide -)
+                    (("2" (skolem 1 ("d" "c" "_" "_" "_"))
+                      (("2" (induct "MM")
+                        (("1" (skeep)
+                          (("1" (move-terms -1 r 2)
+                            (("1" (simplify -1)
+                              (("1"
+                                (replace -1)
+                                (("1"
+                                  (inst?)
+                                  (("1" (assert) nil nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil)
+                         ("2" (skeep)
+                          (("2" (skeep)
+                            (("2" (typepred "n")
+                              (("2"
+                                (case "m!1 = n")
+                                (("1" (assert) nil nil)
+                                 ("2"
+                                  (case "c^n>d")
+                                  (("1"
+                                    (inst -3 "m!1" "n+1")
+                                    (("1" (assert) nil nil)
+                                     ("2" (assert) nil nil))
+                                    nil)
+                                   ("2"
+                                    (flip-ineq 1)
+                                    (("2"
+                                      (inst 2 "n")
+                                      (("2" (assert) nil nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil)
+     ("3" (skeep)
+      (("3" (flip-ineq 1)
+        (("3" (flip-ineq 1)
+          (("3" (case "n=0")
+            (("1" (replace -1)
+              (("1" (expand "^")
+                (("1" (expand "expt") (("1" (assert) nil nil)) nil))
+                nil))
+              nil)
+             ("2" (assert) nil nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((even_minus_odd_is_odd application-judgement "odd_int" integers
+     nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (n skolem-const-decl "{n: nat | n <= m!1}" get_generic_bands nil)
+    (m!1 skolem-const-decl "posnat" get_generic_bands nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (nat_induction formula-decl nil naturalnumbers nil)
+    (pred type-eq-decl nil defined_types nil)
+    (lt_times_lt_any1 formula-decl nil extra_real_props nil)
+    (posreal_expt application-judgement "posreal" exponentiation nil)
+    (abs const-decl "{n: nonneg_real | n >= m AND n >= -m}" real_defs
+         nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (small_expt formula-decl nil exponentiation nil)
+    (div_mult_pos_lt1 formula-decl nil real_props nil)
+    (div_mult_pos_gt2 formula-decl nil extra_real_props nil)
+    (div_mult_pos_le2 formula-decl nil real_props nil)
+    (expt def-decl "real" exponentiation nil)
+    (odd_minus_odd_is_even application-judgement "even_int" integers
+     nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (data skolem-const-decl
+     "[posreal, posreal, {fac: posreal | fac < 1}]" get_generic_bands
+     nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (posreal_div_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (member const-decl "bool" sets nil)
+    (empty? const-decl "bool" sets nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (posreal_exp application-judgement "posreal" exponentiation nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (IF const-decl "[boolean, T, T -> T]" if_def nil)
+    (<= const-decl "bool" reals nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (^ const-decl "real" exponentiation nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (set type-eq-decl nil sets nil)
+    (nonempty? const-decl "bool" sets nil)
+    (choose const-decl "(p)" sets nil))
+   nil
+   (cyl_meas existence ""
+    "[d: [posreal, posreal, {fac: real_types.posreal | reals.<(fac, 1)}] -> {n: naturalnumbers.nat | IF reals.<=(d`2, d`1) THEN n = 0 ELSE booleans.AND(reals.<=(number_fields.*(d`2, exponentiation.^(d`3, n)), d`1), reals.>(number_fields.*(d`2, exponentiation.^(d`3, ((number_fields.-)(n, 1)))), d`1)) ENDIF}]")))
+ (cyl_meas_prop 0
+  (cyl_meas_prop-2 "" 3813485076
+   ("" (skeep)
+    (("" (typepred " cyl_meas(D_st, D, fac)")
+      (("" (assert)
+        (("" (flatten)
+          (("" (hide -1)
+            (("" (typepred "cyl_meas(D_st, fac * D, fac)")
+              (("" (case "fac*D <=D_st")
+                (("1" (assert)
+                  (("1" (hide -3)
+                    (("1" (typepred "fac")
+                      (("1" (replace -5)
+                        (("1" (case "cyl_meas(D_st, D, fac) = 0")
+                          (("1" (replaces -1)
+                            (("1" (expand "^")
+                              (("1"
+                                (expand "expt")
+                                (("1" (assert) nil nil))
+                                nil))
+                              nil))
+                            nil)
+                           ("2" (case "cyl_meas(D_st, D, fac)>=2")
+                            (("1" (expand "^")
+                              (("1"
+                                (assert)
+                                (("1"
+                                  (expand "expt")
+                                  (("1"
+                                    (swap-rel -5)
+                                    (("1"
+                                      (case
+                                       "1>=expt(fac, cyl_meas(D_st, D, fac) - 2)")
+                                      (("1"
+                                        (both-sides "*" " D*fac" -1)
+                                        (("1" (assert) nil nil))
+                                        nil)
+                                       ("2"
+                                        (lemma
+                                         "both_sides_expt_lt1_le")
+                                        (("2"
+                                          (inst
+                                           -1
+                                           "cyl_meas(D_st, D, fac)-2"
+                                           "0"
+                                           "fac")
+                                          (("2"
+                                            (flatten)
+                                            (("2"
+                                              (hide -1)
+                                              (("2"
+                                                (assert)
+                                                (("2"
+                                                  (expand "^")
+                                                  (("2"
+                                                    (assert)
+                                                    nil
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil)
+                             ("2" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil)
+                 ("2" (assert)
+                  (("2" (hide -1)
+                    (("2" (flatten)
+                      (("2" (flip-ineq 1)
+                        (("2" (swap-rel -3)
+                          (("2"
+                            (case "NOT D * fac ^ cyl_meas(D_st, D, fac) < fac ^ (cyl_meas(D_st, fac * D, fac) - 1) * D * fac")
+                            (("1" (assert) nil nil)
+                             ("2" (cancel-by -1 "D")
+                              (("2"
+                                (lemma "expt_x1")
+                                (("2"
+                                  (inst -1 "fac")
+                                  (("2"
+                                    (lemma "expt_plus")
+                                    (("2"
+                                      (inst
+                                       -1
+                                       "1"
+                                       "(cyl_meas(D_st, fac * D, fac) - 1)"
+                                       "fac")
+                                      (("2"
+                                        (replace -2)
+                                        (("2"
+                                          (replaces -1 :dir rl)
+                                          (("2"
+                                            (simplify -3)
+                                            (("2"
+                                              (lemma
+                                               "both_sides_expt_lt1_lt")
+                                              (("2"
+                                                (inst
+                                                 -1
+                                                 "cyl_meas(D_st, D, fac)"
+                                                 "cyl_meas(D_st, fac * D, fac)"
+                                                 " fac")
+                                                (("2"
+                                                  (flatten)
+                                                  (("2"
+                                                    (hide -2)
+                                                    (("2"
+                                                      (assert)
+                                                      (("2"
+                                                        (case
+                                                         "NOT D * fac ^ (cyl_meas(D_st, D, fac) - 1) >  fac ^ cyl_meas(D_st, fac * D, fac) * D * fac")
+                                                        (("1"
+                                                          (assert)
+                                                          nil
+                                                          nil)
+                                                         ("2"
+                                                          (cancel-by
+                                                           -1
+                                                           "D")
+                                                          (("2"
+                                                            (lemma
+                                                             "expt_plus")
+                                                            (("2"
+                                                              (inst
+                                                               -1
+                                                               "1"
+                                                               "cyl_meas(D_st, fac * D, fac)"
+                                                               "fac")
+                                                              (("2"
+                                                                (replace
+                                                                 -5)
+                                                                (("2"
+                                                                  (lemma
+                                                                   "both_sides_expt_lt1_lt")
+                                                                  (("2"
+                                                                    (inst
+                                                                     -1
+                                                                     "1 + cyl_meas(D_st, fac * D, fac)"
+                                                                     "cyl_meas(D_st, D, fac) - 1"
+                                                                     "fac")
+                                                                    (("2"
+                                                                      (flatten)
+                                                                      (("2"
+                                                                        (hide
+                                                                         -2)
+                                                                        (("2"
+                                                                          (assert)
+                                                                          nil
+                                                                          nil))
+                                                                        nil))
+                                                                      nil))
+                                                                    nil))
+                                                                  nil))
+                                                                nil))
+                                                              nil))
+                                                            nil))
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak)
+  (cyl_meas_prop-1 nil 3685362588
+   ("" (skeep)
+    (("" (typepred " cyl_meas(D_st, D, fac)")
+      (("" (assert)
+        (("" (flatten)
+          (("" (hide -1)
+            (("" (typepred "cyl_meas(D_st, fac * D, fac)")
+              (("" (case "fac*D <=D_st")
+                (("1" (assert)
+                  (("1" (hide -3)
+                    (("1" (typepred "fac")
+                      (("1" (replace -5)
+                        (("1" (case "cyl_meas(D_st, D, fac) = 0")
+                          (("1" (replaces -1)
+                            (("1" (expand "^")
+                              (("1"
+                                (expand "expt")
+                                (("1" (assert) nil nil))
+                                nil))
+                              nil))
+                            nil)
+                           ("2" (case "cyl_meas(D_st, D, fac)>=2")
+                            (("1" (expand "^")
+                              (("1"
+                                (assert)
+                                (("1"
+                                  (expand "expt")
+                                  (("1"
+                                    (swap-rel -5)
+                                    (("1"
+                                      (case
+                                       "1>=expt(fac, cyl_meas(D_st, D, fac) - 2)")
+                                      (("1"
+                                        (both-sides "*" " D*fac" -1)
+                                        (("1" (assert) nil nil))
+                                        nil)
+                                       ("2"
+                                        (lemma
+                                         "both_sides_expt_lt1_le")
+                                        (("2"
+                                          (inst
+                                           -1
+                                           "cyl_meas(D_st, D, fac)-2"
+                                           "0"
+                                           "fac")
+                                          (("2"
+                                            (flatten)
+                                            (("2"
+                                              (hide -1)
+                                              (("2"
+                                                (assert)
+                                                (("2"
+                                                  (expand "^")
+                                                  (("2"
+                                                    (expand
+                                                     "expt"
+                                                     -1
+                                                     2)
+                                                    (("2"
+                                                      (assert)
+                                                      nil
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil)
+                             ("2" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil)
+                 ("2" (assert)
+                  (("2" (hide -1)
+                    (("2" (flatten)
+                      (("2" (flip-ineq 1)
+                        (("2" (swap-rel -3)
+                          (("2"
+                            (case "NOT D * fac ^ cyl_meas(D_st, D, fac) < fac ^ (cyl_meas(D_st, fac * D, fac) - 1) * D * fac")
+                            (("1" (assert) nil nil)
+                             ("2" (cancel-by -1 "D")
+                              (("2"
+                                (lemma "expt_x1")
+                                (("2"
+                                  (inst -1 "fac")
+                                  (("2"
+                                    (lemma "expt_plus")
+                                    (("2"
+                                      (inst
+                                       -1
+                                       "1"
+                                       "(cyl_meas(D_st, fac * D, fac) - 1)"
+                                       "fac")
+                                      (("2"
+                                        (replace -2)
+                                        (("2"
+                                          (replaces -1 :dir rl)
+                                          (("2"
+                                            (simplify -3)
+                                            (("2"
+                                              (lemma
+                                               "both_sides_expt_lt1_lt")
+                                              (("2"
+                                                (inst
+                                                 -1
+                                                 "cyl_meas(D_st, D, fac)"
+                                                 "cyl_meas(D_st, fac * D, fac)"
+                                                 " fac")
+                                                (("2"
+                                                  (flatten)
+                                                  (("2"
+                                                    (hide -2)
+                                                    (("2"
+                                                      (assert)
+                                                      (("2"
+                                                        (case
+                                                         "NOT D * fac ^ (cyl_meas(D_st, D, fac) - 1) >  fac ^ cyl_meas(D_st, fac * D, fac) * D * fac")
+                                                        (("1"
+                                                          (assert)
+                                                          nil
+                                                          nil)
+                                                         ("2"
+                                                          (cancel-by
+                                                           -1
+                                                           "D")
+                                                          (("2"
+                                                            (lemma
+                                                             "expt_plus")
+                                                            (("2"
+                                                              (inst
+                                                               -1
+                                                               "1"
+                                                               "cyl_meas(D_st, fac * D, fac)"
+                                                               "fac")
+                                                              (("2"
+                                                                (replace
+                                                                 -5)
+                                                                (("2"
+                                                                  (replaces
+                                                                   -1
+                                                                   :dir
+                                                                   rl)
+                                                                  (("2"
+                                                                    (lemma
+                                                                     "both_sides_expt_lt1_lt")
+                                                                    (("2"
+                                                                      (inst
+                                                                       -1
+                                                                       "1 + cyl_meas(D_st, fac * D, fac)"
+                                                                       "cyl_meas(D_st, D, fac) - 1"
+                                                                       "fac")
+                                                                      (("2"
+                                                                        (flatten)
+                                                                        (("2"
+                                                                          (hide
+                                                                           -2)
+                                                                          (("2"
+                                                                            (assert)
+                                                                            nil
+                                                                            nil))
+                                                                          nil))
+                                                                        nil))
+                                                                      nil))
+                                                                    nil))
+                                                                  nil))
+                                                                nil))
+                                                              nil))
+                                                            nil))
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (both_sides_times_pos_gt1 formula-decl nil real_props nil)
+    (both_sides_expt_lt1_lt formula-decl nil exponentiation nil)
+    (int_plus_int_is_int application-judgement "int" integers nil)
+    (nzreal nonempty-type-eq-decl nil reals nil)
+    (expt_plus formula-decl nil exponentiation nil)
+    (expt_x1 formula-decl nil exponentiation nil)
+    (posreal_div_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (both_sides_times_pos_lt1 formula-decl nil real_props nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (bijective? const-decl "bool" functions nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (expt_x0 formula-decl nil exponentiation nil)
+    (both_sides_expt_lt1_le formula-decl nil exponentiation nil)
+    (both_sides_times_pos_ge1 formula-decl nil real_props nil)
+    (neg_times_lt formula-decl nil real_props nil)
+    (neg_times_le formula-decl nil real_props nil)
+    (both_sides_times_pos_ge2 formula-decl nil real_props nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (posreal_expt application-judgement "posreal" exponentiation nil)
+    (odd_plus_even_is_odd application-judgement "odd_int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (expt def-decl "real" exponentiation nil)
+    (TRUE const-decl "bool" booleans nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil) (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (< const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (IF const-decl "[boolean, T, T -> T]" if_def nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (^ const-decl "real" exponentiation nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (cyl_meas const-decl "{n: nat |
+   IF D <= D_st THEN n = 0
+   ELSE D * fac ^ n <= D_st AND D * fac ^ (n - 1) > D_st
+   ENDIF}" get_generic_bands nil)
+    (posreal_exp application-judgement "posreal" exponentiation nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil))
+   shostak))
+ (cyl_and_time_TCC1 0
+  (cyl_and_time_TCC1-1 nil 3683562993 ("" (subtype-tcc) nil nil) nil
+   nil
+   (cyl_and_time subtype
+    "(number_fields.-)(1, get_generic_bands.ca_factor)"
+    "{fac: real_types.posreal | reals.<(fac, 1)}")))
+ (cyl_and_time_TCC2 0
+  (cyl_and_time_TCC2-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_minus_real_is_real application-judgement "real" reals nil))
+   nil
+   (cyl_and_time subtype "(number_fields.-)(1, get_generic_bands.z`5)"
+    "{fac: real_types.posreal | reals.<(fac, 1)}")))
+ (cyl_and_time_TCC3 0
+  (cyl_and_time_TCC3-1 nil 3683562993
+   ("" (skeep)
+    (("" (typepred (ca_factor))
+      (("" (move-terms -3 l 1)
+        (("" (typepred "D")
+          (("" (swap-rel -2)
+            (("" (mult-ineq -2 -5) (("" (assert) nil nil)) nil)) nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((cylinder_detector application-judgement "ConfDetector" los_and_cd
+     nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (lt_times_lt_any1 formula-decl nil extra_real_props nil)
+    (int_times_even_is_even application-judgement "even_int" integers
+     nil)
+    (nnint_times_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (real_minus_real_is_real application-judgement "real" reals nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (< const-decl "bool" reals nil))
+   nil
+   (cyl_and_time subtype
+    "number_fields.*(((number_fields.-)(1, get_generic_bands.ca_factor)), get_generic_bands.D)"
+    "posreal")))
+ (cyl_and_time_TCC4 0
+  (cyl_and_time_TCC4-1 nil 3683562993
+   ("" (skeep)
+    (("" (typepred (ca_factor))
+      (("" (move-terms -3 l 1)
+        (("" (typepred "H")
+          (("" (swap-rel -2)
+            (("" (mult-ineq -2 -5) (("" (assert) nil nil)) nil)) nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((cylinder_detector application-judgement "ConfDetector" los_and_cd
+     nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (lt_times_lt_any1 formula-decl nil extra_real_props nil)
+    (int_times_even_is_even application-judgement "even_int" integers
+     nil)
+    (nnint_times_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (real_minus_real_is_real application-judgement "real" reals nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (< const-decl "bool" reals nil))
+   nil
+   (cyl_and_time subtype
+    "number_fields.*(((number_fields.-)(1, get_generic_bands.ca_factor)), get_generic_bands.H)"
+    "posreal")))
+ (cyl_and_time_TCC5 0
+  (cyl_and_time_TCC5-2 "" 3813485077
+   ("" (skeep)
+    (("" (flip-ineq 2)
+      (("" (lemma "cyl_meas_prop")
+        (("" (inst-cp -1 "NMAC_D" "D" "1-ca_factor")
+          (("" (inst -1 "NMAC_H" "H" "1-ca_factor")
+            (("" (assert) nil nil)) nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (cyl_and_time termination
+    "get_generic_bands.cyl_and_time(number_fields.*(((number_fields.-)(1, get_generic_bands.ca_factor)), get_generic_bands.D), number_fields.*(((number_fields.-)(1, get_generic_bands.ca_factor)), get_generic_bands.H), get_generic_bands.T, get_generic_bands.ca, get_generic_bands.ca_factor, get_generic_bands.anygreen)"
+    "nil"))
+  (cyl_and_time_TCC5-1 nil 3683562993
+   ("" (skeep)
+    (("" (flip-ineq 2)
+      (("" (flip-ineq 2)
+        (("" (lemma "cyl_meas_prop")
+          (("" (inst-cp -1 "NMAC_D" "D" "1-ca_factor")
+            (("" (inst -1 "NMAC_H" "H" "1-ca_factor")
+              (("" (assert) nil nil)) nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((cyl_meas_prop formula-decl nil get_generic_bands nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_minus_real_is_real application-judgement "real" reals nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (< const-decl "bool" reals nil)
+    (NMAC_D const-decl "posreal" TCAS_tables TCASII)
+    (posreal_exp application-judgement "posreal" exponentiation nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (cylinder_detector application-judgement "ConfDetector" los_and_cd
+     nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (NMAC_H const-decl "posreal" TCAS_tables TCASII)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil) (> const-decl "bool" reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (cyl_and_time termination
+    "get_generic_bands.cyl_and_time(number_fields.*(((number_fields.-)(1, get_generic_bands.ca_factor)), get_generic_bands.D), number_fields.*(((number_fields.-)(1, get_generic_bands.ca_factor)), get_generic_bands.H), get_generic_bands.T, get_generic_bands.ca, get_generic_bands.ca_factor, get_generic_bands.anygreen)"
+    "nil")))
+ (get_recovery_TCC1 0
+  (get_recovery_TCC1-1 nil 3683562993
+   ("" (skeep)
+    (("" (lemma "detector_def")
+      (("" (typepred (los_cd2))
+        (("" (inst?)
+          (("" (lift-if -3)
+            (("" (split -3)
+              (("1" (assert) nil nil) ("2" (assert) nil nil)) nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((ConfDetector type-eq-decl nil los_and_cd nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (<= const-decl "bool" reals nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (string type-eq-decl nil strings nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (detector_def formula-decl nil los_and_cd nil))
+   nil (get_recovery subtype "get_generic_bands.LoS_CD" "LOS_CD")))
+ (get_generic_band_TCC1 0
+  (get_generic_band_TCC1-1 nil 3683562993
+   ("" (skeep) (("" (lemma "detector_def") (("" (inst?) nil nil)) nil))
+    nil)
+   ((number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (string type-eq-decl nil strings nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (<= const-decl "bool" reals nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (ConfDetector type-eq-decl nil los_and_cd nil)
+    (detector_def formula-decl nil los_and_cd nil))
+   nil
+   (get_generic_band subtype
+    "(# los := los_and_cd.cd2LOS(get_generic_bands.cd), cd := los_and_cd.cd2CD(get_generic_bands.cd) #)"
+    "LOS_CD")))
+ (get_generic_band_TCC2 0
+  (get_generic_band_TCC2-1 nil 3683562993
+   ("" (skeep) (("" (lemma "detector_def") (("" (inst?) nil nil)) nil))
+    nil)
+   ((number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (string type-eq-decl nil strings nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (<= const-decl "bool" reals nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (ConfDetector type-eq-decl nil los_and_cd nil)
+    (detector_def formula-decl nil los_and_cd nil))
+   nil
+   (get_generic_band subtype
+    "(# los := los_and_cd.cd2LOS(get_generic_bands.cd2), cd := los_and_cd.cd2CD(get_generic_bands.cd2) #)"
+    "LOS_CD")))
+ (get_generic_band_TCC3 0
+  (get_generic_band_TCC3-2 "" 3813485077
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep) (("" (skeep) (("" (assert) nil nil)) nil)) nil))
+      nil))
+    nil)
+   nil shostak
+   (get_generic_band subtype "get_generic_bands.recovery_time"
+    "nnreal"))
+  (get_generic_band_TCC3-1 nil 3683562993
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (skeep)
+            (("" (skeep)
+              (("" (skeep)
+                (("" (skeep)
+                  (("" (skeep)
+                    (("" (skeep)
+                      (("" (skeep)
+                        (("" (skeep) (("" (assert) nil nil)) nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (cylinder_detector application-judgement "ConfDetector" los_and_cd
+     nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (get_generic_band subtype "get_generic_bands.recovery_time"
+    "nnreal")))
+ (get_generic_band_TCC4 0
+  (get_generic_band_TCC4-2 "" 3813485077
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (hide-all-but 2)
+            (("" (lemma "detector_def") (("" (inst?) nil nil)) nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (get_generic_band subtype
+    "(# los := los_and_cd.cd2LOS(get_generic_bands.rec_cd), cd := los_and_cd.cd2CD(get_generic_bands.rec_cd) #)"
+    "LOS_CD"))
+  (get_generic_band_TCC4-1 nil 3683562993
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (skeep)
+            (("" (skeep)
+              (("" (skeep)
+                (("" (skeep)
+                  (("" (skeep)
+                    (("" (skeep)
+                      (("" (skeep)
+                        (("" (skeep)
+                          (("" (hide-all-but 2)
+                            (("" (lemma "detector_def")
+                              (("" (inst?) nil nil)) nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (string type-eq-decl nil strings nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (<= const-decl "bool" reals nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (ConfDetector type-eq-decl nil los_and_cd nil)
+    (detector_def formula-decl nil los_and_cd nil))
+   nil
+   (get_generic_band subtype
+    "(# los := los_and_cd.cd2LOS(get_generic_bands.rec_cd), cd := los_and_cd.cd2CD(get_generic_bands.rec_cd) #)"
+    "LOS_CD")))
+ (sliceupto_TCC1 0
+  (sliceupto_TCC1-1 nil 3683562993 ("" (subtype-tcc) nil nil) nil nil
+   (sliceupto subtype
+    "(number_fields.-)(get_generic_bands.n, get_generic_bands.m)"
+    "naturalnumber")))
+ (sliceupto_TCC2 0
+  (sliceupto_TCC2-1 nil 3683562993
+   ("" (skeep)
+    (("" (expand "length")
+      (("" (expand "length") (("" (assert) nil nil)) nil)) nil))
+    nil)
+   ((int_minus_int_is_int application-judgement "int" integers nil)
+    (length def-decl "nat" list_props nil))
+   nil
+   (sliceupto subtype "(: get_generic_bands.m :)"
+    "{L: list_adt[posnat].list | list_props[posnat].length(L) = (number_fields.-)((number_fields.+)(1, get_generic_bands.n), get_generic_bands.m)}")))
+ (sliceupto_TCC3 0
+  (sliceupto_TCC3-1 nil 3683562993 ("" (termination-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (> const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (<= const-decl "bool" reals nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (sliceupto subtype "(number_fields.+)(get_generic_bands.m, 1)"
+    "{m: integers.posnat | reals.<=(m, get_generic_bands.n)}")))
+ (sliceupto_TCC4 0
+  (sliceupto_TCC4-1 nil 3685356923 ("" (termination-tcc) nil nil)
+   ((int_minus_int_is_int application-judgement "int" integers nil))
+   nil
+   (sliceupto termination
+    "get_generic_bands.sliceupto(get_generic_bands.n, (number_fields.+)(get_generic_bands.m, 1))"
+    "nil")))
+ (sliceupto_TCC5 0
+  (sliceupto_TCC5-1 nil 3685356923
+   ("" (skeep :preds? t)
+    (("" (typepred "v(n, m!1 + 1)")
+      (("1" (expand "length" 2) (("1" (ground) nil nil)) nil)
+       ("2" (ground) nil nil))
+      nil))
+    nil)
+   ((real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (PRED type-eq-decl nil defined_types nil)
+    (list type-decl nil list_adt nil)
+    (every adt-def-decl "boolean" list_adt nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (>= const-decl "bool" reals nil) (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (<= const-decl "bool" reals nil) (< const-decl "bool" reals nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (length def-decl "nat" list_props nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (int_minus_int_is_int application-judgement "int" integers nil))
+   nil
+   (sliceupto subtype
+    "list_adt[posnat].cons(get_generic_bands.m, get_generic_bands.sliceupto(get_generic_bands.n, (number_fields.+)(get_generic_bands.m, 1)))"
+    "{L: list_adt[posnat].list | list_props[posnat].length(L) = (number_fields.-)((number_fields.+)(1, get_generic_bands.n), get_generic_bands.m)}")))
+ (listupto_TCC1 0
+  (listupto_TCC1-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (listupto subtype "get_generic_bands.n" "posnat")))
+ (listupto_TCC2 0
+  (listupto_TCC2-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (listupto subtype "1"
+    "{m: integers.posnat | reals.<=(m, get_generic_bands.n)}")))
+ (get_bands_TCC1 0
+  (get_bands_TCC1-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Region type-decl nil alertor nil)
+    (Spread type-eq-decl nil alertor nil)
+    (WCVTable type-eq-decl nil alertor nil)
+    (AlertTable type-eq-decl nil alertor nil)
+    (list type-decl nil list_adt nil)
+    (null? adt-recognizer-decl "[list -> boolean]" list_adt nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (> const-decl "bool" reals nil) (<= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (Alertor type-eq-decl nil alertor nil)
+    (string type-eq-decl nil strings nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (ConfDetector type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (Traffic type-eq-decl nil int_bands nil)
+    (* const-decl "real" vectors_2D vectors)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (posnat nonempty-type-eq-decl nil integers nil))
+   nil
+   (get_bands subtype "(number_fields.-)(get_generic_bands.i, 1)"
+    "below[length[[nat, [Traffic, Traffic]]](conf_traffic_lists)]")))
+ (get_bands_TCC2 0
+  (get_bands_TCC2-1 nil 3683562993 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Region type-decl nil alertor nil)
+    (Spread type-eq-decl nil alertor nil)
+    (WCVTable type-eq-decl nil alertor nil)
+    (AlertTable type-eq-decl nil alertor nil)
+    (list type-decl nil list_adt nil)
+    (null? adt-recognizer-decl "[list -> boolean]" list_adt nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (> const-decl "bool" reals nil) (<= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (Alertor type-eq-decl nil alertor nil)
+    (string type-eq-decl nil strings nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (ConfDetector type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (Traffic type-eq-decl nil int_bands nil)
+    (* const-decl "real" vectors_2D vectors)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (posnat nonempty-type-eq-decl nil integers nil))
+   nil
+   (get_bands subtype "(number_fields.-)(get_generic_bands.i, 1)"
+    "below[length[AlertTable](alertor`2)]")))
+ (get_bands_TCC3 0
+  (get_bands_TCC3-2 "" 3813485078
+   ("" (skeep)
+    (("" (lemma "map_length[posnat, [posnat, [bool, BandsOut]] ]")
+      (("" (inst?)
+        (("1" (replace -4)
+          (("1" (replace -1)
+            (("1" (hide -1)
+              (("1" (expand "listupto")
+                (("1" (hide -3)
+                  (("1" (typepred (alertor))
+                    (("1" (split -1)
+                      (("1" (flatten) (("1" (assert) nil nil)) nil)
+                       ("2" (flatten)
+                        (("2" (case "num=0")
+                          (("1" (assert) nil nil)
+                           ("2" (assert)
+                            (("2" (typepred "sliceupto(num, 1)")
+                              (("2"
+                                (replace -2)
+                                (("2"
+                                  (hide -1)
+                                  (("2" (assert) nil nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil)
+         ("2" (skeep)
+          (("2" (flip-ineq 1) (("2" (assert) nil nil)) nil)) nil)
+         ("3" (skeep)
+          (("3" (flip-ineq 1)
+            (("3" (typepred "conf_traffic_lists")
+              (("3" (assert) nil nil)) nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (get_bands subtype "(number_fields.-)(get_generic_bands.conf, 1)"
+    "below[length[[posnat, [bool, BandsOut]]](band_list)]"))
+  (get_bands_TCC3-1 nil 3683562993
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (lemma "map_length[posnat, [posnat, [bool, BandsOut]] ]")
+          (("" (inst?)
+            (("1" (replace -4)
+              (("1" (replace -1)
+                (("1" (hide -1)
+                  (("1" (expand "listupto")
+                    (("1" (hide -3)
+                      (("1" (typepred (alertor))
+                        (("1" (split -1)
+                          (("1" (flatten) (("1" (assert) nil nil)) nil)
+                           ("2" (flatten)
+                            (("2" (case "num=0")
+                              (("1" (assert) nil nil)
+                               ("2"
+                                (assert)
+                                (("2"
+                                  (typepred "sliceupto(num, 1)")
+                                  (("2"
+                                    (replace -2)
+                                    (("2"
+                                      (hide -1)
+                                      (("2" (assert) nil nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil)
+             ("2" (skeep)
+              (("2" (flip-ineq 1) (("2" (assert) nil nil)) nil)) nil)
+             ("3" (skeep)
+              (("3" (flip-ineq 1)
+                (("3" (typepred "conf_traffic_lists")
+                  (("3" (assert) nil nil)) nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (sliceupto def-decl "{L: list[posnat] | length(L) = n - m + 1}"
+     get_generic_bands nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (listupto const-decl "list[posnat]" get_generic_bands nil)
+    (every adt-def-decl "boolean" list_adt nil)
+    (PRED type-eq-decl nil defined_types nil)
+    (nth def-decl "T" list_props nil)
+    (get_one_bands const-decl "[bool, BandsOut]" get_generic_bands nil)
+    (Recovery type-eq-decl nil get_generic_bands nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (ConfDetector type-eq-decl nil los_and_cd nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (BandsInit type-eq-decl nil get_generic_bands nil)
+    (AnyRed type-eq-decl nil get_generic_bands nil)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (detector? const-decl "bool" int_bands nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (testband const-decl "[bool, BandsOut]" get_generic_bands nil)
+    (IF const-decl "[boolean, T, T -> T]" if_def nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (num skolem-const-decl "nat" get_generic_bands nil)
+    (< const-decl "bool" reals nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (Traffic type-eq-decl nil int_bands nil)
+    (length def-decl "nat" list_props nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Region type-decl nil alertor nil)
+    (Spread type-eq-decl nil alertor nil)
+    (WCVTable type-eq-decl nil alertor nil)
+    (AlertTable type-eq-decl nil alertor nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (null? adt-recognizer-decl "[list -> boolean]" list_adt nil)
+    (<= const-decl "bool" reals nil)
+    (Alertor type-eq-decl nil alertor nil)
+    (alertor skolem-const-decl "Alertor" get_generic_bands nil)
+    (conf_traffic_lists skolem-const-decl
+     "{L: list[[nat, [Traffic, Traffic]]] | length(L) = length(alertor`2)}"
+     get_generic_bands nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (map_length formula-decl nil more_map_props nil)
+    (number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_int nonempty-type-eq-decl nil integers nil)
+    (> const-decl "bool" reals nil)
+    (posnat nonempty-type-eq-decl nil integers nil)
+    (RealBand type-eq-decl nil real_bands nil)
+    (list type-decl nil list_adt nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (RecOut type-eq-decl nil get_generic_bands nil)
+    (BandsOut type-eq-decl nil get_generic_bands nil))
+   nil
+   (get_bands subtype "(number_fields.-)(get_generic_bands.conf, 1)"
+    "below[length[[posnat, [bool, BandsOut]]](band_list)]"))))
+

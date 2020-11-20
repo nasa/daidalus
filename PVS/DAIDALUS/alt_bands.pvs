@@ -1,0 +1,317 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+alt_bands: THEORY
+
+ % Altitude bands for instantaneous and kinematics changes
+
+BEGIN
+
+  IMPORTING real_bands,
+  	    aviation@vsLevelOut
+
+
+  AL   : VAR AircraftList
+  s,v  : VAR Vect3  
+  B,B1,B2    : VAR nnreal
+  T,T1,T2    : VAR nnreal
+  aco, aci: VAR Aircraft
+  so,si,vo,vi: VAR Vect3
+  nvo,nvi: VAR Vect3
+  step,p,q,d: VAR int
+  tjump: VAR nnreal % time at which jump off and go linear
+  njump: VAR nat
+  ts: VAR posreal % timestep value (e.g. 1 second)
+  t,t1,t2:VAR nnreal
+  k: VAR nat
+  i,j,maxi :VAR nat
+  MaxN: VAR nat % Max number of timesteps
+  IP: VAR [nat->bool] % a predicate on naturals to make bands with
+  eps: VAR Sign
+  UseHCrit,UseVCrit,useLOS2: VAR bool
+  epsH,epsV: VAR Sign
+  AltStep: VAR posreal % Altitude increment
+  MaxAlt: VAR posreal % Max Altitude
+  MinAlt: VAR nnreal
+  UseLOS2: VAR bool
+  timestep: VAR posreal
+
+  %%%%% NOTE: make sure CD works with B=T and B>T %%%%%
+
+  LOS,LOS1,LOS2: VAR [[Vect3,Vect3,Vect3,Vect3]->bool] %(B,T,so,vo,si,vi)
+
+  CD,CD1,CD2:  VAR [[nnreal,nnreal,Vect3,Vect3,Vect3,Vect3]->bool] %(B,T,so,vo,si,vi)
+
+  traj: VAR Traj
+
+  TrajSeq: TYPE = [nat->Traj] % Sequence of trajectories
+  TimeSeq: TYPE = {ts:[nat->[real,real,real]]|
+  	   	     FORALL (j:nat): ts(j)`1<=ts(j)`2 AND ts(j)`2<=ts(j)`3} 
+		     % Sequence of times to jump - e.g. curve/linear/curve
+
+  trajseq: VAR TrajSeq
+  timeseq: VAR TimeSeq
+
+
+  conflict_free_traj_step(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,trajseq,timeseq,timestep)(j:nat):bool =
+	 (FORALL (i:subrange(0,floor(timeseq(j)`1/timestep))):
+  	 	     (NOT (B<=i*timestep AND i*timestep<=T AND
+		     	  first_los_aircraft(LOS,trajseq(j),i,timestep,0,AL)>=0))
+		     AND (NOT (UseLOS2 AND B2<=i*timestep AND i*timestep<=T2 AND 
+		        first_los_aircraft(LOS2,trajseq(j),i,timestep,0,AL)>=0)))
+		   AND
+		     (NOT (timeseq(j)`2>=B AND first_conflict_aircraft(CD,B,min(T,timeseq(j)`2),
+		     	  trajseq(j),1,max(timeseq(j)`1,0),0,AL)>=0))
+    		   AND 
+		     (NOT (UseLOS2 AND timeseq(j)`2>=B2 AND first_conflict_aircraft(CD2,
+		     	  	   B2,min(T2,timeseq(j)`2),trajseq(j),1,max(timeseq(j)`1,0),0,AL)>=0))
+		   AND
+	 (FORALL (i:subrange(ceiling(timeseq(j)`2/timestep),floor(timeseq(j)`3/timestep))):
+  	 	     (NOT (B<=i*timestep AND i*timestep<=T AND
+		     	  first_los_aircraft(LOS,trajseq(j),i,timestep,0,AL)>=0))
+		     AND (NOT (UseLOS2 AND B2<=i*timestep AND i*timestep<=T2 AND 
+		        first_los_aircraft(LOS2,trajseq(j),i,timestep,0,AL)>=0)))
+		   AND
+		     (NOT first_conflict_aircraft(CD,B,T,trajseq(j),1,max(timeseq(j)`3,0),0,AL)>=0)
+    		   AND 
+		     (NOT (UseLOS2 AND first_conflict_aircraft(CD2,
+		     	  	   B2,T2,trajseq(j),1,max(timeseq(j)`3,0),0,AL)>=0))
+
+  alt_bands_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<=MaxAlt),AltStep,trajseq,timeseq,timestep):
+  (Bands?(floor((MaxAlt-MinAlt)/AltStep)+1,0,floor((MaxAlt-MinAlt)/AltStep)+1,
+    conflict_free_traj_step(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        vo,AL,trajseq,timeseq,timestep),-1)) =
+    nat_bands(floor((MaxAlt-MinAlt)/AltStep)+1,conflict_free_traj_step(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        vo,AL,trajseq,timeseq,timestep))
+
+  instant_alt_traj(so,vo,MinAlt,AltStep)(j:nat)(t:nnreal): [Vect3,Vect3] =
+    (so WITH [z:=MinAlt+j*AltStep],vo WITH [z:=0])
+
+  instant_alt_times(j:nat): [real,real,real] = (-1,-1,-1)
+
+  instant_alt_bands(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep): list[RealBand] =
+      LET
+    	  AltInt: list[IntBand] = alt_bands_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+                       vo,AL,MinAlt,MaxAlt,AltStep,instant_alt_traj(so,vo,MinAlt,AltStep),
+		       instant_alt_times,1), 
+	  AltBands: list[RealBand] = add(MinAlt,scal(AltStep,AltInt))
+      IN AltBands
+
+  instant_alt_bands_def: LEMMA sqv(vect2(vo))>0 AND
+	  detector?(LOS)(CD) AND detector?(LOS2)(CD2) AND MinAlt<MaxAlt IMPLIES
+      LET ab = instant_alt_bands(LOS,CD,LOS2,CD2,UseLOS2,B,
+          T,B2,T2,so,vo,AL,MinAlt,MaxAlt,AltStep)
+      IN (FORALL (j:nat,air:below(length(AL))):
+        (LET testalt = MinAlt+j*AltStep,
+  	    newso : [nnreal -> vectors@vectors_3D.Vector]  = (LAMBDA (t:nnreal):(so+t*vo) WITH [z:=testalt]),
+  	    newvo = (vo WITH [z:=0]),
+	    intr  = nth(AL,air),
+	    (si,vi) = (intr`s,intr`v)
+        IN
+  	  ((MinAlt<=testalt AND testalt<=MaxAlt AND
+  	  (EXISTS (t:nnreal): (B<=t AND t<=T AND LOS(newso(t),newvo,si+t*vi,vi)) OR
+  	  	  	      (UseLOS2 AND B2<=t AND t<=T2 AND LOS2(newso(t),newvo,si+t*vi,vi))))
+          IMPLIES
+  	  (NOT EXISTS (i:below(length(ab))): in?(nth(ab,i),testalt)))))
+
+  s0z: VAR real 
+  v0z: VAR real 
+  climbRate: VAR  posreal 
+  targetAlt: VAR  nnreal 
+  accelup: VAR posreal 
+  acceldown: VAR negreal 
+  alterCR?: VAR bool
+
+  kinematic_alt_traj(so,vo,MinAlt,AltStep,timestep,climbRate,accelup, acceldown, alterCR?)(j:nat)(t:nnreal): [Vect3,Vect3] =
+    IF t<=vsLevelOutTimes(so`z,vo`z,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?)`3+timestep
+      THEN vsLevelOut((so,vo),t,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?)
+   ELSE LET newso = (so+t*vo) WITH [z:=MinAlt+j*AltStep],
+   	    newvo = vo WITH [z:=0] IN (newso,newvo) ENDIF
+
+  kinematic_alt_times(so,vo,MinAlt,AltStep,timestep,climbRate,accelup, acceldown, alterCR?)(j:nat): [real,real,real] =
+    LET LOT = vsLevelOutTimes(so`z,vo`z,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?)
+    IN  (LOT`1,LOT`2,LOT`3+timestep)
+
+  kinematic_alt_bands(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?): list[RealBand] =
+      LET
+    	  AltInt: list[IntBand] = alt_bands_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+                       vo,AL,MinAlt,MaxAlt,AltStep,kinematic_alt_traj(so,vo,MinAlt,AltStep,timestep,climbRate,accelup, acceldown, alterCR?),
+		       kinematic_alt_times(so,vo,MinAlt,AltStep,timestep,climbRate,accelup, acceldown, alterCR?),timestep), 
+	  AltBands: list[RealBand] = add(MinAlt,scal(AltStep,AltInt))
+      IN AltBands
+
+kinematic_alt_bands_correct?(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?,(timepred:[nnreal->bool]),j): bool = 
+      LET ab = kinematic_alt_bands(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        vo,AL,MinAlt,MaxAlt,AltStep,timestep,
+  	climbRate,accelup, acceldown, alterCR?)
+      IN FORALL (air:below(length(AL))):
+        LET testalt = MinAlt+j*AltStep,
+  	    intr  = nth(AL,air),
+  	    (si,vi) = (intr`s,intr`v),
+  	    lt = vsLevelOutTimes(so`z,vo`z,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?),
+  	    newso = (LAMBDA (t): IF t<=lt`3+timestep THEN 
+  	    	    	    vsLevelOut((so,vo),t,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?)`1
+  			    ELSE ((so+t*vo) WITH [z:=testalt]) ENDIF),
+  	    newvo = (LAMBDA (t): IF t<=lt`3+timestep THEN 
+  	    	    	    vsLevelOut((so,vo),t,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?)`2
+  			    ELSE (vo WITH [z:=0]) ENDIF)
+        IN
+  	  MinAlt<=testalt AND testalt<=MaxAlt AND
+  	  (EXISTS (t:nnreal): timepred(t) AND
+  	  	    ((B<=t AND t<=T AND LOS(newso(t),newvo(t),si+t*vi,vi) OR
+  		    (UseLOS2 AND B2<=t AND t<=T2 AND LOS2(newso(t),newvo(t),si+t*vi,vi)))))
+          IMPLIES
+  	  (NOT EXISTS (i:below(length(ab))): in?(nth(ab,i),testalt))
+
+  kinematic_alt_bands_def1: LEMMA sqv(vect2(vo))>0 AND detector?(LOS)(CD) AND 
+    detector?(LOS2)(CD2) AND MinAlt<MaxAlt IMPLIES
+    LET lt = vsLevelOutTimes(so`z,vo`z,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?) IN
+    kinematic_alt_bands_correct?(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        vo,AL,MinAlt,MaxAlt,AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?,(LAMBDA (t:nnreal): t>lt`3+timestep),j)
+
+  kinematic_alt_bands_def2: LEMMA sqv(vect2(vo))>0 AND detector?(LOS)(CD) AND 
+    detector?(LOS2)(CD2) AND MinAlt<MaxAlt IMPLIES
+    LET lt = vsLevelOutTimes(so`z,vo`z,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?) IN
+    kinematic_alt_bands_correct?(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        vo,AL,MinAlt,MaxAlt,AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?,(LAMBDA (t:nnreal): t>lt`1 AND t<lt`2),j)
+
+  kinematic_alt_bands_def3: LEMMA sqv(vect2(vo))>0 AND detector?(LOS)(CD) AND 
+    detector?(LOS2)(CD2) AND MinAlt<MaxAlt IMPLIES
+    LET lt = vsLevelOutTimes(so`z,vo`z,climbRate,MinAlt+j*AltStep,accelup,acceldown,alterCR?) IN
+    kinematic_alt_bands_correct?(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        vo,AL,MinAlt,MaxAlt,AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?,(LAMBDA (t:nnreal): EXISTS (i:nat): t=i*timestep),j)
+
+  first_nat(mini,maxi:nat,P:pred[nat],eps:Sign): 
+    RECURSIVE {i:int | ((EXISTS (j:nat): mini<=j AND j<=maxi AND P(j)) IMPLIES (mini<=i AND i<=maxi AND P(i) AND
+    	      (FORALL (z:nat): mini<=z AND z<=maxi AND P(z) IMPLIES eps*z>=eps*i))) AND
+	     ((FORALL (j:nat): mini<=j AND j<=maxi IMPLIES NOT P(j)) IMPLIES i=-1)} =
+    IF mini>maxi THEN -1
+    ELSIF eps=1 AND P(mini) THEN mini
+    ELSIF eps=1 THEN first_nat(mini+1,maxi,P,eps)
+    ELSIF P(maxi) THEN maxi
+    ELSIF maxi=0 THEN -1
+    ELSE first_nat(mini,maxi-1,P,eps) ENDIF
+    MEASURE max(maxi-mini+2,0)
+    
+
+  first_green_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<=MaxAlt),AltStep,trajseq,timeseq,timestep,eps): int =
+    LET upper = IF eps=1 THEN floor((MaxAlt-MinAlt)/AltStep)+1 ELSE floor((so`z-MinAlt)/AltStep) ENDIF,
+	lower = IF eps=1 THEN ceiling((so`z-MinAlt)/AltStep) ELSE 0 ENDIF
+    IN 	IF so`z<MinAlt OR so`z>MaxAlt THEN -1
+	ELSE  first_nat(lower,upper,conflict_free_traj_step(LOS,CD,LOS2,CD2,UseLOS2,
+			B,T,B2,T2,so,vo,AL,trajseq,timeseq,timestep),eps)
+        ENDIF
+
+  inrange?(soz:real,MinAlt,MaxAlt:real,AltStep:posreal,eps:Sign)(z:int): bool =
+    (eps=-1 AND 0<=z AND MinAlt+z*AltStep<=soz) OR
+    (eps=1  AND soz<=MinAlt+z*AltStep AND MinAlt+(z-1)*AltStep<=MaxAlt)
+
+  first_green_alt_generic_def: LEMMA sqv(vect2(vo))>0 AND MinAlt<=so`z AND so`z<=MaxAlt
+    IMPLIES LET k = first_green_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+  			vo,AL,MinAlt,MaxAlt,AltStep,trajseq,timeseq,timestep,eps),
+  		abg = alt_bands_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        	      vo,AL,MinAlt,MaxAlt,AltStep,trajseq,timeseq,timestep)
+  	    IN (k<0 IFF FORALL (j:(inrange?(so`z,MinAlt,MaxAlt,AltStep,eps)),i:below(length(abg))):
+	       	     	     NOT in?(nth(abg,i),j)) AND
+	 	(k>=0 IFF inrange?(so`z,MinAlt,MaxAlt,AltStep,eps)(k)) AND 
+		(k>=0 IFF EXISTS (z:below(length(abg))): in?(nth(abg,z),k)) AND
+		(k>=0 IMPLIES FORALL (j:(inrange?(so`z,MinAlt,MaxAlt,AltStep,eps)),i:below(length(abg))):
+	       	   	 in?(nth(abg,i),j) IMPLIES eps*j>=eps*k)
+
+  instant_alt_first_green(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep,eps): int =
+	first_green_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+                       vo,AL,MinAlt,MaxAlt,AltStep,instant_alt_traj(so,vo,MinAlt,AltStep),
+		       instant_alt_times,1,eps)
+
+  kinematic_alt_first_green(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?,eps): int =
+	first_green_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+                       vo,AL,MinAlt,MaxAlt,AltStep,kinematic_alt_traj(so,vo,MinAlt,AltStep,timestep,
+		         climbRate,accelup, acceldown, alterCR?),
+		       kinematic_alt_times(so,vo,MinAlt,AltStep,timestep,climbRate,
+		       accelup, acceldown, alterCR?),1,eps)
+
+  %%% First Red %%%
+
+
+  first_red_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<=MaxAlt),AltStep,trajseq,timeseq,timestep,eps): int =
+    LET upper = IF eps=1 THEN floor((MaxAlt-MinAlt)/AltStep)+1 ELSE floor((so`z-MinAlt)/AltStep) ENDIF,
+	lower = IF eps=1 THEN ceiling((so`z-MinAlt)/AltStep) ELSE 0 ENDIF
+    IN 	IF so`z<MinAlt OR so`z>MaxAlt THEN -1
+	ELSE  first_nat(lower,upper,LAMBDA (j:nat): NOT conflict_free_traj_step(LOS,CD,LOS2,CD2,UseLOS2,
+			B,T,B2,T2,so,vo,AL,trajseq,timeseq,timestep)(j),eps)
+        ENDIF
+
+  first_red_alt_generic_def: LEMMA sqv(vect2(vo))>0 AND MinAlt<=so`z AND so`z<=MaxAlt
+    IMPLIES LET k = first_red_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+  			vo,AL,MinAlt,MaxAlt,AltStep,trajseq,timeseq,timestep,eps),
+  		abg = alt_bands_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        	      vo,AL,MinAlt,MaxAlt,AltStep,trajseq,timeseq,timestep)
+  	    IN (k<0 IFF FORALL (j:(inrange?(so`z,MinAlt,MaxAlt,AltStep,eps))): EXISTS (i:below(length(abg))):
+	       	     	     in?(nth(abg,i),j)) AND
+	 	(k>=0 IFF inrange?(so`z,MinAlt,MaxAlt,AltStep,eps)(k)) AND 
+		(k>=0 IMPLIES NOT EXISTS (z:below(length(abg))): in?(nth(abg,z),k)) AND
+		(k>=0 IMPLIES FORALL (j:(inrange?(so`z,MinAlt,MaxAlt,AltStep,eps))): (FORALL (i:below(length(abg))):
+	       	   	 NOT in?(nth(abg,i),j)) IMPLIES eps*j>=eps*k)
+
+  instant_alt_first_red(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep,eps): int =
+	first_red_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+                       vo,AL,MinAlt,MaxAlt,AltStep,instant_alt_traj(so,vo,MinAlt,AltStep),
+		       instant_alt_times,1,eps)
+
+  kinematic_alt_first_red(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+        (vo|sqv(vect2(vo))>0),AL,MinAlt,(MaxAlt|MinAlt<MaxAlt),AltStep,timestep,
+	climbRate,accelup, acceldown, alterCR?,eps): int =
+	first_red_alt_generic(LOS,CD,LOS2,CD2,UseLOS2,B,T,B2,T2,so,
+                       vo,AL,MinAlt,MaxAlt,AltStep,kinematic_alt_traj(so,vo,MinAlt,AltStep,timestep,
+		         climbRate,accelup, acceldown, alterCR?),
+		       kinematic_alt_times(so,vo,MinAlt,AltStep,timestep,climbRate,
+		       accelup, acceldown, alterCR?),1,eps)
+
+END alt_bands

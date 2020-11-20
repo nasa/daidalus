@@ -1,0 +1,1260 @@
+(los_and_cd
+ (detector_def 0
+  (detector_def-1 nil 3671898661
+   ("" (expand "detector?")
+    (("" (skeep :preds? t)
+      (("" (skeep)
+        (("" (split 1)
+          (("1" (flatten)
+            (("1"
+              (inst -2 "B" "T" "(# s:= so, v:= vo, id:= emptystr #)"
+               "(# s:= si, v:= vi, id:= emptystr #)")
+              (("1" (flatten)
+                (("1" (hide -4)
+                  (("1" (expand "cd2CD")
+                    (("1" (expand "emptystr")
+                      (("1" (assert)
+                        (("1" (skeep)
+                          (("1" (inst + "t")
+                            (("1" (expand "cd2LOS")
+                              (("1"
+                                (expand "los2LOS")
+                                (("1"
+                                  (expand "cd2los")
+                                  (("1"
+                                    (expand "project_ac")
+                                    (("1" (propax) nil nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil)
+                             ("2" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil)
+           ("2" (flatten)
+            (("2"
+              (inst -2 "B" "T" "(# s:= so, v:= vo, id:= emptystr #)"
+               "(# s:= si, v:= vi, id:= emptystr #)")
+              (("2" (flatten)
+                (("2" (skeep)
+                  (("2" (expand "cd2LOS")
+                    (("2" (expand "los2LOS")
+                      (("2" (expand "cd2los")
+                        (("2" (split -4)
+                          (("1" (assert)
+                            (("1" (expand "cd2CD")
+                              (("1"
+                                (assert)
+                                (("1"
+                                  (expand "project_ac")
+                                  (("1"
+                                    (expand "emptystr")
+                                    (("1" (propax) nil nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil)
+                           ("2" (inst + "t")
+                            (("2" (expand "emptystr")
+                              (("2"
+                                (expand "project_ac")
+                                (("2" (propax) nil nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (cd2los const-decl "LoSDetector" los_and_cd nil)
+    (los2LOS const-decl "bool" los_and_cd nil)
+    (cd2LOS const-decl "[[Vect3, Vect3, Vect3, Vect3] -> bool]"
+     los_and_cd nil)
+    (Lookahead type-eq-decl nil Lookahead ACCoRD)
+    (T skolem-const-decl "nnreal" los_and_cd nil)
+    (t skolem-const-decl "nnreal" los_and_cd nil)
+    (B skolem-const-decl "nnreal" los_and_cd nil)
+    (<= const-decl "bool" reals nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (cd2CD const-decl "bool" los_and_cd nil)
+    (emptystr const-decl "string" stdstr nil)
+    (char type-eq-decl nil strings nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (character type-decl nil character_adt nil)
+    (below type-eq-decl nil nat_types nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (detector? const-decl "bool" int_bands nil))
+   shostak))
+ (no_detector 0
+  (no_detector-1 nil 3671962264 ("" (judgement-tcc) nil nil)
+   ((No_cd const-decl "[real, real]" los_and_cd nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (project_ac const-decl "Aircraft" los_and_cd nil))
+   nil (no_detector subtype "los_and_cd.No_cd" "ConfDetector")))
+ (first_occ_TCC1 0
+  (first_occ_TCC1-1 nil 3658577750 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (first_occ subtype "los_and_cd.L" "(list_adt[string].cons?)")))
+ (first_occ_TCC2 0
+  (first_occ_TCC2-1 nil 3658577750
+   ("" (skeep)
+    (("" (typepred (n))
+      (("" (expand "length" -1)
+        (("" (lift-if -1) (("" (assert) nil nil)) nil)) nil))
+      nil))
+    nil)
+   ((real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil))
+   nil
+   (first_occ subtype "los_and_cd.n"
+    "{n: naturalnumbers.nat | reals.<=(list_props[string].length(list_adt[string].cdr(los_and_cd.L)), n)}")))
+ (first_occ_TCC3 0
+  (first_occ_TCC3-1 nil 3658577750 ("" (termination-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (<= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (>= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (first_occ termination
+    "los_and_cd.first_occ(los_and_cd.s, list_adt[string].cdr(los_and_cd.L), los_and_cd.n)"
+    "nil")))
+ (first_occ_def 0
+  (first_occ_def-1 nil 3671885965
+   (""
+    (case "FORALL (m:nat, s: string, L: list[string], (n: nat | length(L) <= n)):
+        LET fo = first_occ(s, L, n) IN
+          m=length(L) IMPLIES ((member(s, L) AND fo >= 0 AND fo < n) OR
+           ((NOT member(s, L)) AND fo = -1))")
+    (("1" (skeep)
+      (("1" (inst?) (("1" (inst -1 "length(L)") nil nil)) nil)) nil)
+     ("2" (hide 2)
+      (("2" (induct "m")
+        (("1" (assert) nil nil)
+         ("2" (skeep)
+          (("2" (hide 1)
+            (("2" (ground)
+              (("1" (expand "member")
+                (("1" (expand "length")
+                  (("1" (lift-if -2) (("1" (ground) nil nil)) nil))
+                  nil))
+                nil)
+               ("2" (expand "first_occ")
+                (("2" (expand "length")
+                  (("2" (lift-if -1) (("2" (ground) nil nil)) nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil)
+         ("3" (skeep)
+          (("3" (skeep)
+            (("3" (inst -1 "s" "cdr(L)" "n")
+              (("1" (case "NOT j=length(cdr(L))")
+                (("1" (expand "length" -2)
+                  (("1" (lift-if -2) (("1" (ground) nil nil)) nil))
+                  nil)
+                 ("2" (replace -1)
+                  (("2" (split -2)
+                    (("1" (hide 2)
+                      (("1" (expand "member" 1)
+                        (("1" (lift-if 1)
+                          (("1" (split 1)
+                            (("1" (expand "length" -3 2)
+                              (("1" (ground) nil nil)) nil)
+                             ("2" (flatten)
+                              (("2"
+                                (case "s = car(L)")
+                                (("1"
+                                  (replace -1)
+                                  (("1"
+                                    (expand "first_occ" 2)
+                                    (("1" (assert) nil nil))
+                                    nil))
+                                  nil)
+                                 ("2"
+                                  (assert)
+                                  (("2"
+                                    (expand "first_occ" 3)
+                                    (("2" (propax) nil nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil)
+                     ("2" (case "s = car(L)")
+                      (("1" (expand "member" 1)
+                        (("1" (assert)
+                          (("1" (lift-if 1)
+                            (("1" (expand "length" -4 2)
+                              (("1"
+                                (assert)
+                                (("1"
+                                  (lift-if -4)
+                                  (("1"
+                                    (assert)
+                                    (("1"
+                                      (split -4)
+                                      (("1" (propax) nil nil)
+                                       ("2"
+                                        (assert)
+                                        (("2"
+                                          (expand "first_occ")
+                                          (("2" (propax) nil nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil)
+                       ("2" (expand "member" 2)
+                        (("2" (lift-if 2)
+                          (("2" (split 2)
+                            (("1" (flatten)
+                              (("1"
+                                (expand "length" -4 2)
+                                (("1"
+                                  (lift-if -4)
+                                  (("1" (ground) nil nil))
+                                  nil))
+                                nil))
+                              nil)
+                             ("2" (flatten)
+                              (("2"
+                                (hide 2)
+                                (("2"
+                                  (expand "member" 4)
+                                  (("2"
+                                    (lift-if 4)
+                                    (("2"
+                                      (split 4)
+                                      (("1" (flatten) nil nil)
+                                       ("2"
+                                        (flatten)
+                                        (("2"
+                                          (assert)
+                                          (("2"
+                                            (expand "first_occ" 2)
+                                            (("2" (propax) nil nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil)
+                 ("3" (expand "length" -2)
+                  (("3" (lift-if -2) (("3" (ground) nil nil)) nil))
+                  nil))
+                nil)
+               ("2" (typepred "n")
+                (("2" (expand "length" -1)
+                  (("2" (assert)
+                    (("2" (lift-if -1)
+                      (("2" (assert)
+                        (("2" (expand "length")
+                          (("2" (lift-if -2) (("2" (ground) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil)
+               ("3" (expand "length")
+                (("3" (lift-if -1) (("3" (assert) nil nil)) nil)) nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((int_minus_int_is_int application-judgement "int" integers nil)
+    (car adt-accessor-decl "[(cons?) -> T]" list_adt nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (n skolem-const-decl "{n: nat | length(L) <= n}" los_and_cd nil)
+    (cdr adt-accessor-decl "[(cons?) -> list]" list_adt nil)
+    (L skolem-const-decl "list[string]" los_and_cd nil)
+    (cons? adt-recognizer-decl "[list -> boolean]" list_adt nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nat_induction formula-decl nil naturalnumbers nil)
+    (pred type-eq-decl nil defined_types nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil) (<= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (member def-decl "bool" list_props nil)
+    (< const-decl "bool" reals nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil)
+    (first_occ def-decl "int" los_and_cd nil))
+   shostak))
+ (cylinder_cd_TCC1 0
+  (cylinder_cd_TCC1-1 nil 3635501685 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (cylinder_cd subtype "los_and_cd.T"
+    "{AB: real_types.posreal | reals.>(AB, los_and_cd.B)}")))
+ (cylinder_detector 0
+  (cylinder_detector-1 nil 3671962264
+   ("" (skeep)
+    (("" (case "B>T")
+      (("1" (ground)
+        (("1" (expand "cylinder_cd") (("1" (assert) nil nil)) nil)
+         ("2" (expand "cylinder_cd") (("2" (assert) nil nil)) nil)
+         ("3" (expand "cylinder_cd") (("3" (assert) nil nil)) nil)
+         ("4" (skeep) (("4" (assert) nil nil)) nil))
+        nil)
+       ("2" (case "B=T")
+        (("1" (ground)
+          (("1" (expand "cylinder_cd")
+            (("1" (lift-if -1)
+              (("1" (split -1)
+                (("1" (flatten) (("1" (assert) nil nil)) nil)
+                 ("2" (lift-if 1) (("2" (assert) nil nil)) nil))
+                nil))
+              nil))
+            nil)
+           ("2" (expand "cylinder_cd")
+            (("2" (lift-if -1)
+              (("2" (split -1)
+                (("1" (flatten)
+                  (("1" (lift-if 1)
+                    (("1" (split 1)
+                      (("1" (assert) nil nil) ("2" (assert) nil nil))
+                      nil))
+                    nil))
+                  nil)
+                 ("2" (assert) nil nil))
+                nil))
+              nil))
+            nil)
+           ("3" (expand "cylinder_cd")
+            (("3" (assert)
+              (("3" (lift-if -1)
+                (("3" (split -1)
+                  (("1" (flatten)
+                    (("1" (inst 1 "T")
+                      (("1" (assert)
+                        (("1" (lift-if 1)
+                          (("1" (assert)
+                            (("1" (ground)
+                              (("1"
+                                (expand "project_ac")
+                                (("1" (propax) nil nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil)
+                   ("2" (flatten) (("2" (assert) nil nil)) nil))
+                  nil))
+                nil))
+              nil))
+            nil)
+           ("4" (skeep)
+            (("4" (expand "cylinder_cd")
+              (("4" (lift-if -3)
+                (("4" (split -3)
+                  (("1" (flatten)
+                    (("1" (expand "project_ac")
+                      (("1" (assert) nil nil)) nil))
+                    nil)
+                   ("2" (assert) nil nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil)
+         ("2" (splash)
+          (("1" (ground) nil nil)
+           ("2" (split 1)
+            (("1" (flatten)
+              (("1" (assert)
+                (("1" (flatten)
+                  (("1" (expand "cylinder_cd" -1)
+                    (("1" (lift-if -1)
+                      (("1" (split -1)
+                        (("1" (flatten)
+                          (("1" (lemma "conflict_detection[D,H,B,T]")
+                            (("1" (inst?)
+                              (("1"
+                                (ground)
+                                (("1"
+                                  (flatten)
+                                  (("1"
+                                    (hide -2)
+                                    (("1"
+                                      (lemma "cd3d_correct[D,H,B,T]")
+                                      (("1"
+                                        (inst?)
+                                        (("1"
+                                          (assert)
+                                          (("1"
+                                            (expand "cylinder_cd")
+                                            (("1"
+                                              (expand "project_ac")
+                                              (("1"
+                                                (name
+                                                 "t"
+                                                 "(detection[D,H,B,T](int`s - own`s, int`v - own`v)`1 +
+       detection[D,H,B,T](int`s - own`s, int`v - own`v)`2)/2")
+                                                (("1"
+                                                  (inst 1 "t")
+                                                  (("1"
+                                                    (assert)
+                                                    (("1"
+                                                      (lift-if 1)
+                                                      (("1"
+                                                        (split 1)
+                                                        (("1"
+                                                          (flatten)
+                                                          (("1"
+                                                            (assert)
+                                                            nil
+                                                            nil))
+                                                          nil)
+                                                         ("2"
+                                                          (flatten)
+                                                          (("2"
+                                                            (lemma
+                                                             "detection_correct[D,H,B,T]")
+                                                            (("2"
+                                                              (expand
+                                                               "cylinder_los")
+                                                              (("2"
+                                                                (inst?)
+                                                                (("2"
+                                                                  (inst
+                                                                   -1
+                                                                   "t")
+                                                                  (("2"
+                                                                    (assert)
+                                                                    (("2"
+                                                                      (flatten)
+                                                                      (("2"
+                                                                        (assert)
+                                                                        (("2"
+                                                                          (hide-all-but
+                                                                           (-1
+                                                                            -2
+                                                                            1))
+                                                                          (("2"
+                                                                            (expand
+                                                                             "-")
+                                                                            (("2"
+                                                                              (expand
+                                                                               "+
+")
+                                                                              (("2"
+                                                                                (expand
+                                                                                 "*")
+                                                                                (("2"
+                                                                                  (expand
+                                                                                   "vect2")
+                                                                                  (("2"
+                                                                                    (assert)
+                                                                                    nil
+                                                                                    nil))
+                                                                                  nil))
+                                                                                nil))
+                                                                              nil))
+                                                                            nil))
+                                                                          nil))
+                                                                        nil))
+                                                                      nil))
+                                                                    nil))
+                                                                  nil))
+                                                                nil))
+                                                              nil))
+                                                            nil))
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil)
+                         ("2" (flatten) (("2" (assert) nil nil)) nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil)
+             ("2" (flatten)
+              (("2" (label "impl" -2)
+                (("2" (hide -2)
+                  (("2" (skeep)
+                    (("2" (expand "cylinder_cd")
+                      (("2" (lift-if -3)
+                        (("2" (split -3)
+                          (("1" (flatten)
+                            (("1" (assert)
+                              (("1"
+                                (lift-if 1)
+                                (("1"
+                                  (split 1)
+                                  (("1"
+                                    (flatten)
+                                    (("1"
+                                      (assert)
+                                      (("1"
+                                        (lemma "cd3d_correct[D,H,B,T]")
+                                        (("1"
+                                          (inst?)
+                                          (("1"
+                                            (assert)
+                                            (("1"
+                                              (lemma
+                                               "conflict_detection[D,H,B,T]")
+                                              (("1"
+                                                (inst?)
+                                                (("1"
+                                                  (assert)
+                                                  nil
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil)
+                                   ("2"
+                                    (flatten)
+                                    (("2"
+                                      (assert)
+                                      (("2"
+                                        (lemma
+                                         "detection_complete[D,H,B,T]")
+                                        (("2"
+                                          (inst
+                                           -1
+                                           "int`s-own`s"
+                                           "t"
+                                           "int`v-own`v")
+                                          (("2"
+                                            (expand "cylinder_los")
+                                            (("2"
+                                              (expand "project_ac")
+                                              (("2"
+                                                (assert)
+                                                (("2"
+                                                  (flatten)
+                                                  (("2"
+                                                    (assert)
+                                                    (("2"
+                                                      (case
+                                                       " NOT (abs((int`s - own`s)`z + t * (int`v - own`v)`z) < H AND
+       sqv(vect2(int`s - own`s) + t * vect2(int`v - own`v)) < sq(D))")
+                                                      (("1"
+                                                        (hide-all-but
+                                                         (-2 -3 1))
+                                                        (("1"
+                                                          (expand "+ ")
+                                                          (("1"
+                                                            (expand
+                                                             "-")
+                                                            (("1"
+                                                              (expand
+                                                               "vect2")
+                                                              (("1"
+                                                                (expand
+                                                                 "*")
+                                                                (("1"
+                                                                  (assert)
+                                                                  nil
+                                                                  nil))
+                                                                nil))
+                                                              nil))
+                                                            nil))
+                                                          nil))
+                                                        nil)
+                                                       ("2"
+                                                        (ground)
+                                                        (("2"
+                                                          (lemma
+                                                           "conflict_detection[D,H,B,T]")
+                                                          (("2"
+                                                            (inst?)
+                                                            (("2"
+                                                              (assert)
+                                                              (("2"
+                                                                (lemma
+                                                                 "cd3d_complete[D,H,B,T]")
+                                                                (("2"
+                                                                  (inst?)
+                                                                  (("2"
+                                                                    (assert)
+                                                                    nil
+                                                                    nil))
+                                                                  nil))
+                                                                nil))
+                                                              nil))
+                                                            nil))
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil)
+                           ("2" (flatten) (("2" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil)
+           ("3" (flatten)
+            (("3" (assert)
+              (("3" (expand "cylinder_cd")
+                (("3" (lift-if -1)
+                  (("3" (split -1)
+                    (("1" (flatten)
+                      (("1" (lift-if 1)
+                        (("1" (split 1)
+                          (("1" (flatten) (("1" (assert) nil nil)) nil)
+                           ("2" (assert) nil nil))
+                          nil))
+                        nil))
+                      nil)
+                     ("2" (flatten) (("2" (assert) nil nil)) nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((cd3d_complete formula-decl nil cd3d ACCoRD)
+    (sq const-decl "nonneg_real" sq reals)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (abs const-decl "{n: nonneg_real | n >= m AND n >= -m}" real_defs
+         nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil)
+    (< const-decl "bool" reals nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (detection_complete formula-decl nil cd3d ACCoRD)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "Vector" vectors_2D vectors)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_2D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (real_minus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (sq_nz_pos application-judgement "posreal" sq reals)
+    (cylinder_los const-decl "bool" los_and_cd nil)
+    (detection_correct formula-decl nil cd3d ACCoRD)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (nnreal_plus_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (detection const-decl "[Lookahead[B, T], Lookahead[B, T]]" cd3d
+     ACCoRD)
+    (Lookahead type-eq-decl nil Lookahead ACCoRD)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/= const-decl "boolean" notequal nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (cd3d_correct formula-decl nil cd3d ACCoRD)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (Vector type-eq-decl nil vectors_3D vectors)
+    (- const-decl "Vector" vectors_3D vectors)
+    (conflict_detection formula-decl nil cd3d ACCoRD)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (<= const-decl "bool" reals nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (TRUE const-decl "bool" booleans nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (bijective? const-decl "bool" functions nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (add_zero_right formula-decl nil vectors_3D vectors)
+    (scal_0 formula-decl nil vectors_3D vectors)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (minus_even_is_even application-judgement "even_int" integers nil)
+    (minus_nzint_is_nzint application-judgement "nzint" integers nil)
+    (cylinder_cd const-decl "[real, real]" los_and_cd nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (> const-decl "bool" reals nil) (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil))
+   nil
+   (cylinder_detector subtype
+    "los_and_cd.cylinder_cd(los_and_cd.D, los_and_cd.H)"
+    "ConfDetector")))
+ (wcv_taumod_los_TCC1 0
+  (wcv_taumod_los_TCC1-1 nil 3813484492 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (taumod const-decl "real" horizontal_WCV_taumod WellClear)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (* const-decl "real" vectors_2D vectors)
+    (timevar? const-decl "bool" timevars WellClear)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (wcv_taumod_los subtype
+    "horizontal_WCV_taumod[los_and_cd.TM, los_and_cd.D].taumod"
+    "TimeVar")))
+ (wcv_taumod_cd_TCC1 0
+  (wcv_taumod_cd_TCC1-1 nil 3635671925 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (wcv_taumod_cd subtype "los_and_cd.T"
+    "{T | reals.<(los_and_cd.B, WCV_taumod.T)}")))
+ (wcv_detector 0
+  (wcv_detector-1 nil 3671962264
+   ("" (skeep)
+    (("" (case "B>T")
+      (("1" (ground)
+        (("1" (expand "wcv_taumod_cd") (("1" (assert) nil nil)) nil)
+         ("2" (expand "wcv_taumod_cd") (("2" (assert) nil nil)) nil)
+         ("3" (expand "wcv_taumod_cd") (("3" (assert) nil nil)) nil)
+         ("4" (skeep) (("4" (assert) nil nil)) nil))
+        nil)
+       ("2" (case "B=T")
+        (("1" (ground)
+          (("1" (expand "wcv_taumod_cd")
+            (("1" (lift-if -1)
+              (("1" (split -1)
+                (("1" (flatten) (("1" (assert) nil nil)) nil)
+                 ("2" (flatten) (("2" (assert) nil nil)) nil))
+                nil))
+              nil))
+            nil)
+           ("2" (expand "wcv_taumod_cd")
+            (("2" (lift-if -1)
+              (("2" (split -1)
+                (("1" (flatten) (("1" (assert) nil nil)) nil)
+                 ("2" (flatten) (("2" (assert) nil nil)) nil))
+                nil))
+              nil))
+            nil)
+           ("3" (expand "wcv_taumod_cd")
+            (("3" (assert)
+              (("3" (lift-if -1)
+                (("3" (split -1)
+                  (("1" (flatten)
+                    (("1" (assert)
+                      (("1" (inst 1 "T")
+                        (("1" (assert)
+                          (("1" (expand "project_ac")
+                            (("1" (assert) nil nil)) nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil)
+                   ("2" (flatten) (("2" (assert) nil nil)) nil))
+                  nil))
+                nil))
+              nil))
+            nil)
+           ("4" (skeep)
+            (("4" (expand "wcv_taumod_cd")
+              (("4" (lift-if -3)
+                (("4" (split -3)
+                  (("1" (flatten)
+                    (("1" (expand "project_ac")
+                      (("1" (assert) nil nil)) nil))
+                    nil)
+                   ("2" (flatten) (("2" (assert) nil nil)) nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil)
+         ("2" (splash)
+          (("1" (ground) nil nil)
+           ("2" (split 1)
+            (("1" (flatten)
+              (("1" (assert)
+                (("1" (flatten)
+                  (("1"
+                    (lemma "WCV_taumod_detection_correct[TM,TC,D,H]")
+                    (("1" (inst -1 "B" "T" "int`s-own`s" "int`v-own`v")
+                      (("1" (assert)
+                        (("1" (flatten)
+                          (("1" (hide -2)
+                            (("1" (expand "WCV_detection")
+                              (("1"
+                                (expand "wcv_taumod_cd" -2)
+                                (("1"
+                                  (assert)
+                                  (("1"
+                                    (skeep)
+                                    (("1"
+                                      (inst 1 "t")
+                                      (("1"
+                                        (assert)
+                                        (("1"
+                                          (expand "wcv_taumod_cd")
+                                          (("1"
+                                            (expand "project_ac")
+                                            (("1"
+                                              (lift-if 1)
+                                              (("1"
+                                                (split 1)
+                                                (("1"
+                                                  (flatten)
+                                                  (("1"
+                                                    (assert)
+                                                    nil
+                                                    nil))
+                                                  nil)
+                                                 ("2"
+                                                  (flatten)
+                                                  (("2"
+                                                    (expand
+                                                     "wcv_taumod_los")
+                                                    (("2"
+                                                      (assert)
+                                                      (("2"
+                                                        (rewrite
+                                                         "scal_sub_right")
+                                                        (("2"
+                                                          (assert)
+                                                          (("2"
+                                                            (expand
+                                                             "*")
+                                                            (("2"
+                                                              (expand
+                                                               "+
+")
+                                                              (("2"
+                                                                (expand
+                                                                 "-")
+                                                                (("2"
+                                                                  (propax)
+                                                                  nil
+                                                                  nil))
+                                                                nil))
+                                                              nil))
+                                                            nil))
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil)
+             ("2" (flatten)
+              (("2" (skeep)
+                (("2" (expand "project_ac")
+                  (("2" (expand "wcv_taumod_cd")
+                    (("2" (assert)
+                      (("2" (lift-if -3)
+                        (("2" (split -3)
+                          (("1" (flatten)
+                            (("1"
+                              (lemma
+                               "WCV_taumod_interval_correct[TM,TC,D,H]")
+                              (("1"
+                                (inst
+                                 -1
+                                 "B"
+                                 "T"
+                                 "int`s-own`s"
+                                 "int`v-own`v")
+                                (("1"
+                                  (assert)
+                                  (("1"
+                                    (inst -1 "t")
+                                    (("1"
+                                      (flatten)
+                                      (("1"
+                                        (hide -2)
+                                        (("1"
+                                          (expand "wcv_taumod_los")
+                                          (("1"
+                                            (expand "*")
+                                            (("1"
+                                              (expand "-")
+                                              (("1"
+                                                (expand
+                                                 "+
+")
+                                                (("1"
+                                                  (assert)
+                                                  (("1"
+                                                    (flatten)
+                                                    (("1"
+                                                      (assert)
+                                                      nil
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil)
+                           ("2" (flatten) (("2" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil)
+           ("3" (flatten)
+            (("3" (expand "wcv_taumod_cd") (("3" (assert) nil nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((real_minus_real_is_real application-judgement "real" reals nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (WCV_taumod_interval_correct formula-decl nil WCV_taumod WellClear)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (* const-decl "Vector" vectors_3D vectors)
+    (scal_sub_right formula-decl nil vectors_3D vectors)
+    (wcv_taumod_los const-decl "bool" los_and_cd nil)
+    (Lookahead type-eq-decl nil Lookahead ACCoRD)
+    (WCV_detection const-decl "bool" WCV WellClear)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (Vector type-eq-decl nil vectors_3D vectors)
+    (- const-decl "Vector" vectors_3D vectors)
+    (WCV_taumod_detection_correct formula-decl nil WCV_taumod
+     WellClear)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (<= const-decl "bool" reals nil)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (TRUE const-decl "bool" booleans nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (bijective? const-decl "bool" functions nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (project_ac const-decl "Aircraft" los_and_cd nil)
+    (add_zero_right formula-decl nil vectors_3D vectors)
+    (scal_0 formula-decl nil vectors_3D vectors)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (minus_even_is_even application-judgement "even_int" integers nil)
+    (minus_nzint_is_nzint application-judgement "nzint" integers nil)
+    (wcv_taumod_cd const-decl "[real, real]" los_and_cd nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (> const-decl "bool" reals nil) (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil))
+   nil
+   (wcv_detector subtype
+    "los_and_cd.wcv_taumod_cd(los_and_cd.TM, los_and_cd.TC, los_and_cd.D, los_and_cd.H)"
+    "ConfDetector")))
+ (some_ac?_TCC1 0
+  (some_ac?_TCC1-1 nil 3683562987 ("" (subtype-tcc) nil nil) nil nil
+   (some_ac? subtype "los_and_cd.traf" "(list_adt[Aircraft].cons?)")))
+ (some_ac?_TCC2 0
+  (some_ac?_TCC2-1 nil 3683562987 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (some_ac? termination
+    "los_and_cd.some_ac?(los_and_cd.p)(list_adt[Aircraft].cdr(los_and_cd.traf))"
+    "nil"))))
+

@@ -1,0 +1,677 @@
+(get_kinematic_bands_util
+ (any_trk_red_TCC1 0
+  (any_trk_red_TCC1-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.los_cd`cd"
+    "{CD | int_bands.detector?(get_kinematic_bands_util.los_cd`los)(inst_bands.CD)}")))
+ (any_trk_red_TCC2 0
+  (any_trk_red_TCC2-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.los_cd2`cd"
+    "{CD2 | int_bands.detector?(get_kinematic_bands_util.los_cd2`los)(inst_bands.CD2)}")))
+ (any_trk_red_TCC3 0
+  (any_trk_red_TCC3-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (cos const-decl "real" sincos_def trig)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (/= const-decl "boolean" notequal nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (<= const-decl "bool" reals nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (round const-decl "{j: int | r - 1 / 2 < j AND j <= r + 1 / 2}"
+           kinematic_trk_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_div_nzreal_is_real application-judgement "real" reals nil)
+    (nonneg_floor_is_nat application-judgement "nat" floor_ceil nil)
+    (nnreal_plus_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (* const-decl "Vector" vectors_3D vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.own`v"
+    "{vo | reals.>(vectors_2D.sqv(vect_3D_2D.vect2(inst_bands.vo)), 0)}")))
+ (any_trk_red_TCC4 0
+  (any_trk_red_TCC4-1 nil 3683562997
+   ("" (skeep)
+    (("" (expand "gen_most_urg")
+      (("" (expand "length") (("" (assert) nil nil)) nil)) nil))
+    nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (length def-decl "nat" list_props nil)
+    (gen_most_urg const-decl "int" los_and_cd nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype "los_and_cd.gen_most_urg"
+    "{most_urgent | booleans.AND(reals.>=(inst_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), 0), reals.<(inst_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), list_props[Aircraft].length(get_kinematic_bands_util.traffic)))}")))
+ (any_trk_red_TCC5 0
+  (any_trk_red_TCC5-2 "" 3794671236
+   ("" (skeep) (("" (grind-reals) nil nil)) nil)
+   ((real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   shostak
+   (any_trk_red subtype
+    "kinematic_trk_bands.round(number_fields./(get_kinematic_bands_util.lefttrk, get_kinematic_bands_util.trkstep))"
+    "nat"))
+  (any_trk_red_TCC5-1 nil 3683562997
+   ("" (skeep)
+    (("" (skeep) (("" (expand "every") (("" (propax) nil nil)) nil))
+      nil))
+    nil)
+   nil nil
+   (any_trk_red subtype
+    "kinematic_trk_bands.round(number_fields./(get_kinematic_bands_util.lefttrk, get_kinematic_bands_util.trkstep))"
+    "nat")))
+ (any_trk_red_TCC6 0
+  (any_trk_red_TCC6-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (cos const-decl "real" sincos_def trig)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (/= const-decl "boolean" notequal nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (<= const-decl "bool" reals nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (posreal_plus_nnreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (nnreal_plus_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (nonneg_floor_is_nat application-judgement "nat" floor_ceil nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_div_nzreal_is_real application-judgement "real" reals nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (round const-decl "{j: int | r - 1 / 2 < j AND j <= r + 1 / 2}"
+           kinematic_trk_bands nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype
+    "kinematic_trk_bands.round(number_fields./(get_kinematic_bands_util.righttrk, get_kinematic_bands_util.trkstep))"
+    "nat")))
+ (any_trk_red_TCC7 0
+  (any_trk_red_TCC7-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (cos const-decl "real" sincos_def trig)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (/= const-decl "boolean" notequal nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (<= const-decl "bool" reals nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (posreal_plus_nnreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (nnreal_times_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (nnreal_plus_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_div_nzreal_is_real application-judgement "real" reals nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (round const-decl "{j: int | r - 1 / 2 < j AND j <= r + 1 / 2}"
+           kinematic_trk_bands nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (nonneg_floor_is_nat application-judgement "nat" floor_ceil nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.trkstep"
+    "{step: real_types.posreal | booleans.AND(reals.<(step, pi_def.pi), booleans.AND(reals.<=(number_fields.*(step, kinematic_trk_bands.round(number_fields./(get_kinematic_bands_util.lefttrk, get_kinematic_bands_util.trkstep))), pi_def.pi), reals.<=(number_fields.*(step, kinematic_trk_bands.round(number_fields./(get_kinematic_bands_util.righttrk, get_kinematic_bands_util.trkstep))), pi_def.pi)))}")))
+ (any_trk_red_TCC8 0
+  (any_trk_red_TCC8-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.los_cd`cd"
+    "{CD | int_bands.detector?(get_kinematic_bands_util.los_cd`los)(kinematic_trk_bands.CD)}")))
+ (any_trk_red_TCC9 0
+  (any_trk_red_TCC9-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.los_cd2`cd"
+    "{CD2 | int_bands.detector?(get_kinematic_bands_util.los_cd2`los)(kinematic_trk_bands.CD2)}")))
+ (any_trk_red_TCC10 0
+  (any_trk_red_TCC10-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (< const-decl "bool" reals nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (cos const-decl "real" sincos_def trig)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (/= const-decl "boolean" notequal nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (<= const-decl "bool" reals nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (- const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (+ const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (round const-decl "{j: int | r - 1 / 2 < j AND j <= r + 1 / 2}"
+           kinematic_trk_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (nnreal_plus_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (nonneg_floor_is_nat application-judgement "nat" floor_ceil nil)
+    (real_div_nzreal_is_real application-judgement "real" reals nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (any_trk_red subtype "get_kinematic_bands_util.own`v"
+    "{vo | reals.>(vectors_2D.sqv(vect_3D_2D.vect2(kinematic_trk_bands.vo)), 0)}")))
+ (any_trk_red_TCC11 0
+  (any_trk_red_TCC11-3 "" 3813485090
+   ("" (skeep)
+    (("" (expand "gen_most_urg")
+      (("" (expand "length") (("" (assert) nil nil)) nil)) nil))
+    nil)
+   nil shostak
+   (any_trk_red subtype "los_and_cd.gen_most_urg"
+    "{most_urgent | booleans.AND(reals.>=(kinematic_trk_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), 0), reals.<(kinematic_trk_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), list_props[Aircraft].length(get_kinematic_bands_util.traffic)))}"))
+  (any_trk_red_TCC11-2 nil 3794728306
+   ("" (skeep)
+    (("" (skeep)
+      (("" (expand "gen_most_urg")
+        (("" (expand "length") (("" (assert) nil nil)) nil)) nil))
+      nil))
+    nil)
+   ((gen_most_urg const-decl "int" los_and_cd nil)
+    (length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   nil
+   (any_trk_red subtype "los_and_cd.gen_most_urg"
+    "{most_urgent | booleans.AND(reals.>=(kinematic_trk_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), 0), reals.<(kinematic_trk_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), list_props[Aircraft].length(get_kinematic_bands_util.traffic)))}"))
+  (any_trk_red_TCC11-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((cos const-decl "real" sincos_def trig)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (round const-decl "{j: int | r - 1 / 2 < j AND j <= r + 1 / 2}"
+           kinematic_trk_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors))
+   nil
+   (any_trk_red subtype "los_and_cd.gen_most_urg"
+    "{most_urgent | booleans.AND(reals.>=(kinematic_trk_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), 0), reals.<(kinematic_trk_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), list_props[Aircraft].length(get_kinematic_bands_util.traffic)))}")))
+ (any_trk_red_TCC12 0
+  (any_trk_red_TCC12-2 "" 3794671249
+   ("" (skeep) (("" (assert) nil nil)) nil)
+   ((real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnreal_div_posreal_is_nnreal application-judgement "nnreal"
+     real_types nil))
+   shostak
+   (any_trk_red subtype "get_kinematic_bands_util.omega" "posreal"))
+  (any_trk_red_TCC12-1 nil 3683562997
+   ("" (skeep)
+    (("" (expand "gen_most_urg")
+      (("" (expand "length") (("" (assert) nil nil)) nil)) nil))
+    nil)
+   nil nil
+   (any_trk_red subtype "get_kinematic_bands_util.omega" "posreal")))
+ (any_vs_red_TCC1 0
+  (any_vs_red_TCC1-1 nil 3683562997 ("" (subtype-tcc) nil nil) nil nil
+   (any_vs_red subtype "get_kinematic_bands_util.los_cd`cd"
+    "{CD | int_bands.detector?(get_kinematic_bands_util.los_cd`los)(inst_bands.CD)}")))
+ (any_vs_red_TCC2 0
+  (any_vs_red_TCC2-1 nil 3685694706 ("" (subtype-tcc) nil nil) nil nil
+   (any_vs_red subtype "get_kinematic_bands_util.los_cd2`cd"
+    "{CD2 | int_bands.detector?(get_kinematic_bands_util.los_cd2`los)(inst_bands.CD2)}")))
+ (any_vs_red_TCC3 0
+  (any_vs_red_TCC3-1 nil 3685694706 ("" (subtype-tcc) nil nil)
+   ((vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (any_vs_red subtype "get_kinematic_bands_util.own`v"
+    "{vo | reals.>(vectors_2D.sqv(vect_3D_2D.vect2(inst_bands.vo)), 0)}")))
+ (any_vs_red_TCC4 0
+  (any_vs_red_TCC4-1 nil 3685694706 ("" (subtype-tcc) nil nil)
+   ((gen_most_urg const-decl "int" los_and_cd nil)) nil
+   (any_vs_red subtype "los_and_cd.gen_most_urg"
+    "{most_urgent | booleans.AND(reals.>=(inst_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), 0), reals.<(inst_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), list_props[Aircraft].length(get_kinematic_bands_util.traffic)))}")))
+ (any_vs_red_TCC5 0
+  (any_vs_red_TCC5-1 nil 3685694706 ("" (subtype-tcc) nil nil) nil nil
+   (any_vs_red subtype "get_kinematic_bands_util.minvs" "posreal")))
+ (any_vs_red_TCC6 0
+  (any_vs_red_TCC6-1 nil 3685694706 ("" (subtype-tcc) nil nil) nil nil
+   (any_vs_red subtype "get_kinematic_bands_util.los_cd`cd"
+    "{CD | int_bands.detector?(get_kinematic_bands_util.los_cd`los)(kinematic_vs_bands.CD)}")))
+ (any_vs_red_TCC7 0
+  (any_vs_red_TCC7-1 nil 3685694706 ("" (subtype-tcc) nil nil) nil nil
+   (any_vs_red subtype "get_kinematic_bands_util.los_cd2`cd"
+    "{CD2 | int_bands.detector?(get_kinematic_bands_util.los_cd2`los)(kinematic_vs_bands.CD2)}")))
+ (any_vs_red_TCC8 0
+  (any_vs_red_TCC8-1 nil 3685694706 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (nnreal type-eq-decl nil real_types nil)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (any_vs_red subtype "get_kinematic_bands_util.own`v"
+    "{vo | reals.>(vectors_2D.sqv(vect_3D_2D.vect2(kinematic_vs_bands.vo)), 0)}")))
+ (any_vs_red_TCC9 0
+  (any_vs_red_TCC9-1 nil 3685694706
+   ("" (skeep)
+    (("" (expand "gen_most_urg")
+      (("" (expand "length") (("" (assert) nil nil)) nil)) nil))
+    nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (length def-decl "nat" list_props nil)
+    (gen_most_urg const-decl "int" los_and_cd nil))
+   nil
+   (any_vs_red subtype "los_and_cd.gen_most_urg"
+    "{most_urgent | booleans.AND(reals.>=(kinematic_vs_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), 0), reals.<(kinematic_vs_bands.most_urgent(get_kinematic_bands_util.own`s, get_kinematic_bands_util.own`v, get_kinematic_bands_util.traffic), list_props[Aircraft].length(get_kinematic_bands_util.traffic)))}")))
+ (any_alt_red_TCC1 0
+  (any_alt_red_TCC1-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (< const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (* const-decl "Vector" vectors_3D vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (any_alt_red subtype "get_kinematic_bands_util.own`v"
+    "{vo | reals.>(vectors_2D.sqv(vect_3D_2D.vect2(alt_bands.vo)), 0)}")))
+ (any_alt_red_TCC2 0
+  (any_alt_red_TCC2-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (< const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (real_times_real_is_real application-judgement "real" reals nil))
+   nil
+   (any_alt_red subtype "get_kinematic_bands_util.own`v"
+    "{vo | reals.>(vectors_2D.sqv(vect_3D_2D.vect2(alt_bands.vo)), 0)}")))
+ (any_alt_red_TCC3 0
+  (any_alt_red_TCC3-1 nil 3683562997 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (< const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (detector? const-decl "bool" int_bands nil)
+    (CDfun_0 type-eq-decl nil los_and_cd nil)
+    (LOSfun type-eq-decl nil los_and_cd nil)
+    (LOS_CD_0 type-eq-decl nil los_and_cd nil)
+    (LOS_CD type-eq-decl nil los_and_cd nil)
+    (Vector type-eq-decl nil vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (Vect2 type-eq-decl nil vectors_2D_def vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (* const-decl "Vector" vectors_3D vectors)
+    (+ const-decl "Vector" vectors_3D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (any_alt_red subtype "get_kinematic_bands_util.vertical_rate"
+    "posreal")))
+ (any_alt_red_TCC4 0
+  (any_alt_red_TCC4-1 nil 3683562997 ("" (subtype-tcc) nil nil) nil nil
+   (any_alt_red subtype
+    "(number_fields.-)(get_kinematic_bands_util.vs_accel)" "negreal"))))
+

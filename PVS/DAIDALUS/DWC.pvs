@@ -1,0 +1,66 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+% The function DWC is the definition of the DAA Well-Clear volume in
+% DO-365, with the standard parameters.
+%
+% Given the relative 3-D position vector s and the 3-D velocity vector v,
+% the function DWC(s,v) returns true if there is a loss of DWC for the relative
+% position and velocity of the ownship and intruder aircraft.
+%
+% Given the 3-D position vectors so,si and 3-D velocity vectors vo,vi, the function
+% DWC(so,vo,si,vi) returns true if there is a loss of DWC between the
+% ownship (so,vo) and an intruder aircraft (si,vi).
+
+DWC : THEORY
+BEGIN
+
+  IMPORTING aviation@units
+
+  DWC_TTHR : real = 35.0     % seconds
+  DWC_TCOA : real = 0.0      % seconds
+  DWC_DTHR : real = 0.66*nmi % 0.66 nmi
+  DWC_ZTHR : real = 450      % 450 ft
+
+  IMPORTING WellClear@WCV_taumod[DWC_TTHR,DWC_TCOA,DWC_DTHR,DWC_ZTHR]
+
+  s,v,
+  so,vo,
+  si,vi  : VAR Vect3
+
+  DWC(s,v) : bool = WCV_taumod(s,v)
+
+  DWC(so,vo,si,vi) : bool = DWC(so-si,vo-vi)
+
+END DWC

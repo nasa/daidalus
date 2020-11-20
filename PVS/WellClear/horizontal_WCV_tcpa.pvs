@@ -1,0 +1,104 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+horizontal_WCV_tcpa[TCPA:nnreal,DTHR:posreal]  : THEORY 
+
+% TCPA is the time to closest point of approach threshold
+% DTHR is the distance thershold
+
+BEGIN
+
+  IMPORTING horizontal_WCV_tcpa0[TCPA,DTHR,DTHR],
+            horizontal_WCV[TCPA,DTHR]
+
+  s,v : VAR Vect2  
+  T   : VAR posreal
+
+  % You are not well clear if either inside DTHR or the dist at tca is at most DTHR and
+  % the time to CPA is at most TCPA
+
+  tcpa_timevar : JUDGEMENT 
+    tcpa HAS_TYPE (pre_timevar?)
+
+  horizontal_WCV_tcpa(s,v): MACRO bool =
+    horizontal_WCV(tcpa)(s,v)
+
+  horizontal_WCV_tcpa_symm : LEMMA
+    horizontal_WCV_tcpa(s,v) = horizontal_WCV_tcpa(-s,-v)    
+
+  horizontal_WCV_tcpa_interval(T,s,v): EntryExit[0,T] =
+    IF    sqv(v) = 0 AND sqv(s)<=sq(DTHR) THEN WholeInterval[0,T]
+    ELSIF sqv(v)=0 THEN EmptyInterval[0,T] % detection returns false
+    ELSIF sqv(s)<=sq(DTHR) THEN (# entry:=0,exit:=min(T,Theta_D[DTHR](s,v,1)) #)
+    ELSIF s*v>0 THEN EmptyInterval[0,T] % detection returns false
+    ELSIF sqv(s + horizontal_tca(s,v)*v)>sq(DTHR) THEN (# entry:=T,exit:=0 #) 
+    ELSIF Delta[DTHR](s,v)<0 AND horizontal_tca(s,v)-TCPA>T 
+      THEN EmptyInterval[0,T] % detection returns false
+    ELSIF Delta[DTHR](s,v)<0 THEN 
+         (# entry:=max(0,horizontal_tca(s,v)-TCPA), 
+    	     exit:=min(T,horizontal_tca(s,v)) #)
+    ELSE LET tmin = min(Theta_D[DTHR](s,v,-1),horizontal_tca(s,v)-TCPA) IN
+      IF tmin > T THEN EmptyInterval[0,T] % detection returns false
+      ELSE  (# entry:= max(0,tmin), exit:=min(T,Theta_D[DTHR](s,v,1)) #)
+      ENDIF
+    ENDIF
+
+  horizontal_WCV_tcpa_eq : LEMMA	
+    horizontal_WCV_tcpa(s,v) = horizontal_WCV_tcpa0(s,v)
+
+  horizontal_WCV_tcpa_rew : LEMMA
+    horizontal_WCV_tcpa(s,v) IFF
+      (sqv(s) <= sq(DTHR) OR
+       (s*v < 0 AND 
+        sqv(s+horizontal_tca(s,v)*v)<=sq(DTHR) AND 
+        horizontal_tca(s,v) <=TCPA))
+
+  horizontal_WCV_tcpa_interval_eq : LEMMA
+    horizontal_WCV_tcpa_interval(T,s,v) = 
+    horizontal_WCV_tcpa0_interval(T,s,v)
+
+  horizontal_WCV_tcpa_interval_def: LEMMA FORALL (t:Lookahead[0,T]):
+    LET nwcentryexit = horizontal_WCV_tcpa_interval(T,s,v),
+        (nwcentry,nwcexit) = (nwcentryexit`entry,nwcentryexit`exit)
+    IN
+      horizontal_WCV_tcpa(s+t*v,v) IFF
+      (nwcentry<=t AND t<=nwcexit)
+
+  horizontal_WCV_tcpa_interval_correct : LEMMA
+    horizontal_interval_correct?(tcpa)(horizontal_WCV_tcpa_interval)
+
+  horizontal_WCV_tcpa_interval_sound : LEMMA
+    horizontal_interval_sound?(tcpa)(horizontal_WCV_tcpa_interval)
+
+END horizontal_WCV_tcpa

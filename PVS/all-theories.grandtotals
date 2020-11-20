@@ -1,0 +1,18 @@
+Processing TCASII. Writing output to file summaries/TCASII.summary
+Logging PVS information in summaries/TCASII.log
+Grand Totals: 141 proofs, 141 attempted, 141 succeeded (383.09 s)
+
+Processing WellClear. Writing output to file summaries/WellClear.summary
+Logging PVS information in summaries/WellClear.log
+Grand Totals: 242 proofs, 242 attempted, 242 succeeded (154.81 s)
+
+Processing DAIDALUS. Writing output to file summaries/DAIDALUS.summary
+Logging PVS information in summaries/DAIDALUS.log
+Grand Totals: 608 proofs, 608 attempted, 608 succeeded (407.70 s)
+
+TCASII                   [OK: 141 proofs]
+WellClear                [OK: 242 proofs]
+DAIDALUS                 [OK: 608 proofs]
+
+*** Grand Totals: 991 proofs / 991 formulas. Missed: 0 formulas.
+*** Number of libraries: 3

@@ -1,0 +1,172 @@
+(time_to_violation
+ (ac_ttv_lists_it_TCC1 0
+  (ac_ttv_lists_it_TCC1-1 nil 3683562988 ("" (subtype-tcc) nil nil) nil
+   nil
+   (ac_ttv_lists_it subtype
+    "(number_fields.-)(time_to_violation.len_plus1, list_props[AlertTable].length(time_to_violation.al))"
+    "nat")))
+ (ac_ttv_lists_it_TCC2 0
+  (ac_ttv_lists_it_TCC2-1 nil 3683562988 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Region type-decl nil alertor nil)
+    (Spread type-eq-decl nil alertor nil)
+    (WCVTable type-eq-decl nil alertor nil)
+    (AlertTable type-eq-decl nil alertor nil)
+    (list type-decl nil list_adt nil)
+    (length def-decl "nat" list_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (ac_ttv_lists_it subtype "time_to_violation.al"
+    "(list_adt[AlertTable].cons?)")))
+ (ac_ttv_lists_it_TCC3 0
+  (ac_ttv_lists_it_TCC3-1 nil 3683562988 ("" (termination-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Region type-decl nil alertor nil)
+    (Spread type-eq-decl nil alertor nil)
+    (WCVTable type-eq-decl nil alertor nil)
+    (AlertTable type-eq-decl nil alertor nil)
+    (list type-decl nil list_adt nil)
+    (length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (ac_ttv_lists_it subtype "time_to_violation.len_plus1"
+    "{len_plus1: naturalnumbers.nat | reals.>=(len_plus1, list_props[AlertTable].length(list_adt[AlertTable].cdr(time_to_violation.al)))}")))
+ (ac_ttv_lists_it_TCC4 0
+  (ac_ttv_lists_it_TCC4-1 nil 3683562988
+   ("" (skeep)
+    (("" (skeep)
+      (("" (expand "length" 2 2) (("" (assert) nil nil)) nil)) nil))
+    nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (length def-decl "nat" list_props nil))
+   nil
+   (ac_ttv_lists_it termination
+    "time_to_violation.ac_ttv_lists_it(list_adt[AlertTable].cdr(time_to_violation.al), time_to_violation.lat, time_to_violation.own, time_to_violation.traffic, time_to_violation.len_plus1)"
+    "nil")))
+ (ac_ttv_lists_it_TCC5 0
+  (ac_ttv_lists_it_TCC5-1 nil 3685281561 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (Region type-decl nil alertor nil)
+    (Spread type-eq-decl nil alertor nil)
+    (WCVTable type-eq-decl nil alertor nil)
+    (AlertTable type-eq-decl nil alertor nil)
+    (list type-decl nil list_adt nil)
+    (length def-decl "nat" list_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (ac_ttv_lists_it subtype "time_to_violation.al"
+    "(list_adt[AlertTable].cons?)")))
+ (ac_ttv_lists_TCC1 0
+  (ac_ttv_lists_TCC1-1 nil 3685281561 ("" (subtype-tcc) nil nil) nil
+   nil
+   (ac_ttv_lists subtype
+    "(number_fields.+)(list_props[AlertTable].length(time_to_violation.alertor`2), 1)"
+    "{len_plus1: naturalnumbers.nat | reals.>=(len_plus1, list_props[AlertTable].length(time_to_violation.alertor`2))}")))
+ (conf_traffic_split_TCC1 0
+  (conf_traffic_split_TCC1-1 nil 3683562988 ("" (subtype-tcc) nil nil)
+   nil nil
+   (conf_traffic_split subtype "time_to_violation.ttvl"
+    "(list_adt[[Aircraft, [real, real], booleans.bool]].cons?)")))
+ (conf_traffic_split_TCC2 0
+  (conf_traffic_split_TCC2-1 nil 3683562988
+   ("" (termination-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (length def-decl "nat" list_props nil))
+   nil
+   (conf_traffic_split termination
+    "time_to_violation.conf_traffic_split(list_adt[[Aircraft, [real, real], booleans.bool]].cdr(time_to_violation.ttvl))"
+    "nil")))
+ (conf_traffic_split_TCC3 0
+  (conf_traffic_split_TCC3-1 nil 3683562988 ("" (subtype-tcc) nil nil)
+   nil nil
+   (conf_traffic_split subtype "time_to_violation.ttvl"
+    "(list_adt[[Aircraft, [real, real], booleans.bool]].cons?)")))
+ (alert_from_ttv_TCC1 0
+  (alert_from_ttv_TCC1-1 nil 3683562988 ("" (subtype-tcc) nil nil) nil
+   nil
+   (alert_from_ttv subtype "time_to_violation.ttvl`2"
+    "(list_adt[[Aircraft, [real, real], booleans.bool]].cons?)")))
+ (alert_from_ttv_TCC2 0
+  (alert_from_ttv_TCC2-1 nil 3683562988 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (alert_from_ttv termination
+    "time_to_violation.alert_from_ttv(time_to_violation.ttvl`1, list_adt[[Aircraft, [real, real], booleans.bool]].cdr(time_to_violation.ttvl`2))"
+    "nil")))
+ (alert_from_ttvs_TCC1 0
+  (alert_from_ttvs_TCC1-1 nil 3683562988 ("" (subtype-tcc) nil nil) nil
+   nil
+   (alert_from_ttvs subtype "time_to_violation.ttvls"
+    "(list_adt[[nat, time_to_violation.TTVL]].cons?)")))
+ (alert_from_ttvs_TCC2 0
+  (alert_from_ttvs_TCC2-1 nil 3683562988 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (alert_from_ttvs termination
+    "time_to_violation.alert_from_ttvs(list_adt[[nat, time_to_violation.TTVL]].cdr(time_to_violation.ttvls))"
+    "nil"))))
+

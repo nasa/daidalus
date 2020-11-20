@@ -1,0 +1,170 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+format_bands  : THEORY
+
+  BEGIN
+
+  IMPORTING real_bands, 
+            alertor, 
+	    kinematic_core
+
+  binarize_it(max: real,rb:list[RealBand], lev: nat, outl: list[[real, nat]]): RECURSIVE list[[real, nat]] = 
+     IF null?(rb) THEN 
+        IF null?(outl)
+  	   THEN cons[[real,nat]]((max, lev), null[[real, nat]])
+	ELSIF car(outl)`1>=max 
+	   THEN cons[[real,nat]]((max, 0), cdr(outl))
+	ELSE  cons[[real,nat]]((max, lev), outl)
+	ENDIF
+     ELSE LET band = car(rb), 
+              nout = cons[[real,nat]]((band`ub, 0), cons[[real,nat]]((band`lb, lev), outl)) IN
+        binarize_it(max, cdr(rb), lev, nout)
+     ENDIF
+     MEASURE length(rb)
+  
+  binarize(min,max: real, rb:list[RealBand], lev: nat): list[[real, nat]] = 
+    IF null?(rb) THEN cons[[real,nat]]((max, lev), null[[real,nat]])
+    ELSIF car(rb)`ub>= max THEN 
+        IF car(rb)`lb <= min THEN cons[[real,nat]]((max, 0), null[[real,nat]] )
+	ELSE cons[[real,nat]]((car(rb)`lb, lev), cons[[real,nat]]((max, 0), null[[real,nat]]))
+	ENDIF
+    ELSE IF car(rb)`lb<= min 
+    	    THEN  reverse(binarize_it(max, cdr(rb), lev, cons[[real,nat]]((car(rb)`ub,0), null[[real,nat]] )))
+         ELSE 
+                  reverse(binarize_it(max, cdr(rb), lev, cons[[real,nat]]((car(rb)`ub,0), cons[[real,nat]]((car(rb)`lb,lev), null[[real,nat]])) ) )
+ 	 ENDIF
+    ENDIF
+
+  merge_pair_it(old, next, new: list[[real, nat]]): RECURSIVE list[[real, nat]] = 
+    IF null?(old) OR null?(next) 
+       THEN new
+    ELSE LET p = car(old), i = car(next) IN
+       IF i`2/=0 THEN 
+         IF p`1<i`1
+           THEN merge_pair_it(cdr(old), next, new)
+  	 ELSIF p`1 = i`1
+	   THEN merge_pair_it(cdr(old), cdr(next),cons(i,new))
+	 ELSE 
+	        merge_pair_it(old, cdr(next), cons(i, new))
+  	 ENDIF			
+       ELSE 
+         IF p`1<i`1
+           THEN merge_pair_it(cdr(old), next, cons(p,new))
+  	 ELSIF p`1 = i`1
+	   THEN merge_pair_it(cdr(old), cdr(next),cons(p,new))
+	 ELSE 
+	        merge_pair_it(old, cdr(next), cons((i`1, p`2), new))
+  	 ENDIF	
+       ENDIF
+    ENDIF
+    MEASURE length(old) + length(next) 
+
+ merge_pair(old, new: list[[real, nat]]): list[[real, nat]] = 
+   reverse(merge_pair_it(old, new, null[[real, nat]]))
+
+ merge_list_it(lol: list[list[[real, nat]]], old:list[[real,nat]]): RECURSIVE list[[real,nat]] = 
+   IF null?(lol) 
+     THEN old
+   ELSE LET new = merge_pair(old, car(lol)) IN
+    merge_list_it(cdr(lol), new)
+   ENDIF
+   MEASURE length(lol)
+   
+ merge_list(lol: list[list[[real, nat]]]): list[[real,nat]] = 
+   IF null?(lol) THEN null[[real,nat]]
+   ELSE merge_list_it(cdr(lol), car(lol))
+   ENDIF
+
+ delete_outside_it(lower, upper: real, bands, out: list[[real, nat]]): 
+   RECURSIVE list[[real, nat]] = 
+   IF null?(bands) 
+        THEN  out 
+   ELSE LET band = car(bands) IN
+     IF band`1<=lower THEN
+        delete_outside_it(lower, upper, cdr(bands), out)
+     ELSIF band`1>= upper THEN
+        delete_outside_it(lower, upper, null[[real, nat]], cons( (upper, band`2), out))
+     ELSE delete_outside_it(lower, upper, cdr(bands), cons(band, out))
+     ENDIF
+   ENDIF
+   MEASURE length(bands)
+
+ delete_outside(lower, upper: real, bands: list[[real, nat]]): 
+   list[[real, nat]] = delete_outside_it(lower, upper, bands, null[[real,nat]])
+
+ %% before using, user should check that the lowc and upc are between lower and upper  
+
+ cutoff(lower, upper, lowc, upc: real, bands : list[[real, nat]]): list[[real, int]] = 
+    IF lowc < upc   
+      THEN cons[[real, int]]((lowc,-1), reverse[[real, int]](cons[[real, int]]((upper, -1), delete_outside(lowc,upc,bands))))  
+    ELSE    append[[real, int]](reverse[[real, int]](cons[[real, int]]((lowc, -1), delete_outside(lower, upc, bands))), reverse[[real, int]](delete_outside(lowc, upper, bands)))
+    ENDIF    
+
+ format_merged_it(merged_list: list[[real, int]], region_map: [int->Region], lowb:real, out:[list[RealBand],list[Region]]): 
+   RECURSIVE [list[RealBand], list[Region]] = 
+     IF null?(merged_list) THEN (reverse(out`1), reverse (out`2))
+     ELSE format_merged_it(cdr(merged_list), region_map, car(merged_list)`1, 
+            (cons((# lb:=lowb, ub:= car(merged_list)`1 #), out`1), cons(region_map(car(merged_list)`2), out`2)))
+     ENDIF
+     MEASURE length(merged_list)
+    
+ format_merged(merged_list: list[[real, int]], region_map: [int->Region], lower:real): 
+    [list[RealBand], list[Region]] = 
+    format_merged_it(merged_list, region_map, lower, (null[RealBand], null[Region]))
+
+ def_region_map(i:int): Region = 
+   IF i= -1 THEN UNKNOWN
+   ELSIF i=0 THEN NONE
+   ELSIF i=1 THEN FAR
+   ELSIF i=2 THEN MID
+   ELSIF i=3 THEN NEAR
+   ELSE UNKNOWN
+   ENDIF
+
+ recovery_region_map(rec_reg:Region)(i:int): Region = 
+  IF i<0 THEN UNKNOWN
+  ELSIF i=0 THEN RECOVERY
+  ELSE rec_reg
+  ENDIF
+
+ param_region_map(param:Parameters)(i:int): Region = 
+  IF i<0 THEN UNKNOWN
+  ELSIF i =0 THEN NONE
+  ELSIF i<=length(param`alertor`2) THEN 
+        nth( param`alertor`2, i-1)`region
+  ELSE UNKNOWN
+  ENDIF
+
+  END format_bands

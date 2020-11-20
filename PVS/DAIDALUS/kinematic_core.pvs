@@ -1,0 +1,266 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+kinematic_core : THEORY
+
+  BEGIN
+
+  IMPORTING structures@listn, 
+            vectors@vectors_3D, 
+            trig@to2pi, 
+	    kinematic_trk_bands,
+            los_and_cd,
+	    alertor, 
+	    time_to_violation,
+            TCASII@TCAS_tables, 
+	    ACCoRD@vertical_los_crit_CA
+  
+  Parameters: TYPE = [# alertor : Alertor, 
+			lookahead_time : nnreal,
+			left_trk : nnreal,
+			right_trk : nnreal,
+			min_gs : posreal, 
+			max_gs : posreal, 
+			min_vs : real, 
+			max_vs : posreal, 
+			min_alt : posreal, 
+			max_alt : posreal,
+			trk_step : {x:posreal| x<pi}, 
+			gs_step : posreal, 
+			vs_step : posreal, 
+			alt_step : posreal, 
+			horizontal_accel : posreal, 
+			vertical_accel : posreal, 
+			turn_rate : nnreal, 
+			bank_angle : {x:posreal| x<pi/2}, 
+			vertical_rate : nnreal, 
+			recovery_stability_time : nnreal,
+			min_horizontal_recovery : nnreal, 
+			min_vertical_recovery : nnreal, 
+			conflict_crit : bool,
+			recovery_crit : bool,
+			recovery_trk : bool, 
+			recovery_gs : bool, 
+			recovery_vs : bool,
+			recovery_alt : bool,
+			ca_bands : bool,
+ 			ca_factor: {p:posreal | p<1}, 
+			contour_thr: real, 
+			horizontal_nmac: nnreal, 
+			vertical_nmac: nnreal #]
+
+  defparam: Parameters = (# 
+  	    alertor := (0, null[AlertTable]),
+	    lookahead_time := 180.0,
+	    left_trk := pi, 
+	    right_trk := pi,
+	    min_gs := 0.00001,
+	    max_gs := 360.1111111111, 
+	    min_vs := -25.4,
+	    max_vs := 25.4,
+	    min_alt := 152.4,
+	    max_alt := 15240.0,
+	    trk_step := deg, 
+	    gs_step := 0.5144444444, 
+	    vs_step := 0.0508000000, 
+	    alt_step := 152.4,
+	    horizontal_accel := 2.0,
+	    vertical_accel := 2.0,
+	    turn_rate := 0.0523598776, 
+	    bank_angle := 0.5235987756, 
+	    vertical_rate := 0.0,
+	    recovery_stability_time := 2.0,
+	    min_horizontal_recovery := 0.0,
+	    min_vertical_recovery := 0.0,
+	    conflict_crit := false,
+	    recovery_crit := false,
+	    recovery_trk := true, 
+	    recovery_gs := true, 
+	    recovery_vs := true,
+	    recovery_alt := true,
+	    ca_bands := false,
+	    ca_factor := 0.2, 
+	    contour_thr := pi, 
+	    horizontal_nmac :=152.4,
+	    vertical_nmac :=30.48  #)
+
+  Core: TYPE = [# outdated:bool,
+		  cd2: ConfDetector,
+		  ownship: {ac: Aircraft | gs(ac`v)>0},
+		  traffic: Traffic,
+		  conf_traffic_split: list[[nat,[Traffic,Traffic]]],
+		  turn_rate: nnreal,
+		  min_horizontal_recovery : posreal, 
+		  min_vertical_recovery : posreal, 
+		  most_urgent: string,
+ 		  epsH: Sign, 
+		  epsV: Sign,
+		  conflict_crit: bool, 
+		  recovery_crit: bool #]
+
+  defcore: Core = (# outdated:=TRUE,
+		  cd2:= cylinder_cd(NMAC_D, NMAC_H),
+		  ownship:= (#s:=zero, v:=(# x:=0,y:=1,z:=0 #), id:=list2finseq("?")#),
+		  traffic:=(: (#s:=zero, v:=zero, id:=list2finseq("?")#) :),
+		  conf_traffic_split:= null[[nat,[Traffic,Traffic]]],
+		  turn_rate:=0.0523598776,
+		  min_horizontal_recovery:= NMAC_D, 
+		  min_vertical_recovery:= NMAC_H, 
+ 		  most_urgent:= "",
+ 		  epsH:= 1, 
+		  epsV:= 1,
+		  conflict_crit:= FALSE, 
+		  recovery_crit:= FALSE #)
+
+  
+
+  core: VAR Core 
+  param: VAR Parameters
+  wcv: VAR WCVTable
+  ownship, intruder: VAR Aircraft
+  traffic: VAR Traffic
+  
+  updated?(core) : bool = NOT core`outdated
+  UpdatedCore : TYPE = (updated?)
+
+  pc_comp(core, param): bool = (length(core`conf_traffic_split) = length(param`alertor`2))  AND 
+      param`trk_step * round(param`left_trk / param`trk_step) <= pi AND
+      param`trk_step * round(param`right_trk / param`trk_step) <= pi AND 
+      param`min_alt<param`max_alt
+            
+
+
+
+
+  update_RA_in_place(min_h_r, min_v_r: nnreal, own_alt: real):  [ConfDetector, posreal, posreal] =
+    	IF min_h_r /=0  THEN 
+	   IF min_v_r/=0 THEN 
+	      	    (cylinder_cd(min_h_r,min_v_r), 
+		     min_h_r,
+		     min_v_r) 
+	   ELSE LET sl = IF own_alt<1000*ft THEN 3 ELSE  sensitivity_level(own_alt) ENDIF, 
+	   	    Z = RA_thr(sl, ZTHR) IN
+		     (cylinder_cd(min_h_r,Z), 
+		      min_h_r,
+		      Z)  
+   	   ENDIF
+  	ELSE LET sl = IF own_alt<1000*ft THEN 3 ELSE  sensitivity_level(own_alt) ENDIF, 
+	   	    D = RA_thr(sl, DMOD),
+	            Z = IF min_v_r = 0 THEN RA_thr(sl, ZTHR) ELSE min_v_r ENDIF IN
+		     (cylinder_cd(D,Z), 
+		      D,
+		      Z)  
+        ENDIF
+
+
+  update_from_param_all(core, param): Core = 
+    LET up_ra = update_RA_in_place(param`min_horizontal_recovery,  param`min_vertical_recovery, core`ownship`s`z) IN
+    core WITH [   `cd2 := up_ra`1,
+    	      	  `turn_rate := param`turn_rate,
+    	          `min_horizontal_recovery := up_ra`2, 
+		  `min_vertical_recovery := up_ra`3,
+		  `conflict_crit:=param`conflict_crit, 
+		  `recovery_crit:=param`recovery_crit ]
+
+    % update_RA_thr(core): Core = 
+    % LET mhr = core`min_horizontal_recovery, 
+    % 	mvr = core`min_vertical_recovery IN
+    % 	IF mhr /=0  THEN 
+    % 	   IF mvr/=0 THEN 
+    % 	      	    core WITH [`outdated:=TRUE, 
+    % 		    	       `cd2:=cylinder_cd(mhr,mvr), 
+    % 			       `min_horizontal_recovery := mhr,
+    % 			       `min_vertical_recovery := mvr] 
+    % 	   ELSE LET sl = IF core`ownship`s`z<1000*ft THEN 3 ELSE  sensitivity_level(core`ownship`s`z) ENDIF, 
+    % 	   	    Z = RA_thr(sl, ZTHR) IN
+    % 		    core WITH [`outdated:=TRUE, 
+    % 		    	       `cd2:=cylinder_cd(mhr,Z), 
+    % 			       `min_horizontal_recovery := mhr,
+    % 			       `min_vertical_recovery := Z]  
+    % 	   ENDIF
+    % 	ELSE LET sl = IF core`ownship`s`z<1000*ft THEN 3 ELSE  sensitivity_level(core`ownship`s`z) ENDIF, 
+    % 	   	    D = RA_thr(sl, DMOD),
+    % 	            Z = IF mvr = 0 THEN RA_thr(sl, ZTHR) ELSE mvr ENDIF IN
+    % 		    core WITH [`outdated:=TRUE, 
+    % 		    	       `cd2:=cylinder_cd(D,Z), 
+    % 			       `min_horizontal_recovery := D,
+    % 			       `min_vertical_recovery := Z]  
+    %     ENDIF
+
+  update_conf_list(nttvl: list[[nat, TTVL]], core): Core = 
+    LET ts = conf_traffic_splits(nttvl) IN
+    core WITH [`conf_traffic_split := ts]
+
+update_most_urgent(crit_ac:string)(core): Core = core WITH [`most_urgent:= crit_ac]
+
+%in place functions for updating (i.e, use this and a WITH to update many at once.)
+
+update_omega_in_place(omega:nnreal, bank:{x:posreal| x<pi/2}, gs:posreal ): 
+    nnreal = 
+    IF omega /=0 THEN omega 
+    ELSE 
+      g*tan(bank)/gs 
+    ENDIF
+
+	     
+
+
+ break_sym(ownid, intrid:string)(vec:Vect3): Sign = 
+   IF vec`z /= 0 THEN sign(vec`z)
+   ELSIF vec`x /= 0 THEN sign(vec`x)
+   ELSIF vec`y /= 0 THEN sign(vec`y)
+   ELSE  IF strcmp(ownid, intrid)>=0 THEN 1 ELSE -1 ENDIF
+   ENDIF    
+
+most_urgent_function(crit_ac:string, own: Aircraft, AL:Traffic,  conf_crit, rec_crit: bool): 
+  [MostUrgent, Sign, Sign, bool, bool] =
+   IF NOT (conf_crit OR rec_crit) THEN (gen_most_urg, 1, 1, FALSE, FALSE)
+   ELSE 
+    LET traf = map(LAMBDA(ac:Aircraft): ac`id)(AL), 
+        index = first_occ(crit_ac, traf, length(traf)) IN
+    IF index = -1 THEN (gen_most_urg, 1, 1, FALSE, FALSE) 
+    ELSE
+      LET intr = nth(AL, index), 
+      	  s = own`s-intr`s, 
+	  v = own`v-intr`v, 
+	  eps_h = sign(det(v,s)),
+	  break_sym:[Vect3->Sign] = break_sym(own`id, intr`id), 
+	  dv = vertical_decision_vect[NMAC_D, NMAC_H,NMAC_D, NMAC_H, 180, break_sym],    
+	  eps_v = dv_to_ec[NMAC_D, NMAC_H,NMAC_D, NMAC_H, 180, break_sym](dv)(s,v) IN
+       (const_most_urg(index), eps_h, eps_v, conf_crit, rec_crit)
+    ENDIF
+   ENDIF	      
+
+
+  END kinematic_core

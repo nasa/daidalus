@@ -1,0 +1,163 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+los_and_cd : THEORY
+
+  BEGIN
+
+   IMPORTING WellClear@WCV_taumod, int_bands, TCASII@units
+
+  project_ac(t:nnreal)(ac:Aircraft): Aircraft = ac WITH [`s := ac`s+t*ac`v]
+
+  LOSfun: TYPE  = [[Vect3,Vect3,Vect3,Vect3]->bool]
+ CDfun_0: TYPE = [[nnreal,nnreal,Vect3,Vect3,Vect3,Vect3]->bool]
+ CDfun(L:LOSfun): TYPE = {F: CDfun_0 | detector?(L)(F)} 
+
+ LOS_CD_0: TYPE = [# los : LOSfun, 
+ 	   	     cd  : CDfun_0 #]
+ 
+ LOS_CD: TYPE = { lcd: LOS_CD_0 | detector?(lcd`los)(lcd`cd)}
+
+  LoSDetector: TYPE = [[Aircraft, Aircraft]->bool]
+
+  ConfDetector: TYPE = {F: [[nnreal, nnreal, Aircraft, Aircraft]-> [real,real]] 
+  				         | FORALL (B, T:nnreal, own, int: Aircraft): 
+					   LET ee = F(B,T,own,int) IN
+					   (ee`1<=ee`2 IMPLIES (B<=ee`1 AND ee`2<=T)) AND 
+					    (ee`1<=ee`2 IFF (EXISTS (t:nnreal):  B<=t AND t<=T
+					     AND F(0,0,project_ac(t)(own),project_ac(t)(int))`1 >=0))} 
+
+  MostUrgent: TYPE = {F:[[Vect3,Vect3,AircraftList]->int]| 
+                    FORALL (so,vo:Vect3,(AL:AircraftList|length(AL)>0)): F(so,vo,AL)>=0 AND F(so,vo,AL)<length(AL)}
+
+  % Instantiations of LoS and CD functions.
+  % For the interface, these have types LoSDetector and cdDetector. 
+  % For use in the algorithms, they have different signatures.
+  % The first few functions here translate between the types.
+  % In the algorithms, CD (boolean) must work with B>=T. In this case, CD should be false
+  % when B>T, and when B=T, it should calculate LOS T seconds 
+  % in the future. In particular, CD(0,0,...) should determine if aircraft are in LoS. 
+
+  los2LOS(los:LoSDetector)(so,vo,si,vi:Vect3): 
+    bool = 
+    los((#s:=so, v:=vo, id:=""#), (#s:=si, v:=vi, id:=""#))
+ 
+  cd2los(cd:ConfDetector): 
+    LoSDetector = LAMBDA( aco, aci:Aircraft): (cd(0,0,aco,aci)`1>=0)
+
+  cd2CD(  cd:ConfDetector)(t0,t1:nnreal, so,vo,si,vi:Vect3): 
+    bool = LET CDEntExit = cd(t0,t1,(#s:=so, v:=vo, id:=""#), (#s:=si, v:=vi, id:=""#)) IN
+        CDEntExit`1 <= CDEntExit`2
+	
+
+  cd2LOS(cd:ConfDetector): 
+    [[Vect3,Vect3,Vect3,Vect3]->bool] = 
+    los2LOS(cd2los(cd))
+
+  detector_def: LEMMA FORALL (cd:ConfDetector):
+    detector?(cd2LOS(cd))(cd2CD(cd))
+
+  
+ % No_los(aco, aci:Aircraft): bool = FALSE
+
+  No_cd(B,T:nnreal, aco, aci:Aircraft): [real,real] = (-1, -2)
+ 
+  no_detector: JUDGEMENT No_cd HAS_TYPE ConfDetector 
+
+  gen_most_urg(so, vo:Vect3, AL:AircraftList): int =0 
+
+  first_occ(s:string, L:list[string], (n:nat| length(L)<=n)): RECURSIVE int = 
+   IF null?(L) THEN -1 
+   ELSIF s = car(L) THEN n-length(L)
+   ELSE first_occ(s, cdr(L), n)
+   ENDIF
+   MEASURE length(L) 
+
+ first_occ_def: LEMMA 
+  FORALL  (s:string, L:list[string], (n:nat| length(L)<=n)):
+  LET fo = first_occ(s, L, n) IN
+  ( member(s,  L) AND fo>=0 AND fo<n) OR ( (NOT member(s, L)) AND fo = -1)   
+
+  const_most_urg(n:nat)(so, vo:Vect3, AL:AircraftList): nat = IF n<length(AL) then n ELSE 0 ENDIF
+
+
+
+  cylinder_los(D, H: posreal)(aco, aci:Aircraft): 
+     bool = los?[D,H](aci`s-aco`s)
+
+  cylinder_cd(D, H: posreal)(B, T: nnreal , aco, aci:Aircraft): 
+    [real,real] = 
+      IF B>=T THEN 
+    	IF B>T THEN (-1, -2)
+	ELSIF cylinder_los(D,H)(aco WITH [s:=aco`s+T*aco`v], aci WITH [s:= aci`s+T*aci`v]) THEN (T,T)
+        ELSE (-1,-2)
+    	ENDIF
+      ELSE  IF cd3d?[D,H,B,T](aci`s-aco`s, aci`v-aco`v) THEN
+      	       detection[D,H,B,T](aci`s-aco`s, aci`v-aco`v) 
+	    ELSE (-1,-2)
+	    ENDIF 
+      ENDIF
+
+  cylinder_detector: JUDGEMENT cylinder_cd(D,H:posreal) HAS_TYPE ConfDetector 
+
+
+  wcv_taumod_los(TM, TC: nnreal, D,H:posreal)(aco, aci:Aircraft): 
+    bool = WCV_taumod[TM,TC,D,H](aci`s-aco`s, aci`v-aco`v) 
+
+  wcv_taumod_cd(TM, TC: nnreal, D,H:posreal)(B, T: nnreal, aco, aci:Aircraft):
+     [real,real] = 
+       IF B>=T THEN 
+         IF B>T THEN (-1,-2)
+	 ELSIF wcv_taumod_los(TM,TC,D,H)(aco WITH [s:=aco`s+T*aco`v], aci WITH [s:= aci`s+T*aci`v]) THEN (T,T)
+	 ELSE (-1,-2)      
+    	 ENDIF 
+       ELSE LET entry_exit = WCV_taumod_interval[TM,TC,D,H](B, T, aci`s-aco`s, aci`v-aco`v) IN
+       	  (entry_exit`entry, entry_exit`exit)
+       ENDIF 
+
+  wcv_detector: JUDGEMENT wcv_taumod_cd(TM, TC: nnreal, D,H:posreal) HAS_TYPE ConfDetector
+
+  some_ac?(p:[Aircraft->bool])(traf:list[Aircraft]): RECURSIVE bool = 
+   IF null?(traf) THEN FALSE
+   ELSE p(car(traf)) OR some_ac?(p)(cdr(traf))
+   ENDIF
+   MEASURE length(traf) 
+
+  % ASSUMING
+   % assuming declarations
+  % ENDASSUMING
+
+  
+
+  END los_and_cd

@@ -1,0 +1,221 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+get_generic_bands : THEORY
+
+  BEGIN
+
+  IMPORTING TCASII@TCAS_tables, 
+            los_and_cd, 
+	    real_bands,
+            ereal,
+	    alertor, 
+            reals@log_int, 
+	    reals@best_rational
+	   
+
+
+ B,T: VAR nnreal
+ 
+ AnyRed: TYPE = [LOS_CD->[LOS_CD->[[nnreal, nnreal, {air:Aircraft|sqv(vect2(air`v))>0}]->[Traffic->bool]]]]
+ 
+ BandsInit: TYPE = [LOS_CD->[LOS_CD->[[nnreal, nnreal, {air:Aircraft|sqv(vect2(air`v))>0}, bool]->[Traffic->list[RealBand]]]]]
+
+ Recovery: TYPE = [[LOS_CD, LOS_CD, nnreal, BandsInit, {air:Aircraft|sqv(vect2(air`v))>0}, Traffic]->[posreal, posreal, real]]
+ 
+ RecOut: TYPE = [ereal,  [nnreal,nnreal]]
+ defRec: RecOut = (inr(NaN), (0,0))
+ recRec: RecOut = (inl(0), (0,0))
+ 
+
+BandsOut: TYPE = 
+            [# bands: list[RealBand],
+	     rec_param: RecOut,
+	     periph: list[string] 
+	     #]
+
+testband: [bool, BandsOut] = (TRUE,(# bands:= null[RealBand], rec_param:=(inl(0), (0,0)), periph:=null[string] #))
+
+ los,los2: VAR LOSfun
+ 
+ %% function to filter an aircraft list, returning just the id's 
+  traf_id(traffic:list[Aircraft]): list[string] = 
+    map((LAMBDA(ac:Aircraft): ac`id), traffic)
+
+%% function for splitting an aircraft list based on a predicate.
+%% First list is those with p(x) true, second is p(x) false.
+ 
+ split_list_init(p:[Aircraft->bool])(traffic:Traffic): RECURSIVE [Traffic, Traffic] =
+    IF length(traffic) = 0 THEN (null[Aircraft], null[Aircraft])
+    ELSE LET ac = car(traffic), split = split_list_init(p)(cdr(traffic)) IN
+    	 IF p(ac) THEN (cons(ac, split`1), split`2)
+      	      	  ELSE (split`1, cons(ac, split`2)) 
+		  ENDIF
+    ENDIF
+    MEASURE length(traffic)
+
+ split_list(p:[Aircraft->bool])(traffic:Traffic): [Traffic, Traffic] =
+   LET SL = split_list_init(p)(traffic) IN
+   (reverse(SL`1), reverse(SL`2))
+
+ %% functions for computing recovery
+
+ first_time_it((F:[nnreal->bool]), (B|F(B) = FALSE), (T|B<T AND F(T) = TRUE), n:nat, b:bool): 
+    RECURSIVE {Z:nnreal|Z<=T AND F(Z) = b} = 
+    %LET write = printf("B = ~f, T = ~f~%",(B, T)) IN
+    IF n=0 THEN IF b THEN T ELSE B ENDIF
+    ELSE LET mid=(T+B)/2, ind = F(mid) IN
+     IF ind THEN first_time_it(F,B,mid, n-1,b)
+     ELSE first_time_it(F,mid,T,n-1,b)
+     ENDIF
+    ENDIF
+    MEASURE n
+
+ first_time((F:[nnreal->bool]), (B|F(B) = FALSE), (T|B<=T AND F(T) = TRUE), b:bool): 
+   {Z:nnreal|Z<=T AND F(Z) = b} =  
+   LET iter = log_nat(max(1,T-B), 2)`1+2 IN
+   first_time_it(F, B, T, iter, b)
+
+ % cyl_seq(D: posreal, (fac: posreal | fac <1))(k:nat): real = D*fac^k
+
+ % cyl_seq_prop: LEMMA FORALL (D_st: posreal, (D:posreal |D>D_st), (fac: posreal | fac <1)):
+ %    EXISTS (n:posnat) : 
+ %    ( D*fac^n<=D_st AND D*fac^(n-1)>D_st)
+  
+ cyl_meas(D_st: posreal, (D:posreal), (fac: posreal | fac <1)): 
+  {n:nat| IF D <=D_st THEN n=0 ELSE D*fac^n<=D_st AND D*fac^(n-1)>D_st ENDIF} 
+
+ cyl_meas_prop: LEMMA FORALL  (D_st: posreal, (D:posreal), (fac: posreal | fac <1)):
+  D>D_st IMPLIES cyl_meas(D_st, fac*D, fac) +1 = cyl_meas(D_st, D, fac) 
+
+ cyl_and_time(D,H:posreal, T:nnreal,ca:bool, (ca_factor:posreal | ca_factor<1), anygreen:[[ConfDetector, bool]->[nnreal->bool]]): 
+  %% this function needs some conditions added to the type of 'anygreen' so that it can always use 'first_time'
+  RECURSIVE [posreal, posreal, real] = 
+    IF NOT ca THEN
+      IF NOT anygreen(cylinder_cd(D, H),ca)(T) THEN (1,1,-1) 
+      ELSE (D,H, IF anygreen(cylinder_cd(D,H), ca)(0) THEN 0 ELSE first_time(anygreen(cylinder_cd(D,H), ca),0,T,TRUE) ENDIF) ENDIF
+    ELSIF D<=NMAC_D OR H<=NMAC_H THEN 
+      IF NOT anygreen(cylinder_cd(NMAC_D, NMAC_H),ca)(T) THEN (1,1,-1)  
+      ELSE (NMAC_D,NMAC_H, IF anygreen(cylinder_cd(NMAC_D, NMAC_H),ca)(0) THEN 0 ELSE first_time(anygreen(cylinder_cd(NMAC_D, NMAC_H),ca), 0, T,TRUE) ENDIF) ENDIF
+    ELSIF anygreen(cylinder_cd(D,H), ca)(T) THEN 
+      (D,H,IF anygreen(cylinder_cd(D,H), ca)(0) THEN 0 ELSE first_time(anygreen(cylinder_cd(D,H), ca),0,T,TRUE) ENDIF)
+    ELSE cyl_and_time((1-ca_factor)*D, (1-ca_factor)*H, T, ca, ca_factor, anygreen)
+    ENDIF
+    MEASURE cyl_meas(NMAC_D, D, 1-ca_factor) + cyl_meas(NMAC_H, H, 1-ca_factor)
+
+ corrective_split(cd: ConfDetector, own: Aircraft, at: nnreal, traffic: Traffic): [Traffic, Traffic] = 
+   LET CD(ac:Aircraft): bool =  
+       	LET EEint = cd(0, at, own, ac) IN
+        EEint`1<=EEint`2 IN
+   split_list(CD)(traffic)
+
+ 
+get_recovery(stab_t: nnreal, mhr, mvr: posreal, (ca_factor : posreal|ca_factor<1), ca?: bool)
+            (los_cd, los_cd2:LOS_CD,mrt:nnreal, bands_init: BandsInit, own:{air:Aircraft|sqv(vect2(air`v))>0}, traffic: Traffic): 
+	    [posreal, posreal, real] = 
+            LET  any_green(conf_det: ConfDetector, ca_loc?:bool)(t:nnreal): bool = 
+                 LET LoS_CD = IF ca_loc? THEN (# los:= cd2LOS(conf_det), cd:= cd2CD(conf_det) #) 
+		              ELSE los_cd2 ENDIF 
+ 	          IN 
+  	        NOT  null?( bands_init(los_cd)(LoS_CD)(t, mrt, own, TRUE)(traffic)), 
+	        CandT = cyl_and_time(mhr, mvr,mrt,ca?,ca_factor, any_green),
+  	        recovery_time = IF CandT`3 = -1 THEN -1 ELSE  min(CandT`3+stab_t, mrt) ENDIF IN
+  	    (CandT`1, CandT`2, recovery_time)
+            
+ 
+
+ get_generic_band(cd, cd2: ConfDetector, at, lat:nnreal, any_red: AnyRed, bands_init: BandsInit, recovery: Recovery, rec?, kin?:bool)
+                 (own:{air:Aircraft|sqv(vect2(air`v))>0}, conf_traffic, other_traffic:Traffic ): 
+    [bool,BandsOut] =
+    LET los_cd: LOS_CD = (# los:= cd2LOS(cd),
+                            cd := cd2CD(cd) #),
+  	los_cd2: LOS_CD = (# los:= cd2LOS(cd2),
+ 		 	     cd := cd2CD(cd2) #),
+  	gkb_pre = bands_init(los_cd),
+        gkb = gkb_pre(los_cd2),
+        periph_traffic = filter( LAMBDA(ac:Aircraft): any_red(los_cd)(los_cd2)(0,at,own)((: ac :)))(other_traffic), 
+  	periph_traf_id = traf_id(periph_traffic),
+        conf_bands = gkb(0, lat ,own, FALSE)(conf_traffic), 
+        periph_bands = gkb(0, at, own, FALSE)(periph_traffic), 
+        bands = intersect_inc(conf_bands, periph_bands) IN
+        IF  NOT rec? THEN  %(bands/= null[RealBand] OR NOT rec?)  THEN
+	    (FALSE,(# bands:= bands,rec_param:= defRec,periph:= periph_traf_id #))
+	ELSIF bands /= null[RealBand] THEN 
+	   IF kin? OR (NOT some_ac?(LAMBDA(ac:Aircraft): los_cd`los(own`s,own`v, ac`s, ac`v))(conf_traffic)) THEN 
+	      (FALSE,(# bands:= bands,rec_param:= defRec,periph:= periph_traf_id #))
+	   ELSE
+	      (TRUE,(# bands:=bands, rec_param:= recRec, periph:= periph_traf_id #))
+ 	   ENDIF	   
+        ELSE LET traffic = append(conf_traffic, periph_traffic),
+ 	         (D, H, recovery_time) = recovery(los_cd, los_cd2, lat, bands_init, own, traffic)
+             IN 
+ 	     IF recovery_time < 0 THEN (TRUE, (# bands:=null[RealBand],rec_param:= (inr(neginfty), (D,H)),periph:= periph_traf_id #) )
+ 	     ELSE LET rec_cd = cylinder_cd(D, H),
+                      rec_bands = gkb_pre((# los:=cd2LOS(rec_cd), cd:=cd2CD(rec_cd) #))(recovery_time,lat, own,TRUE)(traffic)
+  		  IN
+  	         (TRUE, (# bands:=rec_bands, rec_param:=(inl(recovery_time), (D,H)),periph:=  periph_traf_id #) )
+ 	     ENDIF
+  	ENDIF
+  
+ %This is cd2 conf_det2 = cylinder_cd(ucore`min_horizontal_recovery, ucore`min_vertical_recovery),
+
+ get_one_bands(at:AlertTable, rec?, kin?:bool)(any_red: AnyRed, bands_init: BandsInit)(cd2:ConfDetector, recovery: Recovery)
+    (own:{air:Aircraft|sqv(vect2(air`v))>0}, conf_traffic_list:[Traffic,Traffic]):
+    [bool,BandsOut] = 
+    LET cd = table_to_ConfDet(at`wcv), 
+        alert_time = at`alerting_time, 
+ 	lat = at`early_alerting_time IN
+    get_generic_band(cd, cd2, alert_time, lat, any_red, bands_init, recovery, rec?, kin?)(own,  conf_traffic_list`1, conf_traffic_list`2)
+ 
+  sliceupto(n:posnat, (m:posnat|m<=n)): RECURSIVE { L: list[posnat] | length(L) = n-m+1}  = 
+    IF m=n THEN (: m :)
+    ELSE cons(m, sliceupto(n, m+1))
+    ENDIF
+    MEASURE n-m
+ 
+  listupto(n:nat): list[posnat] = 
+    IF n = 0 THEN null[posnat] ELSE sliceupto(n,1) ENDIF
+
+  get_bands(any_red: AnyRed, bands_init: BandsInit)(alertor: Alertor)(cd2: ConfDetector, recovery:Recovery, rec?,kin?:bool)
+    (own: {air:Aircraft|sqv(vect2(air`v))>0},  conf_traffic_lists: { L : list[[nat,[Traffic,Traffic]]] | length(L) = length(alertor`2)}): 
+    [bool, list[[nat,BandsOut]]] = 
+    LET conf = alertor`1, 
+        num = length(alertor`2), 
+        band_list =  map(LAMBDA(i:posnat): 
+    	      	      IF i>num THEN (i, testband) ELSE  (i, get_one_bands( nth(alertor`2, i-1), (i=conf AND rec?), kin?)(any_red, bands_init)
+     	      	      (cd2, recovery)(own, nth(conf_traffic_lists,i-1)`2)) ENDIF)(listupto(num))  IN
+        (IF conf=0 THEN FALSE ELSE nth(band_list, conf-1)`2`1 ENDIF, map(LAMBDA(bnd:[nat,[bool,BandsOut]]): 
+           	                       (bnd`1, bnd`2`2))(band_list)) 
+    
+  END get_generic_bands

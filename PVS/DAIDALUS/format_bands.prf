@@ -1,0 +1,375 @@
+(format_bands
+ (binarize_it_TCC1 0
+  (binarize_it_TCC1-1 nil 3681034667 ("" (subtype-tcc) nil nil) nil nil
+   (binarize_it subtype "format_bands.outl"
+    "(list_adt[[real, nat]].cons?)")))
+ (binarize_it_TCC2 0
+  (binarize_it_TCC2-1 nil 3681034667 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (cons? adt-recognizer-decl "[list -> boolean]" list_adt nil)
+    (list type-decl nil list_adt nil))
+   nil
+   (binarize_it subtype "format_bands.rb"
+    "(list_adt[RealBand].cons?)")))
+ (binarize_it_TCC3 0
+  (binarize_it_TCC3-2 "" 3813485078
+   ("" (skeep)
+    (("" (skeep)
+      (("" (expand "length" 2 2) (("" (assert) nil nil)) nil)) nil))
+    nil)
+   nil shostak
+   (binarize_it termination
+    "format_bands.binarize_it(format_bands.max, list_adt[RealBand].cdr(format_bands.rb), format_bands.lev, format_bands.nout)"
+    "nil"))
+  (binarize_it_TCC3-1 nil 3681034667
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (expand "length" 2 2) (("" (assert) nil nil)) nil)) nil))
+      nil))
+    nil)
+   ((length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (binarize_it termination
+    "format_bands.binarize_it(format_bands.max, list_adt[RealBand].cdr(format_bands.rb), format_bands.lev, format_bands.nout)"
+    "nil")))
+ (binarize_it_TCC4 0
+  (binarize_it_TCC4-1 nil 3681034667 ("" (termination-tcc) nil nil) nil
+   nil
+   (binarize_it subtype "format_bands.rb"
+    "(list_adt[RealBand].cons?)")))
+ (merge_pair_it_TCC1 0
+  (merge_pair_it_TCC1-1 nil 3683562992 ("" (subtype-tcc) nil nil) nil
+   nil
+   (merge_pair_it subtype "format_bands.next"
+    "(list_adt[[real, nat]].cons?)")))
+ (merge_pair_it_TCC2 0
+  (merge_pair_it_TCC2-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it subtype "format_bands.old"
+    "(list_adt[[real, nat]].cons?)")))
+ (merge_pair_it_TCC3 0
+  (merge_pair_it_TCC3-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it termination
+    "format_bands.merge_pair_it(list_adt[[real, nat]].cdr(format_bands.old), format_bands.next, format_bands.new)"
+    "nil")))
+ (merge_pair_it_TCC4 0
+  (merge_pair_it_TCC4-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it subtype "format_bands.old"
+    "(list_adt[[real, nat]].cons?)")))
+ (merge_pair_it_TCC5 0
+  (merge_pair_it_TCC5-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it termination
+    "format_bands.merge_pair_it(list_adt[[real, nat]].cdr(format_bands.old), list_adt[[real, nat]].cdr(format_bands.next), list_adt[[real, nat]].cons(format_bands.i, format_bands.new))"
+    "nil")))
+ (merge_pair_it_TCC6 0
+  (merge_pair_it_TCC6-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it termination
+    "format_bands.merge_pair_it(format_bands.old, list_adt[[real, nat]].cdr(format_bands.next), list_adt[[real, nat]].cons(format_bands.i, format_bands.new))"
+    "nil")))
+ (merge_pair_it_TCC7 0
+  (merge_pair_it_TCC7-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it subtype "format_bands.old"
+    "(list_adt[[real, nat]].cons?)")))
+ (merge_pair_it_TCC8 0
+  (merge_pair_it_TCC8-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it termination
+    "format_bands.merge_pair_it(list_adt[[real, nat]].cdr(format_bands.old), format_bands.next, list_adt[[real, nat]].cons(format_bands.p, format_bands.new))"
+    "nil")))
+ (merge_pair_it_TCC9 0
+  (merge_pair_it_TCC9-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it subtype "format_bands.old"
+    "(list_adt[[real, nat]].cons?)")))
+ (merge_pair_it_TCC10 0
+  (merge_pair_it_TCC10-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it termination
+    "format_bands.merge_pair_it(list_adt[[real, nat]].cdr(format_bands.old), list_adt[[real, nat]].cdr(format_bands.next), list_adt[[real, nat]].cons(format_bands.p, format_bands.new))"
+    "nil")))
+ (merge_pair_it_TCC11 0
+  (merge_pair_it_TCC11-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (posint_plus_nnint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (nnint_plus_nnint_is_nnint application-judgement "nonneg_int"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (merge_pair_it termination
+    "format_bands.merge_pair_it(format_bands.old, list_adt[[real, nat]].cdr(format_bands.next), list_adt[[real, nat]].cons((format_bands.i`1, format_bands.p`2), format_bands.new))"
+    "nil")))
+ (merge_pair_it_TCC12 0
+  (merge_pair_it_TCC12-1 nil 3683562992 ("" (subtype-tcc) nil nil) nil
+   nil
+   (merge_pair_it subtype "format_bands.old"
+    "(list_adt[[real, nat]].cons?)")))
+ (merge_list_it_TCC1 0
+  (merge_list_it_TCC1-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((merge_pair const-decl "list[[real, nat]]" format_bands nil)) nil
+   (merge_list_it subtype "format_bands.lol"
+    "(list_adt[list_adt[[real, nat]].list].cons?)")))
+ (merge_list_it_TCC2 0
+  (merge_list_it_TCC2-1 nil 3683562992 ("" (termination-tcc) nil nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (length def-decl "nat" list_props nil)
+    (merge_pair const-decl "list[[real, nat]]" format_bands nil))
+   nil
+   (merge_list_it termination
+    "format_bands.merge_list_it(list_adt[list_adt[[real, nat]].list].cdr(format_bands.lol), format_bands.new)"
+    "nil")))
+ (merge_list_it_TCC3 0
+  (merge_list_it_TCC3-1 nil 3683562992 ("" (subtype-tcc) nil nil) nil
+   nil
+   (merge_list_it subtype "format_bands.lol"
+    "(list_adt[list_adt[[real, nat]].list].cons?)")))
+ (delete_outside_it_TCC1 0
+  (delete_outside_it_TCC1-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (delete_outside_it subtype "format_bands.bands"
+    "(list_adt[[real, nat]].cons?)")))
+ (delete_outside_it_TCC2 0
+  (delete_outside_it_TCC2-1 nil 3683562992
+   ("" (termination-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (delete_outside_it termination
+    "format_bands.delete_outside_it(format_bands.lower, format_bands.upper, list_adt[[real, nat]].cdr(format_bands.bands), format_bands.out)"
+    "nil")))
+ (delete_outside_it_TCC3 0
+  (delete_outside_it_TCC3-1 nil 3683562992
+   ("" (termination-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (length def-decl "nat" list_props nil))
+   nil
+   (delete_outside_it termination
+    "format_bands.delete_outside_it(format_bands.lower, format_bands.upper, list_adt[[real, nat]].null, list_adt[[real, nat]].cons((format_bands.upper, format_bands.band`2), format_bands.out))"
+    "nil")))
+ (delete_outside_it_TCC4 0
+  (delete_outside_it_TCC4-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (delete_outside_it subtype "format_bands.bands"
+    "(list_adt[[real, nat]].cons?)")))
+ (delete_outside_it_TCC5 0
+  (delete_outside_it_TCC5-1 nil 3683562992
+   ("" (termination-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil
+   (delete_outside_it termination
+    "format_bands.delete_outside_it(format_bands.lower, format_bands.upper, list_adt[[real, nat]].cdr(format_bands.bands), list_adt[[real, nat]].cons(format_bands.band, format_bands.out))"
+    "nil")))
+ (delete_outside_it_TCC6 0
+  (delete_outside_it_TCC6-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   nil nil
+   (delete_outside_it subtype "format_bands.bands"
+    "(list_adt[[real, nat]].cons?)")))
+ (format_merged_it_TCC1 0
+  (format_merged_it_TCC1-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   nil nil
+   (format_merged_it subtype "format_bands.merged_list"
+    "(list_adt[[real, int]].cons?)")))
+ (format_merged_it_TCC2 0
+  (format_merged_it_TCC2-1 nil 3683562992
+   ("" (termination-tcc) nil nil)
+   ((length def-decl "nat" list_props nil)
+    (nnint_plus_posint_is_posint application-judgement "posint"
+     integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (format_merged_it termination
+    "format_bands.format_merged_it(list_adt[[real, int]].cdr(format_bands.merged_list), format_bands.region_map, list_adt[[real, int]].car(format_bands.merged_list)`1, (list_adt[[# lb: real, ub: real #]].cons((# lb := format_bands.lowb, ub := list_adt[[real, int]].car(format_bands.merged_list)`1 #), format_bands.out`1), list_adt[alertor.Region].cons(format_bands.region_map(list_adt[[real, int]].car(format_bands.merged_list)`2), format_bands.out`2)))"
+    "nil")))
+ (param_region_map_TCC1 0
+  (param_region_map_TCC1-1 nil 3683562992 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (int_minus_int_is_int application-judgement "int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (param_region_map subtype "(number_fields.-)(format_bands.i, 1)"
+    "below[length[AlertTable](param`alertor`2)]"))))
+

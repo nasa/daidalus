@@ -1,0 +1,100 @@
+(ereal
+ (difference_TCC1 0
+  (difference_TCC1-2 "" 3813485060
+   ("" (skeep) (("" (ground) nil nil)) nil) nil shostak
+   (difference subtype "ereal.e"
+    "(union_adt[real, ereal.extended].inl?)"))
+  (difference_TCC1-1 nil 3671805686
+   ("" (skeep)
+    (("" (ground)
+      (("1" (postpone) nil nil)
+       ("2" (skeep :preds? t)
+        (("2" (ground)
+          (("1" (typepred "x1`2") (("1" (propax) nil nil)) nil)
+           ("2" (typepred "x1`3") (("2" (propax) nil nil)) nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil nil
+   (difference subtype "ereal.e"
+    "(union_adt[real, ereal.extended].inl?)")))
+ (difference_TCC2 0
+  (difference_TCC2-1 nil 3671805686 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (PRED type-eq-decl nil defined_types nil)
+    (extended type-decl nil ereal nil)
+    (union type-decl nil union_adt nil)
+    (every adt-def-decl "boolean" union_adt nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (TRUE const-decl "bool" booleans nil)
+    (ereal type-eq-decl nil ereal nil))
+   nil
+   (difference subtype "ereal.e"
+    "(union_adt[real, ereal.extended].inr?)")))
+ (close_TCC1 0
+  (close_TCC1-1 nil 3671805686 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (PRED type-eq-decl nil defined_types nil)
+    (extended type-decl nil ereal nil)
+    (union type-decl nil union_adt nil)
+    (every adt-def-decl "boolean" union_adt nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (TRUE const-decl "bool" booleans nil)
+    (ereal type-eq-decl nil ereal nil))
+   nil
+   (close subtype "ereal.a" "(union_adt[real, ereal.extended].inl?)")))
+ (close_TCC2 0
+  (close_TCC2-1 nil 3671895416 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (PRED type-eq-decl nil defined_types nil)
+    (extended type-decl nil ereal nil)
+    (union type-decl nil union_adt nil)
+    (every adt-def-decl "boolean" union_adt nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (TRUE const-decl "bool" booleans nil)
+    (ereal type-eq-decl nil ereal nil))
+   nil
+   (close subtype "ereal.b" "(union_adt[real, ereal.extended].inl?)")))
+ (ereal2str_TCC1 0
+  (ereal2str_TCC1-1 nil 3671895416 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (PRED type-eq-decl nil defined_types nil)
+    (extended type-decl nil ereal nil)
+    (union type-decl nil union_adt nil)
+    (every adt-def-decl "boolean" union_adt nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (TRUE const-decl "bool" booleans nil)
+    (ereal type-eq-decl nil ereal nil))
+   nil
+   (ereal2str subtype "ereal.e"
+    "(union_adt[real, ereal.extended].inl?)"))))
+

@@ -1,0 +1,158 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+get_resolution : THEORY
+
+  BEGIN
+
+  IMPORTING get_kinematic_bands
+
+  bands: VAR list[RealBand]
+  lower, upper, clow: VAR real
+  wrap?: VAR bool
+  curr: VAR real
+  retval: VAR [real,real]
+
+  %%%%%%%%%%%%%%%%%%%%%%
+  % Generic resolution %
+  %%%%%%%%%%%%%%%%%%%%%%
+
+  res_it(lower, upper)(retval, bands, curr): RECURSIVE [real, real] = 
+     IF null?(bands) THEN (retval`1, upper+1)
+     ELSE LET band = car(bands) IN
+       IF band`lb<= curr THEN
+       	  IF curr<= band`ub THEN (curr, curr)
+	  ELSE LET lgreen = band`ub IN res_it(lower, upper)((lgreen, retval`2), cdr(bands), curr)
+	  ENDIF
+       ELSE (retval`1, band`lb)
+       ENDIF
+     ENDIF
+     MEASURE length(bands)
+
+  res_pair(lower, upper)(wrap?, bands, curr): [real,real] = 
+    LET ri = res_it(lower,upper)((lower-1, upper+1), bands, curr) IN
+    IF (NOT wrap?) OR null?(bands) THEN ri
+    ELSE LET half = (upper-lower)/2 IN 
+       IF curr = half +lower THEN ri
+       ELSIF curr < half+lower AND ri`1<lower THEN 
+         LET last = nth(bands, length(bands)-1) IN 
+         IF last`ub -curr >= (upper-lower)/2 THEN
+  	    (last`ub, ri`2)
+	 ELSE ri
+	 ENDIF
+       ELSIF curr > half+lower AND ri`2>upper THEN 
+         LET first = car(bands) IN
+ 	 IF half<= curr - first`lb THEN 
+	    (ri`1, first`lb)
+	 ELSE ri
+	 ENDIF
+       ELSE ri
+       ENDIF
+    ENDIF 
+
+  closer_res(lower, upper)(retval, curr): 
+   [bool, bool,int] = 
+   IF retval`1<lower THEN 
+      IF retval`2>upper THEN (FALSE, FALSE, 0)
+      ELSE (FALSE, TRUE, 1)
+      ENDIF
+   ELSIF retval`2>upper THEN (TRUE, FALSE, -1)
+   ELSIF retval`1<=retval`2 THEN 
+         IF retval`1=curr OR retval`2 = curr THEN (TRUE, TRUE, 0)
+         ELSIF curr-retval`1 < retval`2-curr THEN (TRUE, TRUE, -1)
+  	 ELSE (TRUE, TRUE, 1)
+  	 ENDIF
+    ELSE LET low = IF curr < retval`1  THEN curr-retval`1+ (upper-lower) ELSE curr-retval`1 ENDIF, 
+             high = IF retval`2 < curr THEN retval`2-curr + (upper-lower) ELSE retval`2-curr ENDIF IN
+    	    IF low<high THEN (TRUE, TRUE, -1)
+    	    ELSE (TRUE, TRUE, 1)
+    	    ENDIF
+   
+   ENDIF
+
+ 
+  resolution_from_bands(lower, upper, bands, curr, wrap?): [ereal, ereal, bool]  = 
+    LET RP = res_pair(lower, upper)(wrap?, bands, curr), 
+    	closer = closer_res(lower, upper)(RP, curr) IN
+    IF RP = (curr, curr) THEN (inr(NaN), inr(NaN), FALSE)
+    ELSE 	
+    (IF closer`1 THEN inl(RP`1) ELSE inr(-infty) ENDIF, 
+     IF closer`2 THEN inl(RP`2) ELSE inr(infty) ENDIF,    
+     IF closer`3 = 1 THEN TRUE ELSE FALSE ENDIF)
+    ENDIF
+
+  %%%%%%%%%%%%%%%%%%%%%%%
+  % Instantiations      %
+  %%%%%%%%%%%%%%%%%%%%%%%
+ 
+  param: VAR Parameters
+  ucore: VAR UpdatedCore
+  cache: VAR CacheComp
+
+   
+  trk_resolution(param, (ucore|pc_comp(ucore, param)), cache): [ereal, ereal, bool] = 
+    LET n = param`alertor`1-1, 
+        bands_pre = IF cache`trk_pre`1 THEN cache`trk_pre`2`2
+  	       ELSE get_kinematic_trk_pre(param)(ucore)`2
+  	       ENDIF, 
+  	band = nth?(bands_pre, n) IN
+        resolution_from_bands(pi-param`left_trk, pi+param`right_trk, band, trk(ucore`ownship`v), TRUE)
+
+  
+  vs_resolution(param, (ucore|pc_comp(ucore, param)), cache): [ereal, ereal, bool] = 
+    LET n = param`alertor`1-1, 
+        bands_pre = IF cache`vs_pre`1 THEN cache`vs_pre`2`2
+  	       ELSE get_kinematic_vs_pre(param)(ucore)`2
+  	       ENDIF, 
+  	band = nth?(bands_pre, n) IN
+        resolution_from_bands(param`min_vs, param`max_vs, band, ucore`ownship`v`z, FALSE)
+  
+
+  gs_resolution(param, (ucore|pc_comp(ucore, param)), cache): [ereal, ereal, bool] = 
+    LET n = param`alertor`1-1, 
+        bands_pre = IF cache`gs_pre`1 THEN cache`gs_pre`2`2
+  	       ELSE get_kinematic_gs_pre(param)(ucore)`2
+  	       ENDIF, 
+  	band = nth?(bands_pre, n) IN
+        resolution_from_bands(param`min_gs, param`max_gs, band, gs(ucore`ownship`v), FALSE)
+
+  alt_resolution(param, (ucore|pc_comp(ucore, param)), cache): [ereal, ereal, bool] = 
+    LET n = param`alertor`1-1, 
+        bands_pre = IF cache`alt_pre`1 THEN cache`alt_pre`2`2
+  	       ELSE get_kinematic_alt_pre(param)(ucore)`2
+  	       ENDIF, 
+  	band = nth?(bands_pre, n) IN
+        resolution_from_bands(param`min_alt, param`max_alt, band, ucore`ownship`s`z, FALSE)
+
+   END get_resolution

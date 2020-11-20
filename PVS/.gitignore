@@ -1,0 +1,25 @@
+# Ignore binary files
+bin/
+lib/
+*.bin
+*.tptp
+.pvscontext
+# Ignore orphaned and old proofs
+orphaned-proofs.prf
+*~
+.DS_Store 
+# Ignore compiled Lisp files
+*fasl
+# Ignore PVS dump files
+*.dmp
+# Ignore PVS log files
+*.log
+# ADT and CODT data types, which are automatically generated
+*_adt.p??
+*_codt.p??
+*.summary-tc
+alltheories-*.*
+*.old
+*.tmp
+*.tccs
+tmp/

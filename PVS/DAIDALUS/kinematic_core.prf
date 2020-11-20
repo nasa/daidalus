@@ -1,0 +1,1238 @@
+(kinematic_core
+ (defparam_TCC1 0
+  (defparam_TCC1-1 nil 3647955324
+   ("" (lemma "trig@atan.pi_bnds")
+    (("" (lemma "trig@atan.pi_bnds") (("" (ground) nil nil)) nil)) nil)
+   ((real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (pi_bnds formula-decl nil atan trig))
+   nil (defparam subtype "(0, list_adt[AlertTable].null)" "Alertor")))
+ (defparam_TCC2 0
+  (defparam_TCC2-1 nil 3647955324
+   ("" (lemma "trig@atan.pi_bnds") (("" (ground) nil nil)) nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (posreal_div_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (pi_bnds formula-decl nil atan trig))
+   nil
+   (defparam subtype "(number_fields./(5235987756, 10000000000))"
+    "{x: real_types.posreal | reals.<(x, number_fields./(pi_def.pi, 2))}")))
+ (defparam_TCC3 0
+  (defparam_TCC3-1 nil 3683562991
+   ("" (expand "deg") (("" (assert) nil nil)) nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posreal_div_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig)
+    (deg const-decl "posreal" units TCASII))
+   nil
+   (defparam subtype "units.deg"
+    "{x: real_types.posreal | reals.<(x, pi_def.pi)}")))
+ (defcore_TCC1 0
+  (defcore_TCC1-1 nil 3685345285 ("" (subtype-tcc) nil nil)
+   ((vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (* const-decl "real" vectors_2D vectors)
+    (sqv const-decl "nnreal" vectors_2D vectors)
+    (sqrt_1 formula-decl nil sqrt reals)
+    (norm const-decl "nnreal" vectors_2D vectors)
+    (gs const-decl "nnreal" Velocity aviation)
+    (sqv_cont name-judgement "continuous_vr_fun" vect_cont_2D
+     vect_analysis)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil
+   (defcore subtype
+    "(# s := vectors_3D.zero, v := (# x := 0, y := 1, z := 0 #), id := list2finseq[char].list2finseq(list2finseq[char].finseq2list(\"?\")) #)"
+    "{ac: int_bands.Aircraft | reals.>(Velocity.gs(ac`v), 0)}")))
+ (update_RA_in_place_TCC1 0
+  (update_RA_in_place_TCC1-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (update_RA_in_place subtype "kinematic_core.min_h_r" "posreal")))
+ (update_RA_in_place_TCC2 0
+  (update_RA_in_place_TCC2-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (/= const-decl "boolean" notequal nil))
+   nil
+   (update_RA_in_place subtype "kinematic_core.min_v_r" "posreal")))
+ (update_RA_in_place_TCC3 0
+  (update_RA_in_place_TCC3-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII))
+   nil (update_RA_in_place subtype "kinematic_core.own_alt" "nnreal")))
+ (update_RA_in_place_TCC4 0
+  (update_RA_in_place_TCC4-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((int nonempty-type-eq-decl nil integers nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII)
+    (sensitivity_level const-decl "SensitivityLevel" TCAS_tables
+     TCASII))
+   nil
+   (update_RA_in_place subtype "kinematic_core.sl"
+    "SensitivityLevel")))
+ (update_RA_in_place_TCC5 0
+  (update_RA_in_place_TCC5-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII)
+    (sensitivity_level const-decl "SensitivityLevel" TCAS_tables
+     TCASII))
+   nil
+   (update_RA_in_place subtype "kinematic_core.min_h_r" "posreal")))
+ (update_RA_in_place_TCC6 0
+  (update_RA_in_place_TCC6-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (RA_thr const-decl "nnreal" TCAS_tables TCASII)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII)
+    (sensitivity_level const-decl "SensitivityLevel" TCAS_tables
+     TCASII))
+   nil (update_RA_in_place subtype "kinematic_core.Z" "posreal")))
+ (update_RA_in_place_TCC7 0
+  (update_RA_in_place_TCC7-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII))
+   nil (update_RA_in_place subtype "kinematic_core.own_alt" "nnreal")))
+ (update_RA_in_place_TCC8 0
+  (update_RA_in_place_TCC8-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((int nonempty-type-eq-decl nil integers nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (real_le_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII)
+    (sensitivity_level const-decl "SensitivityLevel" TCAS_tables
+     TCASII))
+   nil
+   (update_RA_in_place subtype "kinematic_core.sl"
+    "SensitivityLevel")))
+ (update_RA_in_place_TCC9 0
+  (update_RA_in_place_TCC9-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (RA_thr const-decl "nnreal" TCAS_tables TCASII)
+    (nmi const-decl "posreal" units TCASII)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII)
+    (sensitivity_level const-decl "SensitivityLevel" TCAS_tables
+     TCASII))
+   nil (update_RA_in_place subtype "kinematic_core.D" "posreal")))
+ (update_RA_in_place_TCC10 0
+  (update_RA_in_place_TCC10-1 nil 3658577771 ("" (subtype-tcc) nil nil)
+   ((rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (RA_thr const-decl "nnreal" TCAS_tables TCASII)
+    (nmi const-decl "posreal" units TCASII)
+    (nnreal type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (/= const-decl "boolean" notequal nil)
+    (ft const-decl "posreal" units TCASII)
+    (sensitivity_level const-decl "SensitivityLevel" TCAS_tables
+     TCASII))
+   nil (update_RA_in_place subtype "kinematic_core.Z" "posreal")))
+ (update_omega_in_place_TCC1 0
+  (update_omega_in_place_TCC1-1 nil 3658577771
+   ("" (skeep :preds? t)
+    (("" (expand "Tan?")
+      (("" (lemma "cos_gt_0")
+        (("" (inst?) (("" (assert) nil nil)) nil)) nil))
+      nil))
+    nil)
+   ((real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posreal_div_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (cos_range application-judgement "real_abs_le1" sincos trig)
+    (nzreal_div_nzreal_is_nzreal application-judgement "nzreal"
+     real_types nil)
+    (minus_nzreal_is_nzreal application-judgement "nzreal" real_types
+     nil)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (cos const-decl "real" sincos_def trig)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/= const-decl "boolean" notequal nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (< const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (>= const-decl "bool" reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number nonempty-type-decl nil numbers nil)
+    (cos_gt_0 formula-decl nil trig_basic trig)
+    (Tan? const-decl "bool" trig_basic trig)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig))
+   nil
+   (update_omega_in_place subtype "kinematic_core.bank"
+    "(trig_basic.Tan?)")))
+ (update_omega_in_place_TCC2 0
+  (update_omega_in_place_TCC2-1 nil 3658577771
+   ("" (skeep :preds? t)
+    (("" (cross-mult 1)
+      (("" (expand "g")
+        (("" (cancel-by 1 "196133/20000")
+          (("" (lemma "tan_gt_0")
+            (("" (inst?) (("" (assert) nil nil)) nil)) nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (tan_gt_0 formula-decl nil trig_ineq trig)
+    (both_sides_times_pos_ge1 formula-decl nil real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (posreal_div_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (nonneg_rat nonempty-type-eq-decl nil rationals nil)
+    (posrat nonempty-type-eq-decl nil rationals nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bijective? const-decl "bool" functions nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (TRUE const-decl "bool" booleans nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (div_mult_pos_ge1 formula-decl nil real_props nil)
+    (number nonempty-type-decl nil numbers nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (* const-decl "[numfield, numfield -> numfield]" number_fields nil)
+    (g const-decl "posreal" units TCASII)
+    (Tan? const-decl "bool" trig_basic trig)
+    (tan const-decl "real" trig_basic trig)
+    (< const-decl "bool" reals nil)
+    (/= const-decl "boolean" notequal nil)
+    (nznum nonempty-type-eq-decl nil number_fields nil)
+    (/ const-decl "[numfield, nznum -> numfield]" number_fields nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (cos const-decl "real" sincos_def trig)
+    (pi const-decl "{x: real | x > 2 AND x < 4 AND cos(x / 2) = 0}"
+     pi_def trig)
+    (nnreal_times_nnreal_is_nnreal application-judgement "nnreal"
+     real_types nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_div_nzreal_is_real application-judgement "real" reals nil)
+    (pi_bound name-judgement
+     "{r: posreal | pi_lb_new <= r AND r <= pi_ub_new}" pi_def trig))
+   nil
+   (update_omega_in_place subtype
+    "number_fields./(number_fields.*(units.g, trig_basic.tan(kinematic_core.bank)), kinematic_core.gs)"
+    "nnreal")))
+ (most_urgent_function_TCC1 0
+  (most_urgent_function_TCC1-1 nil 3658577771
+   ("" (subtype-tcc) nil nil)
+   ((gen_most_urg const-decl "int" los_and_cd nil)) nil
+   (most_urgent_function subtype "los_and_cd.gen_most_urg"
+    "MostUrgent")))
+ (most_urgent_function_TCC2 0
+  (most_urgent_function_TCC2-1 nil 3658577771
+   ("" (subtype-tcc) nil nil) nil nil
+   (most_urgent_function subtype
+    "list_props[string].length(kinematic_core.traf)"
+    "{n: naturalnumbers.nat | reals.<=(list_props[string].length(kinematic_core.traf), n)}")))
+ (most_urgent_function_TCC3 0
+  (most_urgent_function_TCC3-1 nil 3658577771
+   ("" (subtype-tcc) nil nil)
+   ((gen_most_urg const-decl "int" los_and_cd nil)) nil
+   (most_urgent_function subtype "los_and_cd.gen_most_urg"
+    "MostUrgent")))
+ (most_urgent_function_TCC4 0
+  (most_urgent_function_TCC4-2 "" 3813485068
+   ("" (skeep)
+    (("" (skeep)
+      (("" (lemma "first_occ_def")
+        (("" (inst?)
+          (("" (skoletin)
+            (("" (replace -4)
+              (("" (rewrite "map_length") (("" (ground) nil nil)) nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (most_urgent_function subtype "kinematic_core.index"
+    "below[length[Aircraft](AL)]"))
+  (most_urgent_function_TCC4-1 nil 3658577771
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (lemma "first_occ_def")
+          (("" (inst?)
+            (("" (skoletin)
+              (("" (replace -4)
+                (("" (rewrite "map_length") (("" (ground) nil nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((first_occ_def formula-decl nil los_and_cd nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil) (<= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (bijective? const-decl "bool" functions nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (TRUE const-decl "bool" booleans nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (first_occ def-decl "int" los_and_cd nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (member def-decl "bool" list_props nil)
+    (< const-decl "bool" reals nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Traffic type-eq-decl nil int_bands nil)
+    (map_length formula-decl nil more_map_props nil))
+   nil
+   (most_urgent_function subtype "kinematic_core.index"
+    "below[length[Aircraft](AL)]")))
+ (most_urgent_function_TCC5 0
+  (most_urgent_function_TCC5-2 "" 3813485068
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (expand "break_sym")
+            (("" (replace -8)
+              (("" (simplify 3)
+                (("" (expand "-")
+                  (("" (expand "/=")
+                    (("" (lift-if 3)
+                      (("" (split 3)
+                        (("1" (flatten)
+                          (("1" (lift-if 2)
+                            (("1" (split 2)
+                              (("1"
+                                (flatten)
+                                (("1"
+                                  (expand "sign")
+                                  (("1"
+                                    (ground)
+                                    (("1"
+                                      (hide-all-but 2)
+                                      (("1" (grind) nil nil))
+                                      nil)
+                                     ("2"
+                                      (hide-all-but 2)
+                                      (("2" (grind) nil nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil)
+                               ("2"
+                                (flatten)
+                                (("2" (assert) nil nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil)
+                         ("2" (flatten)
+                          (("2" (hide-all-but (-1 1 3))
+                            (("2" (lift-if 1)
+                              (("2"
+                                (split 1)
+                                (("1"
+                                  (flatten)
+                                  (("1"
+                                    (split 2)
+                                    (("1"
+                                      (flatten)
+                                      (("1" (assert) nil nil))
+                                      nil)
+                                     ("2"
+                                      (flatten)
+                                      (("2"
+                                        (split 1)
+                                        (("1"
+                                          (flatten)
+                                          (("1" (grind) nil nil))
+                                          nil)
+                                         ("2"
+                                          (flatten)
+                                          (("2"
+                                            (split 1)
+                                            (("1"
+                                              (flatten)
+                                              (("1" (assert) nil nil))
+                                              nil)
+                                             ("2"
+                                              (flatten)
+                                              (("2"
+                                                (decompose-equality 3)
+                                                nil
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil)
+                                 ("2"
+                                  (flatten)
+                                  (("2"
+                                    (split 1)
+                                    (("1"
+                                      (flatten)
+                                      (("1"
+                                        (lift-if 2)
+                                        (("1"
+                                          (split 2)
+                                          (("1"
+                                            (flatten)
+                                            (("1" (ground) nil nil))
+                                            nil)
+                                           ("2"
+                                            (flatten)
+                                            (("2"
+                                              (assert)
+                                              (("2" (grind) nil nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil)
+                                     ("2"
+                                      (flatten)
+                                      (("2"
+                                        (decompose-equality 2)
+                                        nil
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (most_urgent_function assuming
+    "ACCoRD@vertical_los_crit_CA[TCAS_tables.NMAC_D, TCAS_tables.NMAC_H, TCAS_tables.NMAC_D, TCAS_tables.NMAC_H, 180, kinematic_core.break_sym].vertical_los_crit_CA"
+    "break_vz_symm_comm: ASSUMPTION FORALL (s: vectors_3D_def.Vect3): booleans.IMPLIES(s /= vectors_3D.zero, vertical_los_crit_CA.break_vz_symm((vectors_3D.-)(s)) = (number_fields.-)(vertical_los_crit_CA.break_vz_symm(s)))"))
+  (most_urgent_function_TCC5-1 nil 3658577771
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (skeep)
+            (("" (skeep)
+              (("" (skeep)
+                (("" (skeep)
+                  (("" (skeep)
+                    (("" (expand "break_sym")
+                      (("" (replace -8)
+                        (("" (simplify 3)
+                          (("" (expand "-")
+                            (("" (expand "/=")
+                              ((""
+                                (lift-if 3)
+                                ((""
+                                  (split 3)
+                                  (("1"
+                                    (flatten)
+                                    (("1"
+                                      (lift-if 2)
+                                      (("1"
+                                        (split 2)
+                                        (("1"
+                                          (flatten)
+                                          (("1"
+                                            (expand "sign")
+                                            (("1"
+                                              (ground)
+                                              (("1"
+                                                (hide-all-but 2)
+                                                (("1" (grind) nil nil))
+                                                nil)
+                                               ("2"
+                                                (hide-all-but 2)
+                                                (("2" (grind) nil nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil)
+                                         ("2"
+                                          (flatten)
+                                          (("2" (assert) nil nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil)
+                                   ("2"
+                                    (flatten)
+                                    (("2"
+                                      (hide-all-but (-1 1 3))
+                                      (("2"
+                                        (lift-if 1)
+                                        (("2"
+                                          (split 1)
+                                          (("1"
+                                            (flatten)
+                                            (("1"
+                                              (split 2)
+                                              (("1"
+                                                (flatten)
+                                                (("1"
+                                                  (assert)
+                                                  nil
+                                                  nil))
+                                                nil)
+                                               ("2"
+                                                (flatten)
+                                                (("2"
+                                                  (split 1)
+                                                  (("1"
+                                                    (flatten)
+                                                    (("1"
+                                                      (grind)
+                                                      nil
+                                                      nil))
+                                                    nil)
+                                                   ("2"
+                                                    (flatten)
+                                                    (("2"
+                                                      (split 1)
+                                                      (("1"
+                                                        (flatten)
+                                                        (("1"
+                                                          (assert)
+                                                          nil
+                                                          nil))
+                                                        nil)
+                                                       ("2"
+                                                        (flatten)
+                                                        (("2"
+                                                          (decompose-equality
+                                                           3)
+                                                          nil
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil)
+                                           ("2"
+                                            (flatten)
+                                            (("2"
+                                              (split 1)
+                                              (("1"
+                                                (flatten)
+                                                (("1"
+                                                  (lift-if 2)
+                                                  (("1"
+                                                    (split 2)
+                                                    (("1"
+                                                      (flatten)
+                                                      (("1"
+                                                        (ground)
+                                                        nil
+                                                        nil))
+                                                      nil)
+                                                     ("2"
+                                                      (flatten)
+                                                      (("2"
+                                                        (assert)
+                                                        (("2"
+                                                          (grind)
+                                                          nil
+                                                          nil))
+                                                        nil))
+                                                      nil))
+                                                    nil))
+                                                  nil))
+                                                nil)
+                                               ("2"
+                                                (flatten)
+                                                (("2"
+                                                  (decompose-equality
+                                                   2)
+                                                  nil
+                                                  nil))
+                                                nil))
+                                              nil))
+                                            nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((break_sym const-decl "Sign" kinematic_core nil)
+    (minus_int_is_int application-judgement "int" integers nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (- const-decl "Vector" vectors_3D vectors)
+    (- const-decl "Vector" vectors_3D vectors)
+    (/= const-decl "boolean" notequal nil)
+    (sign const-decl "Sign" sign reals)
+    (minus_real_is_real application-judgement "real" reals nil)
+    (real_minus_real_is_real application-judgement "real" reals nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (sign_neg_clos application-judgement "Sign" sign reals)
+    (zero const-decl "Vector" vectors_3D vectors)
+    (real nonempty-type-from-decl nil reals nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (comp_zero_x formula-decl nil vectors_3D vectors)
+    (comp_zero_y formula-decl nil vectors_3D vectors)
+    (comp_zero_z formula-decl nil vectors_3D vectors)
+    (Vector type-eq-decl nil vectors_3D vectors))
+   nil
+   (most_urgent_function assuming
+    "ACCoRD@vertical_los_crit_CA[TCAS_tables.NMAC_D, TCAS_tables.NMAC_H, TCAS_tables.NMAC_D, TCAS_tables.NMAC_H, 180, kinematic_core.break_sym].vertical_los_crit_CA"
+    "break_vz_symm_comm: ASSUMPTION FORALL (s: vectors_3D_def.Vect3): booleans.IMPLIES(s /= vectors_3D.zero, vertical_los_crit_CA.break_vz_symm((vectors_3D.-)(s)) = (number_fields.-)(vertical_los_crit_CA.break_vz_symm(s)))")))
+ (most_urgent_function_TCC6 0
+  (most_urgent_function_TCC6-1 nil 3658577771
+   ("" (assuming-tcc) nil nil)
+   ((nzint nonempty-type-eq-decl nil integers nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil)
+    (Sign type-eq-decl nil sign reals)
+    (break_sym const-decl "Sign" kinematic_core nil)
+    (real_plus_real_is_real application-judgement "real" reals nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number nonempty-type-decl nil numbers nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (- const-decl "Vector" vectors_3D vectors)
+    (vect2 const-decl "Vect2" vect_3D_2D vectors)
+    (det const-decl "real" det_2D vectors)
+    (/= const-decl "boolean" notequal nil)
+    (real_times_real_is_real application-judgement "real" reals nil)
+    (real_minus_real_is_real application-judgement "real" reals nil))
+   nil
+   (most_urgent_function assuming
+    "ACCoRD@vertical_los_crit_CA[TCAS_tables.NMAC_D, TCAS_tables.NMAC_H, TCAS_tables.NMAC_D, TCAS_tables.NMAC_H, 180, kinematic_core.break_sym].vertical_los_crit_CA"
+    "break_vz_symm_sz: ASSUMPTION FORALL (s: vectors_3D_def.Vect3): booleans.IMPLIES(s`z /= 0, vertical_los_crit_CA.break_vz_symm(s) = sign.sign(s`z))")))
+ (most_urgent_function_TCC7 0
+  (most_urgent_function_TCC7-1 nil 3658577771
+   ("" (skeep*)
+    ((""
+      (lemma
+       "vertical_decision_vect_antisymmetric[NMAC_D, NMAC_H, NMAC_D, NMAC_H, 180, break_sym!1]")
+      (("1" (inst?) (("1" (assert) (("1" (ground) nil nil)) nil)) nil)
+       ("2" (skeep)
+        (("2" (expand "break_sym")
+          (("2" (replaces -8) (("2" (assert) nil nil)) nil)) nil))
+        nil)
+       ("3" (skeep)
+        (("3" (lemma "most_urgent_function_TCC5")
+          (("3" (inst - "crit_ac" "own" "AL" "conf_crit" "rec_crit")
+            (("3" (replace -2)
+              (("3" (inst?)
+                (("3" (split -1)
+                  (("1" (inst?)
+                    (("1" (inst?)
+                      (("1" (split -1)
+                        (("1" (inst?)
+                          (("1" (split -1)
+                            (("1" (propax) nil nil)
+                             ("2" (expand "/=")
+                              (("2" (propax) nil nil)) nil))
+                            nil))
+                          nil)
+                         ("2" (propax) nil nil) ("3" (propax) nil nil)
+                         ("4" (propax) nil nil) ("5" (propax) nil nil)
+                         ("6" (propax) nil nil))
+                        nil))
+                      nil))
+                    nil)
+                   ("2" (propax) nil nil) ("3" (propax) nil nil)
+                   ("4" (propax) nil nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (list type-decl nil list_adt nil)
+    (Traffic type-eq-decl nil int_bands nil)
+    (most_urgent_function_TCC5 assuming-tcc nil kinematic_core nil)
+    (break_sym const-decl "Sign" kinematic_core nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (vertical_decision_vect_antisymmetric name-judgement
+     "Decision_Vector" vertical_los_crit_CA ACCoRD)
+    (IMPLIES const-decl "[bool, bool -> bool]" booleans nil)
+    (sign const-decl "Sign" sign reals)
+    (Vector type-eq-decl nil vectors_3D vectors)
+    (zero const-decl "Vector" vectors_3D vectors)
+    (- const-decl "Vector" vectors_3D vectors)
+    (vertical_decision_vect_antisymmetric judgement-tcc nil
+     vertical_los_crit_CA ACCoRD)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (>= const-decl "bool" reals nil)
+    (nonneg_real nonempty-type-eq-decl nil real_types nil)
+    (> const-decl "bool" reals nil)
+    (posreal nonempty-type-eq-decl nil real_types nil)
+    (NMAC_D const-decl "posreal" TCAS_tables TCASII)
+    (NMAC_H const-decl "posreal" TCAS_tables TCASII)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (/= const-decl "boolean" notequal nil)
+    (nzint nonempty-type-eq-decl nil integers nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil)
+    (Sign type-eq-decl nil sign reals)
+    (boolean nonempty-type-decl nil booleans nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (TRUE const-decl "bool" booleans nil))
+   nil
+   (most_urgent_function subtype "kinematic_core.dv"
+    "Decision_Vector[NMAC_D, NMAC_H, NMAC_D, NMAC_H, 180, break_sym]")))
+ (most_urgent_function_TCC8 0
+  (most_urgent_function_TCC8-2 "" 3813485070
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (lemma "first_occ_def")
+          (("" (inst?)
+            (("" (skoletin)
+              (("" (replace -4)
+                (("" (rewrite "map_length") (("" (ground) nil nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (most_urgent_function subtype "kinematic_core.index" "nat"))
+  (most_urgent_function_TCC8-1 nil 3658577771
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (skeep)
+            (("" (skeep)
+              (("" (skeep)
+                (("" (skeep)
+                  (("" (skeep)
+                    (("" (skeep)
+                      (("" (lemma "first_occ_def")
+                        (("" (inst?)
+                          (("" (skoletin)
+                            (("" (replace -4)
+                              ((""
+                                (rewrite "map_length")
+                                (("" (ground) nil nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((first_occ_def formula-decl nil los_and_cd nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil) (<= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (bijective? const-decl "bool" functions nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (TRUE const-decl "bool" booleans nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (first_occ def-decl "int" los_and_cd nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (member def-decl "bool" list_props nil)
+    (< const-decl "bool" reals nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil)
+    (Aircraft type-eq-decl nil int_bands nil)
+    (Vect3 type-eq-decl nil vectors_3D_def vectors)
+    (Traffic type-eq-decl nil int_bands nil)
+    (map_length formula-decl nil more_map_props nil)
+    (dv_to_ec_antisymmetric application-judgement
+     "Vertical_Strategy[D, H]" vertical_los_crit_CA ACCoRD)
+    (vertical_decision_vect_antisymmetric name-judgement
+     "Decision_Vector" vertical_los_crit_CA ACCoRD)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (most_urgent_function subtype "kinematic_core.index" "nat")))
+ (most_urgent_function_TCC9 0
+  (most_urgent_function_TCC9-2 "" 3813485070
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (expand "const_most_urg")
+            (("" (assert)
+              (("" (lift-if 2)
+                (("" (split 2)
+                  (("1" (lemma "first_occ_def")
+                    (("1" (inst?)
+                      (("1" (skoletin)
+                        (("1" (assert)
+                          (("1" (flatten) (("1" (assert) nil nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil)
+                   ("2" (flatten) (("2" (assert) nil nil)) nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   nil shostak
+   (most_urgent_function subtype
+    "los_and_cd.const_most_urg(kinematic_core.index)" "MostUrgent"))
+  (most_urgent_function_TCC9-1 nil 3658577771
+   ("" (skeep)
+    (("" (skeep)
+      (("" (skeep)
+        (("" (skeep)
+          (("" (skeep)
+            (("" (skeep)
+              (("" (skeep)
+                (("" (skeep)
+                  (("" (skeep)
+                    (("" (skeep)
+                      (("" (skeep)
+                        (("" (expand "const_most_urg")
+                          (("" (assert)
+                            (("" (lift-if 2)
+                              ((""
+                                (split 2)
+                                (("1"
+                                  (lemma "first_occ_def")
+                                  (("1"
+                                    (inst?)
+                                    (("1"
+                                      (skoletin)
+                                      (("1"
+                                        (assert)
+                                        (("1"
+                                          (flatten)
+                                          (("1" (assert) nil nil))
+                                          nil))
+                                        nil))
+                                      nil))
+                                    nil))
+                                  nil)
+                                 ("2"
+                                  (flatten)
+                                  (("2" (assert) nil nil))
+                                  nil))
+                                nil))
+                              nil))
+                            nil))
+                          nil))
+                        nil))
+                      nil))
+                    nil))
+                  nil))
+                nil))
+              nil))
+            nil))
+          nil))
+        nil))
+      nil))
+    nil)
+   ((const_most_urg const-decl "nat" los_and_cd nil)
+    (real_lt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (dv_to_ec_antisymmetric application-judgement
+     "Vertical_Strategy[D, H]" vertical_los_crit_CA ACCoRD)
+    (vertical_decision_vect_antisymmetric name-judgement
+     "Decision_Vector" vertical_los_crit_CA ACCoRD)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (minus_odd_is_odd application-judgement "odd_int" integers nil)
+    (first_occ_def formula-decl nil los_and_cd nil)
+    (nat nonempty-type-eq-decl nil naturalnumbers nil)
+    (below type-eq-decl nil nat_types nil)
+    (character type-decl nil character_adt nil)
+    (boolean nonempty-type-decl nil booleans nil)
+    (char? adt-recognizer-decl "[character -> boolean]" character_adt
+     nil)
+    (char type-eq-decl nil strings nil)
+    (string type-eq-decl nil strings nil)
+    (list type-decl nil list_adt nil)
+    (number nonempty-type-decl nil numbers nil)
+    (number_field_pred const-decl "[number -> boolean]" number_fields
+     nil)
+    (number_field nonempty-type-from-decl nil number_fields nil)
+    (real_pred const-decl "[number_field -> boolean]" reals nil)
+    (real nonempty-type-from-decl nil reals nil)
+    (rational_pred const-decl "[real -> boolean]" rationals nil)
+    (rational nonempty-type-from-decl nil rationals nil)
+    (integer_pred const-decl "[rational -> boolean]" integers nil)
+    (int nonempty-type-eq-decl nil integers nil)
+    (bool nonempty-type-eq-decl nil booleans nil)
+    (>= const-decl "bool" reals nil) (<= const-decl "bool" reals nil)
+    (length def-decl "nat" list_props nil)
+    (NOT const-decl "[bool -> bool]" booleans nil)
+    (bijective? const-decl "bool" functions nil)
+    (id const-decl "(bijective?[T, T])" identity nil)
+    (TRUE const-decl "bool" booleans nil)
+    (IFF const-decl "[bool, bool -> bool]" booleans nil)
+    (first_occ def-decl "int" los_and_cd nil)
+    (= const-decl "[T, T -> boolean]" equalities nil)
+    (OR const-decl "[bool, bool -> bool]" booleans nil)
+    (AND const-decl "[bool, bool -> bool]" booleans nil)
+    (member def-decl "bool" list_props nil)
+    (< const-decl "bool" reals nil)
+    (numfield nonempty-type-eq-decl nil number_fields nil)
+    (- const-decl "[numfield -> numfield]" number_fields nil))
+   nil
+   (most_urgent_function subtype
+    "los_and_cd.const_most_urg(kinematic_core.index)" "MostUrgent"))))
+

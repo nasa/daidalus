@@ -1,0 +1,110 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+last_time_to_maneuver: THEORY
+
+  BEGIN
+
+  IMPORTING get_kinematic_bands, ereal
+
+  project_traf(t:nnreal)(traffic:Traffic): Traffic = 
+    IF t=0 THEN traffic
+    ELSE map(project_ac(t))(traffic)
+    ENDIF 
+
+  last_time_to_maneuver(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)), bands_init: BandsInit)(ac:Aircraft): 
+  ereal = 
+     IF par`alertor`1 = 0 THEN inr[real,extended](NaN) 
+     ELSE LET conf_id = par`alertor`1-1, 
+  	      alerttable =  nth(par`alertor`2, conf_id),
+	      cd =  table_to_ConfDet(alerttable`wcv), 
+ 	      lat =  alerttable`early_alerting_time,
+	      %lat = alerttable`alerting_time,
+  	      T = cd(0, lat, ucore`ownship, ac) 
+	      %,prt = printf("~a, ~a~%", (T`1, T`2) )
+	      IN
+          IF T`1<0 OR T`1>=T`2 THEN inr(NaN)
+	  ELSIF T`1 = 0 THEN inr(neginfty)
+          ELSE 
+            LET los_cd: LOS_CD = (# los:= cd2LOS(cd),
+                                    cd := cd2CD(cd) #),
+  	        los_cd2: LOS_CD = (# los:= cd2LOS(ucore`cd2),
+	               	             cd := cd2CD(ucore`cd2) #),
+                all_red(t:nnreal): bool =
+       	          LET prown = project_ac(t)(ucore`ownship),
+	              traffic = project_traf(t)((: ac :)),
+		      %traffic = (: ac :),
+		      bands = bands_init(los_cd)(los_cd2)(0, lat, prown, FALSE)(traffic)
+		      %,prt = printf("~a~%", bands)
+	          IN
+                  null?(bands) OR some_ac?(LAMBDA(ac:Aircraft): los_cd`los(prown`s, prown`v, ac`s, ac`v))(traffic)
+            IN
+            IF all_red(0) THEN let p=printf("all_red(0) is true~%") IN
+	       inr(neginfty) 
+	    ELSIF NOT all_red(T`1) THEN %LET p = printf("error in ltm gs. Not all_red at time to violation ~a.~%", T) IN 
+	       inl(T`1)
+	    ELSE LET Tcalc = first_time(all_red, 0, T`1, FALSE) IN
+               IF Tcalc = 0 THEN inr(neginfty)
+	       ELSE inl(Tcalc)
+	       ENDIF
+	    ENDIF 
+          ENDIF 
+     ENDIF
+
+   trk_ltm_list(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)))(traffic:Traffic): list[ereal] = 
+     LET bands_init = trk_bands_init(ucore`turn_rate, par`left_trk, par`right_trk, 
+     	 	        par`trk_step)(1,1,FALSE, FALSE) 
+     IN
+     map(last_time_to_maneuver(par, ucore, bands_init))(traffic)  
+
+   vs_ltm_list(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)))(traffic:Traffic): list[ereal] = 
+     LET bands_init = vs_bands_init(par`vertical_accel, par`min_vs, par`max_vs, 
+     	 	        par`vs_step)(1,1,FALSE, FALSE) 
+     IN
+     map(last_time_to_maneuver(par, ucore, bands_init))(traffic)  
+
+   gs_ltm_list(par: Parameters, (ucore: UpdatedCore | pc_comp(ucore, par)))(traffic:Traffic): list[ereal] = 
+     LET bands_init = gs_bands_init(par`horizontal_accel, par`min_gs, par`max_gs, 
+     	 	        par`gs_step)(1,1,FALSE, FALSE) 
+     IN
+     map(last_time_to_maneuver(par, ucore, bands_init))(traffic)  
+
+   alt_ltm_list(par: Parameters,(ucore: UpdatedCore | pc_comp(ucore, par)))(traffic:Traffic): list[ereal] = 
+     LET bands_init = alt_bands_init(par`vertical_accel, par`min_alt, par`max_alt, 
+     	 	        par`alt_step, par`vertical_rate)(1,1,FALSE, FALSE) 
+     IN
+     map(last_time_to_maneuver(par, ucore, bands_init))(traffic)
+  
+END last_time_to_maneuver
+ 

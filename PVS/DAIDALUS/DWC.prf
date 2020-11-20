@@ -1,0 +1,35 @@
+(DWC
+ (IMP_WCV_taumod_TCC1 0
+  (IMP_WCV_taumod_TCC1-1 nil 3759761919 ("" (subtype-tcc) nil nil)
+   ((DWC_TTHR const-decl "real" DWC nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (IMP_WCV_taumod subtype "DWC.DWC_TTHR" "nnreal")))
+ (IMP_WCV_taumod_TCC2 0
+  (IMP_WCV_taumod_TCC2-1 nil 3759761919 ("" (subtype-tcc) nil nil)
+   ((DWC_TCOA const-decl "real" DWC nil)
+    (real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil))
+   nil (IMP_WCV_taumod subtype "DWC.DWC_TCOA" "nnreal")))
+ (IMP_WCV_taumod_TCC3 0
+  (IMP_WCV_taumod_TCC3-1 nil 3759761919 ("" (subtype-tcc) nil nil)
+   ((real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (nmi const-decl "posreal" units aviation)
+    (DWC_DTHR const-decl "real" DWC nil)
+    (posrat_div_posrat_is_posrat application-judgement "posrat"
+     rationals nil)
+    (posreal_times_posreal_is_posreal application-judgement "posreal"
+     real_types nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil))
+   nil (IMP_WCV_taumod subtype "DWC.DWC_DTHR" "posreal")))
+ (IMP_WCV_taumod_TCC4 0
+  (IMP_WCV_taumod_TCC4-1 nil 3759761919 ("" (subtype-tcc) nil nil)
+   ((real_ge_is_total_order name-judgement "(total_order?[real])"
+     real_props nil)
+    (real_gt_is_strict_total_order name-judgement
+     "(strict_total_order?[real])" real_props nil)
+    (DWC_ZTHR const-decl "real" DWC nil))
+   nil (IMP_WCV_taumod subtype "DWC.DWC_ZTHR" "posreal"))))
+

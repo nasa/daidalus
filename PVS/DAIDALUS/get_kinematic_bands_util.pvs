@@ -1,0 +1,206 @@
+% DAIDALUS (Detect and Avoid Alerting Logic for Unmanned Systems)
+%
+% Notices:
+% Copyright 2016 United States Government as represented by the
+% Administrator of the National Aeronautics and Space Administration. No
+% copyright is claimed in the United States under Title 17,
+% U.S. Code. All Other Rights Reserved.
+% Disclaimers
+% No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY
+% WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY,
+% INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE
+% WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF
+% MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM
+% INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR
+% FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO
+% THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER,
+% CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT
+% OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY
+% OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.
+% FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES
+% REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE,
+% AND DISTRIBUTES IT "AS IS."
+% Waiver and Indemnity: RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS
+% AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND
+% SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF
+% THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES,
+% EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM
+% PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT
+% SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED
+% STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY
+% PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE
+% REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL
+% TERMINATION OF THIS AGREEMENT.
+
+get_kinematic_bands_util : THEORY
+
+  BEGIN
+
+  IMPORTING 
+  	   kinematic_trk_bands, 
+           kinematic_vs_bands, 
+           kinematic_gs_bands,
+	   inst_bands,
+	   alt_bands, 
+	   get_generic_bands,
+	   kinematic_core,
+	   los_and_cd
+
+   los_cd, los_cd2: VAR LOS_CD
+   t, T: VAR nnreal
+   own: VAR {ac: Aircraft | sqv(vect2(ac`v))>0}
+   traffic: VAR Traffic
+   rec?: VAR bool
+
+%% Instantiations of the "any_red" and "bands_init" functions needed for using the "get_generic_bands" function. 
+
+any_trk_red(omega:nnreal, lefttrk, righttrk:nnreal, (trkstep:posreal | trkstep< pi AND trkstep * round(lefttrk / trkstep) <= pi AND trkstep * round(righttrk / trkstep) <= pi )) 
+  (los_cd)(los_cd2)(t, T, own)(traffic): bool =
+  IF null?(traffic) THEN FALSE 
+  ELSIF omega = 0 THEN 
+     LET 
+         trb = instant_track_bands(los_cd`los,los_cd`cd,los_cd2`los,los_cd2`cd,TRUE,own`s,own`v,
+      	      traffic,gen_most_urg,1,1,FALSE,FALSE)(t,T,0,t,trkstep) 
+     IN trb /= (: (# lb := pi, ub :=2*pi #) :)     
+  ELSE		    
+  any_kinematic_track_red(los_cd`los,los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,own`s,
+  own`v,traffic,
+  gen_most_urg,1,1,FALSE,FALSE,omega,1,FALSE)
+  (t,T,0,t,round(lefttrk/trkstep), round(righttrk/trkstep),trkstep)
+  ENDIF
+
+any_vs_red(vs_accel:posreal, minvs, maxvs: real, vs_step: posreal)(los_cd)(los_cd2)(t, T, own)(traffic): bool = 
+  IF null?(traffic) THEN FALSE 
+  ELSIF vs_accel = 0 THEN 
+     LET 
+         bnd = instant_vs_bands(los_cd`los,los_cd`cd,los_cd2`los,los_cd2`cd,TRUE,own`s,own`v,
+      	      traffic,gen_most_urg,1,1,FALSE,FALSE,minvs,maxvs)(t,T,0,t,vs_step)
+	 %,prnt = printf("~a~%", bnd)
+     IN bnd /= (: (# lb := minvs, ub :=maxvs #) :)     
+  ELSE	
+  any_kinematic_vs_red(los_cd`los,los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,own`s,
+  own`v,traffic,
+  gen_most_urg,1,1,FALSE,FALSE,vs_accel,1,FALSE, 
+  minvs, maxvs)
+  (t,T,0,t,vs_step)
+  ENDIF
+
+any_gs_red(gs_accel, mings, maxgs, gs_step: posreal)(los_cd)(los_cd2)(t, T, own)(traffic): bool = 
+  IF null?(traffic) THEN FALSE 
+  ELSIF gs_accel = 0 THEN 
+     LET 
+         bnd = instant_gs_bands(los_cd`los,los_cd`cd,los_cd2`los,los_cd2`cd,TRUE,own`s,own`v,
+      	      traffic,gen_most_urg,1,1,FALSE,FALSE,mings,maxgs)(t,T,0,t,gs_step) 
+     IN bnd /= (: (# lb := mings, ub :=maxgs #) :)     
+  ELSE	
+  any_kinematic_gs_red(los_cd`los,los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,own`s,
+  own`v,traffic,
+  gen_most_urg,1,1,FALSE,FALSE,gs_accel,1,FALSE, 
+  mings, maxgs)
+  (t,T,0,t,gs_step)
+  ENDIF
+
+any_alt_red(vs_accel, minalt:posreal, (maxalt: posreal | minalt<maxalt), alt_step:posreal, vertical_rate:nnreal)
+           (los_cd)(los_cd2)(t, T, own)(traffic): bool = 
+     IF length(traffic) = 0 then FALSE 
+     ELSIF vertical_rate = 0 THEN
+          instant_alt_first_red(los_cd`los, los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,t,T,0,t,own`s,
+         own`v,traffic,minalt,maxalt,alt_step, 1) >=0 OR
+	 instant_alt_first_red(los_cd`los,los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,t,T,0,t,own`s,
+         own`v,traffic,minalt,maxalt,alt_step, -1) >=0
+     ELSE  kinematic_alt_first_red(los_cd`los,los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,t,T,0,t,own`s,
+        own`v,traffic,minalt,maxalt,alt_step,1,
+	vertical_rate,vs_accel,-vs_accel, TRUE, 1) >=0 OR 
+	kinematic_alt_first_red(los_cd`los,los_cd`cd, los_cd2`los, los_cd2`cd,TRUE,t,T,0,t,own`s,
+        own`v,traffic,minalt,maxalt,alt_step,1,
+	vertical_rate,vs_accel,-vs_accel, TRUE, -1) >=0
+     ENDIF
+
+trk_bands_init(omega:nnreal, lefttrk, righttrk:nnreal, (trkstep:posreal | trkstep< pi AND trkstep * round(lefttrk / trkstep) <= pi AND trkstep * round(righttrk / trkstep) <= pi ))
+	   (eps_H, eps_V: Sign, conf_crit, rec_crit:bool)
+	   (los_cd)(los_cd2)(t, T, own, rec?)(traffic): list[RealBand] =
+  IF null?(traffic) THEN (:(# lb:=0, ub:=2*pi #):)
+  ELSE LET crit? = IF rec? THEN rec_crit ELSE conf_crit ENDIF IN
+     IF omega = 0 THEN 
+      %LET prt = printf("inst track ~%") IN
+      % IF t=0 AND some_ac?(LAMBDA(ac:Aircraft): los_cd`los(own`s,own`v,ac`s,ac`v))(traffic) THEN null[RealBand]
+      % ELSE 
+        instant_track_bands(los_cd`los,los_cd`cd,los_cd2`los,los_cd2`cd,rec?,own`s,own`v,
+      	  traffic,gen_most_urg,eps_H,eps_V,crit?,crit?)(t,T,0,t,trkstep) 
+      % ENDIF
+     ELSE 
+      %LET prt = printf("kinematic track, t_r = ~a~%", omega) IN 
+         kinematic_track_bands(los_cd`los, los_cd`cd, los_cd2`los, los_cd2`cd,rec?,own`s,
+  	 own`v,traffic,gen_most_urg, eps_H, eps_V,crit?,crit?,omega)
+         (t,T,0,t,round(lefttrk/trkstep), round(righttrk/trkstep),trkstep) 
+     ENDIF 
+  ENDIF
+
+vs_bands_init(vs_accel:posreal, minvs, maxvs: real, vs_step: posreal)
+	     (eps_H, eps_V: Sign, conf_crit, rec_crit:bool)
+             (los_cd)(los_cd2)(t, T, own, rec?)(traffic): list[RealBand] = 
+   IF null?(traffic) THEN (:(# lb:=minvs, ub:=maxvs #):)
+   ELSE LET crit? = IF rec? THEN rec_crit ELSE conf_crit ENDIF IN
+      IF vs_accel = 0 THEN 
+       % IF t=0 AND some_ac?(LAMBDA(ac:Aircraft): los_cd`los(own`s,own`v,ac`s,ac`v))(traffic) THEN null[RealBand]
+       % ELSE 
+         instant_vs_bands(los_cd`los,los_cd`cd,los_cd2`los,los_cd2`cd,rec?,own`s,own`v,
+      	 traffic,gen_most_urg, eps_H, eps_V,crit?,crit?,minvs,maxvs)(t,T,0,t,vs_step)
+	% ENDIF
+      ELSE
+        kinematic_vs_bands(los_cd`los, los_cd`cd, los_cd2`los, los_cd2`cd,rec?,own`s,
+  	 own`v,traffic,gen_most_urg, eps_H, eps_V,crit?,crit?,vs_accel, 
+  	minvs, maxvs)
+        (t,T,0,t,vs_step)
+      ENDIF
+   ENDIF
+
+gs_bands_init(gs_accel, mings, maxgs, gs_step: posreal)
+	     (eps_H, eps_V: Sign, conf_crit, rec_crit:bool)
+             (los_cd)(los_cd2)(t, T, own, rec?)(traffic): list[RealBand] = 
+   IF null?(traffic) THEN (:(# lb:=mings, ub:=maxgs #):)
+   ELSE LET crit? = IF rec? THEN rec_crit ELSE conf_crit ENDIF IN
+      IF gs_accel = 0 THEN
+         %LET debug = printf("entered instantaneous gs~%") IN 
+       % IF t=0 AND some_ac?(LAMBDA(ac:Aircraft): los_cd`los(own`s,own`v,ac`s,ac`v))(traffic) THEN null[RealBand]
+       % ELSE 
+         instant_gs_bands(los_cd`los,los_cd`cd,los_cd2`los,los_cd2`cd,rec?,own`s,own`v,
+      	 traffic,gen_most_urg,eps_H, eps_V,crit?,crit?,mings,maxgs)(t,T,0,t,gs_step) 
+	% ENDIF
+      ELSE  
+        kinematic_gs_bands(los_cd`los, los_cd`cd, los_cd2`los, los_cd2`cd,rec?,own`s,
+  	 own`v,traffic,gen_most_urg, eps_H, eps_V,crit?,crit?,gs_accel, 
+  	mings, maxgs)
+        (t,T,0,t,gs_step)
+      ENDIF
+   ENDIF
+
+alt_bands_init(vs_accel, minalt:posreal, (maxalt:posreal | minalt<maxalt), alt_step:posreal, vertical_rate:nnreal)
+              (eps_H, eps_V: Sign, conf_crit, rec_crit:bool)
+              (los_cd)(los_cd2)(t, T, own, rec?)(traffic): list[RealBand] = 
+   IF length(traffic) = 0 THEN (:(#lb:=minalt,ub:=maxalt#):) 
+   ELSIF vertical_rate=0 THEN 
+      %  IF t=0 AND some_ac?(LAMBDA(ac:Aircraft): los_cd`los(own`s,own`v,ac`s,ac`v))(traffic) THEN null[RealBand]
+      %  ELSE 
+         instant_alt_bands(los_cd`los, los_cd`cd, los_cd2`los, los_cd2`cd,rec?,
+	 t,T,0,t,own`s,own`v,traffic,minalt,maxalt,alt_step)
+	% ENDIF
+   ELSE kinematic_alt_bands(los_cd`los, los_cd`cd, los_cd2`los, los_cd2`cd,rec?,
+   	t,T,0,t,own`s,own`v,traffic,minalt,maxalt,alt_step,1,
+	vertical_rate,vs_accel,-vs_accel, TRUE)
+   ENDIF
+
+   %% function for scaling by a unit, with early exit for scaling by 1.
+
+ unit: VAR posreal
+
+ scale_band_unit(unit)(band: RealBand):
+   RealBand = (#lb:= band`lb/unit, ub:= band`ub/unit #)
+ 
+ scale_bands_unit(bands:list[RealBand], unit):  list[RealBand] = 
+   IF unit=1 THEN bands 
+   ELSE map(scale_band_unit(unit))(bands)
+   ENDIF
+
+
+  END get_kinematic_bands_util
