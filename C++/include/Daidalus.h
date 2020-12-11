@@ -5,6 +5,32 @@
  * Rights Reserved.
  */
 
+#ifndef DAIDALUSBANDS_H_
+#define DAIDALUSBANDS_H_
+
+#include "GenericStateBands.h"
+#include "DaidalusCore.h"
+#include "DaidalusAltBands.h"
+#include "DaidalusDirBands.h"
+#include "DaidalusHsBands.h"
+#include "DaidalusVsBands.h"
+#include "UrgencyStrategy.h"
+#include "Velocity.h"
+#include "ErrorLog.h"
+#include "ErrorReporter.h"
+#include "TrafficState.h"
+#include "BandsRegion.h"
+#include "Alerter.h"
+#include "Detection3D.h"
+#include "IndexLevelT.h"
+#include "string_util.h"
+#include "format.h"
+#include <vector>
+#include <string>
+#include <cmath>
+
+namespace larcfm {
+
 /**
  * Objects of class "Daidalus" compute the conflict bands using
  * kinematic single-maneuver projections of the ownship and linear preditions
@@ -64,32 +90,6 @@
  * </pre>
  *
  */
-
-#ifndef DAIDALUSBANDS_H_
-#define DAIDALUSBANDS_H_
-
-#include "GenericStateBands.h"
-#include "DaidalusCore.h"
-#include "DaidalusAltBands.h"
-#include "DaidalusDirBands.h"
-#include "DaidalusHsBands.h"
-#include "DaidalusVsBands.h"
-#include "UrgencyStrategy.h"
-#include "Velocity.h"
-#include "ErrorLog.h"
-#include "ErrorReporter.h"
-#include "TrafficState.h"
-#include "BandsRegion.h"
-#include "Alerter.h"
-#include "Detection3D.h"
-#include "IndexLevelT.h"
-#include "string_util.h"
-#include "format.h"
-#include <vector>
-#include <string>
-#include <cmath>
-
-namespace larcfm {
 
 class Daidalus : public GenericStateBands, public ErrorReporter {
 

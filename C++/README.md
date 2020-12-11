@@ -1,7 +1,7 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 ---------------------------------------------------------
 
-Release: Pre-v2.0.2 (Java), September-24-2020
+Release: v2.0.2 (C++), December-11-2020
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
@@ -65,23 +65,23 @@ encounter file using the sample
 program `DaidalusAlerting`, e.g.,
 
 ```
-$ ./DaidalusAlerting --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa
-Loading configuration file ../Configurations/DO_365A_no_SUM.conf
+$ ./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
+Loading configuration file ../Configurations/DO_365B_no_SUM.conf
 Processing DAIDALUS file ../Scenarios/H1.daa
-Generating CSV file H1_DO_365A_no_SUM.csv
+Generating CSV file H1_DO_365B_no_SUM.csv
 ```
 
-The generated file ` H1_DO_365A_no_SUM.csv` contains  alerting information computed by DAIDALUS
-for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration.
+The generated file ` H1_DO_365B_no_SUM.csv` contains  alerting information computed by DAIDALUS
+for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
 
 The sample program `DaidalusBatch` generates alerting and banding
 information from a given encounter file, e.g.,
 
 ```
-$ ./DaidalusBatch --conf  ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa
+$ ./DaidalusBatch --conf  ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
 
 ```
-prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration.
+prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
 
 The Perl script [`daidalize.pl`](../Scripts/daidalize.pl) takes as input a DAIDALUS log file and
 generates configuration (`.conf`) and encounter (`.daa`) files that can

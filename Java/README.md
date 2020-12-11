@@ -1,7 +1,7 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 ---------------------------------------------------------
 
-Release: Pre-v2.0.2 (Java), September-24-2020
+Release: v2.0.2 (Java), December-11-2020
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
@@ -61,34 +61,34 @@ encounter file using the sample
 program `DaidalusAlerting`, e.g.,
 
 ```
-$ ./DaidalusAlerting --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa
-Loading configuration file ../Configurations/DO_365A_no_SUM.conf
+$ ./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
+Loading configuration file ../Configurations/DO_365B_no_SUM.conf
 Processing DAIDALUS file ../Scenarios/H1.daa
-Generating CSV file H1_DO_365A_no_SUM.csv
+Generating CSV file H1_DO_365B_no_SUM.csv
 ```
 
-The generated file ` H1_DO_365A_no_SUM.csv` contains  alerting information computed by DAIDALUS
-for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration.
+The generated file ` H1_DO_365B_no_SUM.csv` contains  alerting information computed by DAIDALUS
+for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
 
 The sample program `DaidalusBatch` generates alerting and banding
 information from a given encounter file, e.g.,
 
 ```
-$ ./DaidalusBatch --conf  ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa
+$ ./DaidalusBatch --conf  ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
 
 ```
-prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration.
+prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
 
 Scripts are provided to produce graphs containing guidance and alerting
 information. For example, 
 
 ```
-./DrawMultiBands --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa
+./DrawMultiBands --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
 Writing file H1.draw, which can be processed with the Python script drawmultibands.py
 ```
 
 produces a file `H1.draw`  for the encounter
-[`H1.daa`](../Scenarios/H1.daa) assuming [DO-365A (no SUM)](../Configurations/DO_365A_no_SUM.conf) configuration. This file can be processed with the Python
+[`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration. This file can be processed with the Python
 script [`drawmultibands.py`](../Scripts/drawmultibands.py) to produce a PDF file displaying manuever
 guidance information for the given configuration and encounter files, e.g.,
 

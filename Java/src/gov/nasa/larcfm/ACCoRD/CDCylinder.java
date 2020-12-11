@@ -387,11 +387,11 @@ public class CDCylinder extends Detection3D {
 		haz.clear();
 		Position po = ownship.getPosition();
 		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
-		Vect3 sD = Horizontal.hmd_tangent_point(D_,v);
-		Velocity vD = Velocity.make(sD);
-		if (T == 0) {
-			circular_arc(haz,po,vD,2*Math.PI,false);
+		if (Util.almost_equals(T,0) || Util.almost_equals(v.norm2D(),0)) {
+			circular_arc(haz,po,Velocity.mkVxyz(D_,0,0),2*Math.PI,false);
 		} else {
+			Vect3 sD = Horizontal.unit_perpL(v).Scal(D_);
+			Velocity vD = Velocity.make(sD);
 			circular_arc(haz,po,vD,Math.PI,true);	
 			circular_arc(haz,po.linear(v,T),vD.Neg(),Math.PI,true);
 		}

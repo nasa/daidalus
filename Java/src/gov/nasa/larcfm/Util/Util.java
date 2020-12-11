@@ -221,7 +221,7 @@ public final class Util {
 	 * 
 	 * @param a one number
 	 * @param b another number
-	 * @param maxUlps maximum units of least precision
+	 * @param maxUlps the precision, or more specifically, the maximum units of least precision
 	 * @return true, if almost equals
 	 */
 	public static boolean almost_equals(double a, double b, long maxUlps) {

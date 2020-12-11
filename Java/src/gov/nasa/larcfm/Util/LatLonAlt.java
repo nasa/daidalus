@@ -306,13 +306,13 @@ public final class LatLonAlt {
 		return toString("deg","deg","ft",p);
 	}
 	
-	/** Return a string representation  
-	 * with user-specified units and precision 
-	 * 
+	/** Return a string representation consistent with StateReader or PlanReader
+	 * with user-specified units and precision
+	 *
 	 * @param latunit units for latitude
 	 * @param lonunit units for longitude
 	 * @param zunit units for altitude
-	 * @return string representation
+		 * @return string representation
 	 */
 	public String toString(String latunit, String lonunit, String zunit) {
 		return toString(latunit,lonunit,zunit,Constants.get_output_precision());

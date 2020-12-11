@@ -1,6 +1,6 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  Pre-v2.0.2-FormalATM-v2.7.4 (C++), September-24-2020
+Release:  v2.0.2-FormalATM-v2.7.4 (C++), December-11-2020
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2020 United States Government as represented by 
@@ -8,8 +8,16 @@ the National Aeronautics and Space Administration.  No copyright
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.
 
-Release DAIDALUS-Pre-v2.0.2:
+Release DAIDALUS-v2.0.2:
 ------------------
+* The main difference with v2.0.1 is that alerting time only counts
+after capturing a value in the calculation of maneuver guidance logic.
+
+* December 11, 2020
+- Added DO-365B configuration
+- Fixed computation of TCPA hazard volume when TTHR*||v|| < DTHR and
+other volumes when relative velocity is zero (these fixes are only for display)
+
 * October 9, 2020
 - Added performance metrics methods to Daidalus class
 - Fixed bug in Daidalus class, where numberOfAircraft was used instead

@@ -144,7 +144,8 @@ public class WCV_TAUMOD extends WCV_tvar {
 	}
 
 	public void hazard_zone_far_end(List<Position> haz,
-			Position po, Velocity v, Velocity vD, double T) {
+			Position po, Velocity v, Vect3 pu, double T) {
+		Vect3 vD = pu.Scal(getDTHR());
 		Vect3 vC = v.Scal(0.5*getTTHR());     // TAUMOD Center (relative)
 		Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
 		Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);

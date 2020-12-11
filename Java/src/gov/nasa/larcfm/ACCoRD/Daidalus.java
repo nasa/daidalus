@@ -4835,12 +4835,11 @@ public class Daidalus implements GenericStateBands {
 
 	@Deprecated
 	/**
-	 * 
+	 * Use verticalSpeedRegionAt instead
 	 */
 	public BandsRegion verticalSpeedRegion(int i) {
 		return verticalSpeedRegionAt(i);
 	}
-
 
 }
 

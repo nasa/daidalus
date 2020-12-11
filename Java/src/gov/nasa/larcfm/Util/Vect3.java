@@ -521,6 +521,7 @@ public class Vect3 {
 		return formatXYZ(precision,"(",", ",")");
 	}
 
+	/** A string representation of this vector */
 	public String toStringNP(String xunit, String yunit, String zunit) {
 		return toStringNP(xunit,yunit,zunit,Constants.get_output_precision());
 	}

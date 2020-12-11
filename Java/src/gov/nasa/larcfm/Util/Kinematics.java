@@ -1991,7 +1991,7 @@ public final class Kinematics {
 	 * @param gsAccel         positive ground speed acceleration
 	 * @param dt              total time traveling
 	 * 
-	 * @return                total distance traveled 
+	 * @return                (total distance traveled, gsFinal) 
 	 * 
 	 * Note: if gsAccel = 0 it returns gs0*dt
 	 */

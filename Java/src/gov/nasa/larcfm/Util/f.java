@@ -54,7 +54,9 @@ final public class f {
 	}
 
 	private static StringBuffer sb;
-	private static final String nl = System.getProperty("line.separator");
+	
+	/** Platform-specific line separator.  Most of the time, this shouldn't be used */
+	public static final String nl = System.getProperty("line.separator");
 
 	/** 
 	 * Redirect "f.pln" and "f.p" methods to the given StringBuffer.  To restore 

@@ -166,9 +166,10 @@ public final class GreatCircle {
 	public static double angular_distance(double lat1, double lon1,
 			double lat2, double lon2) {
 		/*
-		 * This function uses the haversine formula. Haversines were developed
+		 * This function uses the haversine formula. A "versed sine" is a sine that is
+		 * always positive. A haversine is a "half versed sine."  Haversines were developed
 		 * hundreds of years ago for navigators. A navigator with a haversine table 
-		 * and its inverse (and standard trig tables) could compute the 
+		 * and its inverse (and standard trig and log tables) could compute the 
 		 * distance between two lat/lon points without squaring or square roots.
 		 * 
 		 * Clearly with modern computers, we do not need haversines for this
@@ -1420,7 +1421,7 @@ public final class GreatCircle {
 
 	/**
 	 * Return the turn angle between great circles (this will return a value between 0 and PI)
-	 * 
+	 * (uses coordinate transformation)
 	 * @param a point on gc1
 	 * @param b intersection of gc1 and gc2
 	 * @param c point on gc2

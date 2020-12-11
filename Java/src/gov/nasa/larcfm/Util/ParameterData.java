@@ -346,6 +346,7 @@ public class ParameterData {
 	/**
 	 * Returns the string value of the given parameter key. This may be a
 	 * space-delimited list. If the key is not present, return the empty string.
+	 * Parameter keys may be case-sensitive.
 	 * 
 	 * @param key parameter name
 	 * @return string representation of parameter
@@ -361,7 +362,7 @@ public class ParameterData {
 	/**
 	 * Returns the double-precision value of the given parameter key in internal
 	 * units. If the key is not present or if the value is not a numeral, then
-	 * return 0. 
+	 * return 0. Parameter keys may be case-sensitive.
 	 * 
 	 * @param key parameter name
 	 * @return value of parameter (internal units)
@@ -378,7 +379,8 @@ public class ParameterData {
 	 * Returns the double-precision value of the given parameter key in internal
 	 * units. Only in the case when units were not specified in the database, will
 	 * the defaultUnit parameter be used. If the key is not present or if the
-	 * value is not a numeral, then return 0. 
+	 * value is not a numeral, then return 0. Parameter keys may be
+	 * case-sensitive.
 	 * 
 	 * @param key name of parameter
 	 * @param defaultUnit units to use if no units are in database
@@ -391,7 +393,7 @@ public class ParameterData {
 	/**
 	 * Returns the string representation of the specified unit of the given
 	 * parameter key. If the key is not present or no unit was specified, return
-	 * "unspecified". 
+	 * "unspecified". Parameter keys may be case-sensitive.
 	 * 
 	 * @param key name of parameter
 	 * @return units of parameter
@@ -407,6 +409,7 @@ public class ParameterData {
 	/**
 	 * Returns the Boolean value of the given parameter key. If the key is not
 	 * present, or not representation of "true", return the empty string.
+	 * Parameter keys may be case-sensitive.
 	 * 
 	 * @param key name of parameter
 	 * @return boolean representation of parameter
@@ -426,6 +429,7 @@ public class ParameterData {
 	 * value is not a numeral, then return 0.  This value is an integer version of the 
 	 * double value (see the related getParameterValue() method).  If the double value is 
 	 * larger than an integer, behavior is undefined.
+	 * Parameter keys may be case-sensitive.
 	 * 
 	 * @param key name of parameter
 	 * @return integer representation of parameter
@@ -441,6 +445,7 @@ public class ParameterData {
 	 * value is not a numeral, then return 0.  This value is an integer version of the 
 	 * double value (see the related getParameterValue() method).  If the double value is 
 	 * larger than an long, behavior is undefined.  
+	 * Parameter keys may be case-sensitive.
 	 * 
 	 * @param key name of parameter
 	 * @return long representation of parameter
@@ -757,10 +762,7 @@ public class ParameterData {
 	 * Copy parameter entries from list of keys 
 	 * @param p database
 	 * @param plist list of keys
-	 * @param overwrite if a parameter key exists in both this object and p, if overwrite is true 
-	 * 	then p's value will be used, otherwise this object's value will be used
-	 * @param merge if true, then (assuming overwrite is true) if the comment or units fields are blank in p, 
-	 *    they are replaced with values in this object
+	 * @param overwrite if a parameter key exists in both this object and p, if overwrite is true then p's value will be used, otherwise this object's value will be used
 	 */
 	private void listCopy(ParameterData p, List<String> plist, boolean overwrite) {
 		for (String key: plist) {

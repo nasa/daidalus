@@ -576,6 +576,7 @@ public /*final*/ class Vect2 {
 		return formatXY(precision,"(",", ",")");
 	}
 
+	/** A string representation of this vector */
 	public String toStringNP(String xunit, String yunit) {
 		return toStringNP(xunit,yunit,Constants.get_output_precision());
 	}

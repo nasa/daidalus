@@ -82,7 +82,7 @@ public:
   static double TAU_radius(const Velocity& v, double DTHR, double TTHR);
 
   virtual void hazard_zone_far_end(std::vector<Position>& haz,
-      const Position& po, const Velocity& v, const Velocity& vD, double T) const;
+      const Position& po, const Velocity& v, const Vect3& pu, double T) const;
 
 };
 
