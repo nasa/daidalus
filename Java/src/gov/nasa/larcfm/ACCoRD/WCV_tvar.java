@@ -207,18 +207,18 @@ public abstract class WCV_tvar extends Detection3D {
 		haz.clear();
 		Position po = ownship.getPosition();
 		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
-		Vect3 sD = Horizontal.hmd_tangent_point(getDTHR(),v);
-		Velocity vD = Velocity.make(sD);
-		if (getTTHR()+T == 0) {
-			CDCylinder.circular_arc(haz,po,vD,2*Math.PI,false);
+		if (Util.almost_equals(getTTHR()+T,0) || Util.almost_equals(v.norm2D(),0)) {
+			CDCylinder.circular_arc(haz,po,Velocity.mkVxyz(getDTHR(),0,0),2*Math.PI,false);
 		} else {
+			Vect3 pu = Horizontal.unit_perpL(v);
+			Velocity vD = Velocity.make(pu.Scal(getDTHR()));
 			CDCylinder.circular_arc(haz,po,vD,Math.PI,true);	
-			hazard_zone_far_end(haz,po,v,vD,T);
+			hazard_zone_far_end(haz,po,v,pu,T);
 		}
 	}
 
 	public void hazard_zone_far_end(List<Position> haz,
-			Position po, Velocity v, Velocity vD, double T) {}
+			Position po, Velocity v, Vect3 pu, double T) {}
 
 	@Override
 	public boolean equals(Object obj) {

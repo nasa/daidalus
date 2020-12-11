@@ -97,12 +97,22 @@ public class WCV_TCPA extends WCV_tvar {
 		}
 		return false;
 	}
-	
+
 	public void hazard_zone_far_end(List<Position> haz,
-			Position po, Velocity v, Velocity vD, double T) {
-		Position npo = po.linear(v,getTTHR()+T);		
-		haz.add(npo.linear(vD,-1));
-		haz.add(npo.linear(vD,1));
+			Position po, Velocity v, Vect3 pu, double T) {
+		Position npo = po.linear(v,getTTHR()+T);
+		Velocity vu = Velocity.make(pu);
+		haz.add(npo.linear(vu,-getDTHR()));
+		double b = v.norm2D()*getTTHR();
+		if (Util.almost_greater(getDTHR(),b)) {
+			// Far end has the form of a cap
+			double a = Util.sqrt_safe(Util.sq(getDTHR())-Util.sq(b));
+			double alpha = Util.acos_safe(b/getDTHR());
+			Vect3 vD = pu.ScalAdd(-a,v.Hat().Scal(b));
+			CDCylinder.circular_arc(haz,po.linear(v,T),
+					Velocity.make(vD),2*alpha,true);
+		}
+		haz.add(npo.linear(vu,getDTHR()));
 	}
 
 }

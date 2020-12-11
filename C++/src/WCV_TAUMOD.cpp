@@ -160,7 +160,8 @@ double WCV_TAUMOD::TAU_radius(const Velocity& v, double DTHR, double TTHR) {
 }
 
 void WCV_TAUMOD::hazard_zone_far_end(std::vector<Position>& haz,
-    const Position& po, const Velocity& v, const Velocity& vD, double T) const {
+    const Position& po, const Velocity& v, const Vect3& pu, double T) const {
+  Vect3 vD = pu.Scal(getDTHR());
   Vect3 vC = v.Scal(0.5*getTTHR());     // TAUMOD Center (relative)
   Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
   Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);

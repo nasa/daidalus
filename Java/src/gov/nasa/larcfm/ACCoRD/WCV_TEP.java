@@ -90,10 +90,11 @@ public class WCV_TEP extends WCV_tvar {
 		}
 		return false;
 	}
-	
+
 	public void hazard_zone_far_end(List<Position> haz,
-			Position po, Velocity v, Velocity vD, double T) {
-		CDCylinder.circular_arc(haz,po.linear(v,getTTHR()+T),vD.Neg(),Math.PI,true);
+			Position po, Velocity v, Vect3 pu, double T) {
+		CDCylinder.circular_arc(haz,po.linear(v,getTTHR()+T),
+				Velocity.make(pu.Scal(-getDTHR())),Math.PI,true);
 	}
 
 }

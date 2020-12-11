@@ -460,11 +460,11 @@ public class Horizontal extends Vect2  {
 		return nvo.norm();
 	}
 
-	/* Point in relative coordinates that is tangent to the circle of radius D, around
-	 * so, in the direction of the relative velocity vo-vi. 
+	/* 
+	 * Unit left perpendicular vector to v
 	 */
-	public static Vect3 hmd_tangent_point(double D, Vect3 v) {
-		return v.Hat2D().PerpL().Scal(D);
+	public static Vect3 unit_perpL(Vect3 v) {
+		return v.Hat2D().PerpL();
 	}
 	
 	public String toString() {
