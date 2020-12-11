@@ -97,12 +97,12 @@ public class DaidalusBatch extends DaidalusProcessor {
 		Daidalus daa = new Daidalus();
 
 		if (config.equals("")) {
-			// Configure alerters as in DO_365A Phase I and Phase II
-			daa.set_DO_365A();
+			// Configure alerters as in DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
+			daa.set_DO_365B();
 		} else if (!daa.loadFromFile(config)) {
 			if (config.equals("no_sum")) {
-				// Configure DAIDALUS as in DO-365, but without SUM
-				daa.set_DO_365A(true,false);
+				// Configure DAIDALUS as in DO-365B, without SUM
+				daa.set_DO_365B(true,false);
 			} else if (config.equals("nom_a")) {
 				// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
 				daa.set_Buffered_WC_DO_365(false);

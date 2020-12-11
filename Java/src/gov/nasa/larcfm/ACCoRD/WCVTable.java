@@ -108,11 +108,18 @@ public class WCVTable implements ParameterTable {
 	public static final WCVTable DO_365_DWC_Phase_I = new WCVTable();
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=0.66nmi, ZTHR=450ft, 
-	 * TTHR=35s, TCOA=0.
+	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * TTHR=0, TCOA=0.
 	 */
 	public static final WCVTable DO_365_DWC_Phase_II = 
 			new WCVTable(1500,"ft",450,"ft",0,"s",0,"s");
+
+	/**
+	 * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0, TCOA=0.
+	 */
+	public static final WCVTable DO_365_DWC_Non_Coop = 
+			new WCVTable(2200,"ft",450,"ft",0,"s",0,"s");
 
 	/**
 	 * @return buffered preventive thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=750ft, 

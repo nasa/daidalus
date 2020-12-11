@@ -171,6 +171,52 @@ public class Alerter implements ParameterAcceptor {
 	public static final Alerter DWC_Phase_II = get_DWC_Phase_II();
 
 	/**
+	 * @return DO-365B HAZ preventive thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0s, TCOA=0, alerting time = 55s, early alerting time = 110s,
+	 * bands region = NONE
+	 */
+	public static final AlertThresholds DO_365_Non_Coop_HAZ_preventive =
+			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Non_Coop,55,110,BandsRegion.NONE);
+
+	/**
+	 * @return DO-365B HAZ corrective thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0s, TCOA=0, alerting time = 55s, early alerting time = 110s,
+	 * bands region = MID
+	 */
+	public static final AlertThresholds DO_365_Non_Coop_HAZ_corrective =
+			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Non_Coop,55,110,BandsRegion.MID);
+
+	/**
+	 * @return DO-365B HAZ warning thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0s, TCOA=0, alerting time = 25s, early alerting time = 90s,
+	 * bands region = NEAR
+	 */
+	public static final AlertThresholds DO_365_Non_Coop_HAZ_warning =
+			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Non_Coop,25,90,BandsRegion.NEAR);
+
+	/** 
+	 * @return alerting thresholds as defined in RTCA DO-365B Non-Cooperative
+	 * Maneuver guidance logic produces multilevel bands:
+	 * MID: Corrective
+	 * NEAR: Warning
+	 */
+	private static Alerter get_DWC_Non_Coop() {
+		Alerter alerter = new Alerter("DWC_Non_Coop");
+		alerter.addLevel(DO_365_Non_Coop_HAZ_preventive); 
+		alerter.addLevel(DO_365_Non_Coop_HAZ_corrective); 
+		alerter.addLevel(DO_365_Non_Coop_HAZ_warning);
+		return alerter;
+	}
+
+	/** 
+	 * @return alerting thresholds as defined in RTCA DO-365B Non-Cooperative
+	 * Maneuver guidance logic produces multilevel bands:
+	 * MID: Corrective
+	 * NEAR: Warning
+	 */
+	public static final Alerter DWC_Non_Coop = get_DWC_Non_Coop();
+
+	/**
 	 * @return DO-365 HAZ preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 50s, early alerting time = 75s,
 	 * bands region = NONE, with SUM
@@ -259,6 +305,52 @@ public class Alerter implements ParameterAcceptor {
 	 * Maneuver guidance logic produces warning bands:
 	 */
 	public static final Alerter DWC_Phase_II_SUM = get_DWC_Phase_II_SUM();
+
+	/**
+	 * @return DO-365B HAZ preventive thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0s, TCOA=0, alerting time = 50s, early alerting time = 110s,
+	 * bands region = NONE, with SUM
+	 */
+	public static final AlertThresholds DO_365_Non_Coop_HAZ_preventive_SUM =
+			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Non_Coop,50,110,BandsRegion.NONE);
+
+	/**
+	 * @return DO-365B HAZ corrective thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0s, TCOA=0, alerting time = 55s, early alerting time = 110s,
+	 * bands region = MID, with SUM
+	 */
+	public static final AlertThresholds DO_365_Non_Coop_HAZ_corrective_SUM =
+			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Non_Coop,50,110,BandsRegion.MID);
+
+	/**
+	 * @return DO-365B HAZ warning thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * TTHR=0s, TCOA=0, alerting time = 20s, early alerting time = 90s,
+	 * bands region = NEAR, with SUM
+	 */
+	public static final AlertThresholds DO_365_Non_Coop_HAZ_warning_SUM =
+			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Non_Coop,20,90,BandsRegion.NEAR);
+
+	/** 
+	 * @return alerting thresholds as defined in RTCA DO-365B Non-Cooperative, with SUM
+	 * Maneuver guidance logic produces multilevel bands:
+	 * MID: Corrective
+	 * NEAR: Warning
+	 */
+	private static Alerter get_DWC_Non_Coop_SUM() {
+		Alerter alerter = new Alerter("DWC_Non_Coop_SUM");
+		alerter.addLevel(DO_365_Non_Coop_HAZ_preventive_SUM); 
+		alerter.addLevel(DO_365_Non_Coop_HAZ_corrective_SUM); 
+		alerter.addLevel(DO_365_Non_Coop_HAZ_warning_SUM);
+		return alerter;
+	}
+
+	/** 
+	 * @return alerting thresholds as defined in RTCA DO-365B Non-Cooperative, with SUM
+	 * Maneuver guidance logic produces multilevel bands:
+	 * MID: Corrective
+	 * NEAR: Warning
+	 */
+	public static final Alerter DWC_Non_Coop_SUM = get_DWC_Non_Coop_SUM();
 
 	/**
 	 * @return buffered HAZ preventive thresholds, i.e., DTHR=1nmi, ZTHR=750ft, 

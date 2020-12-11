@@ -305,8 +305,8 @@ int main(int argc, char* argv[]) {
       if (daa.loadFromFile(arga)) {
         std::cout << "Loading configuration file " << arga << std::endl;
       } else if (arga == "no_sum") {
-        // Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
-        daa.set_DO_365A(true,false);
+        // Configure DAIDALUS as in DO-365B, without SUM
+        daa.set_DO_365B(true,false);
       } else if (arga == "nom_a") {
         // Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
         daa.set_Buffered_WC_DO_365(false);
@@ -339,8 +339,8 @@ int main(int argc, char* argv[]) {
 
   if (daa.numberOfAlerters()==0) {
     // If no alerter has been configured, configure alerters as in
-    // DO_365A Phase I and Phase II
-    daa.set_DO_365A();
+    // DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
+    daa.set_DO_365B();
   }
 
   double t = 0.0;

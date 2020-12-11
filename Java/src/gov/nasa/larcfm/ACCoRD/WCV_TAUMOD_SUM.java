@@ -95,6 +95,13 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_II = 
 			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_II);
 
+	/**
+	 * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
+	 * TTHR=0s, TCOA=0.
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_DWC_Non_Coop = 
+			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Non_Coop);
+
 	private void copyFrom(WCV_TAUMOD_SUM wcv) {
 		id = wcv.id;
 		table = wcv.table.copy();

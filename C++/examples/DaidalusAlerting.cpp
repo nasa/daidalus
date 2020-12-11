@@ -70,8 +70,8 @@ int main(int argc, char* argv[]) {
       conf = base_filename.substr(0,base_filename.find_last_of('.'));
       if (!daa.loadFromFile(arga)) {
         if (arga == "no_sum") {
-          // Configure DAIDALUS as in DO-365A, but without SUM
-          daa.set_DO_365A(true,false);
+          // Configure DAIDALUS as in DO-365B, without SUM
+          daa.set_DO_365B(true,false);
           conf = "no_sum";
         } else if (arga == "nom_a") {
           // Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
@@ -129,8 +129,8 @@ int main(int argc, char* argv[]) {
   }
   if (daa.numberOfAlerters()==0) {
     // If no alerter has been configured, configure alerters as in
-    // DO_365A Phase I and Phase II
-    daa.set_DO_365A();
+    // DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
+    daa.set_DO_365B();
   }
   if (params.size() > 0) {
     daa.setParameterData(params);

@@ -62,6 +62,13 @@ public class WCV_TAUMOD extends WCV_tvar {
 			new WCV_TAUMOD(WCVTable.DO_365_DWC_Phase_II);
 
 	/**
+	 * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
+	 * TTHR=0s, TCOA=0.
+	 */
+	public static final WCV_TAUMOD DO_365_DWC_Non_Coop = 
+			new WCV_TAUMOD(WCVTable.DO_365_DWC_Non_Coop);
+
+	/**
 	 * @return buffered preventive thresholds Phase I (en-route), i.e., DTHR=1nmi, ZTHR=750ft,
 	 * TTHR=35s, TCOA=20.
 	 */

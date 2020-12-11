@@ -68,6 +68,15 @@ const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Phase_II() {
 }
 
 /**
+ * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
+ * TTHR=0s, TCOA=0.
+ */
+const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Non_Coop() {
+  static WCV_TAUMOD dwc(WCVTable::DO_365_DWC_Non_Coop());
+  return dwc;
+}
+
+/**
  * @return buffered preventive thresholds Phase I (en-route), i.e., DTHR=1nmi, ZTHR=750ft,
  * TTHR=35s, TCOA=20.
  */
