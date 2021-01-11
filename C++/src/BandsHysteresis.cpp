@@ -61,6 +61,14 @@ double BandsHysteresis::getLastResolutionUp() const {
   return resolution_up_;
 }
 
+double BandsHysteresis::getRawResolutionLow() const {
+  return raw_low_;
+}
+
+double BandsHysteresis::getRawResolutionUp() const {
+  return raw_up_;
+}
+
 int BandsHysteresis::getLastNFactorLow() const {
   return nfactor_low_;
 }
@@ -90,6 +98,10 @@ void BandsHysteresis::reset() {
 
   resolution_up_ = NAN;
   resolution_low_ = NAN;
+
+  raw_up_ = NAN;
+  raw_low_ = NAN;
+
   nfactor_up_ = 0;
   nfactor_low_ = 0;
 }
@@ -427,6 +439,8 @@ void BandsHysteresis::bandsHysteresis(const std::vector<BandsRange>& ranges,
       res_u = ranges[idx_u].interval.low;
     }
   }
+  raw_low_ = res_l;
+  raw_up_ = res_u;
   resolutionsHysteresis(ranges,corrective_region,delta,nfactor,val,idx_l,res_l,idx_u,res_u);
   preferredDirectionHysteresis(delta,val,res_l,res_u);
 }
@@ -447,6 +461,8 @@ std::string BandsHysteresis::toString() const {
   s += "time_of_dir_ = "+FmPrecision(time_of_dir_)+"\n";
   s += "resolution_low_ = "+FmPrecision(resolution_low_)+"\n";
   s += "resolution_up_ = "+FmPrecision(resolution_up_)+"\n";
+  s += "raw_low_ = "+FmPrecision(raw_low_)+"\n";
+  s += "raw_up_ = "+FmPrecision(raw_up_)+"\n";
   s += "nfactor_low_ = "+Fmi(nfactor_low_)+"\n";
   s += "nfactor_up_ = "+Fmi(nfactor_up_)+"\n";
   s += "conflict_region_ = "+BandsRegion::to_string(conflict_region_)+"\n";

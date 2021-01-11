@@ -40,6 +40,10 @@ public:
 
   double getLastResolutionUp() const;
 
+  double getRawResolutionLow() const;
+
+  double getRawResolutionUp() const;
+
   int getLastNFactorLow() const;
 
   int getLastNFactorUp() const;
@@ -107,6 +111,8 @@ private:
    */
   double resolution_up_;
   double resolution_low_;
+  double raw_up_; // Resolution up without hysteresis
+  double raw_low_; // Resolution low without hysteresis
   // nfactor >= 0 means recovery bands. It's the reduction factor for the internal cylinder
   int    nfactor_up_;
   int    nfactor_low_;

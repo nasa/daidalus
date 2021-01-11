@@ -100,7 +100,7 @@ public class Daidalus implements GenericStateBands {
 	/** 
 	 * Construct an empty Daidalus object.
 	 * NOTE: This object doesn't have any alert configured. Alerters can be
-	 * configured either programmatically, set_DO_365A(true,true) or
+	 * configured either programmatically, set_DO_365A() or
 	 * via a configuration file with the method loadFromFile(configurationfile)
 	 **/
 	public Daidalus() {
@@ -159,7 +159,7 @@ public class Daidalus implements GenericStateBands {
 	public void set_DO_365A() {
 		set_DO_365A(true,true);
 	}
-
+	
 	/*  
 	 * Set Daidalus object such that 
 	 * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
@@ -627,9 +627,9 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set horizontal velocity uncertainty of aircraft at index ac_idx
-	 * v_EW_std: East/West position standard deviation in internal units
-	 * v_NS_std: North/South position standard deviation in internal units
-	 * v_EN_std: East/North position standard deviation in internal units
+	 * v_EW_std: East/West speed standard deviation in internal units
+	 * v_NS_std: North/South speed standard deviation in internal units
+	 * v_EN_std: East/North speed standard deviation in internal units
 	 */
 	public void setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std) {
 		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
@@ -644,9 +644,9 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set horizontal velocity uncertainty of aircraft at index ac_idx
-	 * v_EW_std: East/West position standard deviation in given units
-	 * v_NS_std: North/South position standard deviation in given units
-	 * v_EN_std: East/North position standard deviation in given units
+	 * v_EW_std: East/West speed standard deviation in given units
+	 * v_NS_std: North/South speed standard deviation in given units
+	 * v_EN_std: East/North speed standard deviation in given units
 	 */
 	public void setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std, String u) {
 		setHorizontalVelocityUncertainty(ac_idx,Units.from(u,v_EW_std),Units.from(u,v_NS_std),Units.from(u,v_EN_std));
@@ -3041,6 +3041,33 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Compute horizontal direction *raw* resolution maneuver for a given direction.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is right (true)/left (false) of ownship current direction
+	 * @return direction resolution in internal units [rad] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no resolution to the right, and negative infinity if there 
+	 * is no resolution to the left.
+	 */
+	public double horizontalDirectionRawResolution(boolean dir) {
+		return hdir_band_.raw_resolution(core_,dir);
+	}
+
+	/**
+	 * Compute horizontal direction *raw* resolution maneuver for a given direction.
+	 * Raw resolution is the resolution without hysteresis or persistence
+	 * @parameter dir is right (true)/left (false) of ownship current direction
+	 * @parameter u units
+	 * @return direction resolution in specified units [u] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in time seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no resolution to the right, and negative infinity if there 
+	 * is no resolution to the left.
+	 */
+	public double horizontalDirectionRawResolution(boolean dir, String u) {
+		return Units.to(u,horizontalDirectionRawResolution(dir));
+	}
+
+	/**
 	 * Compute preferred horizontal direction based on resolution that is closer to current direction.
 	 * @return True: Right. False: Left. 
 	 */
@@ -3221,6 +3248,33 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public double horizontalSpeedResolution(boolean dir, String u) {
 		return Units.to(u,horizontalSpeedResolution(dir));
+	}
+
+	/**
+	 * Compute horizontal speed *raw* resolution maneuver.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+	 * @return horizontal speed resolution in internal units [m/s] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * is no down resolution.
+	 */
+	public double horizontalSpeedRawResolution(boolean dir) {
+		return hs_band_.raw_resolution(core_,dir);
+	}
+
+	/**
+	 * Compute horizontal speed *raw* resolution maneuver for corrective region.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+	 * @parameter u units
+	 * @return horizontal speed resolution in specified units [u] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * is no down resolution.
+	 */
+	public double horizontalSpeedRawResolution(boolean dir, String u) {
+		return Units.to(u,horizontalSpeedRawResolution(dir));
 	}
 
 	/**
@@ -3407,6 +3461,33 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
+	 * Compute vertical speed *raw* resolution maneuver for given direction.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
+	 * @return vertical speed resolution in internal units [m/s] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * is no down resolution.
+	 */
+	public double verticalSpeedRawResolution(boolean dir) {
+		return vs_band_.raw_resolution(core_,dir);
+	}
+
+	/**
+	 * Compute vertical speed *raw* resolution maneuver for given direction.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
+	 * @parameter u units
+	 * @return vertical speed resolution in specified units [u] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * is no down resolution.
+	 */
+	public double verticalSpeedRawResolution(boolean dir, String u) {
+		return Units.to(u,verticalSpeedRawResolution(dir));
+	}
+
+	/**
 	 * Compute preferred  vertical speed direction based on resolution that is closer to current vertical speed.
 	 * True: Increase speed, False: Decrease speed.
 	 */
@@ -3587,6 +3668,33 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public double altitudeResolution(boolean dir, String u) {
 		return Units.to(u,altitudeResolution(dir));
+	}
+
+	/**
+	 * Compute altitude *raw* resolution maneuver for given direction.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is up (true)/down (false) of ownship current altitude
+	 * @return altitude resolution in internal units [m] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * is no down resolution.
+	 */
+	public double altitudeRawResolution(boolean dir) {
+		return alt_band_.raw_resolution(core_,dir);
+	}
+
+	/**
+	 * Compute altitude *raw* resolution maneuver for given direction.
+	 * Raw resolution is the resolution without persistence
+	 * @parameter dir is up (true)/down (false) of ownship current altitude
+	 * @parameter u units
+	 * @return altitude resolution in specified units [u] in specified direction. 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
+	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * is no down resolution.
+	 */
+	public double altitudeRawResolution(boolean dir, String u) {
+		return Units.to(u,altitudeRawResolution(dir));
 	}
 
 	/**

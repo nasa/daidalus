@@ -47,6 +47,8 @@ public class BandsHysteresis {
 	 */
 	private double resolution_up_;
 	private double resolution_low_;
+	private double raw_up_; // Resolution up without hysteresis
+	private double raw_low_; // Resolution low without hysteresis
 	// nfactor >= 0 means recovery bands. It's the reduction factor for the internal cylinder
 	private int    nfactor_up_; 
 	private int    nfactor_low_; 
@@ -100,6 +102,14 @@ public class BandsHysteresis {
 		return resolution_up_;
 	}
 
+	public double getRawResolutionLow() {
+		return raw_low_;
+	}
+
+	public double getRawResolutionUp() {
+		return raw_up_;
+	}
+
 	public int getLastNFactorLow() {
 		return nfactor_low_;
 	}
@@ -129,6 +139,10 @@ public class BandsHysteresis {
 
 		resolution_up_ = Double.NaN;
 		resolution_low_ = Double.NaN;
+
+		raw_up_ = Double.NaN;
+		raw_low_ = Double.NaN;
+		
 		nfactor_up_ = 0;
 		nfactor_low_ = 0;
 	}
@@ -467,6 +481,8 @@ public class BandsHysteresis {
 				res_u = ranges.get(idx_u).interval.low;
 			}
 		}
+		raw_low_ = res_l;
+		raw_up_ = res_u;
 		resolutionsHysteresis(ranges,corrective_region,delta,nfactor,val,idx_l,res_l,idx_u,res_u);
 		preferredDirectionHysteresis(delta,val,res_l,res_u);
 	}
@@ -487,6 +503,8 @@ public class BandsHysteresis {
 		s += "time_of_dir_ = "+f.FmPrecision(time_of_dir_)+"\n";
 		s += "resolution_low_ = "+f.FmPrecision(resolution_low_)+"\n";
 		s += "resolution_up_ = "+f.FmPrecision(resolution_up_)+"\n";
+		s += "raw_low_ = "+f.FmPrecision(raw_low_)+"\n";
+		s += "raw_up_ = "+f.FmPrecision(raw_up_)+"\n";
 		s += "nfactor_low_ = "+f.Fmi(nfactor_low_)+"\n";
 		s += "nfactor_up_ = "+f.Fmi(nfactor_up_)+"\n";
 		s += "conflict_region_ = "+conflict_region_.toString()+"\n";
