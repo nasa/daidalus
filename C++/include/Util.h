@@ -57,7 +57,9 @@ typedef int64_t INT64FM;
 #define PINFINITY std::numeric_limits<double>::infinity()
 #define NINFINITY -std::numeric_limits<double>::infinity()
 #define MAXDOUBLE std::numeric_limits<double>::max()
+#ifndef ISNAN
 #define ISNAN std::isnan
+#endif
 #define ISINF std::isinf
 
 // this is a "signaling NaN" that may throw a fp exception, but this is implementation dependent (and the flag can be set by other libraries).  In general, don't use this.
