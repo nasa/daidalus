@@ -19,6 +19,10 @@ lib: $(OBJS)
 	@ar -cr lib/$(RELEASE).a $(OBJS) && ranlib lib/$(RELEASE).a
 	@cd lib;ln -sf $(RELEASE).a $(VERSION).a
 
+install:
+	mkdir -p $(DESTDIR)/usr/local/lib
+	install ${INSTALL_OPTS} lib/$(RELEASE).a $(DESTDIR)/usr/local/lib/libdaidalus.a
+
 examples: 
 	@echo "** Building example applications"
 	$(CXX) -o DaidalusExample $(CXXFLAGS) examples/DaidalusExample.cpp lib/$(RELEASE).a
