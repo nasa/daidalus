@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 United States Government as represented by
+ * Copyright (c) 2019-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -56,6 +56,10 @@ int main(int argc, char* argv[]) {
 
   std::string input_file = "";
   std::string output_file = "";
+  std::string ownship = "";
+  std::vector<std::string> traffic;
+
+
   ParameterData params;
   std::string conf = "";
   bool echo = false;
@@ -98,14 +102,21 @@ int main(int argc, char* argv[]) {
       }
     } else if (arga == "--echo" || arga == "-echo") {
       echo = true;
-    } else if ((startsWith(arga,"--o") || startsWith(arga,"-o")) && a+1 < argc) {
-      output_file = argv[++a];
     } else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
       ++a;
       std::istringstream(argv[a]) >> precision;
+    } else if ((startsWith(arga,"--o") || startsWith(arga,"-o")) && a+1 < argc) {
+      output_file = argv[++a];
     } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
       std::string keyval = arga.substr(arga.find_last_of('-')+1);
       params.set(keyval);
+    } else if ((startsWith(arga,"--own") || startsWith(arga,"-own")) && a+1 < argc) {
+      ++a;
+      ownship = argv[a];
+    } else if ((startsWith(arga,"--traf") || startsWith(arga,"-traf")) && a+1 < argc) {
+      ++a;
+      std::vector<std::string> s = split(arga,",");
+      traffic.insert(traffic.end(),s.begin(),s.end());
     } else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
       std::cerr << "Usage:" << std::endl;
       std::cerr << "  DaidalusAlerting [<option>] <daa_file>" << std::endl;
@@ -114,7 +125,9 @@ int main(int argc, char* argv[]) {
       std::cerr << "  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]" << std::endl;
       std::cerr << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
       std::cerr << "  --echo\n\tEcho configuration and traffic list in standard outoput" << std::endl;
-      std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;
+      std::cerr << "  --precision <n>\n\tOutput decimal precision" << std::endl;
+      std::cerr << "  --ownship <id>\n\tSpecify a particular aircraft as ownship" << std::endl;
+      std::cerr << "  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic" << std::endl;
       std::cerr << "  --help\n\tPrint this message" << std::endl;
       exit(0);
     } else if (startsWith(arga,"-")){
@@ -164,8 +177,16 @@ int main(int argc, char* argv[]) {
   std::cout << "Processing DAIDALUS file " << input_file << std::endl;
   std::cout << "Generating CSV file " << output_file << std::endl;
   DaidalusFileWalker walker(input_file);
-  int max_alert_level = daa.maxAlertLevel();
-  if (max_alert_level <= 0) {
+
+  if (ownship != "") {
+    walker.setOwnship(ownship);
+  }
+  if (!traffic.empty()) {
+    walker.selectTraffic(traffic);
+  }
+
+  int max_alert_levels = daa.maxNumberOfAlertLevels();
+  if (max_alert_levels <= 0) {
     return 0;
   }
   int corrective_level = daa.correctiveAlertLevel(1);
@@ -185,7 +206,7 @@ int main(int argc, char* argv[]) {
   if (!daa.isDisabledDTALogic()) {
     line_units += ",,, [nmi]";
   }
-  for (int level=1; level <= max_alert_level;++level) {
+  for (int level=1; level <= max_alert_levels;++level) {
     out << ", Time to Volume of Alert(" << level << ")";
     line_units += ", [s]";
   }
@@ -227,7 +248,7 @@ int main(int argc, char* argv[]) {
           out << ", " << FmPrecision(Units::to("nmi",dh));
         }
       }
-      for (int level=1; level <= max_alert_level; ++level) {
+      for (int level=1; level <= max_alert_levels; ++level) {
         out << ", ";
         if (level <= alerter.mostSevereAlertLevel()) {
           ConflictData det = daa.violationOfAlertThresholds(ac,level);

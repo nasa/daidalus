@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020 United States Government as represented by
+ * Copyright (c) 2019-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -24,7 +24,7 @@ public class ParameterDataUtil {
 	 * 
 	 * THIS WILL ABOLUTELY NOT BE PORTED TO C++.
 	 * 
-	 * @param os
+	 * @param obj
 	 * @return The corresponding ParameterData object
 	 */
 	public static ParameterData getInferredParameters(Object obj) {

@@ -1,7 +1,7 @@
 /*
  * Kinematics.h
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -11,24 +11,39 @@
 #define KINEMATICS_H_
 
 #include "Vect3.h"
-//#include "Vect4.h"
+#include "Vect4.h"
 #include "Velocity.h"
 #include "Quad.h"
 #include "Tuple5.h"
 #include "StateVector.h"
 #include "Triple.h"
 
-
 namespace larcfm {
 
 /**
- * A library of functions to aid the computation of the kinematics of an aircraft.  This
- * library is currently under development and is far from complete.  The majority of the functions
- * handle constant velocity turns and movement with constant ground speed acceleration.<p>
+ * <p>A library of functions to aid the computation of the kinematics of an aircraft.  Kinematics
+ * refers to the movement of an aircraft, specifically, the velocity and acceleration components.
+ * These functions assume a Euclidean coordinate system (not in a spherical, geodesic frame); as such, 
+ * most position inputs are as Vect3 or doubles.  This assumption is particularly relevant to the  
+ * ``turn'' related functions. In general, computations for ground speed and
+ * vertical speed results do not rely on a coordinate reference frame so they are valid in the Euclidean
+ * frame or in a geodesic frame; although, these functions still produce Vect3 outputs.  All quantities are represented
+ * in internal units (SI units such as meters and seconds) where angles are represented in radians.</p>
  * 
- * Unless otherwise noted, all kinematics function parameters are in internal units -- angles are in radians,
- * linear speeds are in m/s, distances are in meters, time is in seconds.
+ * <p>The functions are generally named according to the following pattern:
+ * <br><tt>[basic operation][return value][goal parameter]</tt>
+ * <br>So, a method named <tt>gsAccelTime</tt> means the ground speed acceleration to compute a time.</p>
  * 
+ * <ul>
+ * <li><tt>[basic operation]</tt> can be one of turn, gsAccel, vsAccel, vsLevelOut, or accel.  <tt>accel</tt> means use 
+ * calculations that are relevant for either ground speed or vertical speed. <tt>vsLevelOut</tt> means a maneuver involving
+ * a combined a pair of accelerations (for instance an acceleration and a deceleration).
+ * <li><tt>[return value]</tt> the value produced by this method.  This is optional, if it is left out,
+ * then position (distance), or position and velocity are returned.
+ * <li><tt>[goal parameter]</tt> the goal that this method is trying to reach.  This is optional, if it is left out,
+ * time is assumed.  Most goals are indicated as phrases, "ToRTA", "ToDist", etc.
+ * </ul>
+ *  
  */
 class Kinematics {
 public:
@@ -52,6 +67,12 @@ public:
    */
 	static double turnRadius(double speed, double bank);
 
+	/**
+	 * Calculates turn radius from ground speed and turn rate.  
+	 * @param speed  ground speed 
+	 * @param omega  turn rate 
+	 * @return radius (always non-negative)
+	 */
 	static double turnRadiusByRate(double speed, double omega);
 
   /**
@@ -73,6 +94,17 @@ public:
    */
 	static double turnRate(double speed, double bankAngle);
 
+	/**
+	 * Calculates track rate (angular velocity) from ground speed and radius.  
+	 * Negative radius (or speed) will produce a negative result. <p>
+	 * @param speed  ground speed (assumed to be positive)
+	 * @param  R     radius (assumed to be positive)
+	 * @return turn rate (ie. omega or track rate). WARNING:  this does not return the sign of the turn!!!!
+	 * 
+	 */
+	static double turnRateByRadius(double speed, double R);
+
+
   /** 
    * Calculates the bank angle used for a given turn radius and ground speed.  
    * Because this method does not have enough information, it always returns 
@@ -82,7 +114,7 @@ public:
    * @param  R     radius
    * @return       bank angle (positive)
    */
-	static double bankAngleRadius(double R, double speed);
+	static double bankAngleByRadius(double R, double speed);
 
   /** 
    * Calculates the bank angle used for a given turn radius and ground speed.   Assumes 
@@ -92,7 +124,7 @@ public:
    * @param turnRight true, if a right turn is desired
    * @return       bank angle (positive = turn right, negative = turn left)
    */
-	  static double bankAngleRadius(double speed, double R, bool turnRight);
+	  static double bankAngleByRadius(double speed, double R, bool turnRight);
 
   /**
    * Returns the calculated bank angle for a turn that has specified turnRate. Assumes 
@@ -104,24 +136,24 @@ public:
 	static double bankAngle(double speed, double turnRate);
 
 	  /**
-	   * Find the <b>minimum</b> turn for the to reach the goal and returns the maxBank angle, with the correct sign to achieve that goal.
+	   * Find the <b>minimum</b> turn for the to reach the goal and returns the signed bank angle, with the correct sign to achieve that goal.
 	   * Assumes sea-level gravity.
 	   * @param track the current track
 	   * @param goalTrack the goal track angle
-	   * @param maxBank the maximum bank angle, must be in (0,pi/2)
+	   * @param signedBank the maximum bank angle, must be in (0,pi/2)
 	   * @return bank angle (positive = turn right, negative = turn left)
 	   */
-	  static double bankAngleGoal(double track, double goalTrack, double maxBank);
+	  static double bankAngleGoal(double track, double goalTrack, double signedBank);
 
 	  /**
 	   * Calculates turn rate (or track-rate) for the <b>minimum</b> turn to the goal track angle. Assumes
 	   * sea-level gravity.
 	   * @param vo  the initial velocity
 	   * @param goalTrack the goal track angle
-	   * @param maxBank   the maximum bank angle, must be in (0,pi/2)
+	   * @param signedBank   the maximum bank angle, must be in (0,pi/2)
 	   * @return turn rate (ie. omega or track rate), positive turn rate is right hand turn.
 	   */
-	  static double turnRateGoal(const Velocity& vo, double goalTrack, double maxBank);
+	  static double turnRateGoal(const Velocity& vo, double goalTrack, double signedBank);
 
 
   /**
@@ -133,70 +165,47 @@ public:
    * @param turnRight true iff only turn direction is to the right
    * @return true iff turn has passed Target
    */
-
 	static bool turnDone(double currentTrack, double targetTrack, bool turnRight);
+
+
+	static double turnTime(const Velocity& v0, double goalTrack, double signedBank, int turnDir);
+
+
 
   /**
    * Returns the time it takes to achieve the goal track angle 
    * @param v0          initial velocity vector
    * @param goalTrack   target velocity track [rad]
-   * @param maxBank     maximum bank angle, must be in (0,pi/2) [rad]
+   * @param signedBank     maximum bank angle, must be in (0,pi/2) [rad]
    * @param turnRight   true iff only turn direction is to the right
    * @return time to achieve turn
    */
-	static double turnTime(const Velocity& v0, double goalTrack, double maxBank, bool turnRight);
+	static double turnTime(const Velocity& v0, double goalTrack, double signedBank, bool turnRight);
 
   /**
    * Returns the time it takes to achieve the goal track when making the <b>minimum</b> turn
    * @param v0          initial velocity vector
    * @param goalTrack   target velocity track [rad]
-   * @param maxBank     maximum bank angle, must be in (0,pi/2) [rad]
+   * @param signedBank     maximum bank angle, must be in (0,pi/2) [rad]
    * @return time to achieve turn
    */
-	static double turnTime(const Velocity& v0, double goalTrack, double maxBank);
+	static double turnTime(const Velocity& v0, double goalTrack, double signedBank);
 
-  /**
-   * Returns the time it takes to turn the given angle (deltaTrack).  Depending on the signs of deltaTrack and bankAngle, 
-   * this turn can be more than 180 degrees. 
-   * @param groundSpeed ground speed of aircraft
-   * @param deltaTrack  given angle of turn [rad]
-   * @param bankAngle     bank angle (-pi/2,pi/2) [rad]
-   * @return time to achieve turn
-   */
+	/**
+	 * Returns the time it takes to turn the given angle (deltaTrack).  Depending on the signs of deltaTrack and bankAngle, 
+	 * this turn can be more than 180 degrees. If both deltaTrack and bankAngle are negative, they will cancel each other and 
+	 * this will result in a right turn.
+	 * 
+	 * @param groundSpeed ground speed of aircraft
+	 * @param deltaTrack  given angle of turn [rad], positive means right hand turn, negative means left
+	 * @param bankAngle     bank angle (-pi/2,pi/2) [rad], positive means right hand turn, negative means left
+	 * @return time to achieve turn
+	 */
 	static double turnTime(double groundSpeed, double deltaTrack, double bankAngle);
 
 	static double turnTime(double deltaTrack, double trackRate);
 
-	/**
-	 * Returns true if the minimal (i.e. less than 180 deg) turn to goalTrack is tp the right
-	 * @param v0          initial velocity vector
-	 * @param goalTrack   target velocity track [rad]
-	 **/
-	static bool turnRight(const Velocity& v0, double goalTrack);
-
-//	/**
-//	 * Position after t time units turning right or left with radius R
-//	 * @param s0  starting position
-//	 * @param v0  initial velocity
-//	 * @param R   turn radius
-//	 * @param t   time of turn
-//	 * @param turnRight true iff only turn direction is to the right
-//	 * @return Position after t time
-//	 */
-//	static Vect3 turnPos(const Vect3& s0, const Velocity& v0, double t, double R, bool turnRight);
-//
-//
-//	/**
-//	 * Velocity after t time units in direction "turnRight" with radius R
-//	 * @param v0  initial velocity
-//	 * @param R   turn radius
-//	 * @param t   time of turn
-//	 * @param turnRight true iff only turn direction is to the right
-//	 * @return Velocity after t
-//	 */
-//	static Velocity turnVel(const Velocity& v0, double t, double R, bool turnRight);
-//
-
+	
 
 	/**
 	 * @param sv0 Pair  (initial position, initial velocity)
@@ -208,18 +217,10 @@ public:
 
 	static std::pair<Vect3,Velocity> linear(Vect3 so, Velocity vo, double t);
 
-	/**
-	 * Position/Velocity after turning t time units according to track rate omega
-	 * @param s0          starting position
-	 * @param v0          initial velocity
-	 * @param t           time of turn
-	 * @param omega       rate of change of track, sign indicates direction
-	 * @return Position/Velocity after t time
-	 */
-	static std::pair<Vect3,Velocity> turnOmega(const Vect3& s0, const Velocity& v0, double t, double omega);
+	
 
 
-	static Vect2 center(const Vect3& s0, const Velocity& v0, double omega);
+	static Vect2 centerOfTurn(const Vect2& so, const Velocity& vo, double omega);
 
 	static std::pair<Vect3,Velocity> turnByDist2D(const Vect3& so, const Vect3& center, int dir, double d, double gsAt_d);
 
@@ -250,83 +251,31 @@ public:
 
 	/**
 	 * Position/Velocity after turning t time units according to track rate omega
-	 * @param sv0         initial position and velocity
+	 * @param s0          starting position
+	 * @param v0          initial velocity
 	 * @param t           time of turn
 	 * @param omega       rate of change of track, sign indicates direction
 	 * @return Position/Velocity after t time
 	 */
-	static std::pair<Vect3,Velocity> turnOmega(const std::pair<Vect3,Velocity>& sv0, double t, double omega);
+	static std::pair<Vect3,Velocity> turnOmega(const Vect3& s0, const Velocity& v0, double t, double omega);
+
+	static std::pair<Vect3,Velocity> turn(const Vect3& so, const Velocity& vo, double t, double R,  int dir);
+
 
 	/**
 	 * Position/Velocity after turning t time units right or left with bank angle bank
-	 * @param s0          starting position
-	 * @param v0          initial velocity
+	 * @param so          starting position
+	 * @param vo          initial velocity
 	 * @param t           time of turn
 	 * @param R           turn radius
 	 * @param turnRight   true iff only turn direction is to the right
 	 * @return Position/Velocity after t time
 	 */
-	static std::pair<Vect3,Velocity> turn(const Vect3& s0, const Velocity& v0, double t, double R,  bool turnRight);
+	static std::pair<Vect3,Velocity> turn(const Vect3& so, const Velocity& vo, double t, double R,  bool turnRight);
 
-	/**
-	 * Position/Velocity after turning t time units right or left with bank angle bank
-	 * @param sv0         Pair (initial position, initial velocity)
-	 * @param t           time of turn
-	 * @param R           turn radius
-	 * @param turnRight   true iff only turn direction is to the right
-	 * @return Position/Velocity pair after t time
-	 */
-	static std::pair<Vect3,Velocity> turn(const std::pair<Vect3,Velocity>& sv0, double t, double R,  bool turnRight);
+	
 
-	/**
-	 * Position/Velocity after turning t time with bank angle bank, direction of turn determined by sign of bank
-	 * @param sv0         Pair (initial position, initial velocity)
-	 * @param t           time of turn
-	 * @param bank        bank angle  (-pi,pi)   (positive = right turn,  negative = left turn)
-	 * @return Position/Velocity after t time
-	 */
-	static std::pair<Vect3,Velocity> turn(const Vect3& s0, const Velocity& v0, double t, double bank);
-
-//
-//	/**
-//	 * 2D Position after t time units turning right or left with radius R
-//	 * @param s0  starting position
-//	 * @param v0  initial velocity
-//	 * @param R   turn radius
-//	 * @param t   time of turn
-//	 * @param turnRight true iff only turn direction is to the right
-//	 * @return 2D Position after t time
-//	 */
-//	static Vect2 turnPosition2D(const Vect2& s0, const Vect2& v0, double R, double t, bool turnRight);
-
-
-//
-//	/**
-//	 *  Position after t time units turning in direction "turnRight"  until goalTrack is reached, after that
-//	 *  continue in a straight line
-//	 * @param so         starting position
-//	 * @param vo         initial velocity
-//	 * @param goalTrack  the track angle where the turn stops
-//	 * @param bankAngle    the bank angle of the aircraft making the turn
-//	 * @param t          time of turn [secs]
-//	 * @param turnRight  true iff only turn direction is to the right
-//	 * @return Position after time t
-//	 */
-//	static Vect3 turnUntilPosition(const Vect3& so, const Velocity& vo, double goalTrack, double bankAngle, double t, bool turnRight);
-//
-//
-//
-//	/**
-//	 *  Position after t time units turning in direction "turnRight"  until goalTrack is reached, after that
-//	 *  continue in a straight line
-//	 * @param vo         initial velocity
-//	 * @param goalTrack  the track angle where the turn stops
-//	 * @param bankAngle    the bank angle of the aircraft making the turn
-//	 * @param t          time of turn [secs]
-//	 * @param turnRight  true iff only turn direction is to the right
-//	 * @return Position after time t
-//	 */
-//	static Velocity turnUntilVelocity(const Velocity& vo, double goalTrack, double bankAngle, double t, bool turnRight);
+	//static std::pair<Vect3,Velocity> turn(const Vect3& so, const Velocity& vo, double t, double bank);
 
 
 	/**
@@ -340,31 +289,9 @@ public:
 	 * @param turnRight  true iff only turn direction is to the right
 	 * @return Position/Velocity after time t
 	 */
-	static std::pair<Vect3,Velocity> turnUntil(const Vect3& so, const Velocity& vo, double t, double goalTrack, double maxBank);
+	static std::pair<Vect3,Velocity> turnUntilTrack(const Vect3& so, const Velocity& vo, double t, double goalTrack, double signedBank);
 
-	/**
-	 *  Position/Velocity after t time units turning in *minimal* direction  until goalTrack is reached, after that
-	 *  continue in a straight line
-	 * @param sv0        initial position and velocity
-	 * @param t          time of turn [s]
-	 * @param goalTrack  the track angle where the turn stops
-	 * @param maxBank    the maximum bank angle
-	 * @return Position/Velocity after time t
-	 */
-	static std::pair<Vect3,Velocity> turnUntil(const std::pair<Vect3,Velocity>& sv0, double t, double goalTrack, double maxBank);
-
-	  /**
-	   *  Position/Velocity after t time units turning in direction "turnRight" for a total of turnTime, after that
-	   *  continue in a straight line.  This function can make a turn greater than 180 deg
-	   * @param so         starting position
-	   * @param vo         initial velocity
-	   * @param t          time point of interest
-	   * @param turnTime   total time of turn [secs]
-	   * @param R          turn radius (positive)
-	   * @param turnRight  true iff only turn direction is to the right
-	   * @return Position/Velocity after time t
-	   */
-	  static std::pair<Vect3,Velocity> turnUntilTimeRadius(std::pair<Vect3,Velocity> svo, double t, double turnTime, double R, bool turnRight);
+	static std::pair<Vect3,Velocity> turnUntilTimeRadius(const Vect3& so, const Velocity& vo, double t, double turnTime, double R, int dir);
 
 	/**
 	 *  Position/Velocity after t time units turning in direction "turnRight" for a total of turnTime secs, after that
@@ -380,19 +307,7 @@ public:
 	static std::pair<Vect3,Velocity> turnUntilTimeOmega(const Vect3& so, const Velocity& vo, double t, double turnTime, double omega);
 
 
-	/**
-	 *  Position/Velocity after t time units turning at the rate of "omega," after that
-	 *  continue in a straight line.  This function can make a turn greater than 180 deg
-	 * @param so         initial position and velocity
-	 * @param t          time point of interest
-	 * @param turnTime   total time of turn [secs]
-	 * @param omega 	turn rate
-	 * @return Position/Velocity after time t
-	 */
-	static std::pair<Vect3,Velocity> turnUntilTimeOmega(const std::pair<Vect3,Velocity>& svo, double t, double turnTime, double omega);
-
-
-
+	
 
 	/**
 	 *  Position after turning to track goalTrack, assumes less than 180 degree turn
@@ -402,32 +317,32 @@ public:
 	 * @param bankAngle    the bank angle of the aircraft making the turn
 	 * @return Position after time t
 	 */
-	static Vect3 positionAfterTurn(const Vect3& so, const Velocity& vo, double goalTrack, double bankAngle);
+	static Vect3 turnTrack(const Vect3& so, const Velocity& vo, double goalTrack, double bankAngle);
 
 	/**
-	 * Calculate when during the turn we will be closest to the given point.
+	 * Calculate the time along the turn (formed by s0, v0, omega) that is closest to the given point.
 	 * @param s0 turn start position
 	 * @param v0 turn start velocity
 	 * @param omega rate of turn (+ = right, - = left)
 	 * @param x point of interest
-	 * @param endTime time at which turn finishes.  If &le; 0, assume a full turn is allowed.
+	 * @param endTime time at which turn finishes.  If less than or equal to 0, assume a full turn is allowed.
 	 * @return time on turn when we are closest to the given point x (in seconds), or -1 if we are precisely at the turn's center
 	 * This will be bounded by [0,endTime]
 	 */
-	static double closestTimeOnTurn(const Vect3& s0, const Velocity& v0, double omega, const Vect3& x, double endTime);
+	static double turnTimeClosest(const Vect3& s0, const Velocity& v0, double omega, const Vect3& x, double endTime);
 
 	/**
-	 * Calculate when during the turn we will be closest to the given point.
+	 * Calculate the distance along the turn (formed by s0, v0, R, dir) that is closest to the given point.
 	 * @param s0 turn start position
 	 * @param v0 turn start velocity
 	 * @param R turn radius
 	 * @param dir direction of turn
 	 * @param x point of interest
-	 * @param maxDist distance at which turn finishes.  If &le; 0, assume a full turn is allowed.
+	 * @param maxDist distance at which turn finishes.  If less than or equal to 0, assume a full turn is allowed.
 	 * @return distance on turn when we are closest to the given point x, or -1 if we are precisely at the turn's center
 	 * This will be bounded by [0,maxDist]
 	 */
-	static double closestDistOnTurn(const Vect3& s0, const Velocity& v0, double R, int dir, const Vect3& x, double maxDist);
+	static double turnDistClosest(const Vect3& s0, const Velocity& v0, double R, int dir, const Vect3& x, double maxDist);
 
 
 	/**
@@ -456,24 +371,27 @@ public:
 
 
 	/**
-	 * find center of turn determined by line (so,vo) with radius R and direction dir
+	 * Find center of turn perpendicular to the line <tt>(so,vo)</tt> at point <tt>so</tt>, 
+	 * with radius <tt>R</tt> and direction <tt>dir</tt>.
+	 * 
 	 * @param so position
 	 * @param vo velocity
 	 * @param R radius of turn
 	 * @param dir direction: 1 = right, -1 = left
-	 * @return two dimensional position of turn 
+	 * @return two dimensional center of turn 
 	 */
 	static Vect2 centerOfTurn(const Vect2& so, const Vect2& vo, double R, int dir);
 
 	/**
-	 * find center of turn determined by line (so,vo) with bankAngle and direction (turnRight)
+	 * Find center of turn perpendicular to the line <tt>(so,vo)</tt> at point <tt>so</tt>, 
+	 * with turn rate of <tt>omega</tt>.
+	 * 
 	 * @param so position
 	 * @param vo velocity
-	 * @param bankAngle bank angle
-	 * @param turnRight right turn (left otherwise)
-	 * @return two dimensional position of turn 
+	 * @param omega turn rate. positive = right, negative = left
+	 * @return two dimensional center of turn 
 	 */
-	static Vect2 centerOfTurn(const Vect2& so, const Vect2& vo, double bankAngle, bool turnRight);
+	static Vect2 centerOfTurn(const Vect3& so, const Velocity& vo, double omega);
 
 
 	/** Test for LoS(D,H) between two aircraft when only ownship turns, compute trajectories up to time stopTime
@@ -527,7 +445,7 @@ public:
 	 * @param gsAccel    ground speed acceleration (a positive value)
 	 * @return           acceleration time
 	 */
-	static double gsAccelTime(double gs0,double goalGs, double gsAccel);
+	static double accelTime(double gs0,double goalGs, double gsAccel);
 
 	/**
 	 * returns time required to accelerate to target ground speed GoalGs
@@ -553,9 +471,11 @@ public:
 	 * @param t          time of acceleration [secs]
 	 * @return           Position after time t
 	 */
-        static std::pair<Vect3,Velocity> gsAccelUntilRWB(const Vect3& so3, const Velocity& vo3, double t, double goalGS, double gsAccel);
+    static std::pair<Vect3,Velocity> gsAccelUntilRWB(const Vect3& so3, const Velocity& vo3, double t, double goalGS, double gsAccel);
+	
 	static std::pair<Vect3,Velocity> gsAccelUntil(const Vect3& so3, const Velocity& vo3, double t, double goalGS, double gsAccel);
-	static std::pair<Vect3,Velocity> gsAccelUntil(const std::pair<Vect3,Velocity>& sv0, double t, double goalGS, double gsAccel);
+	
+	//static std::pair<Vect3,Velocity> gsAccelUntil(const std::pair<Vect3,Velocity>& sv0, double t, double goalGS, double gsAccel);
 
 
 	/**
@@ -566,63 +486,18 @@ public:
 	 * @param gsAccel maximum ground speed acceleration or deceleration (positive, m/s^2)
 	 * @return the goal ground speed and acceleration duration needed in order to cover the given distance in the given time.  The time will be negative if the rta is not attainable.
 	 */
-	static std::pair<double,double> gsAccelToRTA(double gsIn, double dist, double rta, double gsAccel);
+	static std::pair<double,double> accelSpeedToRTA(double gsIn, double dist, double rta, double gsAccel);
 
 
-	static std::pair<double,double> gsAccelToDist(double gsIn, double dist, double gsAccel);
+	static std::pair<double,double> accelToDist(double gsIn, double dist, double gsAccel);
 
-	/**
-   * The time required to cover distance "dist" if initial speed is "gs" and acceleration is "gsAccel"
-   *
-   * @param gs       initial ground speed
-   * @param gsAccel  signed ground speed acceleration
-   * @param dist     non-negative distance
-   * @return time required to cover distance
-   *
-   * Warning:  This function can return NaN
-   *
-   */
-	static double distanceToGsAccelTime(double gs, double gsAccel, double dist);
+	static double accel(double gs0, double gsTarget, double gsAccel);
 
-	/** distance traveled when accelerating from gs0 to gsTarget for time dt (acceleration stops after gsTarget is reached)
-	 *
-	 *
-	 * @param gs0             initial ground speed
-	 * @param gsTarget        target ground speed
-	 * @param gsAccel         positive ground speed acceleration
-	 * @param dt              total time traveling
-	 *
-	 * @return                total distance traveled
-	 *
-	 * Note: if gsAccel = 0 it returns gs0*dt
-	 */
-	static std::pair<double, double> distanceWithGsAccel(double gs0, double gsTarget, double gsAccel, double dt);
+	static std::pair<double, double> accelUntil(double gs0, double gsTarget, double gsAccel, double dt);
 
-	/** distance traveled when accelerating from gsIn to gsTarget
-	 *
-	 * @param gsIn            initial ground speed
-	 * @param gsTarget        target ground speed
-	 * @param gsAccel         positive ground speed acceleration
-	 *
-	 * See also gsAccelDist  will give same answer
-	 *
-	 * @return                total distance traveled when accelerating from gs0 to gsTarget
-	 */
-	static double neededDistGsAccel(double gsIn, double gsTarget, double gsAccel);
+	
 
-	/**
-	 * Distance traveled when accelerating from gs1 to gs2
-	 * 
-	 * @param gs1 starting ground speed
-	 * @param gs2 ending ground speed
-	 * @param a acceleration value (unsigned)
-	 * 
-	 * @return distance needed to accelerate from gs1 to gs2 with acceleration a.  This returns 0 if a=0 or gs1=gs2.
-	 */
-	static double gsAccelDist(double gs1, double gs2, double a);
-
-
-	/** Test for LoS(D,H) between two aircraft when only ownship gs accelerates, compute trajectories up to time stopTime
+	/** Test for LoS(D,H) between two aircraft when only ownship accelerates (in ground speed), compute trajectories up to time stopTime
 	 * 
 	 * @param so    initial position of ownship
 	 * @param vo    initial velocity of ownship
@@ -633,7 +508,7 @@ public:
 	 * @param stopTime         the duration of the turns
 	 * @param D     horizontal distance
 	 * @param H     vertical distance
-	 * @return                 minimum distance data packed in a Vect4
+	 * @return      true, if separation is ever lost
 	 */
 	static bool testLoSGs(const Vect3& so, const Velocity& vo, const Velocity& nvo, const Vect3& si, const Velocity& vi,
 			double gsAccelOwn, double stopTime, double D, double H);
@@ -674,22 +549,21 @@ public:
 	 */
 	static std::pair<Vect3,Velocity> vsAccel(const Vect3& so3, const Velocity& vo3,  double t, double a);
 
-	static std::pair<Vect3,Velocity> vsAccel(const std::pair<Vect3,Velocity>& sv0,  double t, double a);
+	
+	///**
+	// * returns time required to vertically accelerate to target GoalVS
+	// *
+	// * @param vs        current vertical speed
+	// * @param goalVs     vertical speed where the acceleration stops
+	// * @param vsAccel    vertical speed acceleration (a positive value)
+	// * @return           acceleration time
+	// */
+	//static double vsAccelTime(double vs, double goalVs, double vsAccel);
 
 	/**
-	 * returns time required to vertically accelerate to target GoalVS
+	 * returns time required to vertically accelerate from vs to target goalVs
 	 *
-	 * @param vs        current vertical speed
-	 * @param goalVs     vertical speed where the acceleration stops
-	 * @param vsAccel    vertical speed acceleration (a positive value)
-	 * @return           acceleration time
-	 */
-	static double vsAccelTime(double vs, double goalVs, double vsAccel);
-
-	/**
-	 * returns time required to vertically accelerate to target GoalVS
-	 *
-	 * @param vo        current velocity
+	 * @param vo         current velocity
 	 * @param goalVs     vertical speed where the acceleration stops
 	 * @param vsAccel    vertical speed acceleration (a positive value)
 	 * @return           acceleration time
@@ -715,22 +589,23 @@ public:
 //     //	static Vect3 vsAccelUntilPos(const Vect3& so, const Velocity& vo, double t, double goalVs, double vsAccel);
 
 
-	/**
-	 *  Position after t time units where there is first an acceleration or deceleration to the target
-	 *  vertical speed goalVs and then continuing at that speed for the remainder of the time, if any.
-	 *
-	 * @param vo         initial velocity
-	 * @param goalVs     the vertical speed where the acceleration stops
-	 * @param vsAccel    the vertical speed acceleration (a positive value)
-	 * @param t          time of acceleration [secs]
-	 * @return           Position after time t
-	 */
-	//static Velocity vsAccelUntilVel(const Velocity& vo, double t, double goalVs, double vsAccel);
+	// /**
+	//  *  Position after t time units where there is first an acceleration or deceleration to the target
+	//  *  vertical speed goalVs and then continuing at that speed for the remainder of the time, if any.
+	//  *
+	//  * @param vo         initial velocity
+	//  * @param goalVs     the vertical speed where the acceleration stops
+	//  * @param vsAccel    the vertical speed acceleration (a positive value)
+	//  * @param t          time of acceleration [secs]
+	//  * @return           Position after time t
+	//  */
+	// //static Velocity vsAccelUntilVel(const Velocity& vo, double t, double goalVs, double vsAccel);
 
 	static std::pair<Vect3,Velocity> vsAccelUntil(const Vect3& so, const Velocity& vo, double t, double goalVs, double vsAccel);
-	static std::pair<Vect3,Velocity> vsAccelUntil(const std::pair<Vect3,Velocity>& sv0, double t, double goalVs, double vsAccel);
+	
+	//static std::pair<Vect3,Velocity> vsAccelUntil(const std::pair<Vect3,Velocity>& sv0, double t, double goalVs, double vsAccel);
 
-	/** Test for LoS(D,H) between two aircraft when only ownship gs accelerates, compute trajectories up to time stopTime
+	/** Test for LoS(D,H) between two aircraft when only ownship accelerates (in vertical speed), compute trajectories up to time stopTime
 	 * 
 	 * @param so    initial position of ownship
 	 * @param vo    initial velocity of ownship
@@ -807,8 +682,8 @@ public:
 
     static StateVector vsLevelOutFinal(const std::pair<Vect3,Velocity>& sv0, double climbRate, double targetAlt, double a);
 
-	static bool overShoot(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt, double accelup,
-			                       double acceldown, bool allowClimbRateChange);
+	// static bool overShoot(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt, double accelup,
+	// 		                       double acceldown, bool allowClimbRateChange);
 
 
 //	/**
@@ -828,7 +703,7 @@ public:
 	static Tuple5<double,double,double,double,double> vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt,
 		     double a, bool allowClimbRateChange);
 
-	static Tuple5<double,double,double,double,double> vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt, double a);
+	//static Tuple5<double,double,double,double,double> vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt, double a);
 
 
 	static double vsLevelOutClimbRate(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt,
@@ -841,6 +716,7 @@ public:
 
 	static std::pair<double, double> vsLevelOutCalc(double soz, double voz, double targetAlt, double a1, double a2, double t1, double t2, double t3,  double t);
 
+private:
 	/** returns Pair that contains position and velocity at time t due to level out maneuver based on vsLevelOutTimesAD
 	 *
 	 * @param sv0        			current position and velocity vectors
@@ -855,16 +731,31 @@ public:
 	static std::pair<Vect3, Velocity> vsLevelOutCalculation(const std::pair<Vect3,Velocity>& sv0,
 			                              double targetAlt, double a1, double a2, double t1, double t2, double t3,  double t);
 
+public:
 	static std::pair<Vect3, Velocity> vsLevelOut(const std::pair<Vect3, Velocity>& sv0, double t, double climbRate,
 			                            double targetAlt, double accelUp, double accelDown, bool allowClimbRateChange);
 
 	static std::pair<Vect3, Velocity> vsLevelOut(const std::pair<Vect3, Velocity>& sv0, double t, double climbRate,
             double targetAlt, double a, bool allowClimbRateChange);
 
-	static std::pair<Vect3, Velocity> vsLevelOut(const std::pair<Vect3, Velocity>& sv0, double t, double climbRate,
-            double targetAlt, double a);
+	//static std::pair<Vect3, Velocity> vsLevelOut(const std::pair<Vect3, Velocity>& sv0, double t, double climbRate,
+    //        double targetAlt, double a);
 
 
+	/**
+	 * Time to achieve an altitude change of size deltaZ, assumes vertical speed is
+	 * initially 0 and final vertical speed is also 0.
+	 * 
+	 * Note: the initial and final vertical speeds are zero
+	 * 
+	 * @param deltaZ   change in altitude
+	 * @param vsFLC    vertical speed of flight level change
+	 * @param vsAccel  vertical acceleration
+	 * @param kinematic if true, include the extra time for acceleration and
+	 *                 deceleration
+	 * @return time
+	 */
+	static double timeNeededForFLC(double deltaZ, double vsFLC, double vsAccel, bool kinematic);
 
 	// ******************************* Other **************************
 
@@ -886,6 +777,15 @@ public:
 	 */
 
 	static double distAtTau(const Vect3& s, const Vect3& vo, const Vect3& vi, bool futureOnly);
+
+	/** Track angle of line from p1 to p2
+ *
+ * @param p1
+ * @param p2
+ * @return track angle of p2 - p1
+ */
+	static double trackFrom(Vect3 p1, Vect3 p2);
+
 
 private:
 
@@ -909,6 +809,7 @@ private:
 //
 //static double S3(double voz, double a1);
 
+public:
 /** Helper function for vsLevelOutTimesAD.
  *  Note: This could be integrated into the function vsLevelOutTimesAD as a recursive call if desired.
  *
@@ -928,7 +829,91 @@ private:
 static Tuple5<double,double,double,double,double> vsLevelOutTimesBase(double s0z, double v0z, double climbRate, double targetAlt,
 		     double accelup, double acceldown, bool allowClimbRateChange) ;
 
+	/** Minimum distance between two aircraft when BOTH turn, compute trajectories up to time stopTime
+	 *
+	 * @param so    initial position of ownship
+	 * @param vo    initial velocity of ownship
+	 * @param nvo   the target velocity of ownship (i.e. after turn maneuver complete)
+	 * @param si    initial position of traffic
+	 * @param vi    initial velocity of traffic
+	 * @param nvi   the target velocity of traffic (i.e. after turn maneuver complete)
+	 * @param bankAngleOwn       the bank angle of the ownship
+	 * @param turnRightOwn     the turn direction of ownship
+	 * @param bankAngleTraf      the bank angle of the traffic
+	 * @param turnRightTraf    the turn direction of traffic
+	 * @param stopTime         the duration of the turns
+	 * @return                 minimum distance data packed in a Vect4
+	 */
+	static Vect4 minDistBetweenTrk(const Vect3& so, const Velocity& vo, const Velocity& nvo, const Vect3& si, const Velocity& vi, const Velocity& nvi,
+			double bankAngleOwn, double stopTime);
 
+
+	/** Minimum distance between two aircraft when BOTH aircraft gs accelerate, compute trajectories up to time stopTime
+	 *
+	 * @param so    initial position of ownship
+	 * @param vo    initial velocity of ownship
+	 * @param nvo   the target velocity of ownship (i.e. after turn maneuver complete)
+	 * @param si    initial position of traffic
+	 * @param vi    initial velocity of traffic
+	 * @param nvi           target velocity of traffic (i.e. after acceleration maneuver complete)
+	 * @param gsAccelOwn    ground speed acceleration of the ownship
+	 * @param gsAccelTraf   ground speed acceleration of the traffic
+	 * @param stopTime         the duration of the turns
+	 * @return                 minimum distance data packed in a Vect4
+	 */
+	static Vect4 minDistBetweenGs(const Vect3& so, const Velocity& vo, const Velocity& nvo, const Vect3& si, const Velocity& vi,  const Velocity& nvi,
+			double gsAccelOwn, double gsAccelTraf, double stopTime);
+
+
+	/** Minimum distance between two aircraft when only ownship gs accelerates, compute trajectories up to time stopTime
+	 *
+	 * @param so    initial position of ownship
+	 * @param vo    initial velocity of ownship
+	 * @param nvo   the target velocity of ownship (i.e. after turn maneuver complete)
+	 * @param si    initial position of traffic
+	 * @param vi    initial velocity of traffic
+	 * @param gsAccelOwn    ground speed acceleration of the ownship
+	 * @param stopTime         the duration of the turns
+	 * @return                 minimum distance data packed in a Vect4
+	 */
+	static Vect4 minDistBetweenGs(const Vect3& so, const Velocity& vo, const Velocity& nvo, const Vect3& si, const Velocity& vi,
+			double gsAccelOwn, double stopTime);
+
+
+
+	/** Minimum distance between two aircraft when BOTH aircraft vs accelerate, compute trajectories up to time stopTime
+	 *
+	 * @param so    initial position of ownship
+	 * @param vo    initial velocity of ownship
+	 * @param nvo   the target velocity of ownship (i.e. after turn maneuver complete)
+	 * @param si    initial position of traffic
+	 * @param vi    initial velocity of traffic
+	 * @param nvi           target velocity of traffic (i.e. after acceleration maneuver complete)
+	 * @param vsAccelOwn    vertical speed acceleration of the ownship
+	 * @param vsAccelTraf   vertical speed acceleration of the traffic
+	 * @param stopTime         the duration of the turns
+	 * @return                 minimum distance data packed in a Vect4
+	 */
+	static Vect4 minDistBetweenVs(const Vect3& so, const Velocity& vo, const Velocity& nvo, const Vect3& si, const Velocity& vi,  const Velocity& nvi,
+			double vsAccelOwn, double vsAccelTraf, double stopTime);
+
+
+	/** Minimum distance between two aircraft when only ownship vs accelerates, compute trajectories up to time stopTime
+	 *
+	 * @param so    initial position of ownship
+	 * @param vo    initial velocity of ownship
+	 * @param nvo   the target velocity of ownship (i.e. after turn maneuver complete)
+	 * @param si    initial position of traffic
+	 * @param vi    initial velocity of traffic
+	 * @param vsAccelOwn    vertical speed acceleration of the ownship
+
+	 * @param stopTime         the duration of the turns
+	 * @return                 minimum distance data packed in a Vect4
+	 */
+	static Vect4 minDistBetweenVs(const Vect3& so, const Velocity& vo, const Velocity& nvo, const Vect3& si, const Velocity& vi,
+			double vsAccelOwn, double stopTime);
+
+	static double gsTimeConstantAccelFromDist(double gs1, double a, double dist);
 
 
 };

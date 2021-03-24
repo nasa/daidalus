@@ -6,7 +6,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -80,13 +80,25 @@ public final class VectFuns {
 		return v1.Add(v2).Scal(0.5);
 	}
 
-	// f should be between 0 and 1 to interpolate
+	/**
+	 * Interpolate between two vectors.  
+	 * @param v1 first position
+	 * @param v2 second position
+	 * @param f a fraction.  Should be between 0 and 1 to interpolate. If 0, then v1 is returned, if 1 then v2 is returned.
+	 * @return interpolated vector
+	 */
 	public static Vect3 interpolate(Vect3 v1, Vect3 v2, double f) {
 		Vect3 dv = v2.Sub(v1);
 		return v1.Add(dv.Scal(f));
 	}
 
-	// f should be between 0 and 1 to interpolate
+	/**
+	 * Interpolate between two velocity vectors.  
+	 * @param v1 first position
+	 * @param v2 second position
+	 * @param f a fraction.  Should be between 0 and 1 to interpolate. If 0, then v1 is returned, if 1 then v2 is returned.
+	 * @return interpolated vector
+	 */
 	public static Velocity interpolateVelocity(Velocity v1, Velocity v2, double f) {
 		double newtrk = v1.trk() + f*(v2.trk() - v1.trk());
 		double newgs = v1.gs() + f*(v2.gs() - v1.gs());

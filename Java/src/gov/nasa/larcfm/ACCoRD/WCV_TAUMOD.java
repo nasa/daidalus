@@ -1,5 +1,5 @@
 /*
-> * Copyright (c) 2012-2020 United States Government as represented by
+> * Copyright (c) 2012-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -36,47 +36,47 @@ public class WCV_TAUMOD extends WCV_tvar {
 	}
 
 	/**
-	 * @return one static WCV_TAUMOD
+	 * One static WCV_TAUMOD
 	 */
 	public static final WCV_TAUMOD A_WCV_TAUMOD =
 			new WCV_TAUMOD();
 
 	/**
-	 * @return DO-365 preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft,
+	 * DO-365 preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft,
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_Phase_I_preventive =
 			new WCV_TAUMOD(WCVTable.DO_365_Phase_I_preventive);
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
+	 * DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_DWC_Phase_I = A_WCV_TAUMOD;
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
+	 * DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
 	 * TTHR=0s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_DWC_Phase_II = 
 			new WCV_TAUMOD(WCVTable.DO_365_DWC_Phase_II);
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
+	 * DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
 	 * TTHR=0s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_DWC_Non_Coop = 
 			new WCV_TAUMOD(WCVTable.DO_365_DWC_Non_Coop);
 
 	/**
-	 * @return buffered preventive thresholds Phase I (en-route), i.e., DTHR=1nmi, ZTHR=750ft,
+	 * Buffered preventive thresholds Phase I (en-route), i.e., DTHR=1nmi, ZTHR=750ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCV_TAUMOD Buffered_Phase_I_preventive =
 			new WCV_TAUMOD(WCVTable.Buffered_Phase_I_preventive);
 
 	/**
-	 * @return buffered Well-Clear thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=450ft,
+	 * Buffered Well-Clear thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCV_TAUMOD Buffered_DWC_Phase_I =

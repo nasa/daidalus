@@ -2,7 +2,7 @@
  * 
  * manages a history of aircraft state information
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -115,7 +115,6 @@ public final class AircraftState {
     	d_h = -1;
     	r_d = -1;
     	r_h = -1;
-    	//error = new ErrorLog("AircraftState");
     	//fc = new FitCurve(); 
     }
 
@@ -1247,21 +1246,5 @@ public final class AircraftState {
 		}
 		return sb.toString();
 	}
-	
-//	// ErrorReporter Interface Methods
-//
-//	public boolean hasError() {
-//		return error.hasError();
-//	}
-//	public boolean hasMessage() {
-//		return error.hasMessage();
-//	}
-//	public String getMessage() {
-//		return error.getMessage();
-//	}
-//	public String getMessageNoClear() {
-//		return error.getMessageNoClear();
-//	}
-
 	
 }

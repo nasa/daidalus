@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -159,7 +159,7 @@ public class Daidalus implements GenericStateBands {
 	public void set_DO_365A() {
 		set_DO_365A(true,true);
 	}
-	
+
 	/*  
 	 * Set Daidalus object such that 
 	 * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
@@ -237,7 +237,7 @@ public class Daidalus implements GenericStateBands {
 			addAlerter(Alerter.DWC_Non_Coop);
 		}
 	}
-	
+
 	/*  
 	 * Set DAIDALUS object such that 
 	 * - Alerting thresholds are buffered 
@@ -316,7 +316,7 @@ public class Daidalus implements GenericStateBands {
 				return core_.traffic.get(idx-1);
 			}
 		} else {
-			error.addError("getAircraftState: aircraft index "+idx+" is out of bounds");
+			error.addError("getAircraftStateAt: aircraft index "+idx+" is out of bounds");
 			return TrafficState.INVALID;
 		}
 	}
@@ -426,7 +426,7 @@ public class Daidalus implements GenericStateBands {
 	/**                                                                                                                                                
 	 * Remove traffic from the list of aircraft. Returns false if no aircraft was removed.                                                             
 	 * Ownship cannot be removed.                                                                                                                      
-	 * If traffic is at index i, the indices of aircraft at k > i, are shifted to k-1.                                                                 
+	 * If traffic is at index i, the indices of aircraft at {@code k > i}, are shifted to k-1.                                                                 
 	 * EXPERT USE ONLY !!!
 	 */
 	public boolean removeTrafficAircraft(String name) {
@@ -520,7 +520,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set wind velocity specified in the TO direction
-	 * @param wind_velocity: Wind velocity specified in TO direction
+	 * @param wind_vector: Wind velocity specified in TO direction
 	 */
 	public void setWindVelocityTo(Velocity wind_vector) {
 		core_.set_wind_velocity(wind_vector);
@@ -529,7 +529,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set wind velocity specified in the From direction
-	 * @param nwind_velocity: Wind velocity specified in From direction
+	 * @param nwind_vector: Wind velocity specified in From direction
 	 */
 	public void setWindVelocityFrom(Velocity nwind_vector) {
 		setWindVelocityTo(nwind_vector.Neg());
@@ -657,9 +657,9 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set horizontal velocity uncertainty of aircraft at index ac_idx
-	 * v_EW_std: East/West position standard deviation in internal units
-	 * v_NS_std: North/South position standard deviation in internal units
-	 * v_EN_std: East/North position standard deviation in internal units
+	 * v_EW_std: East/West speed standard deviation in internal units
+	 * v_NS_std: North/South speed standard deviation in internal units
+	 * v_EN_std: East/North speed standard deviation in internal units
 	 */
 	public void setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std) {
 		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
@@ -674,9 +674,9 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Set horizontal velocity uncertainty of aircraft at index ac_idx
-	 * v_EW_std: East/West position standard deviation in given units
-	 * v_NS_std: North/South position standard deviation in given units
-	 * v_EN_std: East/North position standard deviation in given units
+	 * v_EW_std: East/West speed standard deviation in given units
+	 * v_NS_std: North/South speed standard deviation in given units
+	 * v_EN_std: East/North speed standard deviation in given units
 	 */
 	public void setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std, String u) {
 		setHorizontalVelocityUncertainty(ac_idx,Units.from(u,v_EW_std),Units.from(u,v_NS_std),Units.from(u,v_EN_std));
@@ -786,7 +786,7 @@ public class Daidalus implements GenericStateBands {
 	 * The computed polygon should only be used for display purposes since it's merely an
 	 * approximation of the actual contours defined by the violation and detection methods.
 	 * @param blobs list of horizontal contours returned by reference.
-	 * @param idx is the index of the aircraft used to compute the contours.
+	 * @param ac_idx is the index of the aircraft used to compute the contours.
 	 */
 	public void horizontalContours(List<List<Position>>blobs, int ac_idx) {
 		horizontalContours(blobs,ac_idx,0);
@@ -2324,7 +2324,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return set factor for computing collision avoidance bands. Factor value is in (0,1]
+	 * Set factor for computing collision avoidance bands. Factor value is in (0,1]
 	 */
 	public void setCollisionAvoidanceBandsFactor(double val) {
 		core_.parameters.setCollisionAvoidanceBandsFactor(val);
@@ -2339,7 +2339,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return set z-score (number of standard deviations) for horizontal position (non-negative value)
+	 * Set z-score (number of standard deviations) for horizontal position (non-negative value)
 	 */
 	public void setHorizontalPositionZScore(double val) {
 		core_.parameters.setHorizontalPositionZScore(val);
@@ -2354,7 +2354,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
+	 * Set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
 	public void setHorizontalVelocityZScoreMin(double val) {
 		core_.parameters.setHorizontalVelocityZScoreMin(val);
@@ -2369,7 +2369,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
+	 * Set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
 	public void setHorizontalVelocityZScoreMax(double val) {
 		core_.parameters.setHorizontalVelocityZScoreMax(val);
@@ -2391,7 +2391,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
+	 * Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public void setHorizontalVelocityZDistance(double val) {
 		core_.parameters.setHorizontalVelocityZDistance(val);
@@ -2399,7 +2399,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
+	 * Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public void setHorizontalVelocityZDistance(double val, String u) {
 		core_.parameters.setHorizontalVelocityZDistance(val,u);
@@ -2414,7 +2414,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return set z-score (number of standard deviations) for vertical position (non-negative value)
+	 * Set z-score (number of standard deviations) for vertical position (non-negative value)
 	 */
 	public void setVerticalPositionZScore(double val) {
 		core_.parameters.setVerticalPositionZScore(val);
@@ -2429,7 +2429,7 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/** 
-	 * @return set z-score (number of standard deviations) for vertical velocity (non-negative value)
+	 * Set z-score (number of standard deviations) for vertical velocity (non-negative value)
 	 */
 	public void setVerticalSpeedZScore(double val) {
 		core_.parameters.setVerticalSpeedZScore(val);
@@ -2731,10 +2731,10 @@ public class Daidalus implements GenericStateBands {
 	}
 
 	/**
-	 * @return maximum alert level for all alerters. Returns 0 if alerter list is empty.
+	 * @return maximum number of alert levels for all alerters. Returns 0 if alerter list is empty.
 	 */
-	public int maxAlertLevel() {
-		return core_.parameters.maxAlertLevel();
+	public int maxNumberOfAlertLevels() {
+		return core_.parameters.maxNumberOfAlertLevels();
 	}
 
 	/** 
@@ -3047,7 +3047,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute horizontal direction resolution maneuver for a given direction.
-	 * @parameter dir is right (true)/left (false) of ownship current direction
+	 * @param dir is right (true)/left (false) of ownship current direction
 	 * @return direction resolution in internal units [rad] in specified direction.
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no resolution to the right, and negative infinity if there 
@@ -3059,8 +3059,8 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute horizontal direction resolution maneuver for a given direction.
-	 * @parameter dir is right (true)/left (false) of ownship current direction
-	 * @parameter u units
+	 * @param dir is right (true)/left (false) of ownship current direction
+	 * @param u units
 	 * @return direction resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no resolution to the right, and negative infinity if there 
@@ -3073,7 +3073,7 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute horizontal direction *raw* resolution maneuver for a given direction.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is right (true)/left (false) of ownship current direction
+	 * @param dir is right (true)/left (false) of ownship current direction
 	 * @return direction resolution in internal units [rad] in specified direction.
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no resolution to the right, and negative infinity if there 
@@ -3086,8 +3086,8 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute horizontal direction *raw* resolution maneuver for a given direction.
 	 * Raw resolution is the resolution without hysteresis or persistence
-	 * @parameter dir is right (true)/left (false) of ownship current direction
-	 * @parameter u units
+	 * @param dir is right (true)/left (false) of ownship current direction
+	 * @param u units
 	 * @return direction resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in time seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no resolution to the right, and negative infinity if there 
@@ -3257,7 +3257,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute horizontal speed resolution maneuver.
-	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+	 * @param dir is up (true)/down (false) of ownship current horizontal speed
 	 * @return horizontal speed resolution in internal units [m/s] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3269,8 +3269,8 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute horizontal speed resolution maneuver for corrective region.
-	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
-	 * @parameter u units
+	 * @param dir is up (true)/down (false) of ownship current horizontal speed
+	 * @param u units
 	 * @return horizontal speed resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3283,7 +3283,7 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute horizontal speed *raw* resolution maneuver.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
+	 * @param dir is up (true)/down (false) of ownship current horizontal speed
 	 * @return horizontal speed resolution in internal units [m/s] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3296,8 +3296,8 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute horizontal speed *raw* resolution maneuver for corrective region.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is up (true)/down (false) of ownship current horizontal speed
-	 * @parameter u units
+	 * @param dir is up (true)/down (false) of ownship current horizontal speed
+	 * @param u units
 	 * @return horizontal speed resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3467,7 +3467,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute vertical speed resolution maneuver for given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
+	 * @param dir is up (true)/down (false) of ownship current vertical speed
 	 * @return vertical speed resolution in internal units [m/s] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3479,8 +3479,8 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute vertical speed resolution maneuver for given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
-	 * @parameter u units
+	 * @param dir is up (true)/down (false) of ownship current vertical speed
+	 * @param u units
 	 * @return vertical speed resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3493,7 +3493,7 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute vertical speed *raw* resolution maneuver for given direction.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
+	 * @param dir is up (true)/down (false) of ownship current vertical speed
 	 * @return vertical speed resolution in internal units [m/s] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3506,8 +3506,8 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute vertical speed *raw* resolution maneuver for given direction.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is up (true)/down (false) of ownship current vertical speed
-	 * @parameter u units
+	 * @param dir is up (true)/down (false) of ownship current vertical speed
+	 * @param u units
 	 * @return vertical speed resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3677,7 +3677,7 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute altitude resolution maneuver for given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current altitude
+	 * @param dir is up (true)/down (false) of ownship current altitude
 	 * @return altitude resolution in internal units [m] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3689,8 +3689,8 @@ public class Daidalus implements GenericStateBands {
 
 	/**
 	 * Compute altitude resolution maneuver for given direction.
-	 * @parameter dir is up (true)/down (false) of ownship current altitude
-	 * @parameter u units
+	 * @param dir is up (true)/down (false) of ownship current altitude
+	 * @param u units
 	 * @return altitude resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3703,7 +3703,7 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute altitude *raw* resolution maneuver for given direction.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is up (true)/down (false) of ownship current altitude
+	 * @param dir is up (true)/down (false) of ownship current altitude
 	 * @return altitude resolution in internal units [m] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3716,8 +3716,8 @@ public class Daidalus implements GenericStateBands {
 	/**
 	 * Compute altitude *raw* resolution maneuver for given direction.
 	 * Raw resolution is the resolution without persistence
-	 * @parameter dir is up (true)/down (false) of ownship current altitude
-	 * @parameter u units
+	 * @param dir is up (true)/down (false) of ownship current altitude
+	 * @param u units
 	 * @return altitude resolution in specified units [u] in specified direction. 
 	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
 	 * positive infinity if there is no up resolution, and negative infinity if there 
@@ -3746,11 +3746,11 @@ public class Daidalus implements GenericStateBands {
 	 * When the alerter object has been configured to consider ownship maneuvers, i.e.,
 	 * using spread values, the alerting logic could also use information about the ownship
 	 * turning, accelerating, and climbing status as follows:
-	 * - turning < 0: ownship is turning left, turning > 0: ownship is turning right, turning = 0: 
+	 * - {@code turning < 0}: ownship is turning left, {@code turning > 0}: ownship is turning right, turning = 0: 
 	 * do not make any turning assumption about the ownship.
-	 * - accelerating < 0: ownship is decelerating, accelerating > 0: ownship is accelerating, 
+	 * - {@code accelerating < 0}: ownship is decelerating, {@code accelerating > 0}: ownship is accelerating, 
 	 * accelerating = 0: do not make any accelerating assumption about the ownship.
-	 * - climbing < 0: ownship is descending, climbing > 0: ownship is climbing, climbing = 0:
+	 * - {@code climbing < 0}: ownship is descending, {@code climbing > 0}: ownship is climbing, climbing = 0:
 	 * do not make any climbing assumption about the ownship.
 	 */
 	public int alertLevel(int ac_idx, int turning, int accelerating, int climbing) {
@@ -3769,6 +3769,21 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public int alertLevel(int ac_idx) {
 		return alertLevel(ac_idx,0,0,0);
+	}
+
+	/**
+	 * Return the most severe alert level with respect to all traffic aircraft
+	 * The number 0 means no alert. A negative number means no traffic aircraft
+	 */
+	public int alertLevelAllTraffic() {
+		int max = -1;
+		for (int ac_idx=1; ac_idx <= lastTrafficIndex(); ++ac_idx) {
+			int alert = alertLevel(ac_idx);
+			if (alert > max) {
+				max = alert;
+			}
+		}
+		return max;
 	}
 
 	/**
@@ -4869,6 +4884,14 @@ public class Daidalus implements GenericStateBands {
 	 */
 	public BandsRegion verticalSpeedRegion(int i) {
 		return verticalSpeedRegionAt(i);
+	}
+
+	/**
+	 * @return maximum alert level for all alerters. Returns 0 if alerter list is empty.
+	 */
+	@Deprecated
+	public int maxAlertLevelxxx() {
+		return maxNumberOfAlertLevels();
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -178,7 +178,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	}
 
 	/**
-	 * Overwrite relative values from those in the parameters. When mod_ > 0, requires min_rel and max_rel 
+	 * Overwrite relative values from those in the parameters. When {@code mod_ > 0}, requires min_rel and max_rel 
 	 * to be in [0,mod/2]. When mod_ == 0, a negative min_rel value represents val-min and a negative value 
 	 * max_rel value represents max-val.
 	 */
@@ -379,7 +379,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	}
 
 	/**
-	 * Requires 0 <= conflict_region < CONFICT_BANDS
+	 * Requires {@code 0 <= conflict_region < CONFICT_BANDS}
 	 * @return sorted list of aircraft indices and alert_levels contributing to peripheral bands
 	 * for given conflict region.
 	 */
@@ -690,7 +690,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 * aircraft at ac_idx for conflict alert level. Return NaN if the ownship is not 
 	 * in conflict with aircraft within lookahead time. Return negative infinity if 
 	 * there is no time to maneuver.
-	 * Note: 1 <= alert_level <= alerter.size()
+	 * Note: {@code 1 <= alert_level <= alerter.size()}
 	 */
 	public double last_time_to_maneuver(DaidalusCore core, TrafficState intruder) {
 		int alert_idx = core.alerter_index_of(intruder);

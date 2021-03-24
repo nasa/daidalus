@@ -1,9 +1,9 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 ---------------------------------------------------------
 
-Release: v2.0.2 (Java), December-11-2020
+Release: v2.0.2 (Java), March-23-2021
 
-Copyright: Copyright (c) 2020 United States Government as represented by 
+Copyright: Copyright (c) 2021 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.

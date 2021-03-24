@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -18,7 +18,7 @@ public class Constants {
 	/**
 	 * String indicating the FormalATM version
 	 */
-	public static final String version = "v2.7.4";
+	public static final String version = "v2.7.5";
 	
 	  /**
 	   * Returns a String indicating the build date.  This information

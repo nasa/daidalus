@@ -92,6 +92,20 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0bc3c65fbcbd7068c71a77135d6dee38"><td class="memItemLeft" align="right" valign="top"><a id="a0bc3c65fbcbd7068c71a77135d6dee38"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>resetInputFile</b> (const std::string &amp;filename)</td></tr>
 <tr class="separator:a0bc3c65fbcbd7068c71a77135d6dee38"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a474f6c29c7afbb08aa8b5fc248bd2986"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#a474f6c29c7afbb08aa8b5fc248bd2986">setOwnship</a> (const std::string &amp;name)</td></tr>
+<tr class="separator:a474f6c29c7afbb08aa8b5fc248bd2986"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe97a7586db9590560297558d28a4bfe"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#abe97a7586db9590560297558d28a4bfe">getOwnship</a> () const</td></tr>
+<tr class="separator:abe97a7586db9590560297558d28a4bfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84586c14c57d8e75ec50c232adab0b27"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#a84586c14c57d8e75ec50c232adab0b27">resetOwnship</a> ()</td></tr>
+<tr class="separator:a84586c14c57d8e75ec50c232adab0b27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba5b31a78310773edbed3954c0a178a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#aba5b31a78310773edbed3954c0a178a0">selectTraffic</a> (const std::string &amp;name)</td></tr>
+<tr class="separator:aba5b31a78310773edbed3954c0a178a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a450cbbcf14996adb0c35234ec26102a4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#a450cbbcf14996adb0c35234ec26102a4">selectTraffic</a> (const std::vector&lt; std::string &gt; &amp;names)</td></tr>
+<tr class="separator:a450cbbcf14996adb0c35234ec26102a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5985e8ceec5daacb218ddc0922f7f7fc"><td class="memItemLeft" align="right" valign="top">const std::vector&lt; std::string &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#a5985e8ceec5daacb218ddc0922f7f7fc">getSelectedTraffic</a> () const</td></tr>
+<tr class="separator:a5985e8ceec5daacb218ddc0922f7f7fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac27d569986fb06d2a82c054af863c418"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_file_walker.html#ac27d569986fb06d2a82c054af863c418">resetSelectedTraffic</a> ()</td></tr>
+<tr class="separator:ac27d569986fb06d2a82c054af863c418"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb9db330982abd96254baedb4ce7d8aa"><td class="memItemLeft" align="right" valign="top"><a id="abb9db330982abd96254baedb4ce7d8aa"></a>
 double&#160;</td><td class="memItemRight" valign="bottom"><b>firstTime</b> () const</td></tr>
 <tr class="separator:abb9db330982abd96254baedb4ce7d8aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -208,6 +222,42 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>readExtraColum
 
 </div>
 </div>
+<a id="abe97a7586db9590560297558d28a4bfe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abe97a7586db9590560297558d28a4bfe">&#9670;&nbsp;</a></span>getOwnship()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::string &amp; larcfm::DaidalusFileWalker::getOwnship </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns the name of the ownship. An empty string refers to the aircraft that is the first in the daa file </p>
+
+</div>
+</div>
+<a id="a5985e8ceec5daacb218ddc0922f7f7fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5985e8ceec5daacb218ddc0922f7f7fc">&#9670;&nbsp;</a></span>getSelectedTraffic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const std::vector&lt; std::string &gt; &amp; larcfm::DaidalusFileWalker::getSelectedTraffic </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns the list of selected traffic. An empty list means that all aircraft that are not the ownship are considered traffic. </p>
+
+</div>
+</div>
 <a id="a8d0af8523c9f3acb788227d7f05b0dbe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8d0af8523c9f3acb788227d7f05b0dbe">&#9670;&nbsp;</a></span>hasError()</h2>
 
@@ -261,6 +311,99 @@ static void&#160;</td><td class="memItemRight" valign="bottom"><b>readExtraColum
 <p>Does this object have an error or a warning? </p><dl class="section return"><dt>Returns</dt><dd>true if there is an error or warning. </dd></dl>
 
 <p>Implements <a class="el" href="classlarcfm_1_1_error_reporter.html#a0c24feabaab99943fe6cb5f3c912d1a5">larcfm::ErrorReporter</a>.</p>
+
+</div>
+</div>
+<a id="a84586c14c57d8e75ec50c232adab0b27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84586c14c57d8e75ec50c232adab0b27">&#9670;&nbsp;</a></span>resetOwnship()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void larcfm::DaidalusFileWalker::resetOwnship </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reset the ownship value so that the first aircraft in the daa are considered the ownship. </p>
+
+</div>
+</div>
+<a id="ac27d569986fb06d2a82c054af863c418"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac27d569986fb06d2a82c054af863c418">&#9670;&nbsp;</a></span>resetSelectedTraffic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void larcfm::DaidalusFileWalker::resetSelectedTraffic </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Reset the list of selected aircraft so that all aircraft that are not ownship are considered traffic. </p>
+
+</div>
+</div>
+<a id="aba5b31a78310773edbed3954c0a178a0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aba5b31a78310773edbed3954c0a178a0">&#9670;&nbsp;</a></span>selectTraffic() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void larcfm::DaidalusFileWalker::selectTraffic </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>By default all aircraft that are not the ownship are considered to be traffic. This method add a particular aircraft to the list of selected aircraft. Several aircraft can be selected, but if the list of selected aircraft is non empty, only the aircraft in the list are considered traffic. </p>
+
+</div>
+</div>
+<a id="a450cbbcf14996adb0c35234ec26102a4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a450cbbcf14996adb0c35234ec26102a4">&#9670;&nbsp;</a></span>selectTraffic() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void larcfm::DaidalusFileWalker::selectTraffic </td>
+          <td>(</td>
+          <td class="paramtype">const std::vector&lt; std::string &gt; &amp;&#160;</td>
+          <td class="paramname"><em>names</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>By default all aircraft that are not the ownship are considered to be traffic. This method add a list of aircraft to the list of selected aircraft. Several aircraft can be selected, but if the list of selected aircraft is non empty, only the aircraft in the list are considered traffic. </p>
+
+</div>
+</div>
+<a id="a474f6c29c7afbb08aa8b5fc248bd2986"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a474f6c29c7afbb08aa8b5fc248bd2986">&#9670;&nbsp;</a></span>setOwnship()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void larcfm::DaidalusFileWalker::setOwnship </td>
+          <td>(</td>
+          <td class="paramtype">const std::string &amp;&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>By default ownship is the first aircraft in the daa file. This method allows for the selection of a different aircraft as the ownship If aircraft with given name doesn't exist at a time step, no ownship or traffic is added to the <a class="el" href="classlarcfm_1_1_daidalus.html">Daidalus</a> object at that particular time step. </p>
 
 </div>
 </div>

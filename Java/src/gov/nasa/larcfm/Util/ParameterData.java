@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020 United States Government as represented by
+ * Copyright (c) 2013-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -16,9 +16,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * This class stores a database of parameters. In addition, it performs various
@@ -51,6 +49,7 @@ public class ParameterData {
 	}
 	
 	/** A database of parameters.  The database is initially empty.
+	 * @return new database
 	 */
 	public static ParameterData make() {
 		return new ParameterData();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 United States Government as represented by
+ * Copyright (c) 2012-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -412,7 +412,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of Tau Threshold for a given sensitivity level 
-	 * Parameter val is given in seconds. Val is >= 0. Return true is value was set.
+	 * Parameter val is given in seconds. Val is {@code >= 0}. Return true is value was set.
 	 */
 	public boolean setTAU(int sl, double val) {
 		if (isValidSensitivityLevel(sl)) { 
@@ -423,7 +423,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of Tau Threshold for a given sensitivity level 
-	 * Parameter val is given in given units. Val is >= 0
+	 * Parameter val is given in given units. Val is {@code >= 0}
 	 */
 	public void setTAU(int sl, double val, String u) {
 		if (setTAU(sl,Units.from(u,val))) {
@@ -432,7 +432,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of TCOA Threshold for a given sensitivity level
-	 * Parameter val is given in seconds. Val is >= 0. Return true is value was set.
+	 * Parameter val is given in seconds. Val is {@code >= 0}. Return true is value was set.
 	 */
 	public boolean setTCOA(int sl, double val) {
 		if (isValidSensitivityLevel(sl)) { 
@@ -443,7 +443,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of TCOA Threshold for a given sensitivity level 
-	 * Parameter val is given in given units. Val is >= 0
+	 * Parameter val is given in given units. Val is {@code >= 0}
 	 */
 	public void setTCOA(int sl, double val, String u) {
 		if (setTCOA(sl,Units.from(u,val))) {
@@ -452,7 +452,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of DMOD for a given sensitivity level 
-	 * Parameter val is given in internal units. Val is >= 0. Return true is value was set.
+	 * Parameter val is given in internal units. Val is {@code >= 0}. Return true is value was set.
 	 */
 	public boolean setDMOD(int sl, double val) { 
 		if (isValidSensitivityLevel(sl)) { 
@@ -463,7 +463,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of DMOD for a given sensitivity level 
-	 * Parameter val is given in u units. Val is >= 0.
+	 * Parameter val is given in u units. Val is {@code >= 0}.
 	 */
 	public void setDMOD(int sl, double val, String u) { 
 		if (setDMOD(sl,Units.from(u,val))) {
@@ -472,7 +472,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of ZTHR for a given sensitivity level 
-	 * Parameter val is given in internal units. Val is >= 0. Return true is value was set.
+	 * Parameter val is given in internal units. Val is {@code >= 0}. Return true is value was set.
 	 */
 	public boolean setZTHR(int sl, double val) {
 		if (isValidSensitivityLevel(sl)) { 
@@ -483,7 +483,7 @@ public class TCASTable implements ParameterTable {
 	}
 
 	/** Modify the value of ZTHR for a given sensitivity level 
-	 * Parameter val is given in u units. Val is >= 0.
+	 * Parameter val is given in u units. Val is {@code >= 0}.
 	 */
 	public void setZTHR(int sl, double val, String u) {
 		if (setZTHR(sl,Units.from(u,val))) {
@@ -493,7 +493,7 @@ public class TCASTable implements ParameterTable {
 
 	/** 
 	 * Modify the value of HMD for a given sensitivity level 
-	 * Parameter val is given in internal units. Val is >= 0. Return true is value was set.
+	 * Parameter val is given in internal units. Val is {@code >= 0}. Return true is value was set.
 	 */
 	public boolean setHMD(int sl, double val) {
 		if (isValidSensitivityLevel(sl)) { 
@@ -505,7 +505,7 @@ public class TCASTable implements ParameterTable {
 
 	/** 
 	 * Modify the value of HMD for a given sensitivity level 
-	 * Parameter val is given in u units. Val is >= 0.
+	 * Parameter val is given in u units. Val is {@code >= 0}.
 	 */
 	public void setHMD(int sl, double val, String u) {
 		if (setHMD(sl,Units.from(u,val))) {
@@ -515,7 +515,7 @@ public class TCASTable implements ParameterTable {
 
 	/** 
 	 * Add sensitivity level with upper bound altitude alt (in internal units).
-	 * Requires: alt > levels_.get(size(levels_)-1) or an empty table
+	 * Requires: {@code alt > levels_.get(size(levels_)-1)} or an empty table
 	 * Add value 0 to DMOD,HMD,ZTHR,TAUMOD,TCOA
 	 * Either returns index of new maximum sensitivity level or 0 (if requires is false) 
 	 */
@@ -541,7 +541,7 @@ public class TCASTable implements ParameterTable {
 
 	/** 
 	 * Add sensitivity level with upper bound altitude alt (in given units).
-	 * Requires: alt > levels_.get(size(levels_)-1) or an empty table
+	 * Requires: {@code alt > levels_.get(size(levels_)-1)} or an empty table
 	 * Add value 0 to DMOD,HMD,ZTHR,TAUMOD,TCOA
 	 * Either returns new sensitivity level or 0 (if requires is false) 
 	 */

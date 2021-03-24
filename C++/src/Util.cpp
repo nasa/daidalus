@@ -5,7 +5,7 @@
  *
  * Utility functions.
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -254,6 +254,27 @@ double Util::root2b(const double a, const double b, const double c, const int ep
 			return (-b + eps*sqrt_safe(sqb-ac))/a;
 		return NaN;
 	}
+}
+
+double Util::rootNegC(const double a, const double b, const double c) {
+	if (a == 0) return -c / b;
+	double sqb = sq(b);
+	double ac = 4 * a * c;
+	if (almost_equals(sqb, ac) || sqb > ac)
+		return (-b + sqrt_safe(sqb - ac)) / (2 * a);
+	return -1;
+}
+
+int Util::sign(const bool b) {
+	if (b)
+		return 1;
+	return -1;
+}
+
+int Util::sign(const int x) {
+	if (x >= 0)
+		return 1;
+	return -1;
 }
 
 int Util::sign(const double x) {

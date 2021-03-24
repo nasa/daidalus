@@ -3,7 +3,7 @@
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
  *
- * Copyright (c) 2013-2020 United States Government as represented by
+ * Copyright (c) 2013-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -45,7 +45,7 @@ import java.util.function.Supplier;
  * <li><code>pln(msg)</code> This provides intermediate program state information.  Only the message comes out, there is no "tag"
  * <li><code>pln(msg, verbose)</code> Same as above, except it does not rely Debug's notion of a verbosity level.  If the verbose flag is true, then the
  * message is output.
- * <li><code>pln(lvl, msg)</code> This provides information at a user-specified level (>= 2).  Only the message comes out, there is no "tag"
+ * <li><code>pln(lvl, msg)</code> This provides information at a user-specified level ({@code >= 2}).  Only the message comes out, there is no "tag"
  * <li><code>pln(lvl, tag, msg)</code> Same as above, along with a user-specified tag.
  * </ul>
  * 
@@ -79,7 +79,7 @@ public class Debug {
 	 * <li> 0 - Errors only
 	 * <li> 1 - Errors and Warnings
 	 * <li> 2 - Errors, Warnings, and Status
-	 * <li> >2 - All the above, plus user-specified levels
+	 * <li> {@literal >}2 - All the above, plus user-specified levels
 	 * </ul>
 	 * 
 	 * @param level verbosity level
@@ -95,7 +95,7 @@ public class Debug {
 	 * <li> 0 - Errors only
 	 * <li> 1 - Errors and Warnings
 	 * <li> 2 - Errors, Warnings, and Status
-	 * <li> >2 - All the above, plus user-specified levels
+	 * <li> {@literal >}2 - All the above, plus user-specified levels
 	 * </ul>
 	 * 
 	 * @return verbosity level
@@ -112,6 +112,10 @@ public class Debug {
 		}
 	}
 	
+	/** Clear and return the contents of buffer.  Buffer contains previous Debug messages.
+	 * 
+	 * @return contents of buffer.
+	 */
 	public static String getBuffer() {
 		String ret = buffer.toString();
 		buffer.setLength(0);
@@ -233,8 +237,8 @@ public class Debug {
 //	}
 	
 	/**
-	 * Output the <i>msg</i> to the console with the prepended <i>tag</i>.  Warnings are always
-	 * output and never cause a program termination.
+	 * Output the <i>msg</i> to the console with the prepended <i>tag</i>.  Warnings are 
+	 * output, provided the verbose level is 1 or greater, and should never cause a program termination.
 	 * 
 	 * @param tag the tag to indicate the location of this debug message.
 	 * @param msg message to indicate what has gone wrong.
@@ -246,8 +250,8 @@ public class Debug {
 	}
 	
 	/**
-	 * Output the <i>msg</i> to the console with the prepended <i>WARNING</i> tag.  Warnings are always
-	 * output and never cause a program termination.
+	 * Output the <i>msg</i> to the console with the prepended <i>WARNING</i> tag.  Warnings are 
+	 * output, provided the verbose level is 1 or greater, and should never cause a program termination.
 	 * 
 	 * @param msg message to indicate what has gone wrong.
 	 */
@@ -279,8 +283,8 @@ public class Debug {
 	 * 
 	 * <p>A supplier object should look like:</p>
 	 * <code>
-	 * class MyClass implements Supplier<String> {
-	 *   @override
+	 * class MyClass implements Supplier{@literal <}String{@literal >} {
+	 *   {@literal @}override
 	 *   public String get() {
 	 *     return complex_string_construction_operation_here();
 	 *   }
@@ -358,7 +362,7 @@ public class Debug {
 	 * 
 	 * <p>A supplier object should look like:</p>
 	 * <code style="display:block; white-space:pre-wrap">
-	 * class MyClass implements Supplier<String> { <br>
+	 * class MyClass implements Supplier{@literal <}String{@literal >} { <br>
 	 *   public String get() { <br>
 	 *     return complex_string_construction_operation_here(); <br>
 	 *   }<br>
@@ -397,8 +401,8 @@ public class Debug {
 	 * 
 	 * <p>A supplier object should look like:</p>
 	 * <code>
-	 * class MyClass implements Supplier<String> {
-	 *   @override
+	 * class MyClass implements Supplier{@literal <}String{@literal >} {
+	 *   {@literal @}override
 	 *   public String get() {
 	 *     return complex_string_construction_operation_here();
 	 *   }

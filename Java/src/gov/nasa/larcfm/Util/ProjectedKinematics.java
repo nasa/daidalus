@@ -1,7 +1,7 @@
 /*
  * ProjectedKinematics.java 
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -204,7 +204,7 @@ public final class ProjectedKinematics {
     } else {
     	s3 = so.vect3();
     }
-    Pair<Vect3,Velocity> svres = Kinematics.turnUntil(s3, vo, t, goalTrack, bankAngle);
+    Pair<Vect3,Velocity> svres = Kinematics.turnUntilTrack(s3, vo, t, goalTrack, bankAngle);
     Vect3 pres = svres.first;
     Velocity vres = svres.second;
     //f.pln("Kin.turnProjection so = "+so+" pres = "+pres+" vo = "+vo+" vres=  "+vres);	  
@@ -253,6 +253,7 @@ public final class ProjectedKinematics {
   }
 
 
+  //TODO change this to dir, not turnRight
   /**
    *  Position and velocity after t time units turning in direction "dir" with radius R.  This is a wrapper around turnUntilTime
    *  and uses the projection defined in the static Projection class.
@@ -271,7 +272,7 @@ public final class ProjectedKinematics {
     } else {
     	s3 = so.vect3();
     }
-    Pair<Vect3,Velocity> svres = Kinematics.turnUntilTimeRadius(new Pair<Vect3,Velocity>(s3, vo), t, turnTime, R, turnRight);
+    Pair<Vect3,Velocity> svres = Kinematics.turnUntilTimeRadius(s3, vo, t, turnTime, R, Util.sign(turnRight));
     Vect3 pres = svres.first;
     Velocity vres = svres.second;
     if (so.isLatLon()) {
@@ -303,7 +304,7 @@ public final class ProjectedKinematics {
     } else {
     	s3 = so.vect3();
     }
-    Pair<Vect3,Velocity> svres = Kinematics.turnUntilWithRoll(s3,vo,t, goalTrack, bankAngle,rollTime);
+    Pair<Vect3,Velocity> svres = Kinematics.turnUntilTrackWithRoll(s3,vo,t, goalTrack, bankAngle,rollTime);
     Vect3 pres = svres.first;
     Velocity vres = svres.second;
     //f.pln("Kin.turnProjection so = "+so+" pres = "+pres+" vo = "+vo+" vres=  "+vres);	  
@@ -641,7 +642,7 @@ public final class ProjectedKinematics {
     } else {
         sv = new Pair<Vect3, Velocity>(so.vect3(),vo);    	
     }
-    Pair<Vect3,Velocity> vat = Kinematics.vsLevelOut(sv, t, climbRate, targetAlt, a); 
+    Pair<Vect3,Velocity> vat = Kinematics.vsLevelOut(sv, t, climbRate, targetAlt, a, true); 
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(vat.first,vat.second,true);
     } else {

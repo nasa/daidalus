@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -399,6 +399,25 @@ public final class Util {
 			return Double.NaN; 
 		}
 	}
+	
+	/** Assumes {@code c < 0}, {@code b > 0}
+	 * 
+	 * @param a     a coefficient of quadratic
+	 * @param b     b coefficient of quadratic
+	 * @param c     c coefficient of quadratic
+	 * @return      positive root {@code >= 0}    (eps == 1)
+	 * 
+	 * NOTE: {@code c < 0}, {@code b > 0} and use of positive root (eps == 1) insures that the returned root is non-negative!
+	 */
+	public static double rootNegC(double a, double b, double c) {
+		if (a == 0) return -c / b;
+		double sqb = sq(b);
+		double ac  = 4*a*c;
+		if (almost_equals(sqb,ac) || sqb > ac) 
+			return (-b + sqrt_safe(sqb-ac)) / (2 * a);
+		return -1; 
+	}
+
 
 	/** root2b(a,b,c,eps) = root(a,2*b,c,eps) , eps = -1 or +1 
 	 * 
@@ -577,7 +596,7 @@ public final class Util {
 	}
 
 	/**
-	 * Computes the modulo of val and mod. If mod > 0, the returned value is in the r
+	 * Computes the modulo of val and mod. If {@code mod > 0}, the returned value is in the r
 	 * ange [0,mod). Otherwise, returns val.
 	 * 
 	 * @param val numerator
@@ -613,6 +632,43 @@ public final class Util {
 	 */
 	public static double to_2pi(double rad) {
 		return modulo(rad,twopi);
+	}
+
+	/**
+	 * Converts <code>rad</code> radians to the range
+	 * [<code>-pi/2</code>, <code>pi/2</code>]. 
+	 * <p>Note: this should <b>not</b> be used for argument reduction for trigonometric functions (Math.sin(to_2pi(x)).  Bad
+	 * roundoff errors could occur.</p>
+	 *
+	 * @param rad Radians
+	 *
+	 * @return <code>rad</code> in the range
+	 * [<code>-pi/2</code>, <code>pi/2</code>).
+	 */
+	public static double to_pi2(double rad) {
+		double pi2 = Math.PI/2.0;
+		rad = rad + pi2;
+		rad = to_pi(rad) - pi2;
+		return rad;
+	}
+
+	/**
+	 * Converts <code>deg</code> degrees to the range 
+	 * (<code>-90</code>, <code>90</code>].
+	 * 
+	 * @param deg Degrees
+	 * 
+	 * @return <code>deg</code> in the range (<code>-90</code>, <code>90</code>].
+	 */
+	public static double to_90(double deg) {
+		double pi2 = 90;
+		deg = deg + pi2;
+		deg = to_180(deg);
+		if (deg < 0) {
+			deg = 0.0;
+		}
+		deg = deg - pi2;
+		return deg;
 	}
 
 	/**
@@ -677,11 +733,10 @@ public final class Util {
 	 * Returns 1 if the minimal turn to goalTrack (i.e. less than pi) is to the right, else -1
 	 * @param initTrack   initial track [rad]
 	 * @param goalTrack   target track [rad]
-	 * @return direction of turn
+	 * @return +1 for right, -1 for left
 	 */
 	public static int turnDir(double initTrack, double goalTrack) {
-		if (Util.clockwise(initTrack,goalTrack)) return 1;
-		else return -1;
+		return sign(Util.clockwise(initTrack,goalTrack));
 	}
 
 
@@ -707,9 +762,9 @@ public final class Util {
 	/**
 	 * Returns the smallest angle between two track angles [0,PI].
 	 * 
-	 * @param before
-	 * @param after
-	 * @return
+	 * @param before starting velocity vector
+	 * @param after  ending velocity vector
+	 * @return difference in track angles
 	 */
 	public static double trackDelta(Velocity before, Velocity after) {
 		return turnDelta(before.trk(), after.trk());  
@@ -761,7 +816,7 @@ public final class Util {
 	 * 
 	 * @param alpha one angle
 	 * @param beta another angle
-	 * @param dir = +/- 1 + right, - left
+	 * @param dir +1 = right, -1 = left
 	 * @return angle difference
 	 */
 	public static double turnDelta(double alpha, double beta, int dir) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -19,7 +19,7 @@ public interface UrgencyStrategy {
 	 * @param traffic List of traffic aircraft
 	 * @param T Lookeahead time 
 	 * @return index of most urgent traffic aircraft for given ownship, traffic, and lookahead time T.
-	 * If index <= -1, then no aircraft is the most urgent.
+	 * If {@code index <= -1}, then no aircraft is the most urgent.
 	 */
 
 	public int mostUrgentAircraft(TrafficState ownship, List<TrafficState> traffic, 

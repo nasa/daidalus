@@ -71,7 +71,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 <div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="comment">/*</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2015-2020 United States Government as represented by</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="comment"> * Copyright (c) 2015-2021 United States Government as represented by</span></div>
 <div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="comment"> * the National Aeronautics and Space Administration.  No copyright</span></div>
 <div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="comment"> * is claimed in the United States under Title 17, U.S.Code. All Other</span></div>
 <div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="comment"> * Rights Reserved.</span></div>
@@ -114,7 +114,7 @@ $(function() {
 <div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;  <span class="keywordtype">bool</span> contains(<span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_detection3_d.html">Detection3D</a>* cd) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
 <div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> hazard_zone_far_end(std::vector&lt;Position&gt;&amp; haz,</div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      <span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_position.html">Position</a>&amp; po, <span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_velocity.html">Velocity</a>&amp; v, <span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_velocity.html">Velocity</a>&amp; vD, <span class="keywordtype">double</span> T) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;      <span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_position.html">Position</a>&amp; po, <span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_velocity.html">Velocity</a>&amp; v, <span class="keyword">const</span> <a class="code" href="classlarcfm_1_1_vect3.html">Vect3</a>&amp; pu, <span class="keywordtype">double</span> T) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160; </div>
 <div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;};</div>
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;}</div>
@@ -122,13 +122,14 @@ $(function() {
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasslarcfm_1_1_position_html"><div class="ttname"><a href="classlarcfm_1_1_position.html">larcfm::Position</a></div><div class="ttdef"><b>Definition:</b> Position.h:40</div></div>
 <div class="ttc" id="aclasslarcfm_1_1_w_c_v__tvar_html"><div class="ttname"><a href="classlarcfm_1_1_w_c_v__tvar.html">larcfm::WCV_tvar</a></div><div class="ttdef"><b>Definition:</b> WCV_tvar.h:20</div></div>
-<div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html_ab646a4b43d6a3efa79f3aca6e6153330"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html#ab646a4b43d6a3efa79f3aca6e6153330">larcfm::WCV_TCPA::WCV_TCPA</a></div><div class="ttdeci">WCV_TCPA()</div><div class="ttdef"><b>Definition:</b> WCV_TCPA.cpp:22</div></div>
-<div class="ttc" id="aclasslarcfm_1_1_vect2_html"><div class="ttname"><a href="classlarcfm_1_1_vect2.html">larcfm::Vect2</a></div><div class="ttdef"><b>Definition:</b> Vect2.h:26</div></div>
+<div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html_ab646a4b43d6a3efa79f3aca6e6153330"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html#ab646a4b43d6a3efa79f3aca6e6153330">larcfm::WCV_TCPA::WCV_TCPA</a></div><div class="ttdeci">WCV_TCPA()</div><div class="ttdef"><b>Definition:</b> WCV_TCPA.cpp:23</div></div>
+<div class="ttc" id="aclasslarcfm_1_1_vect3_html"><div class="ttname"><a href="classlarcfm_1_1_vect3.html">larcfm::Vect3</a></div><div class="ttdef"><b>Definition:</b> Vect3.h:29</div></div>
+<div class="ttc" id="aclasslarcfm_1_1_vect2_html"><div class="ttname"><a href="classlarcfm_1_1_vect2.html">larcfm::Vect2</a></div><div class="ttdef"><b>Definition:</b> Vect2.h:30</div></div>
 <div class="ttc" id="aclasslarcfm_1_1_loss_data_html"><div class="ttname"><a href="classlarcfm_1_1_loss_data.html">larcfm::LossData</a></div><div class="ttdef"><b>Definition:</b> LossData.h:25</div></div>
 <div class="ttc" id="aclasslarcfm_1_1_w_c_v_table_html"><div class="ttname"><a href="classlarcfm_1_1_w_c_v_table.html">larcfm::WCVTable</a></div><div class="ttdef"><b>Definition:</b> WCVTable.h:19</div></div>
-<div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html_ad6b83113409c50f2c7a9dfe7387ec6da"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html#ad6b83113409c50f2c7a9dfe7387ec6da">larcfm::WCV_TCPA::A_WCV_TCPA</a></div><div class="ttdeci">static const WCV_TCPA &amp; A_WCV_TCPA()</div><div class="ttdef"><b>Definition:</b> WCV_TCPA.cpp:37</div></div>
-<div class="ttc" id="aclasslarcfm_1_1_velocity_html"><div class="ttname"><a href="classlarcfm_1_1_velocity.html">larcfm::Velocity</a></div><div class="ttdef"><b>Definition:</b> Velocity.h:32</div></div>
-<div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html_ad01253c458fbbcacea477fe46883b7d2"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html#ad01253c458fbbcacea477fe46883b7d2">larcfm::WCV_TCPA::copy</a></div><div class="ttdeci">Detection3D * copy() const</div><div class="ttdef"><b>Definition:</b> WCV_TCPA.cpp:98</div></div>
+<div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html_ad6b83113409c50f2c7a9dfe7387ec6da"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html#ad6b83113409c50f2c7a9dfe7387ec6da">larcfm::WCV_TCPA::A_WCV_TCPA</a></div><div class="ttdeci">static const WCV_TCPA &amp; A_WCV_TCPA()</div><div class="ttdef"><b>Definition:</b> WCV_TCPA.cpp:38</div></div>
+<div class="ttc" id="aclasslarcfm_1_1_velocity_html"><div class="ttname"><a href="classlarcfm_1_1_velocity.html">larcfm::Velocity</a></div><div class="ttdef"><b>Definition:</b> Velocity.h:36</div></div>
+<div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html_ad01253c458fbbcacea477fe46883b7d2"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html#ad01253c458fbbcacea477fe46883b7d2">larcfm::WCV_TCPA::copy</a></div><div class="ttdeci">Detection3D * copy() const</div><div class="ttdef"><b>Definition:</b> WCV_TCPA.cpp:99</div></div>
 <div class="ttc" id="aclasslarcfm_1_1_w_c_v___t_c_p_a_html"><div class="ttname"><a href="classlarcfm_1_1_w_c_v___t_c_p_a.html">larcfm::WCV_TCPA</a></div><div class="ttdef"><b>Definition:</b> WCV_TCPA.h:19</div></div>
 <div class="ttc" id="aclasslarcfm_1_1_detection3_d_html"><div class="ttname"><a href="classlarcfm_1_1_detection3_d.html">larcfm::Detection3D</a></div><div class="ttdef"><b>Definition:</b> Detection3D.h:28</div></div>
 <div class="ttc" id="anamespacelarcfm_html"><div class="ttname"><a href="namespacelarcfm.html">larcfm</a></div><div class="ttdef"><b>Definition:</b> ACCoRDConfig.h:16</div></div>

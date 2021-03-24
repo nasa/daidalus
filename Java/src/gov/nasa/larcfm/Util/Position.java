@@ -5,7 +5,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  *
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -83,7 +83,7 @@ public final class Position implements OutputList {
 	
 	/** Construct a new Position object from a Vect3 object. This method
 	 * assumes the Vect3 is in internal units. 
-	 * @param v three dimensional vector
+	 * @param p three dimensional vector
 	 * @return new Position object
 	 */
 	public static Position make(Vect3 p) {
@@ -1091,7 +1091,7 @@ public final class Position implements OutputList {
 		if (latlon) {
 			return "Position.mkLatLonAlt("+ f.Fm16(lat())+", "+f.Fm16(lon())+", "+f.Fm16(alt())+")";
 		} else {
-			return "Position.mkXYZ("+(f.Fm16(x())+", "+f.Fm16(y())+", "+f.Fm12(z())+")");
+			return "Position.mkXYZ("+(f.Fm16(x())+", "+f.Fm16(y())+", "+f.Fm16(z())+")");
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -2517,14 +2517,22 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/**
-		 * @return maximum alert level for all alerters. Returns 0 if alerter list is empty.
+		 * @return maximum number of alert levels for all alerters. Returns 0 if alerter list is empty.
 		 */
-		public int maxAlertLevel() {
+		public int maxNumberOfAlertLevels() {
 			int maxalert_level = 0;
 			for (int alerter_idx=1; alerter_idx <= alerters_.size(); ++alerter_idx) {
 				maxalert_level = Util.max(maxalert_level,alerters_.get(alerter_idx-1).mostSevereAlertLevel());
 			}
 			return maxalert_level;
+		}
+
+		/**
+		 * Deprecated. Use maxNumberOfAlertLevels() instead
+		 */
+		@Deprecated
+		public int maxAlertLevel() {
+			return maxNumberOfAlertLevels();
 		}
 
 		/** 

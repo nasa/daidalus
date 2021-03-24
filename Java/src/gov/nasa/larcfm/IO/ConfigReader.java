@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -13,6 +13,7 @@ import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.ParameterProvider;
 import gov.nasa.larcfm.Util.ParameterReader;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.f;
 
 import java.io.Reader;
 import java.io.FileReader;
@@ -57,6 +58,10 @@ import java.util.List;
  * The file imported may also have an "importConfigFile" option.
  * Only one importConfigFile option is allowed per file.
  * Parameters read from a secondary file will not overwrite parameters set in their parent file.
+ * </p>
+ * <p>
+ * It is possible to programmatically add additional import keys to a reader through the addIncludeName() method, allowing for multiple potential imports per file.
+ * The key importConfigFile is always first in the list of imports read, with others read in the order the keys were added. 
  * </p>
  */
 public final class ConfigReader implements ParameterReader, ParameterProvider, ErrorReporter {
@@ -197,14 +202,19 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 			pd.copy(input.getParametersRef(), true);
 		}
 		for (String name: includeNames) {
-			loadIncludeFile(FileUtil.file_search(pd.getString(name), srcPath, "."));			
+			if (pd.contains(name)) { // only attempt to read a file if the key exists in the source
+				loadIncludeFile(FileUtil.file_search(pd.getString(name), srcPath, "."));
+			}
 		}
 		preambleImage = input.getPreambleImage();
 		
 	}
 	
 	private void loadIncludeFile(String file) {
-		if (file == null || file.isEmpty()) return;
+		if (file == null || file.isEmpty()) {
+			error.addWarning("Could not find requested include file: "+file);
+			return;
+		}
 		ConfigReader cr = new ConfigReader();
 		cr.open(file);
 		if (cr.hasError()) {
@@ -223,7 +233,13 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		}
 	}
 
-	
+	/**
+	 * Add an additional import key to this reader.
+	 * If the file read contains this key, the reader will interpret its value as a file name to be imported.
+	 * Files are imported in the order these keys were defined.  
+	 * In the case of import duplication, the earlier definitions will take precedence.
+	 * @param name new import directive key
+	 */
 	public void addIncludeName(String name) {
 		if (name != null && ! name.isEmpty()) {
 			includeNames.add(name);			

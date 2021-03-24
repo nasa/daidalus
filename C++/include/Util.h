@@ -5,7 +5,7 @@
  *
  * Utility functions.
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -57,6 +57,7 @@ typedef int64_t INT64FM;
 #define PINFINITY std::numeric_limits<double>::infinity()
 #define NINFINITY -std::numeric_limits<double>::infinity()
 #define MAXDOUBLE std::numeric_limits<double>::max()
+#define MAXINTEGER std::numeric_limits<int>::max()
 #define ISNAN std::isnan
 #define ISINF std::isinf
 
@@ -319,6 +320,24 @@ public:
 	 * @return root of quadratic
 	 */
 	static double root2b(const double a, const double b, const double c, const int eps);
+
+	/** Assumes c < 0, b > 0
+     *
+     * @return      positive root >= 0    (eps == 1)
+     */
+	static double rootNegC(const double a, const double b, const double c);
+
+
+	static int    sign(const bool b);
+
+	/** Returns +1 if the argument is true, -1 otherwise
+	 * 
+	 * @param b boolean value
+	 * @return sign as a number
+	 */
+	static int    sign(const int b);
+
+
 	/**
 	 * Returns +1 if the argument is positive or 0, -1 otherwise.  Note:
 	 * This is not the classic signum function from mathematics that
@@ -461,7 +480,7 @@ public:
 	 * Returns 1 if the minimal turn to goalTrack (i.e. less than pi) is to the right, else -1
 	 * @param initTrack   initial track [rad]
 	 * @param goalTrack   target track [rad]
-	 * @return direction of turn
+	 * @return +1 for right, -1 for left
 	 */
 	static int turnDir(double initTrack, double goalTrack);
 
@@ -503,10 +522,10 @@ public:
 	/**
 	 * Returns the angle between two tracks when turning in direction indicated by turnRight flag [0,2PI]
 	 * Note: this function can return an angle larger than PI!
-	 *
+	 * 
 	 * @param alpha one angle
 	 * @param beta another angle
-	 * @param dir = +/- 1 + right, - left
+	 * @param dir +1 = right, -1 = left
 	 * @return angle difference
 	 */
 	static double turnDelta(double alpha, double beta, int dir);

@@ -214,8 +214,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>toPVS</b> (int
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ab408b222040c9da70a392a4ec0cc74de"><td class="memItemLeft" align="right" valign="top"><a id="ab408b222040c9da70a392a4ec0cc74de"></a>
-static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td class="memItemRight" valign="bottom"><b>mk</b> (double <a class="el" href="classlarcfm_1_1_vect3.html#a0b5d2eb44cacfb010c98524aad22fed4">x</a>, double <a class="el" href="classlarcfm_1_1_vect3.html#ad2cd0f8e8e002e5eb070dbd1b84428fe">y</a>, double <a class="el" href="classlarcfm_1_1_vect3.html#a948b78d2382edf656fe3d2b429e6f9e6">z</a>)</td></tr>
+<tr class="memitem:ab408b222040c9da70a392a4ec0cc74de"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_vect3.html#ab408b222040c9da70a392a4ec0cc74de">mk</a> (double <a class="el" href="classlarcfm_1_1_vect3.html#a0b5d2eb44cacfb010c98524aad22fed4">x</a>, double <a class="el" href="classlarcfm_1_1_vect3.html#ad2cd0f8e8e002e5eb070dbd1b84428fe">y</a>, double <a class="el" href="classlarcfm_1_1_vect3.html#a948b78d2382edf656fe3d2b429e6f9e6">z</a>)</td></tr>
 <tr class="separator:ab408b222040c9da70a392a4ec0cc74de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7190ee2c1634ec6c529672838c1a1264"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_vect3.html#a7190ee2c1634ec6c529672838c1a1264">makeXYZ</a> (double <a class="el" href="classlarcfm_1_1_vect3.html#a0b5d2eb44cacfb010c98524aad22fed4">x</a>, std::string ux, double <a class="el" href="classlarcfm_1_1_vect3.html#ad2cd0f8e8e002e5eb070dbd1b84428fe">y</a>, std::string uy, double <a class="el" href="classlarcfm_1_1_vect3.html#a948b78d2382edf656fe3d2b429e6f9e6">z</a>, std::string uz)</td></tr>
 <tr class="separator:a7190ee2c1634ec6c529672838c1a1264"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -246,7 +245,7 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a948b78d2382edf656fe3d2b429e6f9e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>3-Dimensional mathematical vectors. </p>
+<div class="textblock"><p>3-Dimensional mathematical vectors. <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> is immutable. Once these objects are created they can never be changed so multiple references to the same object will never cause problems. However, it does mean that for most vector operations new objects are created. Methods that start with a capital letter create a new object, just as a reminder of this behavior.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a04a6921faa72ea27a225a288c369d82a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a04a6921faa72ea27a225a288c369d82a">&#9670;&nbsp;</a></span>Vect3() <span class="overload">[1/2]</span></h2>
@@ -405,7 +404,7 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Addition and scalar multiplication. Compute: this + k*<code>v</code>;</p>
+<p>Addition and scalar multiplication. Compute: <code>this + k*v</code>;</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">k</td><td>real value </td></tr>
@@ -855,7 +854,7 @@ Public Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in internal units.</p>
+<p>Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in external units.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">x</td><td>Real value [NM] </td></tr>
@@ -934,6 +933,58 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">uy</td><td><a class="el" href="classlarcfm_1_1_units.html">Units</a> y </td></tr>
     <tr><td class="paramname">z</td><td>Real value [uz] </td></tr>
     <tr><td class="paramname">uz</td><td><a class="el" href="classlarcfm_1_1_units.html">Units</a> z </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>a new vector </dd></dl>
+
+</div>
+</div>
+<a id="ab408b222040c9da70a392a4ec0cc74de"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab408b222040c9da70a392a4ec0cc74de">&#9670;&nbsp;</a></span>mk()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> larcfm::Vect3::mk </td>
+          <td>(</td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>x</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>y</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>z</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in internal units.</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>Real value [internal units] </td></tr>
+    <tr><td class="paramname">y</td><td>Real value [internal units] </td></tr>
+    <tr><td class="paramname">z</td><td>Real value [internal units] </td></tr>
   </table>
   </dd>
 </dl>

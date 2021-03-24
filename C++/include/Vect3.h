@@ -6,7 +6,7 @@
  *
  * 3-D vectors.
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -103,8 +103,8 @@ public:
 	static Vect3 mkXYZ(double x, double y, double z);
 
 	/**
-	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in internal units.
-	 *
+	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in external units.
+	 * 
 	 * @param x Real value [NM]
 	 * @param y Real value [NM]
 	 * @param z Real value [ft]
