@@ -11,12 +11,20 @@ OBJS   = $(SRC:.cpp=.o)
 INCLUDEFLAGS = -Iinclude 
 CXXFLAGS = $(INCLUDEFLAGS) -Wall -O 
 
+ifndef AR
+    AR = ar
+endif
+
+ifndef RANLIB
+    RANLIB = ranlib
+endif
+
 all: clean lib examples
 
 lib: $(OBJS)
 	@echo "** Building lib/$(RELEASE).a library"
 	@test -d lib || mkdir lib
-	@ar -cr lib/$(RELEASE).a $(OBJS) && ranlib lib/$(RELEASE).a
+	@$(AR) -cr lib/$(RELEASE).a $(OBJS) && $(RANLIB) lib/$(RELEASE).a
 	@cd lib;ln -sf $(RELEASE).a $(VERSION).a
 
 install:
