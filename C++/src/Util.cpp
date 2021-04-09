@@ -514,7 +514,7 @@ double Util::parse_time(const string& s) {
 			tm = parse_double(fields2[0]); //getColumn(_sec, head[TM_CLK]);
 		}
 		return tm;
-	} catch (std::runtime_error e) {
+	} catch (const std::runtime_error &e) {
 		return -1.0;
 	}
 }

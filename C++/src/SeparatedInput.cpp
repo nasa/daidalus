@@ -296,7 +296,7 @@ double SeparatedInput::getColumn(int i, double defaultValue, bool verbose) const
 	try {
 		rtn = Units::from(getUnitFactor(i), Util::parse_double(line_str[i]));
 	}
-	catch (std::runtime_error e) {
+	catch (const std::runtime_error &e) {
 		if (verbose) error.addWarning("could not parse double (" + Fm0(i) + "), line " + Fm0(linenum) + ": " + line_str[i]);
 		rtn = defaultValue;  // arbitrary value
 	}
@@ -360,7 +360,7 @@ bool SeparatedInput::readLine() {
 				try {
 					bunits = process_units(str);
 				}
-				catch (SeparatedInputException e) {
+				catch (const SeparatedInputException &e) {
 					// use default units
 					bunits = false;
 					process_line(str);
@@ -373,7 +373,7 @@ bool SeparatedInput::readLine() {
 			str.clear();
 		}  //while
 	}
-	catch (std::runtime_error e) {
+	catch (const std::runtime_error &e) {
 		error.addError(
 				"*** An IO error occurred at line " + Fm0(linenum)
 				+ "The error was:" + e.what());
