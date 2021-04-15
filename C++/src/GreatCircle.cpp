@@ -60,6 +60,7 @@ double GreatCircle::distance(const LatLonAlt& p1, const LatLonAlt& p2) {
 	return distance_from_angle(angular_distance(p1, p2), 0.0);
 }
 
+
 bool GreatCircle::almost_equals(double lat1, double lon1, double lat2, double lon2) {
 	return Constants::almost_equals_radian(angular_distance(lat1, lon1, lat2, lon2));
 }
@@ -1034,6 +1035,11 @@ double GreatCircle::chord_distance(double surface_dist) {
 	double theta = angle_from_distance(surface_dist,0.0);
 	return 2.0*sin(theta/2.0)*GreatCircle::spherical_earth_radius;
 }
+
+double GreatCircle::chord_distance(const LatLonAlt& lla1, const LatLonAlt& lla2) {
+	return chord_distance(lla1.lat(), lla1.lon(), lla2.lat(), lla2.lon());
+}
+
 
 
 double GreatCircle::surface_distance(double chord_distance) {

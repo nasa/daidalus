@@ -405,9 +405,9 @@ public final class Util {
 	 * @param a     a coefficient of quadratic
 	 * @param b     b coefficient of quadratic
 	 * @param c     c coefficient of quadratic
-	 * @return      positive root {@code >= 0}    (eps == 1)
+	 * @return      positive root {@code >= 0} if quadratic discriminant is non-negative, -1 otherwise
 	 * 
-	 * NOTE: {@code c < 0}, {@code b > 0} and use of positive root (eps == 1) insures that the returned root is non-negative!
+	 * NOTE: {@code c < 0}, {@code b > 0} and use of positive root (eps == 1) insures that the returned root is non-negative when discriminant is non-negative!
 	 */
 	public static double rootNegC(double a, double b, double c) {
 		if (a == 0) return -c / b;

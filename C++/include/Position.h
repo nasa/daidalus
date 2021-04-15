@@ -305,13 +305,8 @@ public:
 	 */
 	double distanceV(const Position& p) const;
 
-	/** Return the vertical distance between the current Position and the given Position. Positive values mean
-	 * the current Position is above the given Position
-	 *
-	 * @param p another position
-	 * @return vertical distance (positive values mean current position is above the given position
-	 */
-	double signedDistanceV(const Position& p) const;
+	double distanceChordH(const Position& p) const;
+
 
 	/**
 	 * Perform a linear projection of the current Position with given velocity and time.

@@ -495,7 +495,17 @@ public:
 
 	static std::pair<double, double> accelUntil(double gs0, double gsTarget, double gsAccel, double dt);
 
-	
+   /**
+    * time required to cover distance "dist" if initial speed is "vo" and acceleration is "gsAccel"
+    *
+    * @param vo       initial velocity
+    * @param gsAccel  ground speed acceleration
+    * @param dist     distance
+    * @return time required to cover distance
+    */
+	static double timeToDistance(double vo, double gsAccel, double dist);
+
+
 
 	/** Test for LoS(D,H) between two aircraft when only ownship accelerates (in ground speed), compute trajectories up to time stopTime
 	 * 

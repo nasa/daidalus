@@ -581,32 +581,6 @@ public final class Position implements OutputList {
 		return Math.abs(z() - p.z());
 	}
 
-//	/** Return the vertical distance between the current Position and the given Position. Positive values mean 
-//	 * the current Position is above the given Position 
-//	 * 
-//	 * @param p another position
-//	 * @return vertical distance (positive values mean current position is above the given position
-//	 */
-//	public double signedDistanceV(Position p) {
-//		return z() - p.z();
-//	}
-
-	//  /**
-	//   * Return a quickly calculated approximation for the distance between two points.  
-	//   * This assumes the area in question is fairly small and does not overlap with a pole.
-	//   * @param p second point
-	//   * @param d distance to compare to.
-	//   * @return
-	//   */
-	//  public double distanceHApprox(Position p) {
-	//	  if (isLatLon()) {
-	//		  double raddist = 6360000; // m per degree
-	//          double latdiff = (lla().lat() - p.lla().lat());
-	//          double londiff = (lla().lon() - p.lla().lon())*Math.cos(p.lla().lat());
-	//          return raddist*Math.sqrt(latdiff*latdiff + londiff*londiff);
-	//	  }
-	//	  return distanceH(p);
-	//  }
 
 	/** 
 	 * Perform a linear projection of the current Position with given velocity and time.  

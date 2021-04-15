@@ -314,6 +314,7 @@ namespace larcfm {
     bool header;         // header line read in
     std::vector<std::string> header_str;    // header line raw string
     bool bunits;          // units line read in
+    bool first_bunits;          // units line read in
     std::vector<std::string> units_str;     // Units type
     std::vector<double> units_factor;  // Units conversion value
     std::vector<std::string> line_str;      // raw line

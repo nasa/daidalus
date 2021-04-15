@@ -572,12 +572,22 @@ std::pair<double, double> Kinematics::accelUntil(double gs0, double gsTarget, do
 	return std::pair<double, double>(ds, gsFinal);
 }
 
-// double Kinematics::neededDistGsAccel(double gsIn, double gsTarget, double gsAccel) {
-// 	double accelTime = std::abs((gsIn - gsTarget) / gsAccel);
-// 	double neededDist = accelTime * (gsIn + gsTarget) / 2.0;
-// 	//f.pln(" $$$$$$$$$>>>>>>>>>>> neededDistGsAccel: gsIn = "+gsIn+" targetGs = "+targetGs+" gsAccel = "+gsAccel+" neededDist = "+neededDist);
-// 	return neededDist;
-// }
+
+/**
+ * The time required to cover distance "dist" if initial speed is "gs" and acceleration is "a_gs"
+ *
+ * @param gs       initial ground speed
+ * @param a_gs     signed ground speed acceleration
+ * @param dist     non-negative distance
+ * @return         time required to cover distance, -1 if speed will reach zero before achieving the distance
+ *
+ */
+double Kinematics::timeToDistance(double gs, double a_gs, double dist) {
+	double t1 = Util::rootNegC(0.5 * a_gs, gs, -dist);
+	//f.pln(" $$ timeToDistance: RETURN t1 = "+t1+" gs = "+gs+", a_gs = "+a_gs+", dist = "+dist+", discr = "+discr);
+	return t1;
+}
+
 
 
 std::pair<double,double> Kinematics::accelSpeedToRTA(double gsIn, double dist, double rta, double gsAccel) {

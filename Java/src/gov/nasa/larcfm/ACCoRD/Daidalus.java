@@ -3874,6 +3874,9 @@ public class Daidalus implements GenericStateBands {
 			TrafficState intruder = core_.traffic.get(ac_idx-1);
 			int alerter_idx = core_.alerter_index_of(intruder);
 			if (1 <= alerter_idx && alerter_idx <= core_.parameters.numberOfAlerters()) {
+				if (alert_level == 0) {
+					return BandsRegion.NONE;
+				}
 				Alerter alerter = core_.parameters.getAlerterAt(alerter_idx);
 				if (0 < alert_level && alert_level <= alerter.mostSevereAlertLevel()) {
 					return alerter.getLevel(alert_level).getRegion();

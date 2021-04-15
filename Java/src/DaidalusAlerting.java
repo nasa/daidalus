@@ -250,8 +250,10 @@ public class DaidalusAlerting {
 				int alert = daa.alertLevel(ac);
 				out.print(", "+alert);
 				if (!daa.isDisabledDTALogic()) {
-					out.print(", "+daa.isActiveDTALogic());
-					out.print(", "+daa.isActiveDTASpecialManeuverGuidance());
+					out.print(", "+daa.isActiveDTALogic());					
+					out.print(", "+(daa.isActiveDTASpecialManeuverGuidance() ? 
+							(daa.isEnabledDTALogicWithHorizontalDirRecovery() ? "Departing" : "Landing") : 
+								""));
 					if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
 						out.print(", ");
 					} else {

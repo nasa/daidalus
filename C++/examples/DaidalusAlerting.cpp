@@ -239,7 +239,9 @@ int main(int argc, char* argv[]) {
       out << ", " << Fmi(alert);
       if (!daa.isDisabledDTALogic()) {
         out << ", " << Fmb(daa.isActiveDTALogic());
-        out << ", " << Fmb(daa.isActiveDTASpecialManeuverGuidance());
+        out << ", " << (daa.isActiveDTASpecialManeuverGuidance() ?
+                (daa.isEnabledDTALogicWithHorizontalDirRecovery() ? "Departing" : "Landing") :
+                    "");
         if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
           out << ", ";
         } else {

@@ -107,6 +107,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	private boolean header;         // header line read in
 	private String[] header_str;    // header line raw string
 	private boolean bunits;          // units line read in
+	private boolean first_bunits = false;
 	private String[] units_str;     // Units type
 	private double[] units_factor;  // Units conversion value
 	private String[] line_str;      // raw line
@@ -119,7 +120,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	private Character quoteCharacter; 	// If a non-empty value, use that character to delimit complex string tokens
 
 	private String patternStr;
-	private String defaultDelimiter;
 
 	private String preambleImage; // this is an image of all parameters and comments in the original preamble (not the column labels or units, if present)
 
@@ -138,7 +138,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		fixed_width = false;
 		header_str = new String[0];
 		preambleImage = "";
-		defaultDelimiter = ",";
 	}
 
 	/** 
@@ -282,17 +281,17 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		quoteCharacter = q;
 	}
 	
-	@Deprecated
-	/**
-	 * Don't use this.  Use the single parameter version.
-	 * @param q 
-	 * @param delims 
-	 * @param sub 
-	 * @deprecated
-	 */
-	public void setQuoteCharacter(Character q, Character[] delims, String sub) {
-		setQuoteCharacter(q);
-	}
+//	@Deprecated
+//	/**
+//	 * Don't use this.  Use the single parameter version.
+//	 * @param q 
+//	 * @param delims 
+//	 * @param sub 
+//	 * @deprecated
+//	 */
+//	public void setQuoteCharacter(Character q, Character[] delims, String sub) {
+//		setQuoteCharacter(q);
+//	}
 
     /**
      * This returns 0 if no character is defined.
@@ -454,6 +453,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			fixed_width = true;
 			header = true;
 			bunits = true;
+			first_bunits = bunits;
 		} catch (Exception e) {
 			error.addError(e.getMessage());
 		}
@@ -545,15 +545,17 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 				}
 				if ( ! header) {
 					header = process_preamble(str);
-					if (!header) {
+					if ( ! header) {
 						preambleImage += lineRead;
 					}
-				} else if ( ! bunits) {
+				} else if ( ! first_bunits) {
 					try {
 						bunits = process_units(str);
+						first_bunits = true;
 					} catch (SeparatedInputException e) {
 						// use default units
 						bunits = false;
+						first_bunits = true;
 						process_line(str);
 						break;
 					}
@@ -637,25 +639,26 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		units_str = new String[fields.length];
 		units_factor = new double[fields.length];
 		for (int i=0; i < fields.length; i++) {
-			try {
-				// interpret dash
-				String fstr = fields[i];
-				if (fstr.trim().equals("-")) {
-					fstr = "unitless";
-					dash++;
-				}
-				units_str[i] = Units.clean(fstr);
-				units_factor[i] = Units.getFactor(units_str[i]);
-				if (units_str[i].equals("unspecified")) {
-					notFound++;
-				}
-			} catch (Units.UnitException e) {
+			// interpret dash
+			String fstr = fields[i];
+			if (fstr.trim().equals("-")) {
+				fstr = "unitless";
+				dash++;
+			}
+			units_str[i] = Units.clean(fstr);
+			units_factor[i] = Units.getFactor(units_str[i]); // should never throw exception since this comes from Units.clean
+			if (units_str[i].equals("unspecified")) {
 				notFound++;
-				units_str[i] = "unspecified";
-				units_factor[i] = Units.unspecified;
 			}
 		}
 		if (notFound > fields.length/2 || dash+notFound == fields.length) {
+			if (dash > 0 && dash+notFound == fields.length) {
+				for (int i = 0 ; i < units_str.length ; ++i) {
+					if (units_str[i].equals("unitless")) {
+						units_str[i] = "unspecified";
+					}
+				}
+			}
 			throw new SeparatedInputException("default units");
 		}
 		return true;

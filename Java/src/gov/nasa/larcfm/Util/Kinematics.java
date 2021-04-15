@@ -160,7 +160,7 @@ public final class Kinematics {
 	 * @param  R     radius (R &gt; 0.0)
 	 * @return       bank angle (positive)
 	 */
-	public static double bankAngleByRadius(double speed, double R) {
+	public static double bankAngleFromRadius(double speed, double R) {
 		if (R <= 0.0) return 0.0;
 		return Util.atan2_safe(speed*speed, (R*Units.gn));
 	}
@@ -174,7 +174,7 @@ public final class Kinematics {
 	 * @return       bank angle (positive = turn right, negative = turn left)
 	 */
 	public static double bankAngleByRadius(double speed, double R, boolean turnRight) {
-		return Util.sign(turnRight)*bankAngleByRadius(speed, R);
+		return Util.sign(turnRight)*bankAngleFromRadius(speed, R);
 	}
 
 	/**
@@ -1024,7 +1024,7 @@ public final class Kinematics {
 	 * 
 	 * @param speed0             initial ground speed
 	 * @param speedTarget        target ground speed
-	 * @param accel         ground speed acceleration (sign ignored)
+	 * @param accel              ground speed acceleration (sign ignored)
 	 * @return distance needed to accelerate from {@code speed} to {@code speedTarget} with acceleration {@code accel}.  
 	 *         This returns 0 if accel=0.
 	 */
@@ -1099,6 +1099,63 @@ public final class Kinematics {
 	}
 
 	// Old Names -- delete after a while
+	
+	
+//	/**
+//	 * The time required to cover distance "dist" if initial speed is "gs" and acceleration is "gsAccel"
+//	 *
+//	 * @param gs       initial ground speed
+//	 * @param gsAccel  signed ground speed acceleration
+//	 * @param dist     non-negative distance
+//	 * @return time    required to cover distance
+//	 * 
+//	 * Warning:  This function can return NaN.  This can only happen when gsAccel < 0 and the speed reaches zero before achieving the distance.
+//	 * 
+//	 * 	Note:  There is a mathematical proof that if c < 0 then Util.root(a,b,c,1) >= 0  Therefore, this function returns a positive time
+//	 */
+//	public static double timeToDistance(double gs, double gsAccel, double dist) {
+//		//f.pln("\n $$ timeToDistance: gs = "+gs+", gsAccel = "+gsAccel+", dist = "+dist+", discr = "+Util.discr(0.5 * gsAccel, gs, -dist));
+//		double t1 = Util.root(0.5 * gsAccel, gs, -dist, 1);
+//		if (Double.isNaN(t1)) return t1;
+//		double t2 = Util.root(0.5 * gsAccel, gs, -dist, -1);
+//		double dt = t1 < 0 ? t2 : (t2 < 0 ? t1 : Util.min(t1, t2));
+//		//		if (t1 != 0.0 && t2 != 0.0 && t1 != t2 && Util.sign(t1) == Util.sign(t2)) {
+//		//f.pln(" $$ timeToDistance: t1 = "+t1+" t2 = "+t2);
+//		//f.pln(" $$  timeToDistance: RETURN t1 = "+t1+" t2 = "+t2+" dt = "+dt);
+//		return dt;
+//	}
+	
+	
+	
+	/**
+	 * The time required to cover distance "dist" if initial speed is "gs" and acceleration is "a_gs"
+	 *
+	 * @param gs       initial ground speed
+	 * @param a_gs     signed ground speed acceleration
+	 * @param dist     non-negative distance
+	 * @return         time required to cover distance, -1 if speed will reach zero before achieving the distance
+	 * 
+	 */
+	public static double timeToDistance(double gs, double a_gs, double dist) {  
+		double t1 = Util.rootNegC(0.5 * a_gs, gs, -dist);
+		//f.pln("\n $$ timeToDistance(NEW): RETURN t1 = "+t1+" gs = "+gs+", a_gs = "+a_gs+", dist = "+dist+", discr = "+Util.discr(0.5 * a_gs, gs, -dist));
+		return t1;   
+	}
+	
+	/** calculates needed constant ground speed acceleration to go from gs0 -> finalGs over exactly distance "dist"
+	 * 
+	 * @param gs0               initial ground speed
+	 * @param finalGs           final ground speed
+	 * @param dist              distance for acceleration
+	 * @return                  needed acceleration
+	 */
+	static double neededAccel(double gs0, double finalGs , double dist) {
+		double deltaGs = finalGs-gs0;
+		return (gs0*deltaGs+0.5*deltaGs*deltaGs)/dist;
+	}
+
+
+
 
 	//experimental: return time taken to travel given distance while under constant acceleration.  Note: this also works for vertical acceleration!
 	public static double gsTimeConstantAccelFromDist(double gs1, double a, double dist) {

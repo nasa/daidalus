@@ -1130,11 +1130,6 @@ public final class Units {
 	 */
 	private static synchronized UnitPair getUnitPairInternal(String unit) {
 		UnitPair pair;
-
-		// if (unit.charAt(0) == '[' && unit.charAt(unit.length() - 1) == ']') {
-		// unit = unit.substring(1, unit.length() - 1);
-		// }
-
 		pair = unitTable.get(unit);
 
 		return pair;
@@ -1169,23 +1164,13 @@ public final class Units {
 		trimBuilder(sb);
 
 		ut = sb.toString();
-
-
-		//	  if (sb.length() > 2) {
-		//		  if (sb.charAt(0) == '[' && sb.charAt(sb.length() - 1) == ']') {
-		//			  sb.deleteCharAt(0);
-		//			  sb.deleteCharAt(sb.length() - 1);
-		//			  trimBuilder(sb);
-		//			  ut = sb.toString();
-		//		  }
-		//	  }
 		return ut;
 	}
 
 	/**
 	 * Clean up the unit string that may contain brackets or extra space. For
 	 * instance, " [ feet]" becomes "feet". If the string in brackets is not a
-	 * recognized, then "unspecified" is returned.
+	 * recognized unit, then "unspecified" is returned.
 	 * @param unit a "dirty" string
 	 * @return a cleaned-up unit string
 	 */

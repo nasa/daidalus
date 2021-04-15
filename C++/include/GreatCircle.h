@@ -127,6 +127,8 @@ namespace larcfm {
 	 */
   static double distance(const LatLonAlt& p1, const LatLonAlt& p2);
 
+  
+
 	/**
 	 * Determines if two points are close to each other, see
 	 * Constants.get_horizontal_accuracy().
@@ -854,6 +856,8 @@ public:
 	 */
   static double chord_distance(double lat1, double lon1, double lat2, double lon2);
  
+  static double chord_distance(const LatLonAlt& lla1, const LatLonAlt& lla2);
+
 	/**
 	 * Return the chord distance (through the earth) corresponding to a given surface distance (at the nominal earth radius).
 	 * This is the distance of a direct line between two surface points.

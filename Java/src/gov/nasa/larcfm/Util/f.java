@@ -74,7 +74,7 @@ final public class f {
 	 */
 	public static void pln(String string) {
 		if (sb == null) {
-			System.err.flush();
+			//System.err.flush();
 			System.out.println(string);
 			//System.out.flush();
 		} else {
@@ -513,6 +513,19 @@ final public class f {
 		else return "False";
 	}
 
+	/**
+	 * Return a string that is of the given width, either buffered with spaces at the end, or truncated.
+	 * @param s
+	 * @param w
+	 * @return
+	 */
+	public static String fixedWidthString(String s, int w) {
+		if (s.length() >= w) return s.substring(0,w);
+		String buf = "";
+		for (int i = s.length(); i < w; i++) buf += " ";
+		return s+buf;
+	}
+	
 	/** Indent all lines of source string the given number of spaces 
 	 * 
 	 * @param s a string to format
