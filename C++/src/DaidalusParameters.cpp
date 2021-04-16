@@ -1661,7 +1661,7 @@ const Position& DaidalusParameters::getDTAPosition() const {
     std::string ulon = getUnitsOf("dta_longitude");
     if (Units::isCompatible(ulat,ulon)) {
       if (Units::isCompatible("m",ulat)) {
-        dta_position = Position::mkXYZ(dta_latitude_,dta_longitude_,0.0);
+        dta_position = Position::mkXYZ(dta_longitude_,dta_latitude_,0.0);
       } else if (Units::isCompatible("deg",ulat)) {
         dta_position = Position::mkLatLonAlt(dta_latitude_,dta_longitude_,0.0);
       } else {

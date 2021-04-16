@@ -2334,7 +2334,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			String ulon = getUnitsOf("dta_longitude");
 			if (Units.isCompatible(ulat,ulon)) {
 				if (Units.isCompatible("m",ulat)) {
-					return Position.mkXYZ(dta_latitude_,dta_longitude_,0.0);
+					return Position.mkXYZ(dta_longitude_,dta_latitude_,0.0);
 				} else if (Units.isCompatible("deg",ulat)) {
 					return Position.mkLatLonAlt(dta_latitude_,dta_longitude_,0.0);
 				}

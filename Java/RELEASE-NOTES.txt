@@ -1,6 +1,6 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.2-FormalATM-v2.7.5 (Java), March-23-2021
+Release:  v2.0.2-FormalATM-v2.7.5 (Java), April-23-2021
 Contact: Cesar A. Munoz (Cesar.A.Munoz@nasa.gov)
 
 Copyright: Copyright (c) 2021 United States Government as represented by 
@@ -10,7 +10,10 @@ Rights Reserved.
 
 Release DAIDALUS-v2.0.2b:
 ------------------
-* March 23, 2021
+* April 23, 2021
+- Fixed error where dta_latitude and dta_longitude were exchanged when
+provided in Eucliedean coordinates. Now, they corresponds to X
+(dta_longitude) and Y (dta_latitude), as expected.
 - Updated to -FormalATM-v2.7.5
 - Updated copyright of files to 2021
 - Updated doc/html
