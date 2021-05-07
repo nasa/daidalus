@@ -16,9 +16,18 @@ package gov.nasa.larcfm.Util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
+/** 
+ * A collection of functions on vectors 
+ *
+ */
 public final class VectFuns {
 
+	// prohibit construction of this object
+	private VectFuns() {
+	}
+	
 	/**
 	 * Returns true if aircraft are in loss of separation at time 0.
 	 * 
@@ -31,7 +40,6 @@ public final class VectFuns {
 	 */
 	public static boolean LoS(Vect3 so, Vect3 si, double D, double H) {
 		Vect3 s = so.Sub(si);
-		//return s.vect2().sqv() < Util.sq(D) && Math.abs(s.z) < H;
 		return s.x*s.x + s.y*s.y < D*D && Math.abs(s.z) < H;
 	}
 
@@ -141,21 +149,12 @@ public final class VectFuns {
 	 */
 	public static boolean  divergentHorizGt(Vect2 s, Vect2 vo, Vect2 vi, double minRelSpeed) {
 		Vect2 v = (vo.Sub(vi));
-		boolean rtn = s.dot(v) > 0 && v.norm() > minRelSpeed;
-		return rtn;
+		return s.dot(v) > 0 && v.norm() > minRelSpeed;
 	}
 
 	public static boolean  divergentHorizGt(Vect3 s, Vect3 vo, Vect3 vi, double minRelSpeed) {
 		return divergentHorizGt(s.vect2(), vo.vect2(), vi.vect2(), minRelSpeed);
 	}
-
-	//	public static boolean  divergent(Vect3 so, Velocity vo, Vect3 si, Velocity vi) {
-	//		Vect3 s = (so.Sub(si));
-	//		Vect3 v = (vo.Sub(vi));
-	//		boolean rtn = s.dot(v) > 0;
-	//		return rtn;
-	//	}
-
 
 	/**
 	 * Return if two aircraft in the given state are divergent in the horizontal plane
@@ -326,16 +325,16 @@ public final class VectFuns {
 		Vect2 vi = vi3.vect2();
 		Vect2 ds = si.Sub(so);
 		if (vo.det(vi) == 0) {
-			return new Pair<Vect3,Double>(Vect3.ZERO, Double.NaN); //Don't change this to (so,0.0) 
+			return new Pair<>(Vect3.ZERO, Double.NaN); //Don't change this to (so,0.0) 
 		}
 		double tt = ds.det(vi)/vo.det(vi);
-		Vect3 intersec = so3.AddScal(tt,vo3); //so3.Add(vo3.Scal(tt));
+		Vect3 intersec = so3.AddScal(tt,vo3); 
 		double nZ = intersec.z();
 		double maxZ = Util.max(so3.z,si3.z);
 		double minZ = Util.min(so3.z,si3.z);			
 		if (nZ > maxZ) nZ = maxZ;
 		if (nZ < minZ) nZ = minZ;	
-		return new Pair<Vect3,Double>(intersec.mkZ(nZ),tt);
+		return new Pair<>(intersec.mkZ(nZ),tt);
 	}
 
 	/**
@@ -350,12 +349,11 @@ public final class VectFuns {
 		Vect2 ds = si.Sub(so);
 		double det = vo.det(vi);
 		if (det == 0) {
-			return new Pair<Vect2,Double>(Vect2.ZERO, Double.NaN);
+			return new Pair<>(Vect2.ZERO, Double.NaN);
 		}
 		double tt = ds.det(vi)/det;
-		//Vect2 intersec = so.Add(vo.Scal(tt));
 		Vect2 intersec = so.AddScal(tt,vo);
-		return new Pair<Vect2,Double>(intersec,tt);
+		return new Pair<>(intersec,tt);
 	}
 
 	/**   NOT FULLY DEBUGGED !!
@@ -371,21 +369,23 @@ public final class VectFuns {
 		// rotate segment so vi is "straight up" and si is at the origin
 		Vect2 A = rotate(a.Sub(si), -theta);
 		Vect2 B = rotate(b.Sub(si), -theta);
-		if ((A.x >= 0 && B.x <= 0) || (A.x <= 0 && B.x >= 0)) {
-			if (A.x == B.x) {
-				if (A.y >= 0 || B.y >= 0) {
-					return Util.max(0.0, Util.min(A.y, B.y)); // first point of intersection
-				}
-			} else if (A.y == B.y) {
-				if (A.y >= 0) {
-					return A.y;
-				}
-			} else if (A.y >= si.y || B.y >= si.y) {
-				double m = (B.x-A.x)/(B.y-A.y);
-				double y0 = A.y-m*A.x;
-				if (y0 >= 0) {
-					return y0;
-				}
+		if ( ! ((A.x >= 0 && B.x <= 0) || (A.x <= 0 && B.x >= 0))) {
+			return -1.0;
+		}
+			
+		if (A.x == B.x) {
+			if (A.y >= 0 || B.y >= 0) {
+				return Util.max(0.0, Util.min(A.y, B.y)); // first point of intersection
+			} 
+		} else if (A.y == B.y) {
+			if (A.y >= 0) {
+				return A.y;
+			}
+		} else if (A.y >= si.y || B.y >= si.y) {
+			double m = (B.x-A.x)/(B.y-A.y);
+			double y0 = A.y-m*A.x;
+			if (y0 >= 0) {
+				return y0;
 			}
 		}
 		return -1.0;
@@ -400,7 +400,7 @@ public final class VectFuns {
 	 * @return time the OWNSHIP (so3) will reach the point.  Note that the intruder (si3) may have already passed this point.
 	 * If the lines are parallel, this returns NaN.
 	 */
-	public static double  timeOfIntersection(Vect3 so3, Velocity vo3, Vect3 si3, Velocity vi3) {
+	public static double timeOfIntersection(Vect3 so3, Velocity vo3, Vect3 si3, Velocity vi3) {
 		Vect2 so = so3.vect2();
 		Vect2 vo = vo3.vect2();
 		Vect2 si = si3.vect2();
@@ -410,9 +410,7 @@ public final class VectFuns {
 			//f.pln(" $$$ intersection: lines are parallel");
 			return Double.NaN;
 		}
-		double tt = ds.det(vi)/vo.det(vi);
-		//f.pln(" $$$ intersection: tt = "+tt);
-		return tt;
+		return ds.det(vi)/vo.det(vi);
 	}
 
 
@@ -444,8 +442,7 @@ public final class VectFuns {
 		double alt_i = si1.z();                   //  chose z from end point of line 2 closest to interSec
 		if (di2 < di1) alt_i = si2.z();
 		double nZ = (alt_o + alt_i)/2.0;       
-		//f.pln("intersection nz="+nZ);		
-		return new Pair<Vect3,Double>(interSec.mkZ(nZ),iP.second); 
+		return new Pair<>(interSec.mkZ(nZ),iP.second); 
 	}
 
 	/** 2D intersection of two infinite lines
@@ -480,12 +477,12 @@ public final class VectFuns {
 		Pair<Vect2,Double> int2D = intersection2D(so,vo,si,vi);
 		double fractDist = int2D.second;
 		if (int2D.first.isInvalid()) return int2D;
-		if (Double.isNaN(fractDist) || fractDist < 0 || fractDist > 1.0) return new Pair<Vect2,Double>(Vect2.INVALID, fractDist);			
+		if (Double.isNaN(fractDist) || fractDist < 0 || fractDist > 1.0) return new Pair<>(Vect2.INVALID, fractDist);			
 		Vect2 w = so.Sub(si);
 		double D = vo.det(vi);
 		double tI = vo.det(w)/D;
 		//f.pln(" $$$$ intersectSegments: fractDist = "+fractDist+" tI = "+tI);
-		if (tI < 0 || tI > 1) return new Pair<Vect2,Double>(Vect2.INVALID, tI);
+		if (tI < 0 || tI > 1) return new Pair<>(Vect2.INVALID, tI);
 		//f.pln(" $$$$ intersectSegments: alternate = "+so.Add(u.Scal(sI)));
 		return int2D;
 	}
@@ -495,38 +492,9 @@ public final class VectFuns {
 	 * Return true if, a,b,c, are collinear (assumed) and b is between a and c (inclusive) 
 	 */
 	private static boolean collinearBetween(Vect2 a, Vect2 b, Vect2 c) {
-//		if (!collinear(a,b,c)) return false;
 		return a.distance(b) <= a.distance(c) && c.distance(b) <= c.distance(a);
 	}
 	
-//	/**
-//	 * Experimental
-//	 * 2D intersection of two segments (finite length).  This returns information if there is an overlap in segments.
-//	 * @param so first point of seg 1
-//	 * @param so2 second point of seg 1
-//	 * @param si first point of seg 2
-//	 * @param si2 second point of seg 2
-//	 * @return intersection point and the fraction of the distance from point "so" to the intersection. (third part will be null)
-//	 *                 Returns (INVALID,fractDist, null) if there is no intersection.
-//	 *                 If there is an overlap, it returns (endpoint 1 of overlap, 0, endpoint 2 of overlap)
-//	 */
-//	public static Triple<Vect2,Double,Vect2> intersectSegmentsWithOverlap(Vect2 so, Vect2 so2, Vect2 si, Vect2 si2) {
-//		// potential overlap	
-//		if (VectFuns.collinear(so, so2, si) && VectFuns.collinear(so,  so2, si2)) {
-//			boolean acb = collinearBetween(so, si, so2);
-//			boolean adb = collinearBetween(so, si2, so2);
-//			boolean cad = collinearBetween(si, so, si2);
-//			boolean cbd = collinearBetween(si, so2, si2);
-//			if (acb && adb) return Triple.make(si, 0.0, si2); // 2 inside 1
-//			if (cad && cbd) return Triple.make(so, 0.0, so2); // 1 inside 2
-//			if (acb && cbd) return Triple.make(si, 0.0, so2); // 1 then 2
-//			if (acb && cad) return Triple.make(so, 0.0, si);  // 1 then 2
-//			if (adb && cbd) return Triple.make(so2, 0.0, si); // 2 then 1
-//			if (adb && cad) return Triple.make(so2, 0.0, si); // 2 then 1
-//		}
-//		Pair<Vect2,Double> int2D = intersectSegments(so,so2,si,si2);
-//		return Triple.make(int2D.first, int2D.second, null);
-//	}
 
 	/**
 	 * returns the perpendicular time and distance between line defined by s,v and point q.
@@ -539,7 +507,7 @@ public final class VectFuns {
 	public static Pair<Double,Double> distPerp(Vect2 s, Vect2 v, Vect2 q) {
 		double tp = q.Sub(s).dot(v)/v.sqv();
 		double dist = s.Add(v.Scal(tp)).Sub(q).norm();
-		return new Pair<Double,Double>(tp,dist);
+		return new Pair<>(tp,dist);
 	}
 
 	// horizontal only
@@ -600,11 +568,6 @@ public final class VectFuns {
 		// translate a to origin, then project so onto the line defined by ab, then translate back to a
 		Vect2 ab = b.Sub(a);
 		return ab.Scal(so.Sub(a).dot(ab)/ab.dot(ab)).Add(a);
-		//		if (collinear(a,b,so)) return so;
-		//		Vect2 v = a.Sub(b).PerpL().Hat(); // perpendicular vector to line
-		//		Vect2 s2 = so.AddScal(100, v);
-		//		Vect2 cp = intersection(so,s2,100,a,b).first;
-		//		return cp;
 	}
 
 	/**
@@ -667,7 +630,7 @@ public final class VectFuns {
 	 * @param so a point
 	 * @return point and ratio (0=a, 1=b) 
 	 */
-	public static Pair<Vect3,Double> closestPointOnSegment3_extended(Vect3 a, Vect3 b, Vect3 so) {
+	public static Pair<Vect3,Double> closestPointOnSegment3Extended(Vect3 a, Vect3 b, Vect3 so) {
 		Vect3 i = closestPoint3(a,b,so);
 		if (a.almostEquals(b)) return Pair.make(a,  0.0);
 		double d1 = a.Sub(b).norm();
@@ -699,11 +662,6 @@ public final class VectFuns {
 		double x1 = Math.cos(angle)*p.x + Math.sin(angle)*p.y;
 		double y1 = -Math.sin(angle)*p.x + Math.cos(angle)*p.y;
 		return new Vect2(x1,y1);
-		//double[][] r2 = {{Math.cos(angle),Math.sin(angle)},{-Math.sin(angle),Math.cos(angle)}};
-		//Matrix2d r = new Matrix2d(r2);
-		//Matrix2d p2 = new Matrix2d(p.Sub(origin));
-		//Vect2 p3 = r.mult(p2).vect2();
-		//return p3.Add(origin);
 	}
 
 
@@ -731,29 +689,13 @@ public final class VectFuns {
 	public static int passingDirection(Vect3 so, Velocity vo, Vect3 si, Velocity vi) {
 		double toi = timeOfIntersection(so,vo,si,vi);
 		double tii = timeOfIntersection(si,vi,so,vo); // these values may have opposite sign!
-		//f.pln("toi="+toi);
-		//f.pln("int = "+	intersection(so,vo,si,vi));
 		if (Double.isNaN(toi) || toi < 0 || tii < 0) return 0;
 		Vect3 so3 = so.linear(vo, toi);
 		Vect3 si3 = si.linear(vi, toi);
-		//f.pln("so3="+so3);		
-		//f.pln("si3="+si3);		
 		if (behind(so3.vect2(), si3.vect2(), vi.vect2())) return -1;
 		return 1;
 	}
 
-
-	//	public static int dirForBehind(Vect2 so, Vect2 vo, Vect2 si, Vect2 vi) {
-	//		if (divergent(so,vo,si,vi)) return 0;				
-	//		double sdetvi = so.Sub(si).det(vi);
-	//		double toi = 0.0;
-	//		if (sdetvi != 0.0) toi = -vo.det(vi)/sdetvi;
-	//		Vect2 nso = so.AddScal(toi,vo);
-	//		Vect2 nsi = si.AddScal(toi,vi);
-	//		int ahead = Util.sign(nso.Sub(nsi).dot(vi)); // Are we ahead of intruder at crossing pt
-	//		int onRight = Util.sign(nsi.Sub(nso).det(vo)); // Are we ahead of intruder at crossing pt
-	//		return ahead*onRight;
-	//	}
 
 	public static int dirForBehind(Vect2 so, Vect2 vo, Vect2 si, Vect2 vi) {
 		if (divergent(so,vo,si,vi)) return 0;
@@ -830,8 +772,8 @@ public final class VectFuns {
 	 * @param r2 radius of circle 2
 	 * @return endpoints of segments (from c1 to c2) tangent to both circles.  This list will be empty if the circles overlap.
 	 */
-	public static ArrayList<Pair<Vect2,Vect2>> tangentSegments(Vect2 c1, double r1, Vect2 c2, double r2) {
-		ArrayList<Pair<Vect2,Vect2>> ret = new ArrayList<Pair<Vect2,Vect2>>();
+	public static List<Pair<Vect2,Vect2>> tangentSegments(Vect2 c1, double r1, Vect2 c2, double r2) {
+		ArrayList<Pair<Vect2,Vect2>> ret = new ArrayList<>();
 		Vect2 icos = internalCenterOfSimilitude(c1,r1,c2,r2);
 		if (icos.isInvalid()) return ret; // overlaps, nothing to do
 		Vect2 ecos = externalCenterOfSimilitude(c1,r1,c2,r2);
@@ -891,7 +833,9 @@ public final class VectFuns {
 						Double.parseDouble(fields[2]), Units.clean(fields[3]),
 						Double.parseDouble(fields[4]), Units.clean(fields[5]));
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			// ignore exceptions
+		}
 		return Vect3.INVALID;	
 	}
 

@@ -106,8 +106,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 
 	private boolean header;         // header line read in
 	private String[] header_str;    // header line raw string
-	private boolean bunits;          // units line read in
-	private boolean first_bunits = false;
+	private boolean bunits;         // has the units line (line after header) been read? (not does this file have a units line)
 	private String[] units_str;     // Units type
 	private double[] units_factor;  // Units conversion value
 	private String[] line_str;      // raw line
@@ -210,26 +209,26 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	 * @return unit
 	 */
 	public String getUnit(int i) {
-		if ( ! bunits || i < 0 || i >= units_str.length) {
+		if ( i < 0 || i >= units_str.length) {
 			return "unspecified";
 		}
 		return units_str[i];
 	}
 
 	private double getUnitFactor(int i) {
-		if ( ! bunits || i < 0 || i >= units_str.length) {
+		if ( i < 0 || i >= units_str.length) {
 			return Units.unspecified;
 		}
 		return units_factor[i];
 	}
 
-	/**
-	 * Returns true if a line defining column units was detected.
-	 * @return true means a units line exists
-	 */
-	public boolean unitFieldsDefined() {
-		return bunits;
-	}
+//	/**
+//	 * Returns true if a line defining column units was detected.
+//	 * @return true means a units line exists
+//	 */
+//	public boolean unitFieldsDefined() {
+//		return bunits;
+//	}
 
 	/** If set to false, all read-in headers and parameters will be converted to lower case. 
 	 * @param b false means ignore case
@@ -453,7 +452,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			fixed_width = true;
 			header = true;
 			bunits = true;
-			first_bunits = bunits;
 		} catch (Exception e) {
 			error.addError(e.getMessage());
 		}
@@ -548,14 +546,13 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 					if ( ! header) {
 						preambleImage += lineRead;
 					}
-				} else if ( ! first_bunits) {
+				} else if ( ! bunits) {
 					try {
-						bunits = process_units(str);
-						first_bunits = true;
+						process_units(str);
+						bunits = true;
 					} catch (SeparatedInputException e) {
 						// use default units
-						bunits = false;
-						first_bunits = true;
+						bunits = true;
 						process_line(str);
 						break;
 					}
@@ -632,7 +629,8 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		String[] fields = str.split(patternStr);
 
 		// if units are optional, we need to determine if any were read in...
-		// a unit line is considered true if AT LEASE HALF of the fields read in are interpreted as valid units
+		// a unit line is considered true if (1) AT LEASE HALF of the fields are valid or (2) not all the units are invalid or dashes.  
+		//    a dash ('-') is an abbreviation meaning unitless.
 		int notFound = 0;
 		int dash = 0;
 

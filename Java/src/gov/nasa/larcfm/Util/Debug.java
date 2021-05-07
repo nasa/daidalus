@@ -10,7 +10,16 @@
  */
 package gov.nasa.larcfm.Util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.function.Supplier;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>This class contains a small set of tools to help in debugging.  First is a set of tools to instrument the code
@@ -24,7 +33,7 @@ import java.util.function.Supplier;
  * 
  *  <p>Each of these debugging messages approximately means</p>
  * <ul>
- * <li>Error - Usually indicates a software error.  Something where the program is confused.  The requested operation will need to be ignored 
+ * <li>Severe (Error) - Usually indicates a software error.  Something where the program is confused.  The requested operation will need to be ignored 
  *     (or perhaps the program must exit). 
  * <li>Warning - Usually indicates a condition that should not be reached, but the software can "fix" the situation.  
  *     The fix may or may not be the intent, hence the warning.
@@ -68,94 +77,211 @@ import java.util.function.Supplier;
  */
 public class Debug {
 
-	public static final boolean FAIL_FAST = true;  //!!!!! set this to false for distribution; true for local debugging
-	private static int VERBOSE = 1;     // this is 0 for distribution, 1 for general development, 2 for local debugging.  However, this is not final.  
-//	private static final boolean INCLUDE_METHOD_NAME = false; // if set to true, this will look at the current stack trace and include the calling method's name
-	private static StringBuffer buffer = null;
+	private static final int INFO_LEVEL = 2;
+	public static final boolean FAIL_FAST = false;  //!!!!! set this to false for distribution; true for local debugging
+	private static ByteArrayOutputStream buffer = null;
+	
+	private static final Logger LOGGER;
+	private static final DebugFormatter FORMAT;
+	private static final Handler STDOUT_HANDLER;
+	private static final Handler BUFFER_HANDLER;
+	
+	static class DebugFormatter extends Formatter {
+		private static final String NL = System.lineSeparator();
+		private boolean useLevel = false;
+	    public void setLevel(boolean useLevel) {
+			this.useLevel = useLevel;
+		}
+		@Override
+	    public String format(LogRecord record) {
+	    	if (useLevel) {
+	    		String s;
+//	    		if (record.getLevel() == Level.SEVERE) {
+//	    			s = "ERROR!";
+//	    		} else {
+	    			s = record.getLevel().toString();
+//	    		}
+		        return "<"+s+"> " + record.getMessage()+NL;
+	    	} else {
+		        return record.getMessage()+NL;
+	    	}
+	    }
+	}
+
+	static class DebugHandler extends ConsoleHandler {
+		public DebugHandler(Formatter fmt, OutputStream os) {
+			setOutputStream(os);
+			setFormatter(fmt);
+		}
+	}
+	
+	static {
+		LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        LOGGER.setLevel(Level.INFO);  // default, can be changed
+
+        // create a TXT formatter
+        FORMAT = new DebugFormatter();
+        STDOUT_HANDLER = new DebugHandler(FORMAT, System.out);
+		buffer = new ByteArrayOutputStream();
+        BUFFER_HANDLER = new DebugHandler(FORMAT, buffer);
+        LOGGER.addHandler(STDOUT_HANDLER);
+        LOGGER.setUseParentHandlers(false); // shut off standard handler
+	}
+	
+	// don't allow construction
+	private Debug() {
+	}
+	
+	/**
+	 * Sets the destination of where log information should go.  This method should
+	 * either never be called (that is, left as a default standard output), or it 
+	 * should be called very early after a program starts.
+	 * 
+	 * <ul>
+	 * <li> 1 - standard output only
+	 * <li> 2 - memory buffer only
+	 * <li> 3 - standard output and memory buffer
+	 * <li> 4 - file, with the provided filename
+	 * <li> 5 - file and standard out
+	 * <li> 6 - file and memory buffer
+	 * <li> 7 - file, memory buffer, and standard out
+	 * </ul>
+	 * @param where number indicating where Debug log should be sent
+	 * @param file  OutputStream for file output.  Consider wrapping a FileOutputStream in a BufferedOutputStream to improve performance. Can be null, if file output is not used.
+	 */
+	public static void setupDestination(int where, OutputStream file) {
+		if (where <= 0) {
+			return;
+		}
+		if (file == null && where >= 4) {
+			where = where - 4;
+		}
+		
+        LOGGER.removeHandler(STDOUT_HANDLER);
+        LOGGER.removeHandler(BUFFER_HANDLER);
+
+		if (where == 5 || where == 6 || where == 7) {
+			Handler fileHandler = new DebugHandler(FORMAT, file);
+			LOGGER.addHandler(fileHandler);
+		} 
+		if (where == 2 || where == 3 || where == 6 || where == 7) {
+			LOGGER.addHandler(BUFFER_HANDLER);
+		}
+		if (where == 1 || where == 3 || where == 5 || where == 7) {
+			LOGGER.addHandler(STDOUT_HANDLER);
+		}
+	}
+	
+
 	
 	/**
 	 * Set the verbosity level for debuggging
 	 * <ul>
+	 * <li> {@literal <}0 - Off
 	 * <li> 0 - Errors only
 	 * <li> 1 - Errors and Warnings
-	 * <li> 2 - Errors, Warnings, and Status
+	 * <li> 2 - Errors, Warnings, and Info
 	 * <li> {@literal >}2 - All the above, plus user-specified levels
 	 * </ul>
 	 * 
 	 * @param level verbosity level
 	 */
 	public static void setVerbose(int level) {
-		if (level < 0) level = 0;
-		VERBOSE = level;
+		if (level < 0) {
+			LOGGER.setLevel(Level.OFF);
+		} else if (level == 0) {
+			LOGGER.setLevel(Level.SEVERE);
+		} else if (level == 1) {
+			LOGGER.setLevel(Level.WARNING);
+		} else if (level == 2) {
+			LOGGER.setLevel(Level.INFO);
+		} else if (level == 3) {
+			LOGGER.setLevel(Level.CONFIG);
+		} else if (level == 4) {
+			LOGGER.setLevel(Level.FINE);
+		} else if (level == 5) {
+			LOGGER.setLevel(Level.FINER);
+		} else { // level >= 6
+			LOGGER.setLevel(Level.FINEST);
+		}
 	}
 
 	/**
 	 * Return the verbosity level
 	 * <ul>
+	 * <li> {@literal <}0 - Off 
 	 * <li> 0 - Errors only
 	 * <li> 1 - Errors and Warnings
-	 * <li> 2 - Errors, Warnings, and Status
+	 * <li> 2 - Errors, Warnings, and Info
 	 * <li> {@literal >}2 - All the above, plus user-specified levels
 	 * </ul>
 	 * 
 	 * @return verbosity level
 	 */
 	public static int getVerbose() {
-		return VERBOSE;
+		return getLevel(LOGGER.getLevel());
 	}
-	
-	public static void setBuffer(boolean use) {
-		if (use) {
-			buffer = new StringBuffer(1024);
-		} else {
-			buffer = null;
+
+	private static int getLevel(Level l) {
+		if (l == Level.OFF) {
+			return -1;
+		} else if (l == Level.SEVERE) {
+			return 0;
+		} else if (l == Level.WARNING) {
+			return 1;
+		} else if (l == Level.INFO) {
+			return 2;
+		} else if (l == Level.CONFIG) {
+			return 3;
+		} else if (l == Level.FINE) {
+			return 4;
+		} else if (l == Level.FINER) {
+			return 5;
+		} else { // Level.FINEST or higher
+			return 6;
 		}
 	}
-	
+
 	/** Clear and return the contents of buffer.  Buffer contains previous Debug messages.
 	 * 
 	 * @return contents of buffer.
 	 */
 	public static String getBuffer() {
-		String ret = buffer.toString();
-		buffer.setLength(0);
+		String ret;
+		ret = buffer.toString(StandardCharsets.UTF_8);
+		buffer.reset();
 		return ret;
 	}
 	
-	// Returns "simpleClassName.MethodName(lineNumber)" of calling method (outside of Debug)
-	private static String getCallingMethodName() {
-		StackTraceElement[] stes = Thread.currentThread().getStackTrace();
-		for (int i = 2; i < stes.length; i++) { // 0 is getStackTrace, 1 is this method
-			String className = stes[i].getClassName();
-			if (!className.startsWith("gov.nasa.larcfm.Util.Debug")) {
-				String methodName = stes[i].getMethodName();
-				String simpleClassName = className.substring(className.lastIndexOf('.')+1);
-				return simpleClassName+"."+methodName+"("+stes[i].getLineNumber()+")";
-			}
-		}
-		return "";
-	}
-	
-	private static void output(String tag, String msg) {
+	private static void output(int level, String tag, String msg) {
 		String[] lines = msg.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
-			if ( ! tag.isEmpty()) {
-				if (buffer == null) {
-					System.out.print("<");
-					System.out.print(tag);
-					System.out.print("> ");					
-				} else {
-					buffer.append("<");
-					buffer.append(tag);
-					buffer.append("> ");
-				}
+			String s = formatTag(tag,lines[i]);
+			switch (level) {
+			case 0: FORMAT.setLevel(true); LOGGER.severe(s); break;
+			case 1: FORMAT.setLevel(true); LOGGER.warning(s); break;
+			case 2: FORMAT.setLevel(false); LOGGER.info(s); break;
+			case 3: FORMAT.setLevel(false); LOGGER.config(s); break;
+			case 4: FORMAT.setLevel(false); LOGGER.fine(s); break;
+			case 5: FORMAT.setLevel(false); LOGGER.finer(s); break;
+			default: 
+				if (level > INFO_LEVEL-1) FORMAT.setLevel(false); LOGGER.finest(s); break;
+				//note: if level < 0 then ignore any output.
 			}
-			if (buffer == null) {
-				System.out.println(lines[i]);
-			} else {
-				buffer.append(lines[i]);
-				buffer.append(System.lineSeparator());
-			}
+		}
+	}
+	
+	private static void output(int level, Supplier<String> f) {
+		switch (level) {
+		case 0: FORMAT.setLevel(true); LOGGER.severe(f); break;
+		case 1: FORMAT.setLevel(true); LOGGER.warning(f); break;
+		case 2: FORMAT.setLevel(false); LOGGER.info(f); break;
+		case 3: FORMAT.setLevel(false); LOGGER.config(f); break;
+		case 4: FORMAT.setLevel(false); LOGGER.fine(f); break;
+		case 5: FORMAT.setLevel(false); LOGGER.finer(f); break;
+		default: 
+			if (level > INFO_LEVEL-1) FORMAT.setLevel(false); LOGGER.finest(f); break;
+				//note: if level < 0 then ignore any output.
 		}
 	}
 	
@@ -177,7 +303,7 @@ public class Debug {
 	 * @param fail_fast if true, then halt program.  If false, continue. 
 	 */
 	public static void error(String msg, boolean fail_fast) {
-		output("ERROR!", msg);
+		output(INFO_LEVEL-2, "", msg);
 		if (fail_fast) {
 			halt();
 		}
@@ -223,19 +349,13 @@ public class Debug {
 		}
 	}
 	
-//	/**
-//	 * Potentially output the <i>msg>/i> to the console with the prepended <i>tag</i>.  This method
-//	 * is not subject to either the FAIL_FAST or the VERBOSE flag (see notes for Debug).
-//	 * 
-//	 * @param condition representation of the nominal or correct state (NO warning condition).
-//	 *                  Thus, if the <i>condition</i> is <b>false</b>, then output.
-//	 * @param tag the tag to indicate the location of this debug message.
-//	 * @param msg message to indicate what has gone wrong.
-//	 */
-//	public static void checkWarning(boolean condition, String tag, String msg) {
-//		pln(tag, msg, ! condition);
-//	}
-	
+	private static String formatTag(String tag, String msg) {
+		if (tag.isEmpty()) {
+			return msg;
+		} else {
+			return "<"+tag+"> "+msg;
+		}
+	}
 	/**
 	 * Output the <i>msg</i> to the console with the prepended <i>tag</i>.  Warnings are 
 	 * output, provided the verbose level is 1 or greater, and should never cause a program termination.
@@ -244,9 +364,7 @@ public class Debug {
 	 * @param msg message to indicate what has gone wrong.
 	 */
 	public static void warning(String tag, String msg) {
-		if (VERBOSE > 0) {
-			output(tag, msg);
-		}
+		output(INFO_LEVEL-1, tag,msg);
 	}
 	
 	/**
@@ -256,7 +374,7 @@ public class Debug {
 	 * @param msg message to indicate what has gone wrong.
 	 */
 	public static void warning(String msg) {
-		warning("WARNING", msg);
+		output(INFO_LEVEL-1, "", msg);
 	}
 	
 	/**
@@ -268,9 +386,7 @@ public class Debug {
 	 * @param verbose if true, then display status message
 	 */
 	public static void pln(String tag, String msg, boolean verbose) {
-		if (verbose) {
-			output(tag, msg);
-		}
+		pln(formatTag(tag,msg), verbose);
 	}
 
 	/**
@@ -297,7 +413,11 @@ public class Debug {
 	 */
 	public static void plnLazy(String tag, Supplier<String> f, boolean verbose) {
 		if (verbose) {
-			output(tag, f.get());
+			int l = getVerbose();
+			if (l > INFO_LEVEL) {
+				l = INFO_LEVEL;
+			}
+			pln(l, formatTag(tag,f.get()));
 		}
 	}
 	
@@ -309,7 +429,13 @@ public class Debug {
 	 * @param verbose if true, the display status message
 	 */
 	public static void pln(String msg, boolean verbose) {
-		pln("", msg, verbose);
+		if (verbose) {
+			int l = getVerbose();
+			if (l > INFO_LEVEL) {
+				l = INFO_LEVEL;
+			}
+			pln(l, msg);
+		}
 	}
 	
 	/**
@@ -322,7 +448,7 @@ public class Debug {
 	 * @param msg the status message
 	 */
 	public static void pln(String tag, String msg) {
-		pln(2, tag, msg);
+		pln(INFO_LEVEL, tag, msg);
 	}
 
 	/**
@@ -334,7 +460,7 @@ public class Debug {
 	 * @param msg the status message
 	 */
 	public static void pln(String msg) {
-		pln(2, "", msg);
+		pln(INFO_LEVEL, "", msg);
 	}
 
 	/**
@@ -348,8 +474,7 @@ public class Debug {
 	 * @param msg the status message
 	 */
 	public static void pln(int level, String tag, String msg) {
-		pln(tag, msg, VERBOSE > 1 && VERBOSE >= level);
-		
+		output(level, tag, msg);
 	}
 
 	/**
@@ -370,12 +495,11 @@ public class Debug {
 	 * </code>
 	 * 
 	 * @param level verbosity level
-	 * @param tag the tag to indicate the location of this debug message.
+	 * @param tag ignored parameter, kept to maintain backward compability
 	 * @param f a supplier object that contains the status message
 	 */
 	public static void plnLazy(int level, String tag, Supplier<String> f) {
-		plnLazy(tag, f, VERBOSE > 1 && VERBOSE >= level);
-		
+		output(level, f);
 	}
 	
 	/**
@@ -388,7 +512,7 @@ public class Debug {
 	 * @param msg the status message
 	 */
 	public static void pln(int level, String msg) {
-		pln(level, "", msg);
+		output(level, "", msg);
 	}
 
 	/**
@@ -413,7 +537,7 @@ public class Debug {
 	 * @param level verbosity level
 	 */
 	public static void plnLazy(int level, Supplier<String> f) {
-		plnLazy(level, "", f);
+		output(level, f);
 		
 	}
 
@@ -430,10 +554,11 @@ public class Debug {
 		new Throwable().printStackTrace();
 	}
 		
-	public static void printCallingMethod() {
+	public static String toStringCallingMethod() {
 		StackTraceElement[] stackTrace = new Exception().getStackTrace();
-		System.out.println(" $$$ calling method = "+stackTrace[1].getMethodName()+" "+stackTrace[1].getLineNumber());  // 0 is this method
-		System.out.println(" $$$                = "+stackTrace[2].getMethodName()+" "+stackTrace[2].getLineNumber());  // 0 is this method
+		String s = " $$$ calling method = "+stackTrace[1].getMethodName()+" "+stackTrace[1].getLineNumber();  // 0 is this method
+		s += " $$$                = "+stackTrace[2].getMethodName()+" "+stackTrace[2].getLineNumber();  // 0 is this method
+		return s;
 	}
 
 

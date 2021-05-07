@@ -151,7 +151,7 @@ public class Vect3 {
 	 * Zero constant.
 	 * @return a zero vector 
 	 */
-	public static Vect3 Zero() {
+	public static Vect3 newZero() {
 		return new Vect3();
 	}
 
@@ -175,7 +175,6 @@ public class Vect3 {
 			return true;
 		if (obj == null)
 			return false;
-		//if (getClass() != obj.getClass())
 		if (!(obj instanceof Vect3))
 			return false;
 		Vect3 other = (Vect3) obj;
@@ -230,12 +229,9 @@ public class Vect3 {
 
 
 	public boolean within_epsilon(Vect3 v2, double epsilon) {
-		//f.pln(" $$$ Vect3.within_epsilon: v1 = "+(new Vect3(x,y,z))+ " v2 = "+v2+" epsilon = "+epsilon );
-		//f.pln(" $$$ Vect3.within_epsilon: z = "+z+" v2.z = "+v2.z);
 		if (Math.abs(x - v2.x) > epsilon) return false;
 		if (Math.abs(y - v2.y) > epsilon) return false;
 		if (Math.abs(z - v2.z) > epsilon) return false;
-		//f.pln(" $$$ Vect3.within_epsilon: return true");
 		return true;  
 	}
 
@@ -567,7 +563,9 @@ public class Vect3 {
 						Units.from(Units.clean(fields[3]),Double.parseDouble(fields[2])),
 						Units.from(Units.clean(fields[5]),Double.parseDouble(fields[4])));
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			// ignore exception
+		}
 		return INVALID;
 	}
 

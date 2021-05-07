@@ -8,7 +8,6 @@
 package gov.nasa.larcfm.Util;
 
 import java.text.SimpleDateFormat;  // Next three for strDate
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -231,7 +230,7 @@ public final class Util {
 
 		// special case of comparing to zero.
 		if (a == 0.0 || b == 0.0) {
-			double comp = 1.0e-13;  // should correspond to PRECISION_DEFAULT;
+			double comp = 1.0e-13;  // should correspond to PRECISION_DEFAULT
 			if (maxUlps == PRECISION5) comp = 1.0e-5;
 			if (maxUlps == PRECISION7) comp = 1.0e-7;
 			if (maxUlps == PRECISION9) comp = 1.0e-9;
@@ -241,9 +240,6 @@ public final class Util {
 			}
 		}
 
-		//if (Double.isNaN(a) || Double.isNaN(b)) {   // this operation is slooooooow
-		//    return false;
-		//  }
 		if (!(a < b || b < a)) { // idiom to filter out NaN's
 			return false;
 		}
@@ -268,11 +264,7 @@ public final class Util {
 		// doubles are required to be
 		// lexically ordered
 
-		if (intDiff <= maxUlps) {
-			return true;
-		}
-
-		return false;
+		return (intDiff <= maxUlps);
 	}
 
 	/** 
@@ -315,7 +307,6 @@ public final class Util {
 			rtn =  sgn*Math.ceil(Math.abs((nvoz)/discreteUnits))*discreteUnits;
 		else
 			rtn =  sgn*Math.floor(Math.abs((nvoz)/discreteUnits))*discreteUnits;
-		//f.pln(" #### vsDiscretize: voz = "+Units.str("fpm",voz)+" nvoz = "+Units.str("fpm",nvoz)+" rtn = "+Units.str("fpm",rtn));
 		return rtn;
 	}
 
@@ -451,9 +442,8 @@ public final class Util {
 	 */
 	public static int sign(double x) {
 		// A true signum could be implemented in C++ as below.
-		// template <typename T> int sgn(T val) {
-		//   return (T(0) < val) - (val < T(0));
-		//}
+		// template <typename T> int sgn(T val) 
+		//   return (T(0) < val) - (val < T(0))
 		if (x >= 0)
 			return 1;
 		return -1;
@@ -491,9 +481,7 @@ public final class Util {
 	 * @return sign as a boolean
 	 */
 	public static boolean bsign(double x) {
-		if (x >= 0)
-			return true;
-		return false;
+		return (x >= 0);
 	}
 
 	public static double min(double x, double y) {
@@ -561,7 +549,7 @@ public final class Util {
 	}
 
 
-	private static final double twopi = 2 * Math.PI;
+	private static final double TWOPI = 2 * Math.PI;
 
 	/**
 	 * Converts <code>rad</code> radians to the range
@@ -576,7 +564,7 @@ public final class Util {
 	public static double to_pi(double rad) {
 		double r = to_2pi(rad);
 		if (r > Math.PI) 
-			return r-twopi;
+			return r-TWOPI;
 		else {
 			return r;
 		}
@@ -631,7 +619,7 @@ public final class Util {
 	 * [<code>0</code>, <code>2*pi</code>).
 	 */
 	public static double to_2pi(double rad) {
-		return modulo(rad,twopi);
+		return modulo(rad,TWOPI);
 	}
 
 	/**
@@ -931,17 +919,6 @@ public final class Util {
 		return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("T");
 	}
 
-	public static double[] arrayList2Array(ArrayList<Double> array) {
-		if (array == null) {
-			return null;
-		} 
-		final double[] result = new double[array.size()];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = array.get(i);
-		}
-		return result;
-	}
-
 
 	/** Reads in a clock string and converts it to seconds.  
 	 * Accepts hh:mm:ss, mm:ss, and ss.
@@ -958,7 +935,7 @@ public final class Util {
 		} else if (fields2.length == 2) {
 			tm = parse_double(fields2[1]) + 60 * parse_double(fields2[0]); // min:sec
 		} else if (fields2.length == 1){
-			tm = parse_double(fields2[0]); //getColumn(_sec, head[TM_CLK]);
+			tm = parse_double(fields2[0]); 
 		}
 		return tm;
 	}
@@ -1013,12 +990,14 @@ public final class Util {
 	 * @return string
 	 */
 	public static String list2str(List<? extends Object> l) {
-		String rtn =  "{";
+		StringBuilder rtn =  new StringBuilder(100);
+		rtn.append("{");
 		for (Object o : l) {
-			rtn = rtn + o.toString() + ", ";
+			rtn.append(o.toString());
+			rtn.append(", ");
 		}
-		rtn = rtn + "}";
-		return rtn;
+		rtn.append("}");
+		return rtn.toString();
 	}
 
 	/** Returns true if string s1 is less than or equal to string s2.
@@ -1028,9 +1007,7 @@ public final class Util {
 	 * @return true, if s1 is less or equals to s2
 	 */
 	public static boolean less_or_equal(String s1, String s2) {
-		if (s1.compareTo(s2) >= 0) return true;
-		//f.pln(" Util::lessThan: s1 = "+s1+" s2 = "+s2+" rtn = "+rtn);
-		return false;
+		return (s1.compareTo(s2) >= 0);
 	}
 
 	public static String strDate() {
@@ -1089,7 +1066,7 @@ public final class Util {
 			endPts[i] = endPts[i - 1] + width;
 		}
 		endPts[k] = max;
-		return new Triple<int[],Double,Double>(histogram(data, endPts),min,max);
+		return new Triple<>(histogram(data, endPts),min,max);
 	}
 
 	/**
@@ -1141,7 +1118,7 @@ public final class Util {
 					if (comp.compare(ls.get(i), ls.get(i+1)) > 0) return false;
 				}
 			}
-		} else {
+		} else { // not increasing
 			if (strict ) {
 				for (int i = 0; i < ls.size()-1; ++i) {
 					if (comp.compare(ls.get(i), ls.get(i+1)) <= 0) return false;
@@ -1203,18 +1180,5 @@ public final class Util {
 	public static boolean relErrorTest(double testValue, double baseValue, double acceptibleError) {
 		return ((Math.abs(testValue-baseValue) / baseValue) < acceptibleError);
 	}
-	
-	//	/**
-	//	 * Create a List from a list of literals
-	//	 * @param elements
-	//	 * @return
-	//	 */
-	//	public static <T> List<T> mkList(T ... elements) {
-	//		List<T> l = new ArrayList<T>();
-	//		for (T x : elements) {
-	//			l.add(x);
-	//		}
-	//		return l;
-	//	}
 
 } // Util.java

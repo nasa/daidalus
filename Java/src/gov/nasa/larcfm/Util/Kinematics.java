@@ -2005,6 +2005,14 @@ public final class Kinematics {
 		return new Pair<Vect3,Velocity>(vsAccelPos(so3,vo3,t,a),nvo);
 	}
 
+	/** return delta time needed to accelerate from initialVs to goalVs and the final altitude
+	 * 
+	 * @param alt0              starting altitude
+	 * @param initialVs         initial vertical speed
+	 * @param goalVs            goal vertical speed
+	 * @param vsAccel           vertical speed acceleration
+	 * @return                  (delta time,final altitude)
+	 */
 	public static Pair<Double,Double> vsAccel(double alt0, double initialVs, double goalVs, double vsAccel) {
 		double dt = Kinematics.accelTime(initialVs,goalVs,vsAccel);
 		double a = Util.sign(goalVs - initialVs);

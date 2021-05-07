@@ -93,7 +93,7 @@ public class Triple<L, C, R> {
      * @return new triple
      */
     public static <L, C, R> Triple<L, C, R> make(L left, C center, R right) {
-        return new Triple<L, C, R>(left, center, right);
+        return new Triple<>(left, center, right);
     }
  
     @Override
@@ -102,13 +102,13 @@ public class Triple<L, C, R> {
             return false;
  
         final Triple<?, ?, ?> other = (Triple<?,?,?>) o;
-        return equal(getLeft(), other.getLeft()) 
-        	&& equal(getCenter(), other.getCenter())
-        	&& equal(getRight(), other.getRight());
+        return localEquals(getLeft(), other.getLeft()) 
+        	&& localEquals(getCenter(), other.getCenter())
+        	&& localEquals(getRight(), other.getRight());
     }
     
     /** Are these two Triples equal? */
-    private static final boolean equal(Object o1, Object o2) {
+    private static final boolean localEquals(Object o1, Object o2) {
         if (o1 == null) {
             return o2 == null;
         }
@@ -116,8 +116,7 @@ public class Triple<L, C, R> {
     }
  
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         int hLeft = getLeft() == null ? 0 : getLeft().hashCode();
         int hCenter = getCenter() == null ? 0 : getCenter().hashCode();
         int hRight = getRight() == null ? 0 : getRight().hashCode();

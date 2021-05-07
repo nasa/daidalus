@@ -171,9 +171,6 @@ public final class Vect4 {
    * @return vector sum
    */
   public Vect4 Add(Vect4 v) {
-//    Vect4 u = new Vect4(this);
-//    u.add(v);
-//    return u;
 	  return new Vect4(x+v.x, y+v.y, z+v.z, t+v.t);
   }
 
@@ -183,9 +180,6 @@ public final class Vect4 {
    * @return vector subtraction 
    */
   public Vect4 Sub(Vect4 v) {
-//    Vect4 u = new Vect4(this);
-//    u.sub(v);
-//    return u;
 	  return new Vect4(x-v.x, y-v.y, z-v.z, t-v.t);
   }
 
@@ -202,9 +196,6 @@ public final class Vect4 {
    * @return scaled vector
    * */
   public Vect4 Scal(double k) {
-//    Vect4 u = new Vect4(this);
-//    u.scal(k);
-//    return u;
 	  return new Vect4(k*x, k*y, k*z, k*t);
   }
 
@@ -215,22 +206,8 @@ public final class Vect4 {
    * @return result of this*k+v
    */
   public Vect4 ScalAdd(double k, Vect4 v) {
-//    Vect4 u = new Vect4(this);
-//    u.scal(k);
-//    u.add(v);
-//    return u;
 	  return new Vect4(k*x+v.x, k*y+v.y, k*z+v.z, k*t+v.t);
   }
-
-//  /** @return vector tt seconds between this vector and p2
-//   * 
-//   * @param p2 next point
-//   * @param tt relative time
-//   * @return
-//   */
-//  Vect4 interpolate(Vect4 p2, double tt) {
-//	  return Add(Sub(p2).Scal(tt/(t-p2.t)));
-//  }
 
   /**
    * Returns true if the current vector has an "invalid" value
@@ -288,7 +265,9 @@ public final class Vect4 {
 						Units.from(Units.clean(fields[5]),Double.parseDouble(fields[4])),
 						Units.from(Units.clean(fields[7]),Double.parseDouble(fields[6])));
 			}
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			// ignore exception
+		}
 		return Vect4.INVALID;
   }
 

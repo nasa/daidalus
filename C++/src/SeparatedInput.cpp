@@ -492,7 +492,7 @@ bool SeparatedInput::process_units(const string& str) {
 	}
 	if (notFound > fields.size() / 2 || notFound+dash == fields.size()) {
 		if (dash > 0 && dash+notFound == fields.size()) {
-			for (int i = 0 ; i < units_str.size() ; ++i) {
+			for (unsigned int i = 0 ; i < units_str.size() ; ++i) {
 				if (units_str[i] == "unitless") {
 					units_str[i] = "unspecified";
 				}

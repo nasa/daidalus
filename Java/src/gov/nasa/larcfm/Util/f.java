@@ -8,7 +8,6 @@
 package gov.nasa.larcfm.Util;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
@@ -17,10 +16,9 @@ import java.util.Iterator;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Various String formatting and console output operations.  */   
-final public class f {
+public final class f {
 
 	/** Given a list of names that may include files or directories,
 	 * return a list of files that contains (1) all of the files in
@@ -31,17 +29,12 @@ final public class f {
 	 * @return list of filenames
 	 */
 	public static List<String> getFileNames(String[] names) {
-		ArrayList<String> txtFiles = new ArrayList<String>();
+		ArrayList<String> txtFiles = new ArrayList<>();
 		for (int i=0; i < names.length; i++) {
 			File file = new File(names[i]);
 			if (file.canRead()) {
 				if (file.isDirectory()) {
-					File[] fs=file.listFiles(new FilenameFilter() {
-						public boolean accept(File f, String name) {
-							return name.endsWith(".txt");
-							//return true;	
-						}                       
-					}); 
+					File[] fs=file.listFiles((File f, String name) -> name.endsWith(".txt"));
 					for (File txtfile:fs) {
 						txtFiles.add(txtfile.getPath());
 					}
@@ -74,9 +67,7 @@ final public class f {
 	 */
 	public static void pln(String string) {
 		if (sb == null) {
-			//System.err.flush();
 			System.out.println(string);
-			//System.out.flush();
 		} else {
 			sb.append(string);
 			sb.append(nl);
@@ -153,7 +144,6 @@ final public class f {
 	 */
 	public static String sStr8NP(Vect3 s) {
 		return sStrNP(s,8);
-		//return Fm8(Units.to("NM", s.x)) + " " + Fm8(Units.to("NM", s.y)) + " " 	+ Fm8(Units.to("ft", s.z));
 	}
 
 	/** Format a position vector as a Euclidean position 
@@ -163,12 +153,11 @@ final public class f {
 	 */
 	public static String sStr15NP(Vect3 s) {
 		return sStrNP(s,15);
-		//return Fm16(Units.to("NM", s.x)) + " " + Fm16(Units.to("NM", s.y)) + " " 	+ Fm16(Units.to("ft", s.z));
 	}
 
 	
 	public static List<String> toStringList(Vect3 v, String unitx, String unity, String unitz, int precision, boolean units) {
-		ArrayList<String> ret = new ArrayList<String>(3);
+		ArrayList<String> ret = new ArrayList<>(3);
 		if (units) {
 			ret.add(Units.str(unitx, v.x, precision));
 			ret.add(Units.str(unity, v.y, precision)); 
@@ -191,50 +180,50 @@ final public class f {
 		return v+0.0; // This removes actual negative zeros
 	}
 
-	private static DecimalFormat Frm0 =  new DecimalFormat("0");
-	private static DecimalFormat Frm1 =  new DecimalFormat("0.0");
-	private static DecimalFormat Frm2 =  new DecimalFormat("0.00");
-	private static DecimalFormat Frm3 =  new DecimalFormat("0.000");
-	private static DecimalFormat Frm4 =  new DecimalFormat("0.0000");
-	private static DecimalFormat Frm5 =  new DecimalFormat("0.00000");
-	private static DecimalFormat Frm6 =  new DecimalFormat("0.000000");
-	private static DecimalFormat Frm7 =  new DecimalFormat("0.0000000");
-	private static DecimalFormat Frm8 =  new DecimalFormat("0.00000000");
-	private static DecimalFormat Frm9 =  new DecimalFormat("0.000000000");
-	private static DecimalFormat Frm10 = new DecimalFormat("0.0000000000");
-	private static DecimalFormat Frm11 = new DecimalFormat("0.00000000000");
-	private static DecimalFormat Frm12 = new DecimalFormat("0.000000000000");
-	private static DecimalFormat Frm13 = new DecimalFormat("0.0000000000000");
-	private static DecimalFormat Frm14 = new DecimalFormat("0.00000000000000");
-	private static DecimalFormat Frm15 = new DecimalFormat("0.000000000000000");
-	private static DecimalFormat Frm16 = new DecimalFormat("0.0000000000000000");
+	private static final DecimalFormat Frm0 =  new DecimalFormat("0");
+	private static final DecimalFormat Frm1 =  new DecimalFormat("0.0");
+	private static final DecimalFormat Frm2 =  new DecimalFormat("0.00");
+	private static final DecimalFormat Frm3 =  new DecimalFormat("0.000");
+	private static final DecimalFormat Frm4 =  new DecimalFormat("0.0000");
+	private static final DecimalFormat Frm5 =  new DecimalFormat("0.00000");
+	private static final DecimalFormat Frm6 =  new DecimalFormat("0.000000");
+	private static final DecimalFormat Frm7 =  new DecimalFormat("0.0000000");
+	private static final DecimalFormat Frm8 =  new DecimalFormat("0.00000000");
+	private static final DecimalFormat Frm9 =  new DecimalFormat("0.000000000");
+	private static final DecimalFormat Frm10 = new DecimalFormat("0.0000000000");
+	private static final DecimalFormat Frm11 = new DecimalFormat("0.00000000000");
+	private static final DecimalFormat Frm12 = new DecimalFormat("0.000000000000");
+	private static final DecimalFormat Frm13 = new DecimalFormat("0.0000000000000");
+	private static final DecimalFormat Frm14 = new DecimalFormat("0.00000000000000");
+	private static final DecimalFormat Frm15 = new DecimalFormat("0.000000000000000");
+	private static final DecimalFormat Frm16 = new DecimalFormat("0.0000000000000000");
 
-	private static DecimalFormat Frmnz1 =  new DecimalFormat("0.0");
-	private static DecimalFormat Frmnz2 =  new DecimalFormat("0.0#");
-	private static DecimalFormat Frmnz3 =  new DecimalFormat("0.0##");
-	private static DecimalFormat Frmnz4 =  new DecimalFormat("0.0###");
-	private static DecimalFormat Frmnz5 =  new DecimalFormat("0.0####");
-	private static DecimalFormat Frmnz6 =  new DecimalFormat("0.0#####");
-	private static DecimalFormat Frmnz7 =  new DecimalFormat("0.0######");
-	private static DecimalFormat Frmnz8 =  new DecimalFormat("0.0#######");
-	private static DecimalFormat Frmnz9 =  new DecimalFormat("0.0########");
-	private static DecimalFormat Frmnz10 = new DecimalFormat("0.0#########");
-	private static DecimalFormat Frmnz11 = new DecimalFormat("0.0##########");
-	private static DecimalFormat Frmnz12 = new DecimalFormat("0.0###########");
-	private static DecimalFormat Frmnz13 = new DecimalFormat("0.0############");
-	private static DecimalFormat Frmnz14 = new DecimalFormat("0.0#############");
-	private static DecimalFormat Frmnz15 = new DecimalFormat("0.0##############");
-	private static DecimalFormat Frmnz16 = new DecimalFormat("0.0###############");
+	private static final DecimalFormat Frmnz1 =  new DecimalFormat("0.0");
+	private static final DecimalFormat Frmnz2 =  new DecimalFormat("0.0#");
+	private static final DecimalFormat Frmnz3 =  new DecimalFormat("0.0##");
+	private static final DecimalFormat Frmnz4 =  new DecimalFormat("0.0###");
+	private static final DecimalFormat Frmnz5 =  new DecimalFormat("0.0####");
+	private static final DecimalFormat Frmnz6 =  new DecimalFormat("0.0#####");
+	private static final DecimalFormat Frmnz7 =  new DecimalFormat("0.0######");
+	private static final DecimalFormat Frmnz8 =  new DecimalFormat("0.0#######");
+	private static final DecimalFormat Frmnz9 =  new DecimalFormat("0.0########");
+	private static final DecimalFormat Frmnz10 = new DecimalFormat("0.0#########");
+	private static final DecimalFormat Frmnz11 = new DecimalFormat("0.0##########");
+	private static final DecimalFormat Frmnz12 = new DecimalFormat("0.0###########");
+	private static final DecimalFormat Frmnz13 = new DecimalFormat("0.0############");
+	private static final DecimalFormat Frmnz14 = new DecimalFormat("0.0#############");
+	private static final DecimalFormat Frmnz15 = new DecimalFormat("0.0##############");
+	private static final DecimalFormat Frmnz16 = new DecimalFormat("0.0###############");
 
 
-	private static DecimalFormat Frm_2 = new DecimalFormat("00");
-	private static DecimalFormat Frm_3 = new DecimalFormat("000");
-	private static DecimalFormat Frm_4 = new DecimalFormat("0000");
-	private static DecimalFormat Frm_5 = new DecimalFormat("00000");
-	private static DecimalFormat Frm_6 = new DecimalFormat("000000");
-	private static DecimalFormat Frm_7 = new DecimalFormat("0000000");
-	private static DecimalFormat Frm_8 = new DecimalFormat("00000000");
-	private static DecimalFormat Frm_9 = new DecimalFormat("000000000");
+	private static final DecimalFormat Frm_2 = new DecimalFormat("00");
+	private static final DecimalFormat Frm_3 = new DecimalFormat("000");
+	private static final DecimalFormat Frm_4 = new DecimalFormat("0000");
+	private static final DecimalFormat Frm_5 = new DecimalFormat("00000");
+	private static final DecimalFormat Frm_6 = new DecimalFormat("000000");
+	private static final DecimalFormat Frm_7 = new DecimalFormat("0000000");
+	private static final DecimalFormat Frm_8 = new DecimalFormat("00000000");
+	private static final DecimalFormat Frm_9 = new DecimalFormat("000000000");
 
 	/**
 	 * Add leading zeros to a string representation of an integer.  If the integer
@@ -439,40 +428,7 @@ final public class f {
 	}
 
 
-//	/**
-//	 * Insert additional newlines so that no line is longer than maxWidth characters.  Tries to only add newlines in existing spaces (if possible).
-//	 * @param in
-//	 * @param maxWidth
-//	 * @return
-//	 */
-//	public static String wrapText(String in, int maxWidth) {
-//		List<String> ss = Arrays.asList(in.split("\n"));
-//		int i = 0;
-//		while (i < ss.size()) {
-//			String line = ss.get(i);
-//			if (line.length() > maxWidth) {
-//				int last = line.length()-1;
-//				int j = last;
-//				while (j >= 0 && j > maxWidth) {
-//					j = line.lastIndexOf(' ', last);
-//					last = j-1;
-//				}
-//				if (j < 0) {
-//					j = maxWidth; // just break here
-//				}
-//				String l1 = line.substring(0,j);
-//				String l2 = line.substring(j);
-//				ss.add(i, l1); // add first substring
-//				ss.set(i+1, l2); // replace old string with 2nd substring
-//			}
-//			i++;
-//		}
-//		return ss.stream().collect(Collectors.joining("\n"));
-//	}
-
-
-
-	private static DecimalFormat Frm_e4 = new DecimalFormat("0.0000E00");// new DecimalFormat("0.0000");
+	private static final DecimalFormat Frm_e4 = new DecimalFormat("0.0000E00");
 
 	/** Format a double in exponential notation with 4 decimal places 
 	 * 
@@ -488,7 +444,8 @@ final public class f {
 			return s;
 		}
 		String str = "";
-		str = String.format("%1$" + n + "s", s);  
+		String fmt = "%1$" + n + "s";
+		str = String.format(fmt, s);  
 		return str;
 	}
 
@@ -497,7 +454,8 @@ final public class f {
 			return s;
 		}
 		String str = "";
-		str = String.format("%1$-" + n + "s", s);  
+		String fmt = "%1$-" + n + "s";
+		str = String.format(fmt, s);  
 		return str;
 	}
 
@@ -580,7 +538,7 @@ final public class f {
 			Collection<Object> a = (Collection<Object>)o;
 			String s = "[";
 			Iterator<Object> it = a.iterator();
-			if (a.size() > 0) {
+			if ( ! a.isEmpty()) {
 				s += Fobj(it.next());
 			}
 			while (it.hasNext()) {
@@ -594,7 +552,7 @@ final public class f {
 			String s = "[Map:"+nl;
 			Set<Object> ks = h.keySet();
 			Iterator<Object> it = ks.iterator();
-			if (ks.size() > 0) {
+			if (! ks.isEmpty()) {
 				Object k = it.next();
 				s += Fobj(k)+"->"+Fobj(h.get(k));
 			}
@@ -644,13 +602,13 @@ final public class f {
 	 * @return new string
 	 */
 	public static String wordwrap(String s, int length) {
-		String ret = "";		
+		StringBuilder ret = new StringBuilder(1000);		
 		while (s.length() > length) {
 			int i = s.lastIndexOf(" ", length);
 			int j = s.indexOf("\n");
 			int k = s.lastIndexOf(",", length);
 			int l = s.lastIndexOf(";", length);
-			if (j <= length && j >= 0 && j <= length) {
+			if (j <= length && j >= 0) {
 				i = j;
 			} else if (i > length && k >= 0 && k < length) {
 				i = k+1;
@@ -660,93 +618,13 @@ final public class f {
 			if (i <= 1) {
 				i = length;
 			}
-			ret += s.substring(0, i)+"\n";
+			ret.append(s.substring(0, i));
+			ret.append(nl);
 			s = s.substring(i).trim();
 		}
-		ret += s;
-		return ret;
+		ret.append(s);
+		return ret.toString();
 	}
-
-	//	public static String Fobj(Object o, String unit) {
-	//		if (o == null) {
-	//			return "null";
-	//		}
-	//		if (o instanceof Integer) {
-	//			return Units.str(unit, (int)o);
-	//		}
-	//		if (o instanceof Long) {
-	//			return Units.str(unit, (long)o);
-	//		}
-	//		if (o instanceof Float) {
-	//			return Units.str(unit, (float)o);
-	//		}
-	//		if (o instanceof Double) {
-	//			return Units.str(unit, (double)o);
-	//		}
-	//		if (o instanceof Pair) {
-	//			Pair<Object,Object> p = (Pair<Object,Object>)o;
-	//			return "("+Fobj(p.first, unit)+","+Fobj(p.second, unit)+")"; 
-	//		}
-	//		if (o instanceof Triple) {
-	//			Triple<Object,Object,Object> p = (Triple<Object,Object,Object>)o;
-	//			return "("+Fobj(p.first, unit)+","+Fobj(p.second, unit)+","+Fobj(p.third, unit)+")"; 
-	//		}
-	//		if (o instanceof Quad) {
-	//			Quad<Object,Object,Object,Object> p = (Quad<Object,Object,Object,Object>)o;
-	//			return "("+Fobj(p.first, unit)+","+Fobj(p.second, unit)+","+Fobj(p.third, unit)+","+Fobj(p.fourth, unit)+")"; 
-	//		}
-	//		if (o instanceof Collection) {
-	//			Collection<Object> a = (Collection<Object>)o;
-	//			String s = "[";
-	//			Iterator<Object> it = a.iterator();
-	//			if (a.size() > 0) {
-	//				s += Fobj(it.next(), unit);
-	//			}
-	//			while (it.hasNext()) {
-	//				s += ", "+Fobj(it.next(), unit);
-	//			}
-	//			s += "]";
-	//			return s;
-	//		}
-	//		if (o instanceof Map) {
-	//			Map<Object,Object> h = (Map<Object,Object>)o;
-	//			String s = "[Map:";//+nl;
-	//			Set<Object> ks = h.keySet();
-	//			Iterator<Object> it = ks.iterator();
-	//			if (ks.size() > 0) {
-	//				Object k = it.next();
-	//				s += Fobj(k, unit)+"->"+Fobj(h.get(k), unit);//+nl;
-	//			}
-	//			while (it.hasNext()) {
-	//				Object k = it.next();
-	//				s += ", "+Fobj(k, unit)+"->"+Fobj(h.get(k), unit);//+nl;
-	//			}
-	//			s+= "]";
-	//			return s;
-	//		}
-	//		if (o instanceof Object[]) {
-	//			Object[] a = (Object[])o;
-	//			return Arrays.toString(a);
-	//		}
-	//		if (o instanceof int[]) {
-	//			int[] a = (int[])o;
-	//			return Arrays.toString(a);
-	//		}
-	//		if (o instanceof double[]) {
-	//			double[] a = (double[])o;
-	//			return Arrays.toString(a);
-	//		}
-	//		if (o instanceof java.awt.Polygon) {
-	//			java.awt.Polygon p = (java.awt.Polygon)o;
-	//			String s = "[java.awt.Polygon:";
-	//			for (int i = 0; i < p.npoints; i++) {
-	//				s += "("+p.xpoints[i]+","+p.ypoints[i]+") ";
-	//			}
-	//			s += "]";
-	//			return s;
-	//		}
-	//		return o.toString();
-	//	}
 
 	/** 
 	 * Create a string with the contents of the given list of strings.  Between each string insert the delimiter.
@@ -755,7 +633,7 @@ final public class f {
 	 * @return a string
 	 */
 	public static String list2str(List<String> l, String delimiter) {
-		StringBuffer sb = new StringBuffer(l.size() * 30); // an estimate of initial size
+		StringBuilder sb = new StringBuilder(l.size() * 30); // an estimate of initial size
 		Iterator<String> i = l.iterator();
 		if (i.hasNext()) {
 			sb.append(i.next());
@@ -799,7 +677,7 @@ final public class f {
 	 * @return the resulting string
 	 */
 	public static String array2str(double[] data, String unit, int width, int precision) {
-		StringBuffer sb = new StringBuffer(1000);
+		StringBuilder sb = new StringBuilder(1000);
 		sb.append("[");
 		for (int i = 0; i < data.length; i++) {
 			sb.append(f.fmt(data[i],unit,width,precision));
@@ -822,7 +700,7 @@ final public class f {
 	 * @return the resulting string
 	 */
 	public static String array2str(double[][] data, String unit, int width, int precision) {
-		StringBuffer sb = new StringBuffer(1000);
+		StringBuilder sb = new StringBuilder(1000);
 		for (int i = 0; i < data.length; i++) {
 			if (i == 0) {
 				sb.append("[");
@@ -850,7 +728,7 @@ final public class f {
 	 * @return the resulting string
 	 */
 	public static String array2str(double[][][] data, String unit, int width, int precision) {
-		StringBuffer sb = new StringBuffer(1000);
+		StringBuilder sb = new StringBuilder(1000);
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[i].length; j++) {
 				if (i == 0 && j == 0) {
@@ -883,7 +761,7 @@ final public class f {
 	 * @return a string with Unix separators replaced with the platform-specific separators
 	 */
 	public static String toPlatform(String str) {
-		return str.replaceAll("\n",nl);
+		return str.replace("\n",nl);
 	}
 
 	public static String double2PVS(double val) {
@@ -900,11 +778,11 @@ final public class f {
 	 * @return string of the given number of spaces
 	 */
 	public static String spaces(int s) {
-		String r = new String();
+		StringBuilder r = new StringBuilder(s);
 		for (int i = 0; i < s; i++) {
-			r += "";
+			r.append(' ');
 		}
-		return r;
+		return r.toString();
 	}
 
 } 

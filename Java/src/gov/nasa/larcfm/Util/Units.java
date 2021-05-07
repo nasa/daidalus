@@ -44,6 +44,7 @@ import java.util.SortedSet;
 import java.util.Iterator;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -367,7 +368,14 @@ public final class Units {
 		UnitException(String name) {
 			super(name);
 		}
-	};
+	}
+	public static class UnitError extends Error {
+		static final long serialVersionUID = 0;
+
+		UnitError(String name) {
+			super(name);
+		}
+	}
 
 	// Base units (time, distance, mass, temp)
 
@@ -806,8 +814,8 @@ public final class Units {
 	 */
 	private static final double degreeF = -2.0;
 
-	private final static double C_OFFSET = 273.15;
-	private final static double F_OFFSET = 273.15 * 1.8 - 32.0;
+	private static final double C_OFFSET = 273.15;
+	private static final double F_OFFSET = 273.15 * 1.8 - 32.0;
 
 	// Setup a table for string names for all supported units
 	private static Map<String, UnitPair> unitTable;
@@ -819,7 +827,10 @@ public final class Units {
 	/**
 	 * This class just helps the Units class. It encapsulates the unit
 	 * conversion factor and the list of compatible units. This class is
-	 * immutable.
+	 * has limited immutability: the list of compatible units will not change,
+	 * but elements to the list of compatible units can be added to.  Thus,
+	 * an "ft" unit will always be compatible with length units, but at some
+	 * later point a "furlong" unit may be added.
 	 */
 	private static class UnitPair {
 		final double factor;
@@ -835,8 +846,8 @@ public final class Units {
 
 		// Create the table of unit names
 
-		unitTable = new HashMap<String, UnitPair>(150); // A good default size
-		unspecifiedUnits = new TreeSet<String>();
+		unitTable = new HashMap<>(150); // A good default size
+		unspecifiedUnits = new TreeSet<>();
 
 		try {
 			addUnit("rad", rad);
@@ -847,7 +858,7 @@ public final class Units {
 			addUnit("Hz", hertz);
 			addSimilarUnit("hertz", "Hz");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -856,7 +867,7 @@ public final class Units {
 			addUnit("hertzAngular", hertzAngular, "rad/s");
 			addSimilarUnit("degree/s", "deg/s");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -865,14 +876,14 @@ public final class Units {
 			addSimilarUnit("radian/s^2", "rad/s^2");
 			addSimilarUnit("degree/s^2", "deg/s^2");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
 			addUnit("unitless", unitless);
 			addSimilarUnit("none", "unitless");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -888,7 +899,7 @@ public final class Units {
 			addUnit("d", 24.0, "hour");
 			addSimilarUnit("day", "d");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -912,7 +923,7 @@ public final class Units {
 			addSimilarUnit("nautical_mile", "nmi");
 			addSimilarUnit("mile", "mi");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -922,7 +933,7 @@ public final class Units {
 			addSimilarUnit("kilogram", "kg");
 			addSimilarUnit("pound_mass", "lbm");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -936,13 +947,13 @@ public final class Units {
 
 			UnitPair kUnitPair = getUnitPair("K");
 
-			kUnitPair.compatible.add(Units.degreeCStr); //"degreeC");
+			kUnitPair.compatible.add(Units.degreeCStr); 
 			unitTable.put("degreeC",
 					new UnitPair(degreeC, kUnitPair.compatible));
 			unitTable.put(Units.degreeCStr,
 					new UnitPair(degreeC, kUnitPair.compatible));
 
-			kUnitPair.compatible.add(Units.degreeFStr); //"degreeF");
+			kUnitPair.compatible.add(Units.degreeFStr); 
 			unitTable.put("degreeF",
 					new UnitPair(degreeF, kUnitPair.compatible));
 			unitTable.put(Units.degreeFStr,
@@ -956,7 +967,7 @@ public final class Units {
 			addSimilarUnit("Rankine", Units.degreeRStr);
 
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -987,7 +998,7 @@ public final class Units {
 			addSimilarUnit("nmi/s", "NM/s");
 
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -996,7 +1007,7 @@ public final class Units {
 			addUnit("ft/s^2", foot / (second * second), "m/s^2");
 			addUnit("G", G, "m/s^2");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -1009,7 +1020,7 @@ public final class Units {
 			addSimilarUnit("foot2", "ft^2");
 			addSimilarUnit("inch2", "in^2");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -1027,7 +1038,7 @@ public final class Units {
 			addSimilarUnit("litre", "L");
 			addSimilarUnit("inch3", "in^3");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -1036,7 +1047,7 @@ public final class Units {
 			addSimilarUnit("newton", "N");
 			addSimilarUnit("pound_force", "lbf");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -1044,7 +1055,7 @@ public final class Units {
 			addSimilarUnit("joule", "J");
 			addUnit("ft-lbf", foot * pound_force, "J");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		// Note these are torques, even though they have the same unit
@@ -1053,14 +1064,14 @@ public final class Units {
 			addUnit("N-m", newton * meter);
 			addUnit("lbf-ft", pound_force * foot, "N-m");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
 			addUnit("kg-m^2", kilogram * meter2);
 			addUnit("slug-ft^2", slug * foot2, "kg-m^2");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -1080,7 +1091,7 @@ public final class Units {
 			addUnit("F", F);
 			addSimilarUnit("farad", "F");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		try {
@@ -1104,7 +1115,7 @@ public final class Units {
 			addUnit("kg/m^3-s", kilogram / (meter3 * second));
 			addUnit("slug/ft^3-s", slug / foot3, "kg/m^3-s");
 		} catch (UnitException e) {
-			throw new Error(e.getMessage());
+			throw new UnitError(e.getMessage());
 		}
 
 		//
@@ -1364,13 +1375,13 @@ public final class Units {
 	 */
 	public static String getCanonicalUnit(String unit) {
 		String[] compat = getCompatibleUnits(unit);
+		double f = getFactor(unit);
 		for (int i = 0; i < compat.length; i++) {
-			if (getFactor(compat[i]) == getFactor(unit)) {
+			if (getFactor(compat[i]) == f) {
 				return compat[i];
 			}
 		}
 		return "";
-
 	}
 
 	
@@ -1396,7 +1407,7 @@ public final class Units {
 	 */
 	public static void addUnit(String name, double factor) throws UnitException {
 
-		addNewUnitPair(name, factor, new TreeSet<String>());
+		addNewUnitPair(name, factor, new TreeSet<>());
 	}
 
 	/**
@@ -1514,7 +1525,7 @@ public final class Units {
 			set = unitTable.keySet();
 		}
 
-		List<String> list = new ArrayList<String>(set);
+		List<String> list = new ArrayList<>(set);
 
 		Collections.sort(list);
 
@@ -1697,7 +1708,7 @@ public final class Units {
 		} else {
 			for (int i = 0; i < value.length; i++) {
 				for (int j = 0; j < value[i].length; j++) {
-					for (int k = 0; j < value[i].length; j++) {
+					for (int k = 0; k < value[i][j].length; k++) {
 						value[i][j][k] /= factor;
 					}
 				}
@@ -1952,9 +1963,6 @@ public final class Units {
 	// This regex expression basically says is the string roughly in two parts, something that looks like a 
 	// number and something that looks like a unit.
 	// now allows for e-notation
-	//private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*\\[?\\s*([-/^_a-zA-Z0-9\u00B0]*)\\s*\\]?"); //\\s*$");
-	//private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*([-\\[\\]\\/^_a-zA-Z0-9\u00B0]*).*"); //\\s*$");
-	//private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+)\\s*\\[?\\s*([-\\/^_a-zA-Z0-9\\u00B0]*).*");
 	private static final Pattern numre = Pattern.compile("\\s*([-+0-9\\.]+(?:[eE][0-9]+)?)\\s*\\[?\\s*([-\\/^_a-zA-Z0-9\\u00B0]*).*");
 	/**
 	 * Parse a string, representing a value and a unit. 
@@ -1969,11 +1977,6 @@ public final class Units {
 		if (m.matches()) {
 			unit = Units.clean(m.group(2));
 		}
-		//		String[] fields = s.split(" ");
-		//		if (fields.length < 1) return unit;
-		//		if (fields.length > 1) {
-		//			unit = Units.clean(fields[1]);
-		//		}
 		return unit;
 	}
 
@@ -2118,47 +2121,50 @@ public final class Units {
 		return f.FmPrecision(to(unit, value),precision) + " [" + unit + "]";	
 	}
 
+	
 	/**
-	 * Creates a file called units.html which contains a list of all available
-	 * units, their factors, and their compatible units is displayed.
+	 * Creates a string that looks contains an HTML representation of all available
+	 * units, their factors, and their compatible units.
 	 * 
 	 * @param argv command line arguments
 	 * @throws UnitException if invalid unit
 	 */
-	public static void main(String[] argv) throws UnitException {
+	public static String getAllUnitsHTML() {
 
 		Iterator<String> itr;
 		UnitPair u;
 		String[] units = getAllUnits();
-
-		System.out.println();
-		System.out.println("<body>");
-		System.out.println("<H1>List of Units</H1>");
-		System.out.println("Note: this is the list of units when the ");
-		System.out.println("Units class was created, the user may have added");
-		System.out.println("other units in the interm.<p>");
-		System.out.println("<table border>");
-		System.out.println("<tr><th>Unit</th>");
-		System.out.println("    <th>Factor</th>");
-		System.out.println("    <th>Compatible Units</th></tr>");
+		StringBuilder sb = new StringBuilder(1000);
+		String nl = System.lineSeparator();
+		
+		sb.append("<body>"+nl);
+		sb.append("<H1>List of Units</H1>"+nl);
+		sb.append("Note: this is the list of units when the "+nl);
+		sb.append("Units class was created, the user may have added"+nl);
+		sb.append("other units in the interm.<p>"+nl);
+		sb.append("<table border>"+nl);
+		sb.append("<tr><th>Unit</th>"+nl);
+		sb.append("    <th>Factor</th>"+nl);
+		sb.append("    <th>Compatible Units</th></tr>"+nl);
 		for (int i = 0; i < units.length; i++) {
-			System.out.print("<tr><td align=center>");
-			System.out.print(units[i]);
-			System.out.print("</th>");
+			sb.append("<tr><td align=center>");
+			sb.append(units[i]);
+			sb.append("</th>");
 			u = getUnitPair(units[i]);
-			System.out.print("<td align=right>");
-			System.out.print(u.factor);
-			System.out.print("</td>");
-			System.out.print("<td>");
+			sb.append("<td align=right>");
+			sb.append(u.factor);
+			sb.append("</td>");
+			sb.append("<td>");
 			itr = u.compatible.iterator();
 			while (itr.hasNext()) {
-				System.out.print(itr.next());
-				System.out.print(' ');
+				sb.append(itr.next());
+				sb.append(' ');
 			}
-			System.out.println("</td>");
-			System.out.println("</tr>");
+			sb.append("</td>"+nl);
+			sb.append("</tr>"+nl);
 		}
-		System.out.println("</table>");
-		System.out.println("</body>");
+		sb.append("</table>"+nl);
+		sb.append("</body>"+nl);
+		return sb.toString();
 	}
 }

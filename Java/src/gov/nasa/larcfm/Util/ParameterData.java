@@ -8,14 +8,13 @@ package gov.nasa.larcfm.Util;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -45,7 +44,7 @@ public class ParameterData {
 		preserveUnits = false;
 		unitCompatibility = true;
 		listPatternStr = Constants.wsPatternBase;
-		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
+		parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	}
 	
 	/** A database of parameters.  The database is initially empty.
@@ -63,7 +62,7 @@ public class ParameterData {
 		preserveUnits = p.preserveUnits;
 		unitCompatibility = p.unitCompatibility;
 		listPatternStr = Constants.wsPatternBase;
-		parameters = new TreeMap<String, ParameterEntry>(String.CASE_INSENSITIVE_ORDER);
+		parameters = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		copy(p,true);
 	}
 
@@ -78,8 +77,8 @@ public class ParameterData {
 		ParameterData p = ParameterData.make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		for (String key : parameters.keySet()) {
-			p.parameters.put(prefix+key, ParameterEntry.make(parameters.get(key))); // make sure this is a copy
+		for (Map.Entry<String,ParameterEntry> entry : parameters.entrySet()) {
+			p.parameters.put(prefix+entry.getKey(), ParameterEntry.make(entry.getValue())); // make sure this is a copy
 		}
 		return p;
 	}
@@ -114,10 +113,10 @@ public class ParameterData {
 		ParameterData p = ParameterData.make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		for (String key : parameters.keySet()) {
-			String keylc = key.toLowerCase();
+		for (Map.Entry<String,ParameterEntry> entry : parameters.entrySet()) {
+			String keylc = entry.getKey().toLowerCase();
 			if (keylc.indexOf(prefixlc) == 0) {
-				p.parameters.put(key.substring(prefix.length()), ParameterEntry.make(parameters.get(key))); // make sure this is a copy
+				p.parameters.put(entry.getKey().substring(prefix.length()), ParameterEntry.make(entry.getValue())); // make sure this is a copy
 			}
 		}
 		return p;		
@@ -134,10 +133,10 @@ public class ParameterData {
 		ParameterData p = ParameterData.make();
 		p.preserveUnits = preserveUnits;
 		p.unitCompatibility = unitCompatibility;
-		for (String key : parameters.keySet()) {
-			String keylc = key.toLowerCase();
+		for (Map.Entry<String,ParameterEntry> entry : parameters.entrySet()) {
+			String keylc = entry.getKey().toLowerCase();
 			if (!keylc.startsWith(prefixlc)) {
-				p.parameters.put(key, ParameterEntry.make(parameters.get(key))); // make sure this is a copy
+				p.parameters.put(entry.getKey(), ParameterEntry.make(entry.getValue())); // make sure this is a copy
 			}
 		}
 		return p;		
@@ -172,7 +171,7 @@ public class ParameterData {
 	 * @return list of Parameter keys that have the same values in both objects.
 	 */
 	public List<String> intersection(ParameterData p) {
-		List<String> s = new ArrayList<String>();
+		List<String> s = new ArrayList<>();
 		List<String> l1 = getKeyList();
 		for (String key : l1) {
 			if (p.contains(key)) {
@@ -244,9 +243,9 @@ public class ParameterData {
 	 * @return list of parameter key names, sorted (case insensitive lexical)
 	 */
 	public List<String> getKeyList() {
-		List<String> keys = new ArrayList<String>(size());
+		List<String> keys = new ArrayList<>(size());
 		keys.addAll(parameters.keySet());
-		//Collections.sort(keys); // this is redundant with TreeSet
+		//do not need to sort since we are using TreeSet
 		return keys;
 	}
 
@@ -256,16 +255,9 @@ public class ParameterData {
 	 * @return list of parameter key names in the order the parameters were first entered into this ParameterData
 	 */
 	public List<String> getKeyListEntryOrder() {
-		List<String> keys = new ArrayList<String>(size());
+		List<String> keys = new ArrayList<>(size());
 		keys.addAll(parameters.keySet());
-		Collections.sort(keys, new Comparator<String>() {
-            public int compare(String k1, String k2) {
-            	// since these are in the keyset, they exist in parameters.
-            	long n1 = parameters.get(k1).order;
-            	long n2 = parameters.get(k2).order;
-            	return Long.compare(n1,  n2);
-            }
-		});
+		Collections.sort(keys, (String k1, String k2)->Long.compare(parameters.get(k1).order,  parameters.get(k2).order));
 		return keys;
 	}
 	
@@ -276,10 +268,10 @@ public class ParameterData {
 	 * The list is returned sorted 	
 	 * @return list of parameter key names
 	 */
-	public List<String> getKeyListWithFilter(Function<String,Boolean> f) {
-		List<String> keys = new ArrayList<String>();
+	public List<String> getKeyListWithFilter(Predicate<String> f) {
+		List<String> keys = new ArrayList<>();
 		for (String s : getKeyList()) {
-			if (f.apply(s)) {
+			if (Boolean.TRUE.equals(f.test(s))) {
 				keys.add(s);
 			}
 		}
@@ -332,7 +324,7 @@ public class ParameterData {
 	 */
 	public List<String> matchList(String substr) {
 		String substrlc = substr.toLowerCase();
-		List<String> ret = new ArrayList<String>();
+		List<String> ret = new ArrayList<>();
 		List<String> plist = getKeyList();
 		for (String i: plist) {
 			String ilc = i.toLowerCase();
@@ -462,29 +454,29 @@ public class ParameterData {
 	 * @return true, if parameter was added successfully
 	 */
 	private boolean putParam(String key, Pair<Boolean, ParameterEntry> entry) {
-		boolean perform_conversion;
+		boolean performConversion;
 		ParameterEntry newEntry;
 		if (entry == null) {
-			perform_conversion = false;
+			performConversion = false;
 			newEntry = null; // should cause an false to be returned from putParam()
 		} else {
-			perform_conversion = entry.first;
+			performConversion = entry.first;
 			newEntry = entry.second;			
 		}
 		
-		return putParam(key, perform_conversion, newEntry);
+		return putParam(key, performConversion, newEntry);
 	}
 
 	/**
 	 * Put entry in parameter map
 	 * @param key key name
-	 * @param perform_conversion When the perform_conversion flag is false, it says that the
+	 * @param performConversion When the perform_conversion flag is false, it says that the
 	 * the value is already in internal units, so no conversion is necessary.
 	 * @param newEntry  A value is just a 
 	 * structure holding the value of the key.  
 	 * @return true, if parameter was added successfully
 	 */
-	private boolean putParam(String key, boolean perform_conversion, ParameterEntry newEntry) {
+	private boolean putParam(String key, boolean performConversion, ParameterEntry newEntry) {
 		if (newEntry == null) {
 			return false;  // debatable, what does adding nothing mean?
 		}
@@ -500,14 +492,12 @@ public class ParameterData {
 				}
 				if (newEntry.units.equals("unspecified")) {
 					newEntry.units = oldEntry.units;
-					if (perform_conversion) {
+					if (performConversion) {
 						newEntry.dval = Units.from(oldEntry.units,newEntry.dval);
 						//do NOT change the string ("newEntry.sval").  The parameter coming in may not be a double value, it may be a list or a name
 					} 
-				} else if (isPreserveUnits()) { 
-					if ( ! oldEntry.units.equals("unspecified")) {
-						newEntry.units = oldEntry.units;
-					} 
+				} else if (isPreserveUnits() && ! oldEntry.units.equals("unspecified")) {
+					newEntry.units = oldEntry.units;
 				}
 			}
 		}
@@ -523,16 +513,16 @@ public class ParameterData {
 	private Pair<Boolean, ParameterEntry> parse_parameter_value(String value) {
 		ParameterEntry quad;
 		value = value.trim(); 
-		Boolean perform_conversion = Boolean.TRUE;
+		Boolean performConversion = Boolean.TRUE;
 		double dbl = Units.parse(value,Double.MAX_VALUE); // note: the default units for the value are "internal", so MAX_VALUE won't be changed by parse
 		String unit = Units.parseUnits(value); // unrecognized units are mapped to 'unspecified'
 		if (dbl == Double.MAX_VALUE) { // unrecognized value, therefore error
-			perform_conversion = Boolean.FALSE;
+			performConversion = Boolean.FALSE;
 			dbl = 0.0;
 			//do NOT change the string ("value").  The parameter coming in may not be a double value, it may be a list or a name
 		} 
 		quad = ParameterEntry.makeStringEntry(value, dbl, unit);
-		return Pair.make(perform_conversion,quad);
+		return Pair.make(performConversion,quad);
 	}
 
 	/**
@@ -655,7 +645,7 @@ public class ParameterData {
 	public boolean set(String key, double value, String units) {
 		units = Units.clean(units);
 		ParameterEntry newEntry = ParameterEntry.makeDoubleEntry(Units.from(units,value),units,Constants.get_output_precision());
-		return putParam(key,true,newEntry); //Pair.make(Boolean.TRUE,newEntry));
+		return putParam(key,true,newEntry); 
 	}
 
 	/** Associates a value (in internal units) with a parameter key. How the units in the database
@@ -748,7 +738,7 @@ public class ParameterData {
 	 * @return a list of parameters from the original list that are not 
 	 */
 	public List<String> unrecognizedParameters(Collection<String> c) {
-		List<String> p = new ArrayList<String>();
+		List<String> p = new ArrayList<>();
 		for (String key : c) {
 			if (!contains(key)) {
 				p.add(key);
@@ -787,7 +777,7 @@ public class ParameterData {
 	 */
 	private List<String> stringList(String instring) {
 		String[] l = instring.split(Constants.separatorPattern,Integer.MIN_VALUE);
-		List<String> a = new ArrayList<String>();
+		List<String> a = new ArrayList<>();
 		for (String s: l) {
 			a.add(s.trim());
 		}
@@ -799,7 +789,7 @@ public class ParameterData {
 	 */
 	private List<Integer> integerList(String instring) {
 		List<String> l = stringList(instring);
-		List<Integer> a = new ArrayList<Integer>();
+		List<Integer> a = new ArrayList<>();
 		for (String s:l) {
 			a.add(Util.parse_int(s.trim()));
 		}
@@ -810,7 +800,7 @@ public class ParameterData {
 	// Entries that are not recognized as numbers 
 	private List<Double> doubleList(String instring) {
 		List<String> l = stringList(instring);
-		List<Double> a = new ArrayList<Double>();
+		List<Double> a = new ArrayList<>();
 		for (String s:l) {
 			a.add(Units.parse(s.trim()));
 		}
@@ -821,7 +811,7 @@ public class ParameterData {
 	// units in the method parameters.
 	private List<Double> doubleList(String instring, String units) {
 		List<String> l = stringList(instring);
-		List<Double> a = new ArrayList<Double>();
+		List<Double> a = new ArrayList<>();
 		for (String s:l) {
 			a.add(Units.parse(units, s.trim(), 0.0));
 		}
@@ -830,7 +820,7 @@ public class ParameterData {
 
 	private List<Boolean> boolList(String instring) {
 		List<String> l = stringList(instring);
-		List<Boolean> a = new ArrayList<Boolean>();
+		List<Boolean> a = new ArrayList<>();
 		for (String s: l) {
 			a.add(Boolean.valueOf(Util.parse_boolean(s.trim()))); 
 		}
@@ -849,7 +839,7 @@ public class ParameterData {
 		if (parameters.containsKey(key)) {
 			return integerList(parameters.get(key).sval);
 		} else {
-			return new ArrayList<Integer>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -867,7 +857,7 @@ public class ParameterData {
 		if (parameters.containsKey(key)) {
 			return doubleList(parameters.get(key).sval);
 		} else {
-			return new ArrayList<Double>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -886,7 +876,7 @@ public class ParameterData {
 		if (parameters.containsKey(key)) {
 			return doubleList(parameters.get(key).sval, defaultUnits);
 		} else {
-			return new ArrayList<Double>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -900,7 +890,7 @@ public class ParameterData {
 		if (parameters.containsKey(key)) {
 			return stringList(parameters.get(key).sval);
 		} else {
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		}
 	}
 
@@ -915,20 +905,21 @@ public class ParameterData {
 		if (parameters.containsKey(key)) {
 			return boolList(parameters.get(key).sval);
 		} else {
-			return new ArrayList<Boolean>();
+			return new ArrayList<>();
 		}
 	}
 
 	public <T> boolean set(String key, Collection<T> c) {
-		String s = "";
-		if (c.size() > 0) {
+		StringBuilder s = new StringBuilder(100);
+		if (! c.isEmpty()) {
 			Iterator<T> it = c.iterator();
-			s = ""+it.next();
+			s.append(it.next());
 			while (it.hasNext()) {
-				s = s + ","+it.next();
+				s.append(",");
+				s.append(it.next());
 			}
 		}
-		return set(key,s);
+		return set(key,s.toString());
 	}
 
 	/**
@@ -989,17 +980,17 @@ public class ParameterData {
 	 * @return multi-line string
 	 */
 	public String listToString(List<String> keys) {
-		String s = "";
+		StringBuilder s = new StringBuilder(100);
 		for (String key : keys) {
 			ParameterEntry val = parameters.get(key);
 			if (val != null) {
 				if (!val.comment.equals("")) {
-					s += "# "+val.comment+"\n";
+					s.append("# "+val.comment+"\n");
 				}
-				s += key+" = "+val.sval+"\n";
+				s.append(key+" = "+val.sval+"\n");
 			} 
 		}
-		return s;
+		return s.toString();
 	}
 
 	/**
@@ -1010,7 +1001,7 @@ public class ParameterData {
 	 * @return string
 	 */
 	public String listToString(List<String> keys, String separator) {
-		String s = "";
+		StringBuilder s = new StringBuilder(100);
 		boolean first = true;
 		for (String key : keys) {
 			ParameterEntry val = parameters.get(key);
@@ -1018,12 +1009,12 @@ public class ParameterData {
 				if (first) {
 					first = false;
 				} else {
-					s += separator;
+					s.append(separator);
 				}
-				s += key+"="+val.sval;
+				s.append(key+"="+val.sval);
 			} 
 		}
-		return s;
+		return s.toString();
 	}
 	
 	/**
@@ -1063,7 +1054,7 @@ public class ParameterData {
 	 * @return the command line arguments that do not begin with the designator 
 	 */
 	public List<String> parseArguments(String prefix, String[] args) {
-		List<String> l = new ArrayList<String>(args.length);
+		List<String> l = new ArrayList<>(args.length);
 		for (String a: args) {
 			if (a.startsWith(prefix)) {
 				String name = a.substring(prefix.length());
@@ -1108,7 +1099,7 @@ public class ParameterData {
 	* if the separator is a substring of any key/value entry. 
 	*/
 	public String toParameterList(String separator) {
-		if (separator == null || separator.length() < 1) {
+		if (separator == null || separator.isEmpty()) {
 			separator = defaultEntrySeparator;
 		} 
 		
@@ -1128,7 +1119,7 @@ public class ParameterData {
 	 * @return true if string parsed successfully, false if an error occurred.  If this returns false, one or more entries were not added to the database.
 	 */
 	public boolean parseParameterList(String separator, String line) {
-		if (separator == null || separator.length() < 1) {
+		if (separator == null || separator.isEmpty()) {
 			separator = defaultEntrySeparator;
 		}
 		boolean status = true;
@@ -1167,8 +1158,6 @@ public class ParameterData {
 		if (parameters == null) {
 			if (other.parameters != null)
 				return false;
-//		} else if (!parameters.equals(other.parameters)) //apparently this is a bit too strict
-//			return false;
 		} else if (parameters.size() != other.parameters.size()) {
 			return false;
 		} else {
@@ -1186,9 +1175,7 @@ public class ParameterData {
 			return false;
 		if (preserveUnits != other.preserveUnits)
 			return false;
-		if (unitCompatibility != other.unitCompatibility)
-			return false;
-		return true;
+		return (unitCompatibility == other.unitCompatibility);
 	}
 	
 	private int longestKey() {
@@ -1214,8 +1201,8 @@ public class ParameterData {
 	 * @return string listing differences, or the empty string if the contents are the same.
 	 */
 	public String diffString(ParameterData pd) {
-		List<String> keys0 = new ArrayList<String>(); // list of keys in both objects
-		List<String> keys1 = new ArrayList<String>(); // list of keys only in this object
+		List<String> keys0 = new ArrayList<>(); // list of keys in both objects
+		List<String> keys1 = new ArrayList<>(); // list of keys only in this object
 		for (String key : getKeyList()) {
 			if (!pd.contains(key)) {
 				keys1.add(key);
@@ -1223,7 +1210,7 @@ public class ParameterData {
 				keys0.add(key);
 			}
 		}
-		List<String> keys2 = new ArrayList<String>(); // list of keys only in pd
+		List<String> keys2 = new ArrayList<>(); // list of keys only in pd
 		for (String key : pd.getKeyList()) {
 			if (!contains(key)) {
 				keys2.add(key);
@@ -1231,32 +1218,32 @@ public class ParameterData {
 		}
 		int keyLen = Math.max(longestKey(), pd.longestKey());
 		int valLen = Math.max(longestVal(), pd.longestVal());
-		String out = "";
+		StringBuilder out = new StringBuilder(100);
 		for (String key : keys0) {
 			String val1 = getString(key);
 			String val2 = pd.getString(key);
 			if (isBoolean(key) && getBool(key) != pd.getBool(key)) 
-				out += f.padRight(key, keyLen)+"\t"+f.padRight(val1, valLen)+"\t"+val2+"\n";
+				out.append(f.padRight(key, keyLen)+"\t"+f.padRight(val1, valLen)+"\t"+val2+"\n");
 			else if (isNumber(key) && getValue(key) != pd.getValue(key)) {
 				double d = getValue(key)-pd.getValue(key);
-				out += f.padRight(key, keyLen)+"\t"+val1+"\t"+val2+"\t[delta="+f.FmPrecision(d)+"]\n";
+				out.append(f.padRight(key, keyLen)+"\t"+val1+"\t"+val2+"\t[delta="+f.FmPrecision(d)+"]\n");
 			} else if (isNumber(key) && !getUnit(key).equals(pd.getUnit(key)))
-				out += f.padRight(key, keyLen)+" [unit="+getUnit(key)+"]\t"+val1+"\t"+val2+" [unit="+pd.getUnit(key)+"]\n";
+				out.append(f.padRight(key, keyLen)+" [unit="+getUnit(key)+"]\t"+val1+"\t"+val2+" [unit="+pd.getUnit(key)+"]\n");
 			else if (!getString(key).equals(pd.getString(key))) 
-				out += f.padRight(key, keyLen)+"\t"+f.padRight(val1, valLen)+"\t"+val2+"\n";
+				out.append(f.padRight(key, keyLen)+"\t"+f.padRight(val1, valLen)+"\t"+val2+"\n");
 		}
 		for (String key : keys1) {
 			String val1 = getString(key);
-			out += f.padRight(key, keyLen)+"\t"+f.padRight(val1, valLen)+"\t-\n";
+			out.append(f.padRight(key, keyLen)+"\t"+f.padRight(val1, valLen)+"\t-\n");
 		}
 		for (String key : keys2) {
 			String val2 = pd.getString(key);
-			out += f.padRight(key, keyLen)+"\t"+f.padRight("-", valLen)+"\t"+val2+"\n";
+			out.append(f.padRight(key, keyLen)+"\t"+f.padRight("-", valLen)+"\t"+val2+"\n");
 		}
 		if (out.length() > 0) {
-			out = f.padRight("key", keyLen)+"\t"+f.padRight("p1", valLen)+"\tp2\n"+out;
+			out.insert(0,f.padRight("key", keyLen)+"\t"+f.padRight("p1", valLen)+"\tp2\n");
 		}
-		return out;
+		return out.toString();
 	}
 
 	/**
@@ -1269,15 +1256,14 @@ public class ParameterData {
 	public ParameterData delta(ParameterData base) {
 		ParameterData pd = new ParameterData();
 		for (String key : getKeyList()) {
-			if (!base.contains(key) || 
+			if ( (!base.contains(key) || 
 					(isBoolean(key) && base.getBool(key) != getBool(key)) ||
 					(isNumber(key) && base.getValue(key) != getValue(key)) ||
-					!base.getString(key).equals(getString(key))) {
-				if (key.equals("coreDetectionData") || key.equals("useCdCylinderParameters")) {
-				} else {
+					!base.getString(key).equals(getString(key))) 
+				&& ( ! (key.equals("coreDetectionData") || key.equals("useCdCylinderParameters")))) {
+				
 			    	//f.pln(" $$$$$$$$$ ParameterData.delta:::::::::::::; key = "+key+" getString(key) = "+getString(key));
 				    pd.set(key, getString(key));
-				}
 			}
 		}
 		return pd;

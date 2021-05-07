@@ -15,11 +15,11 @@ import java.util.Arrays;
  */
 public class Matrix3x3 {
 	/** Number of rows */
-	public static final int m = 3;
+	public static final int M = 3;
 	/** Number of columns */
-	public static final int n = 3;
+	public static final int N = 3;
 	
-	private final double[][] d = new double[m][n];
+	private final double[][] d = new double[M][N];
 	
 	/**
 	 * An matrix, pre-populated with zeros.
@@ -39,15 +39,13 @@ public class Matrix3x3 {
 	 */
 	public static Matrix3x3 make(double[][] a) {
 		Matrix3x3 t = new Matrix3x3();
-		if (a.length != 3) return ZERO();
+		if (a.length != 3) return zero();
 		for (int i = 0; i < a.length; i++) {
-			if (a[i].length != 3) return ZERO();
+			if (a[i].length != 3) return zero();
 		}
 		
 		for (int i = 0; i < a.length; i++) {
-			for (int j = 0; j < a[i].length; j++) {
-				t.d[i][j] = a[i][j];
-			}
+			t.d[i] = Arrays.copyOf(a[i], a[i].length);
 		}
 		return t;
 	}
@@ -59,14 +57,14 @@ public class Matrix3x3 {
 	 */
 	public static Matrix3x3 make(int[][] a) {
 		Matrix3x3 t = new Matrix3x3();
-		if (a.length != 3) return ZERO();
+		if (a.length != 3) return zero();
 		for (int i = 0; i < a.length; i++) {
-			if (a[i].length != 3) return ZERO();
+			if (a[i].length != 3) return zero();
 		}
 		
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
-				t.d[i][j] = a[i][j];
+				t.d[i][j] = 1.0 * a[i][j];
 			}
 		}
 		return t;
@@ -113,9 +111,7 @@ public class Matrix3x3 {
 		Matrix3x3 t = new Matrix3x3();
 		
 		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				t.d[i][j] = this.d[i][j];
-			}
+			t.d[i] = Arrays.copyOf(this.d[i], this.d[i].length);
 		}
 		
 		return t;
@@ -125,7 +121,7 @@ public class Matrix3x3 {
 	 * Zero matrix.
 	 * @return a zero matrix
 	 */
-	public static Matrix3x3 ZERO() {
+	public static Matrix3x3 zero() {
 		return new Matrix3x3();
 	}
 
@@ -133,7 +129,7 @@ public class Matrix3x3 {
 	 * Identity matrix of size n
 	 * @return an identity matrix
 	 */
-	public static Matrix3x3 I() {
+	public static Matrix3x3 identity() {
 		return make(1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0);
 	}
 	
@@ -142,8 +138,8 @@ public class Matrix3x3 {
 	//
 	
 	public static boolean equals(Matrix3x3 a, Matrix3x3 b) {
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				if (a.d[i][j] != b.d[i][j]) return false;
 			}
 		}
@@ -165,13 +161,6 @@ public class Matrix3x3 {
 			return false;
 		Matrix3x3 other = (Matrix3x3) obj;
 		return equals(this, other);
-//		if (!Arrays.deepEquals(d, other.d))
-//			return false;
-//		if (m != other.m)
-//			return false;
-//		if (n != other.n)
-//			return false;
-//		return true;
 	}
 
 	/**
@@ -215,44 +204,6 @@ public class Matrix3x3 {
 		if (j > 2) return Vect3.ZERO;
 		return new Vect3(d[0][j], d[1][j], d[2][j]);
 	}
-
-//	public static Matrix2d to2d(Matrix3x3 a) {
-//		Matrix2d b = new Matrix2d(3,3);
-//		for (int i=0; i<3; i++) {
-//			for (int j=0; j<3; j++) {
-//				b.set(i, j, a.d[i][j]);
-//			}			
-//		}
-//		return b;
-//	}
-//	
-//	public static Matrix3x3 from2d(Matrix2d a) {
-//		assert (a.m == 3 && a.n == 3);		
-//		Matrix3x3 b = new Matrix3x3();
-//		for (int i=0; i<3; i++) {
-//			for (int j=0; j<3; j++) {
-//				b.set(i, j, a.get(i,j));
-//			}			
-//		}
-//		return b;
-//	}
-//	
-
-
-//	/**
-//	 * Returns a double[m*n] array representing this matrix. 
-//	 */
-//	public double[] toArray() {
-//		double[] a = new double[n*m];
-//		int k = 0;
-//		for (int i = 0; i < m; i++) {
-//			for (int j = 0; j < n; j++) {
-//				a[k] = d[i][j];
-//				k++;
-//			}
-//		}
-//		return a;
-//	}
 	
 	
 	
@@ -269,8 +220,8 @@ public class Matrix3x3 {
 	 * @return the parameter a
 	 */
 	public static Matrix3x3 Add(Matrix3x3 a, Matrix3x3 b) {
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				a.d[i][j] += b.d[i][j];
 			}
 		}
@@ -284,9 +235,9 @@ public class Matrix3x3 {
 	 * @return result of a+b 
 	 */
 	public static Matrix3x3 add(Matrix3x3 a, Matrix3x3 b) {
-		Matrix3x3 c = ZERO();
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		Matrix3x3 c = zero();
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				c.d[i][j] = a.d[i][j] + b.d[i][j];
 			}
 		}
@@ -310,8 +261,8 @@ public class Matrix3x3 {
 	 */
 	public static Matrix3x3 sub(Matrix3x3 a, Matrix3x3 b) {
 		Matrix3x3 c = new Matrix3x3();
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				c.d[i][j] = a.d[i][j] - b.d[i][j];
 			}
 		}
@@ -335,8 +286,8 @@ public class Matrix3x3 {
 	 */
 	public static Matrix3x3 mult(Matrix3x3 a, Matrix3x3 b) {
 		Matrix3x3 c = new Matrix3x3();
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				c.d[i][j] = a.d[i][0] * b.d[0][j] + a.d[i][1] * b.d[1][j] + a.d[i][2] * b.d[2][j];
 			}
 		}
@@ -350,7 +301,9 @@ public class Matrix3x3 {
 	 * @return a Vect3 result
 	 */
 	public static Vect3 mult(Matrix3x3 a, Vect3 b) {
-		double c0, c1, c2;
+		double c0;
+		double c1;
+		double c2;
 		c0 = a.d[0][0]*b.x() + a.d[0][1]*b.y() + a.d[0][2]*b.z();
 		c1 = a.d[1][0]*b.x() + a.d[1][1]*b.y() + a.d[1][2]*b.z();
 		c2 = a.d[2][0]*b.x() + a.d[2][1]*b.y() + a.d[2][2]*b.z();
@@ -403,8 +356,8 @@ public class Matrix3x3 {
 	 * @return the results, and also the parameter a
 	 */
 	public static Matrix3x3 Mult(Matrix3x3 a, double x) {
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				a.d[i][j] *= x; 
 			}
 		}
@@ -419,8 +372,8 @@ public class Matrix3x3 {
 	 */
 	public static Matrix3x3 mult(Matrix3x3 a, double x) {
 		Matrix3x3 c = new Matrix3x3();
-		for (int i = 0; i < m; i++) {
-			for (int j = 0; j < n; j++) {
+		for (int i = 0; i < M; i++) {
+			for (int j = 0; j < N; j++) {
 				c.d[i][j] = a.d[i][j] * x; 
 			}
 		}
@@ -436,28 +389,7 @@ public class Matrix3x3 {
 		return mult(this,x);
 	}
 
-//	private Matrix2d minor(int i, int j) {
-//		Matrix2d out = new Matrix2d(m-1, n-1);
-//		for (int k = 0; k < m-1; k++) {
-//			for (int l = 0; l < n-1; l++) {
-//				if (k < i) {
-//					if (l < j) {
-//						out.d[k][l] = d[k][l];
-//					} else {
-//						out.d[k][l] = d[k][l+1];						
-//					}
-//				} else {
-//					if (l < j) {
-//						out.d[k][l] = d[k+1][l];
-//					} else {
-//						out.d[k][l] = d[k+1][l+1];						
-//					}
-//				}
-//			}
-//		}
-//		return out;
-//	}
-//	
+
 	public static double det(Matrix3x3 aa) {
 		double a00 = aa.d[0][0];
 		double a01 = aa.d[0][1];
@@ -478,8 +410,6 @@ public class Matrix3x3 {
 	
 
 	public static Matrix3x3 inverse(Matrix3x3 aa) {
-//		Matrix2d i = to2d(a).inverse();
-//		return from2d(i);
 		double a = aa.get(0, 0);
 		double b = aa.get(0, 1);
 		double c = aa.get(0, 2);

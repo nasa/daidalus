@@ -62,7 +62,7 @@ public final class Position implements OutputList {
 	/** A zero position in lat/lon */
 	public static final Position ZERO_LL = make(LatLonAlt.ZERO);
 	/** A zero position in Euclidean */
-	public static final Position ZERO_XYZ = make(Vect3.Zero());  
+	public static final Position ZERO_XYZ = make(Vect3.ZERO);  
 	/** An invalid position.  Note that this is not necessarily equal to other invalid positions -- use the isInvalid() test instead. */
 	public static final Position INVALID = make(Vect3.INVALID);
 

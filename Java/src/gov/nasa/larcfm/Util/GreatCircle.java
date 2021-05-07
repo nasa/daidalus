@@ -31,10 +31,10 @@ package gov.nasa.larcfm.Util;
  */
 public final class GreatCircle {
 
-	private static final double pi = Math.PI;
+	private static final double PI = Math.PI;
 
 	private static final double EPS = 1.0e-15; // small number, about machine precision
-	public static final double minDt = 1E-5;
+	public static final double MIN_DT = 1E-5;
 
 	private GreatCircle() { } // never construct one of these
 
@@ -43,7 +43,7 @@ public final class GreatCircle {
 	 * (spherical) Earth into an angle.
 	 */
 	private static double angle_from_distance(double distance) {
-		return Units.to(Units.NM, distance) * pi / (180.0 * 60.0);
+		return Units.to(Units.NM, distance) * PI / (180.0 * 60.0);
 	}
 
 	/**
@@ -264,9 +264,9 @@ public final class GreatCircle {
 		if (Math.cos(lat1) < EPS) { 
 			// EPS a small positive number, about machine precision
 			if (lat1 > 0) {
-				return pi; // starting from North pole, all directions are south
+				return PI; // starting from North pole, all directions are south
 			} else {
-				return 2.0 * pi; // starting from South pole, all directions are
+				return 2.0 * PI; // starting from South pole, all directions are
 				// north. JMM: why not 0?
 			}
 		}
@@ -287,7 +287,7 @@ public final class GreatCircle {
 				/ (Math.sin(d) * Math.cos(lat1));
 		double tc1 = Util.acos_safe(acos1);
 		if (! Util.almost_equals(lon2, lon1, Util.PRECISION13) && (Math.sin(lon2 - lon1) <= 0)) {
-			tc1 = 2 * pi - tc1; //Util.acos_safe(acos1);
+			tc1 = 2 * PI - tc1; //Util.acos_safe(acos1)
 		}
 		return tc1;
 	}
@@ -300,15 +300,14 @@ public final class GreatCircle {
 		if (Math.cos(lat1) < EPS) { 
 			// EPS a small positive number, about machine precision
 			if (lat1 > 0) {
-				return pi; // starting from North pole, all directions are south
+				return PI; // starting from North pole, all directions are south
 			} else {
-				return 2.0 * pi; // starting from South pole, all directions are
+				return 2.0 * PI; // starting from South pole, all directions are
 				// north. JMM: why not 0?
 			}
 		}
 		// Different than Aviation Formulary due to +East convention we use.
-		double tc1 = Util.to_2pi(Util.atan2_safe(Math.sin(lon2-lon1)*Math.cos(lat2), Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)));
-		return tc1;
+		return Util.to_2pi(Util.atan2_safe(Math.sin(lon2-lon1)*Math.cos(lat2), Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(lon2-lon1)));
 	}
 
 	/**
@@ -350,9 +349,10 @@ public final class GreatCircle {
 	 * @return initial course
 	 */
 	public static double initial_course(LatLonAlt p1, LatLonAlt p2) {
-		//double d = angular_distance(p1.lat(), p1.lon(), p2.lat(), p2.lon());
-		//return initial_course_impl(p1, p2, d);
-		return initial_course_impl1(p1, p2); //, d);
+		return initial_course_impl1(p1, p2); 
+		// Here is an alternate implementation with small numerical issues:
+		//double d = angular_distance(p1.lat(), p1.lon(), p2.lat(), p2.lon())
+		//return initial_course_impl(p1, p2, d)
 	}
 
 	/**
@@ -369,7 +369,7 @@ public final class GreatCircle {
 	 * @return final course
 	 */
 	public static double final_course(LatLonAlt p1, LatLonAlt p2) {
-		return initial_course(p2, p1)+Math.PI;
+		return initial_course(p2, p1)+PI;
 	}
 
 	/**
@@ -390,8 +390,9 @@ public final class GreatCircle {
 		LatLonAlt p2 = LatLonAlt.mk(lat2, lon2, 0.0);
 		double d = angular_distance(lat1, lon1, lat2, lon2);
 		LatLonAlt midPt = interpolate_impl(p1, p2, d, 0.5, 0.0);
-		//return initial_course_impl2(midPt, p2, d / 2.0);
-		return initial_course_impl1(midPt, p2); //, d / 2.0);
+		return initial_course_impl1(midPt, p2); 
+		// Here is an alternate implementation with numerical problems
+		//return initial_course_impl2(midPt, p2, d / 2.0)
 	}
 
 	public static double representative_course(LatLonAlt p1, LatLonAlt p2) {
@@ -460,12 +461,6 @@ public final class GreatCircle {
 	// from Aviation Formulary
 	// longitude sign is reversed from the formulary!
 	protected static double lonCross(double lat1, double lon1, double lat2, double lon2, double lat3) {
-		//f.pln("lonCross 1 "+i);  
-		//double lat1 = ac.point(i).lat();
-		//double lon1 = ac.point(i).lon();
-		//double lat2 = ac.point(i+1).lat();
-		//double lon2 = ac.point(i+1).lon();
-		//double tc = ac.initialVelocity(i).compassAngle(); 
 		double tc = initial_course(lat1,lon1,lat2,lon2);
 		boolean NW = (tc > Math.PI/2 && tc <= Math.PI) || tc >= 3*Math.PI/2;
 		double l12;
@@ -491,7 +486,6 @@ public final class GreatCircle {
 		if (lon < -Math.PI) lon = 2*Math.PI+lon;
 		if (lon > Math.PI) lon = -2*Math.PI+lon;
 
-		//f.pln("lonCross 2 "+i);  
 		return lon;
 	}
 
@@ -537,7 +531,6 @@ public final class GreatCircle {
 			minLat = min_latitude_gc(lat1,lon1,lat2,lon2);
 		}
 		double minLon = lonCross(lat1,lon1,lat2,lon2,minLat);
-		//f.pln("\n $$ min_latitude: minLon = "+minLon);
 		if (Util.max(distance(lat1,lon1,minLat,minLon),distance(lat2,lon2,minLat,minLon)) < dist) {
 			return minLat;
 		} 
@@ -588,7 +581,6 @@ public final class GreatCircle {
 			maxLat = max_latitude_gc(lat1,lon1,lat2,lon2);
 		}
 		double maxLon = lonCross(lat1,lon1,lat2,lon2,maxLat);
-		//f.pln(" $$ max_latitude: maxLon = "+maxLon);
 		if (Util.max(distance(lat1,lon1,maxLat,maxLon),distance(lat2,lon2,maxLat,maxLon)) < dist) {
 			return maxLat;
 		} 
@@ -737,9 +729,9 @@ public final class GreatCircle {
 		double C = Util.acos_safe(-Math.cos(A)*Math.cos(B)+Math.sin(A)*Math.sin(B)*Math.cos(c));
 
 		if ( gauss_check(a,b,c,A,B,C)) {
-			return new Triple<Double,Double,Double>(Util.to_pi(B),C,Util.to_2pi(c));
+			return Triple.make(Util.to_pi(B),C,Util.to_2pi(c));
 		} else {
-			return new Triple<Double,Double,Double>(0.0,0.0,0.0);
+			return Triple.make(0.0,0.0,0.0);
 		}
 	}
 
@@ -779,9 +771,9 @@ public final class GreatCircle {
 		double C = Util.acos_safe(-Math.cos(A)*Math.cos(B)+Math.sin(A)*Math.sin(B)*Math.cos(c));
 
 		if ( gauss_check(a,b,c,A,B,C)) {
-			return new Triple<Double,Double,Double>(Util.to_2pi(b),Util.to_2pi(C),Util.to_2pi(c));
+			return Triple.make(Util.to_2pi(b),Util.to_2pi(C),Util.to_2pi(c));
 		} else {
-			return new Triple<Double,Double,Double>(0.0,0.0,0.0);
+			return Triple.make(0.0,0.0,0.0);
 		}
 	}
 
@@ -801,7 +793,7 @@ public final class GreatCircle {
 		double cRatio = Math.sin(C)/Math.sin(c);
 		double A = Util.asin_safe(Math.sin(a)*cRatio);
 		double B = Util.asin_safe(Math.sin(b)*cRatio);
-		return new Triple<Double,Double,Double>(A,B,c);
+		return Triple.make(A,B,c);
 	}
 
 	private static boolean gauss_check(double a, double b, double c, double A, double B, double C) {
@@ -815,7 +807,6 @@ public final class GreatCircle {
 		c = Util.to_2pi(c);
 		if (A==0.0 || A==Math.PI || B==0.0 || B==Math.PI || C==0.0 || C==Math.PI) return false;
 		if (a==0.0 || b==0.0 || c==0.0) return false;
-		//		f.pln("gauss "+Math.cos(0.5*(A+B))*Math.cos(0.5*c)+" "+Math.cos(0.5*(a+b))*Math.sin(0.5*C));
 		return Util.almost_equals(Math.cos(0.5*(A+B))*Math.cos(0.5*c),Math.cos(0.5*(a+b))*Math.sin(0.5*C),Util.PRECISION13);
 	}
 
@@ -977,7 +968,7 @@ public final class GreatCircle {
 		double C = triple.first;
 		double A = triple.second;
 		double a = triple.third;
-		boolean one_valid = (C != 0.0) || (A != 0.0) || (a != 0.0); //gauss_check(a,b,c,A,B,C);
+		boolean one_valid = (C != 0.0) || (A != 0.0) || (a != 0.0); 
 		//f.pln("1: a="+Units.str("deg",a,10)+" A="+Units.str("deg",A,10)+" b="+Units.str("deg",b,10)+" B="+Units.str("deg",B,10)+" c="+Units.str("deg",c,10)+" C="+Units.str("deg",C,10)+" s.lon="+Units.str("deg",s.lon(),10));	
 		double lat2;
 		if (s.lat() > 0) {
@@ -993,7 +984,7 @@ public final class GreatCircle {
 		C = triple.first;
 		A = triple.second;
 		a = triple.third;
-		boolean two_valid = (C != 0.0) || (A != 0.0) || (a != 0.0); //gauss_check(a,b,c,A,B,C);
+		boolean two_valid = (C != 0.0) || (A != 0.0) || (a != 0.0); 
 		//f.pln("2: a="+Units.str("deg",a,10)+" A="+Units.str("deg",A,10)+" b="+Units.str("deg",b,10)+" B="+Units.str("deg",B,10)+" c="+Units.str("deg",c,10)+" C="+Units.str("deg",C,10)+" s.lon="+Units.str("deg",s.lon(),10));
 		if (s.lat() > 0) {
 			lat2 = Util.to_pi2_cont(Math.PI/2 - a);
@@ -1075,17 +1066,16 @@ public final class GreatCircle {
 		// force any polar latitudes to be "near" the pole
 
 		final double eps = 1e-15;
-		double s_lat = Util.max(Util.min(s.lat(), pi / 2 - eps), -pi / 2 + eps);
+		double s_lat = Util.max(Util.min(s.lat(), PI / 2 - eps), -PI / 2 + eps);
 		double lat = s_lat + d * Math.cos(track);
-		lat = Util.max(Util.min(lat, pi / 2 - eps), -pi / 2 + eps);
+		lat = Util.max(Util.min(lat, PI / 2 - eps), -PI / 2 + eps);
 
 		double q;
 		if (Constants.almost_equals_radian(lat, s_lat)) {
-			// (Math.abs(lat - lat1) < EPS) {
 			q = Math.cos(s_lat);
 		} else {
-			double dphi = Math.log(Math.tan(lat / 2 + pi / 4)
-					/ Math.tan(s_lat / 2 + pi / 4));
+			double dphi = Math.log(Math.tan(lat / 2 + PI / 4)
+					/ Math.tan(s_lat / 2 + PI / 4));
 			q = (lat - s_lat) / dphi;
 		}
 		double dlon = -d * Math.sin(track) / q;
@@ -1290,15 +1280,6 @@ public final class GreatCircle {
 
 	
 	/**
-	 * Return true if, a,b,c, are collinear (assumed) and b is between a and c (inclusive) 
-	 */
-	private static boolean collinearBetween(LatLonAlt a, LatLonAlt b, LatLonAlt c) {
-//		if (!collinear(a,b,c)) return false;
-		return a.distanceH(b) <= a.distanceH(c) && c.distanceH(b) <= c.distanceH(a);
-	}
-
-
-	/**
 	 * Given two great circles defined by so, so2 and si, si2 return the intersection point that is closest to so.
 	 * (Note: because on a sphere there are two intersection points, we have to choose one of them, we choose the
 	 * one closest to so.)
@@ -1320,7 +1301,7 @@ public final class GreatCircle {
 		double gso = distance(so,so2)/dto;
 		double intTm = distance(so,interSec)/gso;  // relative to so 
 		//f.pln(" ## gso = "+Units.str("kn", gso)+" distance(so,lgc) = "+Units.str("NM",distance(so,lgc)));
-		boolean behind = GreatCircle.behind(interSec, so, GreatCircle.velocity_average(so, so2, 1.0)); //TODO: initial?
+		boolean behind = GreatCircle.behind(interSec, so, GreatCircle.velocity_average(so, so2, 1.0)); 
 		//		f.pln("behind="+behind+" interSec="+interSec+" so="+so+" vo="+GreatCircle.velocity_average(so, so2, 1.0));
 		if (behind) intTm = -intTm;			
 		// compute a better altitude using average of nearest points        
@@ -1338,7 +1319,7 @@ public final class GreatCircle {
 		//    			" nAlt() = "+Units.str("ft",nAlt));
 		//f.pln(" $$ LatLonAlt.intersection: intTm = "+intTm+" vs = "+Units.str("fpm",vs)+" nAlt = "+Units.str("ft",nAlt)+" "+behind);			 
 		LatLonAlt pgc = LatLonAlt.mk(interSec.lat(),interSec.lon(),nAlt);
-		return new Pair<LatLonAlt,Double>(pgc,intTm);
+		return new Pair<>(pgc,intTm);
 	}
 
 	/**
@@ -1356,7 +1337,7 @@ public final class GreatCircle {
 	 */
 	public static Pair<LatLonAlt,Double> intersectionExtrapAlt(LatLonAlt so, LatLonAlt so2, double dto, LatLonAlt si, LatLonAlt si2) {
 		LatLonAlt lgc = GreatCircle.intersection(so, so2, si, si2);
-		if (lgc.isInvalid()) return new Pair<LatLonAlt,Double>(lgc,-1.0);
+		if (lgc.isInvalid()) return new Pair<>(lgc,-1.0);
 		double gso = distance(so,so2)/dto;
 		double intTm = distance(so,lgc)/gso;  // relative to so
 		boolean behind = GreatCircle.behind(lgc, so, GreatCircle.velocity_average(so, so2, 1.0));
@@ -1365,7 +1346,7 @@ public final class GreatCircle {
 		double vs = (so2.alt() - so.alt())/dto;
 		double nAlt = so.alt() + vs*(intTm);
 		LatLonAlt pgc = LatLonAlt.mk(lgc.lat(),lgc.lon(),nAlt);
-		return new Pair<LatLonAlt,Double>(pgc,intTm);
+		return new Pair<>(pgc,intTm);
 	}
 
 	/** Given two great circles defined by (so, vo) and (si, vi) return the intersection point that is closest to so.
@@ -1387,7 +1368,7 @@ public final class GreatCircle {
 		double dt = distance(so,i)/vo.gs();
 		//f.pln(" ## GreatCircle.intersection: dt = "+dt+" vo.gs() = "+Units.str("kn",vo.gs())+" distance(so,i) = "+Units.str("nm",distance(so,i)));
 		if (behind(i, so, vo)) dt = -dt;   // make negative if behind
-		return new Pair<LatLonAlt,Double>(i,dt);
+		return new Pair<>(i,dt);
 	}
 
 
@@ -1515,7 +1496,7 @@ public final class GreatCircle {
 		// p1 is the source position, p2 is another point to form a great circle
 		// positive time is moving from p1 toward p2
 		// negative time is moving from p1 away from p2
-		if (Math.abs(t) < minDt || Util.almost_equals(Math.abs(t) + minDt, minDt, Util.PRECISION7)) {
+		if (Math.abs(t) < MIN_DT || Util.almost_equals(Math.abs(t) + MIN_DT, MIN_DT, Util.PRECISION7)) {
 			// time is negative or very small (less than 1 ms)
 			return Velocity.ZERO;
 		}
@@ -1529,10 +1510,8 @@ public final class GreatCircle {
 			}
 		}
 		double gs = distance_from_angle(d, 0.0) / t;
-		//double crs = initial_course_impl2(p1, p2, d);
 		double crs = initial_course_impl1(p1, p2); //, d);  // d removed because of numerical errors introduced
-		Velocity v = Velocity.mkTrkGsVs(crs, gs, (p2.alt() - p1.alt()) / t);
-		return v;
+		return Velocity.mkTrkGsVs(crs, gs, (p2.alt() - p1.alt()) / t);
 	}
 
 	/**
@@ -1641,8 +1620,8 @@ public final class GreatCircle {
 		//return unit_spherical2xyz(lat,lon).Scal(spherical_earth_radius);
 		double r = GreatCircle.spherical_earth_radius;
 		// convert latitude to 0-PI
-		double theta = Math.PI/2 - lat;
-		double phi = lon; //Math.PI + lon;
+		double theta = PI/2 - lat;
+		double phi = lon; 
 		double x = r*Math.sin(theta)*Math.cos(phi);
 		double y = r*Math.sin(theta)*Math.sin(phi);
 		double z = r*Math.cos(theta);
@@ -1651,8 +1630,8 @@ public final class GreatCircle {
 
 	public static Vect3 unit_spherical2ecef(double lat, double lon) {
 		// convert latitude to 0-PI
-		double theta = Math.PI/2 - lat;
-		double phi = lon; //Math.PI + lon;
+		double theta = PI/2 - lat;
+		double phi = lon; 
 		double x = Math.sin(theta)*Math.cos(phi);
 		double y = Math.sin(theta)*Math.sin(phi);
 		double z = Math.cos(theta);
@@ -1672,16 +1651,16 @@ public final class GreatCircle {
 		double r = GreatCircle.spherical_earth_radius;
 		double theta = Util.acos_safe(v.z/r);
 		double phi = Util.atan2_safe(v.y, v.x);
-		double lat = Math.PI/2 - theta;
-		double lon = Util.to_pi(phi); //Math.PI + phi);
+		double lat = PI/2 - theta;
+		double lon = Util.to_pi(phi); 
 		return LatLonAlt.mk(lat, lon, 0.0);
 	}
 
 	public static LatLonAlt unit_ecef2spherical(Vect3 v) {
 		double theta = Util.acos_safe(v.z);
 		double phi = Util.atan2_safe(v.y, v.x);
-		double lat = Math.PI/2 - theta;
-		double lon = Util.to_pi(phi); //Math.PI + phi);
+		double lat = PI/2 - theta;
+		double lon = Util.to_pi(phi); 
 		return LatLonAlt.mk(lat, lon, 0.0);
 	}
 
@@ -1772,8 +1751,7 @@ public final class GreatCircle {
 	}
 	
 	public static double small_circle_radius(double chord) {
-		double r = Util.sqrt_safe(chord*chord*(1-(chord*chord/(4*spherical_earth_radius*spherical_earth_radius))));
-		return r;
+		return Util.sqrt_safe(chord*chord*(1-(chord*chord/(4*spherical_earth_radius*spherical_earth_radius))));
 	}
 
 	/**
@@ -1846,9 +1824,6 @@ public final class GreatCircle {
 		double PI = Math.PI;
 		double trk = Util.to_2pi(track);
 		LatLonAlt np = LatLonAlt.mk(PI/2,0,0);
-		//		if (Util.almost_equals(trk, PI/2) || Util.almost_equals(trk,3*PI/2)) {
-		//			return closest_point_circle(lla1,lla2,np);
-		//		}
 		double A = angle_between(lla1, lla2, np); 
 		double b = PI/2 - lla2.lat(); // dist from pole to b
 		double B = trk;
@@ -1878,9 +1853,7 @@ public final class GreatCircle {
 		double crs = initial_course(so, center);
 		if (crs > Math.PI) crs = crs-2*Math.PI;
 		double trk = Util.to_2pi(crs - A);
-		LatLonAlt ret = linear_initial(so, trk, c);
-		//f.pln("angle="+(Util.to_pi(angle))+"  delta="+Math.abs(distance(so,center)-distance(ret,center)));		
-		return ret;
+		return linear_initial(so, trk, c);
 	}
 
 	/**

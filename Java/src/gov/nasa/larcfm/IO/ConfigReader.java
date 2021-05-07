@@ -13,7 +13,6 @@ import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.ParameterProvider;
 import gov.nasa.larcfm.Util.ParameterReader;
 import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.f;
 
 import java.io.Reader;
 import java.io.FileReader;
@@ -57,7 +56,7 @@ import java.util.List;
  * will read the parameters from that file and include those parameters as if they were parameters in this file.
  * The file imported may also have an "importConfigFile" option.
  * Only one importConfigFile option is allowed per file.
- * Parameters read from a secondary file will not overwrite parameters set in their parent file.
+ * Parameters in the parent file take precedence over the values in an imported file.
  * </p>
  * <p>
  * It is possible to programmatically add additional import keys to a reader through the addIncludeName() method, allowing for multiple potential imports per file.
@@ -113,6 +112,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 			open(fr, srcPath);
 			fr.close();
 		} catch (FileNotFoundException e) {
+			System.out.println(FileUtil.absolute_path("", filename));
 			error.addError("File "+filename+" read protected or not found");
 			if (param_var != null) {
 				param_var = new String[0];
@@ -203,7 +203,12 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		}
 		for (String name: includeNames) {
 			if (pd.contains(name)) { // only attempt to read a file if the key exists in the source
-				loadIncludeFile(FileUtil.file_search(pd.getString(name), srcPath, "."));
+				String file = FileUtil.file_search(pd.getString(name), srcPath, ".");
+				if (file == null) {
+					error.addWarning("Could not find include file '"+pd.getString(name)+"', ignoring.");
+				} else {
+					loadIncludeFile(file);
+				}
 			}
 		}
 		preambleImage = input.getPreambleImage();
@@ -212,7 +217,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	
 	private void loadIncludeFile(String file) {
 		if (file == null || file.isEmpty()) {
-			error.addWarning("Could not find requested include file: "+file);
+			error.addWarning("Include file name was empty or null, ignoring.");
 			return;
 		}
 		ConfigReader cr = new ConfigReader();
@@ -225,10 +230,14 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		}
 		ParameterData p = cr.getParameters();
 		pd.copy(p,false);
-		if (p.contains(INCLUDE_FILE)) {
-			String file2 = FileUtil.file_search(pd.getString(INCLUDE_FILE), FileUtil.get_path(file), ".");
-			if ( ! file.equals(file2)) {
-				loadIncludeFile(file2);
+		for (String name: includeNames) {
+			String file2 = FileUtil.file_search(pd.getString(name), FileUtil.get_path(file), ".");
+			if (file2 == null) {
+				error.addWarning("Could not find include file '"+pd.getString(name)+"', ignoring.");
+			} else {
+				if ( ! file.equals(file2)) {
+					loadIncludeFile(file2);
+				}
 			}
 		}
 	}
