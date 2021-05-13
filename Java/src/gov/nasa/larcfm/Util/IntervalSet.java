@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 /**
  * <p>The IntervalSet class represents a set of "double" values.  Ranges
@@ -46,12 +47,12 @@ public class IntervalSet implements Iterable<Interval> {
 	private int length;
 
 	/** The initial length for the number of intervals */
-	private static final int initial_length = 400;
+	private static final int INITIAL_LENGTH = 400;
 
 	/** Construct an empty IntervalSet */
 	public IntervalSet() {
 		length = 0;
-		r = new Interval[initial_length];
+		r = new Interval[INITIAL_LENGTH];
 	}
 
 	public boolean isEmpty() {
@@ -71,7 +72,7 @@ public class IntervalSet implements Iterable<Interval> {
 	 * Build an IntervalSet containing copies of the first sz intervals in the given ArrayList.
 	 * @param ar list of intervals
 	 */
-	public IntervalSet(ArrayList<Interval> ar) {
+	public IntervalSet(List<Interval> ar) {
 		r = new Interval[ar.size()];
 		for (int i = 0; i < ar.size(); i++) {
 			r[i] = new Interval(ar.get(i));
@@ -84,7 +85,7 @@ public class IntervalSet implements Iterable<Interval> {
 	 * @return the ArrayList
 	 */
 	public ArrayList<Interval> toArrayList() {
-		ArrayList<Interval> ar = new ArrayList<Interval>(length);
+		ArrayList<Interval> ar = new ArrayList<>(length);
 		for (int i = 0; i < length; i++) {
 			ar.add(new Interval(r[i]));
 		}
@@ -120,20 +121,22 @@ public class IntervalSet implements Iterable<Interval> {
 	@Override
 	/** Print the contents of this IntervalSet */
 	public String toString() {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			if (i != 0) {
-				s += ", ";
+				s.append(", ");
 			}
-			s += "Interval ["+i+"]: ";
-			s += r[i].toString();
+			s.append("Interval [");
+			s.append(i);
+			s.append("]: ");
+			s.append(r[i].toString());
 		}
 
-		return s;
+		return s.toString();
 	}
 
 	public String toString(String unit) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < length; i++) {
 			if (sb.length() != 0) {
@@ -163,10 +166,15 @@ public class IntervalSet implements Iterable<Interval> {
 			}
 
 			public Interval next() {
+				if (count == rl.size()) {
+					throw new NoSuchElementException();
+				}
 				return rl.getInterval(count++);
 			}
 
+			@Override
 			public void remove() {
+				throw new UnsupportedOperationException();
 			}
 		};
 	}
@@ -181,7 +189,6 @@ public class IntervalSet implements Iterable<Interval> {
 	 */
 	public Interval getInterval(int i) {
 		if (i >= length || i < 0) {
-			//			error.addError("getInterval: Index out of bounds.");
 			return Interval.EMPTY;
 		}
 
@@ -266,8 +273,10 @@ public class IntervalSet implements Iterable<Interval> {
 		int iLow = order(rn.low);
 		int iHigh = order(rn.up);
 
-		double low, high;
-		int start, end;
+		double low;
+		double high;
+		int start;
+		int end;
 
 		if (iLow < 0) {
 			low = rn.low;
@@ -423,16 +432,16 @@ public class IntervalSet implements Iterable<Interval> {
 	 * @return
 	 */
 	public IntervalSet intersection(Interval n) {
-		IntervalSet r = new IntervalSet();
+		IntervalSet rLocal = new IntervalSet();
 		IntervalSet m = new IntervalSet(this);
 		for (int i = 0; i < m.size(); i++) {
 			Interval iv = m.getInterval(i);
 			Interval j = iv.intersect(n);
 			if (!j.isEmpty()) {
-				r.union(j);
+				rLocal.union(j);
 			}
 		}
-		return r;
+		return rLocal;
 	}
 
 	/**
@@ -442,13 +451,13 @@ public class IntervalSet implements Iterable<Interval> {
 	 * @return
 	 */
 	public IntervalSet intersection(IntervalSet n) {
-		IntervalSet r = new IntervalSet();
+		IntervalSet rLocal = new IntervalSet();
 		for (int i = 0; i < n.size(); i++) {
 			Interval iv = n.getInterval(i);
 			IntervalSet m = intersection(iv);
-			r.union(m);
+			rLocal.union(m);
 		}
-		return r;
+		return rLocal;
 	}
 
 	/**
@@ -479,7 +488,8 @@ public class IntervalSet implements Iterable<Interval> {
 			return;
 		}
 
-		int start, end;
+		int start;
+		int end;
 
 		if (iLow < 0) {
 			start = -(iLow + 1);
@@ -615,7 +625,7 @@ public class IntervalSet implements Iterable<Interval> {
 			int c = length;
 
 			if (length >= r.length) {
-				Interval[] newarray = new Interval[r.length + initial_length];
+				Interval[] newarray = new Interval[r.length + INITIAL_LENGTH];
 				System.arraycopy(r, 0, newarray, 0, length - 1);
 				r = newarray;
 			}
@@ -684,9 +694,9 @@ public class IntervalSet implements Iterable<Interval> {
 	 * @return IntervalSet
 	 */
 	public IntervalSet negate() {
-		Interval r = new Interval(Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
+		Interval rLocal = new Interval(Double.NEGATIVE_INFINITY,Double.POSITIVE_INFINITY);
 		IntervalSet is = new IntervalSet();
-		is.union(r);
+		is.union(rLocal);
 		is.diff(this);
 		return is;
 	}
@@ -698,11 +708,11 @@ public class IntervalSet implements Iterable<Interval> {
 	 */
 	public static IntervalSet fromList(List<Integer> list) {
 		IntervalSet set = new IntervalSet();
-		if (list.size() > 0) {
+		if ( ! list.isEmpty()) {
 			set.union(new Interval(list.get(0), list.get(0)));
 			set.union(new Interval(list.get(list.size()-1), list.get(list.size()-1)));
 		}
-		for (int i = 1; 0 < list.size(); i++) {
+		for (int i = 1; i < list.size(); i++) {
 			if (list.get(i-1)+1 == list.get(i)) {
 				set.union(new Interval(list.get(i-1), list.get(i)));
 			}
@@ -718,7 +728,7 @@ public class IntervalSet implements Iterable<Interval> {
 	 */
 	public static IntervalSet fromList(List<Double> list, double epsilon) {
 		IntervalSet set = new IntervalSet();
-		if (list.size() > 0) {
+		if ( ! list.isEmpty()) {
 			set.union(new Interval(list.get(0), list.get(0)));
 			set.union(new Interval(list.get(list.size()-1), list.get(list.size()-1)));
 		}

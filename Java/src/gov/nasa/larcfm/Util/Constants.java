@@ -8,13 +8,16 @@
 
 package gov.nasa.larcfm.Util;
 
-import gov.nasa.larcfm.Util.Units;
 import java.util.jar.JarFile;
 
 /** Key parameters for all of Util.  Despite the name, not everything is a constant.
  * 
  */
 public class Constants {
+	
+	// Prohibt constructing this object
+	private Constants() { }
+	
 	/**
 	 * String indicating the FormalATM version
 	 */
@@ -70,10 +73,8 @@ public class Constants {
 	   * @return type string
 	   */
 	public static String distribution_type() {
-		try {
-		  JarFile formalATMJar = new JarFile("FormalATM.jar");
+		try (JarFile formalATMJar = new JarFile("FormalATM.jar")) {
 		  String s = formalATMJar.getManifest().getMainAttributes().getValue("FormalATM-Build-Type");
-		  formalATMJar.close();
 		  if (s != null) return s;
 		  return "";
 		} catch (Exception e) {
@@ -98,14 +99,6 @@ public class Constants {
 	 */
 	public static final String wsPatternBraces = "[,; \\t\\[\\]]+";
 
-	public static final String[] LAT_OR_LON_HEADINGS = {"lat", "lon", "long", "latitude"};
-	public static final String[] NAME_HEADINGS = {"name", "aircraft", "id"};
-	public static final String[] LATITUDE_HEADINGS = {"sx", "lat", "latitude"};
-	public static final String[] LONGITUDE_HEADINGS = {"sy", "lon", "long", "longitude"};
-	public static final String[] ALTITUDE_HEADINGS = {"sz", "alt", "altitude"};
-	public static final String[] TIME_HEADINGS = {"time", "tm", "st"};
-
-
 	/**  WAAS specification requirements (25 ft) for horizontal
 	 *   accuracy, 95% of the time.  In practice, the actual accuracy is
 	 *   much better. */
@@ -117,15 +110,15 @@ public class Constants {
 	public static final double TIME_LIMIT_EPSILON   = Units.from(Units.s, 1.0);
 
 	
-	private static double  HORIZONTAL_ACCURACY = 1E-7;  // GPS_LIMIT_HORIZONTAL;
-	private static double  VERTICAL_ACCURACY   = 1E-7;  // GPS_LIMIT_VERTICAL;
+	private static double  HORIZONTAL_ACCURACY = 1E-7;  
+	private static double  VERTICAL_ACCURACY   = 1E-7;  
 	private static double  HORIZONTAL_ACCURACY_RAD = Units.to("nmi",  HORIZONTAL_ACCURACY) * Math.PI / (180.0 * 60.0);
-	private static double  TIME_ACCURACY       = 1E-7;  // TIME_LIMIT_EPSILON;
+	private static double  TIME_ACCURACY       = 1E-7;  
 	private static int     OUTPUT_PRECISION = 6;
 	private static boolean TRAILING_ZEROS = true;
 
 	
-	public static double NO_TIME = -1;
+	public static final double NO_TIME = -1;
 	/**
 	 * Set the time accuracy value.  This value means any two times that
 	 * are within this value of each other are considered the same [s].
@@ -146,7 +139,7 @@ public class Constants {
 	public static void set_horizontal_accuracy(double acc) {
 		if (acc > 0.0) {
 			HORIZONTAL_ACCURACY = acc;
-			HORIZONTAL_ACCURACY_RAD = Units.to("nmi", acc) * Math.PI / (180.0 * 60.0); // = GreatCircle.angle_from_distance(acc);
+			HORIZONTAL_ACCURACY_RAD = Units.to("nmi", acc) * Math.PI / (180.0 * 60.0); // = GreatCircle.angle_from_distance(acc)
 		}
 	}
 

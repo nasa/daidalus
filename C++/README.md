@@ -1,7 +1,7 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 ---------------------------------------------------------
 
-Release: v2.0.2 (C++), March-23-2021
+Release: v2.0.2b (C++), May-31-2021
 
 Copyright: Copyright (c) 2021 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 

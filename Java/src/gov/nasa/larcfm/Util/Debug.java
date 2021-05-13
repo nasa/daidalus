@@ -77,7 +77,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class Debug {
 
-	private static final int INFO_LEVEL = 2;
+	private static final int INFO_LEVEL = 2;      // DO NOT CHANGE. Should be 2, should never need to be public/protected/package scope  
 	public static final boolean FAIL_FAST = false;  //!!!!! set this to false for distribution; true for local debugging
 	private static ByteArrayOutputStream buffer = null;
 	
@@ -134,7 +134,7 @@ public class Debug {
 	
 	/**
 	 * Sets the destination of where log information should go.  This method should
-	 * either never be called (that is, left as a default standard output), or it 
+	 * either never be called (that is, left as the default standard output), or it 
 	 * should be called very early after a program starts.
 	 * 
 	 * <ul>
@@ -193,7 +193,7 @@ public class Debug {
 			LOGGER.setLevel(Level.SEVERE);
 		} else if (level == 1) {
 			LOGGER.setLevel(Level.WARNING);
-		} else if (level == 2) {
+		} else if (level == 2) { // INFO_LEVEL
 			LOGGER.setLevel(Level.INFO);
 		} else if (level == 3) {
 			LOGGER.setLevel(Level.CONFIG);
@@ -420,10 +420,23 @@ public class Debug {
 			pln(l, formatTag(tag,f.get()));
 		}
 	}
-	
+
 	/**
-	 * Print out a status message <i>msg</i>.
-	 * The output will only come out if Debug is in "verbose" mode.  
+	 * Print out a status message <tt>msg</tt>.
+	 * The output will only come out if <tt>verbose</tt> is true and if 
+	 * the verbose level ({@link #setVerbose} must be 2 to larger.  
+	 * 
+	 * @param verbose if true, the display status message
+	 * @param msg the status message
+	 */
+	public static void pln(boolean verbose, String msg) {
+		pln(msg, verbose);
+	}
+
+	/**
+	 * Print out a status message <tt>msg</tt>.
+	 * The output will only come out if <tt>verbose</tt> is true and if 
+	 * the verbose level ({@link #setVerbose} must be 2 to larger.  
 	 * 
 	 * @param msg the status message
 	 * @param verbose if true, the display status message

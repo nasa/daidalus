@@ -67,11 +67,11 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	private static final String INCLUDE_FILE = "importConfigFile";
 	
 	private ErrorLog error;
-	private String param_var[];
-	private boolean param_isValue[];
+	private String[] param_var;
+	private boolean[] param_isValue;
 	private ArrayList<String[]> param_val;
 	private int count;
-	private int count_itr[];
+	private int[] count_itr;
 	private boolean hasRead;
 	private boolean caseSensitive;
 	private ParameterData pd;
@@ -112,7 +112,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 			open(fr, srcPath);
 			fr.close();
 		} catch (FileNotFoundException e) {
-			System.out.println(FileUtil.absolute_path("", filename));
+			// System.out.println(FileUtil.absolute_path("", filename));
 			error.addError("File "+filename+" read protected or not found");
 			if (param_var != null) {
 				param_var = new String[0];
