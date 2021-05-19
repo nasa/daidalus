@@ -11,14 +11,15 @@
 package gov.nasa.larcfm.Util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.function.Supplier;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.util.logging.StreamHandler;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -108,15 +109,27 @@ public class Debug {
 	    }
 	}
 
-	static class DebugHandler extends ConsoleHandler {
+	static class DebugHandler extends StreamHandler {
+		Formatter fmt;
+		OutputStream os;
 		public DebugHandler(Formatter fmt, OutputStream os) {
 			setOutputStream(os);
 			setFormatter(fmt);
+			this.fmt = fmt;
+			this.os = os;
+		}
+		@Override public synchronized void publish(LogRecord r) {
+			String s = fmt.format(r);
+			try {
+				os.write(s.getBytes());
+			} catch (IOException e) {
+				// do nothing
+			}
 		}
 	}
 	
 	static {
-		LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+		LOGGER = Logger.getGlobal();
         LOGGER.setLevel(Level.INFO);  // default, can be changed
 
         // create a TXT formatter
@@ -149,7 +162,7 @@ public class Debug {
 	 * @param where number indicating where Debug log should be sent
 	 * @param file  OutputStream for file output.  Consider wrapping a FileOutputStream in a BufferedOutputStream to improve performance. Can be null, if file output is not used.
 	 */
-	public static void setupDestination(int where, OutputStream file) {
+	public static synchronized void setupDestination(int where, OutputStream file) {
 		if (where <= 0) {
 			return;
 		}
@@ -186,7 +199,7 @@ public class Debug {
 	 * 
 	 * @param level verbosity level
 	 */
-	public static void setVerbose(int level) {
+	public static synchronized void setVerbose(int level) {
 		if (level < 0) {
 			LOGGER.setLevel(Level.OFF);
 		} else if (level == 0) {
@@ -218,7 +231,7 @@ public class Debug {
 	 * 
 	 * @return verbosity level
 	 */
-	public static int getVerbose() {
+	public static synchronized int getVerbose() {
 		return getLevel(LOGGER.getLevel());
 	}
 
@@ -248,12 +261,19 @@ public class Debug {
 	 */
 	public static String getBuffer() {
 		String ret;
-		ret = buffer.toString(StandardCharsets.UTF_8);
+		// ret = buffer.toString(StandardCharsets.UTF_8);
+		try {
+			ret = buffer.toString(StandardCharsets.UTF_8.name());
+		} catch (java.io.UnsupportedEncodingException err) {
+			System.err.println("[Debug.getBuffer()] Warning: Unable to convert buffer to UTF-8, using default encoding as fallback.");
+			System.err.println(err);
+			ret = buffer.toString();
+		}
 		buffer.reset();
 		return ret;
 	}
 	
-	private static void output(int level, String tag, String msg) {
+	private static synchronized void output(int level, String tag, String msg) {
 		String[] lines = msg.split("\\n");
 		for (int i = 0; i < lines.length; i++) {
 			String s = formatTag(tag,lines[i]);
@@ -271,7 +291,7 @@ public class Debug {
 		}
 	}
 	
-	private static void output(int level, Supplier<String> f) {
+	private static synchronized void output(int level, Supplier<String> f) {
 		switch (level) {
 		case 0: FORMAT.setLevel(true); LOGGER.severe(f); break;
 		case 1: FORMAT.setLevel(true); LOGGER.warning(f); break;
@@ -417,7 +437,7 @@ public class Debug {
 			if (l > INFO_LEVEL) {
 				l = INFO_LEVEL;
 			}
-			pln(l, formatTag(tag,f.get()));
+			output(l, tag, f.get());
 		}
 	}
 

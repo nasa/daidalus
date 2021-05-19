@@ -72,7 +72,6 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	private ArrayList<String[]> param_val;
 	private int count;
 	private int[] count_itr;
-	private boolean hasRead;
 	private boolean caseSensitive;
 	private ParameterData pd;
 	private List<String> includeNames;
@@ -112,20 +111,17 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 			open(fr, srcPath);
 			fr.close();
 		} catch (FileNotFoundException e) {
-			// System.out.println(FileUtil.absolute_path("", filename));
 			error.addError("File "+filename+" read protected or not found");
 			if (param_var != null) {
 				param_var = new String[0];
 				param_val.clear();
 			}
-			return;
 		} catch (IOException e) {
 			error.addError("On close: "+e.getMessage());
 			if (param_var != null) {
 				param_var = new String[0];
 				param_val.clear();
 			}
-			return;
 		}
 	}
 	
@@ -156,49 +152,57 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 			count_itr[i] = 0;
 		}
 	}	
+
+	private void processParameters(SeparatedInput input) {
+		pd.copy(input.getParametersRef(), true);
+		param_var = new String[input.size()];
+		param_isValue = new boolean[input.size()];
+		param_val = new ArrayList<>(10);
+		count_itr = new int[input.size()];
+		for (int i = 0; i < input.size(); i++) {
+			if ( ! pd.contains(input.getHeading(i))) {
+				pd.set(input.getHeading(i),"0.0 ["+input.getUnit(i)+"]");						
+			}
+			param_var[i] = input.getHeading(i);
+			param_isValue[i] = true;
+			if (Double.MAX_VALUE == Units.parse(input.getColumnString(i), Double.MAX_VALUE)) {
+				param_isValue[i] = false;
+			}
+		}
+	}
+	
+	private void processTableOfParameters(SeparatedInput input) {
+		String[] values = new String[input.size()];
+		for(int i = 0; i < input.size(); i++) {
+			String s = input.getColumnString(i);
+			String unit = input.getUnit(i);
+			if (unit.equals("unspecified")) {
+				unit = pd.getUnit(param_var[i]);
+			}
+			try {
+				values[i] = s+" ["+unit+"]";
+				Double.parseDouble(s);
+			} catch (NumberFormatException e) {
+				values[i] = s;  // if not a double, then just add the string
+			}
+		}
+		param_val.add(values);			
+	}
 	
 	private void loadfile(SeparatedInput input, String srcPath) {
-		hasRead = false;
+		boolean hasReadParameters = false;
 		input.setCaseSensitive(caseSensitive);
       
 		while ( ! input.readLine()) {
 			// look for each possible heading
-			if ( ! hasRead) {
-				pd.copy(input.getParametersRef(), true);
-				param_var = new String[input.size()];
-				param_isValue = new boolean[input.size()];
-				param_val = new ArrayList<String[]>(10);
-				count_itr = new int[input.size()];
-				for(int i = 0; i < input.size(); i++) {
-					if ( ! pd.contains(input.getHeading(i))) {
-						pd.set(input.getHeading(i),"0.0 ["+input.getUnit(i)+"]");						
-					}
-					param_var[i] = input.getHeading(i);
-					param_isValue[i] = true;
-					if (Double.MAX_VALUE == Units.parse(input.getColumnString(i), Double.MAX_VALUE)) {
-						param_isValue[i] = false;
-					}
-				}
-				hasRead = true;
+			if ( ! hasReadParameters) {
+				processParameters(input);
+				hasReadParameters = true;
 			} 
 
-			String[] values = new String[input.size()];
-			for(int i = 0; i < input.size(); i++) {
-				String s = input.getColumnString(i);
-				String unit = input.getUnit(i);
-				if (unit.equals("unspecified")) {
-					unit = pd.getUnit(param_var[i]);
-				}
-				try {
-					values[i] = s+" ["+unit+"]";
-					Double.parseDouble(s);
-				} catch (NumberFormatException e) {
-					values[i] = s;  // if not a double, then just add the string
-				}
-			}
-			param_val.add(values);			
+			processTableOfParameters(input);
 		}
-		if ( ! hasRead) {
+		if ( ! hasReadParameters) {
 			pd.copy(input.getParametersRef(), true);
 		}
 		for (String name: includeNames) {
@@ -308,8 +312,8 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		
 		// Update the counts, start at the rightmost column and move in
 		//   Note, if it gets to this point, then a set of valid
-		//   parameters have been loaded into the ParameterData structure;
-		//   therefore, from this point on, only a "false" should be returned
+		//   parameters have been loaded into the ParameterData structure.
+		//   Therefore, from this point on, only a "false" should be returned
 		//   from this call to nextIterate().  This means
 		//   the user should use the parameters that have been set.
 		//   The most this code should do is set it up so the next call to
@@ -318,23 +322,17 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		for (int j=count_itr.length-1; j >= 0; j--) {
 			if (count_itr[j] < param_val.size()-1) { // there are more values in this column
 				count_itr[j]++;
-				
-				// check if the value in the column is invalid, if so, skip this column and move to the next
-				if (param_isValue[j] && Double.MAX_VALUE == Units.parse(param_val.get(count_itr[j])[j], Double.MAX_VALUE)) {
-					count_itr[j] = 0;
-					if (j == 0) { // if there is an invalid value in the first column, then we are done
-						count_itr[j] = param_val.size();
-						return false;
-					}
-				} else {
+
+				// if a valid value, then we are done
+				if ( ! param_isValue[j] || Double.MAX_VALUE != Units.parse(param_val.get(count_itr[j])[j], Double.MAX_VALUE)) {
 					return false;
 				}
-			} else { // there are no more values in this column so reset the counter
-				count_itr[j] = 0;				
-				if (j == 0) { // if we reset the first column, then we are done
-					count_itr[j] = param_val.size();
-				}
 			}
+			// there are no more values in this column so reset the counter	
+			count_itr[j] = 0;
+		}
+		if (count_itr[0] == 0) { // if we have reset the first column, then set it up so next call to nextIterate will return EOF
+			count_itr[0] = param_val.size();
 		}
 		return false;
 	}

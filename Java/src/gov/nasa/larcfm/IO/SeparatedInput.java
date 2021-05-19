@@ -15,7 +15,6 @@ import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.ParameterReader;
 import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.f;
 
 import java.io.Reader;
 import java.io.LineNumberReader;
@@ -97,7 +96,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		SeparatedInputException(String name) {
 			super(name);
 		}
-	};
+	}
 
 
 	private LineNumberReader reader;
@@ -120,7 +119,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 
 	private String patternStr;
 
-	private String preambleImage; // this is an image of all parameters and comments in the original preamble (not the column labels or units, if present)
+	private StringBuilder preambleImage; // this is an image of all parameters and comments in the original preamble (not the column labels or units, if present)
 
 	private ParameterData parameters;
 
@@ -136,7 +135,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		patternStr = Constants.wsPatternBase;
 		fixed_width = false;
 		header_str = new String[0];
-		preambleImage = "";
+		preambleImage = new StringBuilder();
 	}
 
 	/** 
@@ -154,7 +153,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		patternStr = Constants.wsPatternBase;
 		fixed_width = false;
 		header_str = new String[0];
-		preambleImage = "";
+		preambleImage = new StringBuilder();
 	}
 
 	/** 
@@ -222,14 +221,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		return units_factor[i];
 	}
 
-//	/**
-//	 * Returns true if a line defining column units was detected.
-//	 * @return true means a units line exists
-//	 */
-//	public boolean unitFieldsDefined() {
-//		return bunits;
-//	}
-
 	/** If set to false, all read-in headers and parameters will be converted to lower case. 
 	 * @param b false means ignore case
 	 */
@@ -279,18 +270,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		}
 		quoteCharacter = q;
 	}
-	
-//	@Deprecated
-//	/**
-//	 * Don't use this.  Use the single parameter version.
-//	 * @param q 
-//	 * @param delims 
-//	 * @param sub 
-//	 * @deprecated
-//	 */
-//	public void setQuoteCharacter(Character q, Character[] delims, String sub) {
-//		setQuoteCharacter(q);
-//	}
 
     /**
      * This returns 0 if no character is defined.
@@ -344,7 +323,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			rtn = Units.from(getUnitFactor(i), Double.parseDouble(line_str[i]));
 		} catch (NumberFormatException e) {
 			if (verbose) error.addWarning("could not parse as a double in getColumn("+i+"), line "+reader.getLineNumber()+": "+line_str[i]);
-			rtn = defaultValue;  // arbitrary value
 		}
 		return rtn;
 	}
@@ -382,8 +360,8 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	 */
 	public void setColumnDelimiters(String delim) {
 		try {
-			@SuppressWarnings("unused")  // because we are just error checking the supplied parameter
-			String[] tokens = (new String("This is a test")).split(delim);
+			String s = "This is a test";
+			s.split(delim);  // ignore output, just checking for an exception
 			patternStr = delim;
 		} catch (PatternSyntaxException e) {
 			error.addWarning("invalid delimiter string: "+delim+" retained original: "+patternStr);
@@ -423,16 +401,14 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 
 			fields = nameList.split(",");
 			if (width_int.length != fields.length) {
-				throw new Exception("In parsing fixed width file, number of names does not match number of widths");
+				throw new SeparatedInputException("In parsing fixed width file, number of names does not match number of widths");
 			}
 			header_str = new String[fields.length];
-			for (int i = 0; i < fields.length; i++) {
-				header_str[i] = fields[i];
-			}
+			System.arraycopy(fields, 0, header_str, 0, fields.length);
 
 			fields = unitList.split(",");
 			if (width_int.length != fields.length) {
-				throw new Exception("In parsing fixed width file, number of units does not match number of widths");
+				throw new SeparatedInputException("In parsing fixed width file, number of units does not match number of widths");
 			}
 			units_str = new String[fields.length];
 			units_factor = new double[fields.length];
@@ -452,7 +428,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			fixed_width = true;
 			header = true;
 			bunits = true;
-		} catch (Exception e) {
+		} catch (SeparatedInputException e) {
 			error.addError(e.getMessage());
 		}
 	}
@@ -472,33 +448,29 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	}
 
 	private List<String> processQuotes(String str) {
-		List<String> rtn = new ArrayList<String>();
-		String temp = "";
+		List<String> rtn = new ArrayList<>();
+		StringBuilder temp = new StringBuilder((int)(str.length()*1.1));
 		
 		if (quoteCharacter == null) return rtn;
 		boolean squote = true;  // true means the next quote character is a starting quote
 		String[] fields_i = str.split("["+quoteCharacter+"]["+quoteCharacter+"]");
 		for (int i=0; i<fields_i.length; i++) {
 		    String str_i = fields_i[i];
-			//f.pln("X"+str_i);
 			if ( ! str_i.isEmpty()) {
 				String[] fields_j = str_i.split("["+quoteCharacter+"]",-1);
 				for (int j=0; j<fields_j.length; j++) {
 					String str_j =fields_j[j];
-					//f.pln(" Y"+str_j+"Y");
 					if ( ! str_j.isEmpty()) {
 						if (! squote) {
-							//f.pln("  ZZ"+str_j+"ZZ");
-							temp = temp + str_j;
+							temp.append(str_j);
 						} else {
 							String[] fields_k = str_j.split(patternStr,-1);
 							for (int k=0; k<fields_k.length; k++) {
 								String str_k = fields_k[k];
-								temp = temp + str_k;
-								//f.pln("  Z"+str_k+"Z "+f.bool2str(squote)+" "+j);
+								temp.append(str_k);
 								if (fields_k.length - 1 != k) {
-									rtn.add(temp);
-									temp = "";
+									rtn.add(temp.toString());
+									temp.setLength(0);
 								}
 							}
 						}						
@@ -509,13 +481,12 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 				}
 			}
 			if (fields_i.length - 1 != i) {
-				temp = temp + quoteCharacter.toString();
+				temp.append(quoteCharacter.toString());
 			}
 		}
-		if ( ! temp.isEmpty()) {
-			rtn.add(temp);
+		if ( temp.length() != 0) {
+			rtn.add(temp.toString());
 		}
-		//f.pln("NEXT");
 		return rtn;
 	}
 
@@ -536,27 +507,24 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 					str = str.substring(0,comment_num);
 				}
 				str = str.trim();
-				// Skip empty lines 
-				if (str.length() == 0) {
-					if (!header) preambleImage += lineRead; // store the line just read
+				
+				if ( str.isEmpty()) {
+					if ( ! header) preambleImage.append(lineRead); // store the line just read
 					continue;
 				}
+				
 				if ( ! header) {
 					header = process_preamble(str);
-					if ( ! header) {
-						preambleImage += lineRead;
-					}
-				} else if ( ! bunits) {
-					try {
-						process_units(str);
-						bunits = true;
-					} catch (SeparatedInputException e) {
-						// use default units
-						bunits = true;
-						process_line(str);
-						break;
-					}
-				} else {
+					if ( ! header) preambleImage.append(lineRead); // store the line just read
+					continue;
+				} 
+				
+				boolean hasUnits = false;
+				if ( ! bunits) {
+					bunits = true;
+					hasUnits = process_units(str);  // if false, then this is a regular line, so use default units
+				}
+				if ( ! hasUnits) {
 					process_line(str);
 					break;
 				}
@@ -566,30 +534,27 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			+ "The error was:"+e.getMessage());
 			str = null;
 		}
-		if (str == null) {
-			return true; // end of file
-		} else {
-			return false;
-		}
+		return (str == null);
 	}
 	
 	private String readFullLine(LineNumberReader r) throws IOException {
-		String t1;
-		t1 = r.readLine();
-		if (t1 == null) return t1;
-		if (quoteCharacter != null) {
-			do {
-				int count = 0;
-				for (int i = 0; i < t1.length(); i++) {
-					if (t1.charAt(i) == quoteCharacter) count++;
-				}
-				if (count %2 == 0) break;
-				String t2 = r.readLine();
-				if (t2 == null) break;
-				t1 = t1 + System.lineSeparator() + t2;
-			} while (true);
-		}
-		return t1;
+		StringBuilder t1 = new StringBuilder(100);
+		String v = r.readLine(); 
+		t1.append(v);
+		if (v == null || quoteCharacter == null) return v;
+			
+		do {
+			int count = 0;
+			for (int i = 0; i < t1.length(); i++) {
+				if (t1.charAt(i) == quoteCharacter) count++;
+			}
+			if (count %2 == 0) break;
+			String t2 = r.readLine();
+			if (t2 == null) break;
+			t1.append(System.lineSeparator());
+			t1.append(t2);
+		} while (true);
+		return t1.toString();
 	}
 
 	/** Returns the number of the most recently read in line 
@@ -600,7 +565,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	}
 
 	private boolean process_preamble(String str) {
-
 		String[] fields = str.split("=",2);
 
 		// parameter keys are lower case only
@@ -624,13 +588,14 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 			return true;
 		} 
 	}
-
-	private boolean process_units(String str) throws SeparatedInputException {
+	
+	private boolean process_units(String str) {
 		String[] fields = str.split(patternStr);
 
 		// if units are optional, we need to determine if any were read in...
-		// a unit line is considered true if (1) AT LEASE HALF of the fields are valid or (2) not all the units are invalid or dashes.  
-		//    a dash ('-') is an abbreviation meaning unitless.
+		// A line is considered a unit line when either (A) AT LEASE HALF of the fields 
+		// are valid or (B) not all the units are invalid or dashes,  
+		// a dash ('-') is an abbreviation meaning unitless.
 		int notFound = 0;
 		int dash = 0;
 
@@ -657,7 +622,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 					}
 				}
 			}
-			throw new SeparatedInputException("default units");
+			return false;
 		}
 		return true;
 	}
@@ -688,14 +653,6 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 				}
 			} else {
 				fields = str.split(patternStr);
-				//f.pln(" $$ SeparatedInput.process_line: patternStr = "+patternStr);
-//				for (int i = 0; i < fields.length; i++) {
-//					//fields[i] = fields[i].trim();
-//					if (quoteCharacter != null) {
-//						fields[i] = unTokenizeQuotes(fields[i]);
-//					}
-//					//f.pln(" $$ SeparatedInput.process_line: fields["+i+"] = "+fields[i]);
-//				}
 			}
 		}		
 		line_str = fields;
@@ -731,7 +688,7 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 	 * @return preamble
 	 */
 	public String getPreambleImage() {
-		return preambleImage;
+		return preambleImage.toString();
 	}
 
 	// ErrorReporter Interface Methods
@@ -751,22 +708,26 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 
 
 	public String toString() {
-		String str = "SeparateInput: \n header_str:";
+		StringBuilder str = new StringBuilder(100);
+		str.append("SeparateInput: \n header_str:");
 		for (int i=0; i < header_str.length; i++) {
-			str = str + ", " + header_str[i];  
+			str.append(", ");
+			str.append(header_str[i]);  
 		}
 
-		str = str + "\n units_str:";
+		str.append("\n units_str:");
 		for (int i=0; i < units_str.length; i++) {
-			str = str + ", " + units_str[i];  
+			str.append(", ");
+			str.append(units_str[i]);  
 		}
 
-		str = str+ "\n line_str:";
+		str.append("\n line_str:");
 		for (int i=0; i < line_str.length; i++) {
-			str = str + ", " + line_str[i];  
+			str.append(", ");
+			str.append(line_str[i]);  
 		}
 
-		return str;
+		return str.toString();
 	}
 
 }
