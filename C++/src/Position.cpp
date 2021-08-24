@@ -4,7 +4,7 @@
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -251,10 +251,12 @@ const Position Position::zeroAlt() const {
 }
 
 double Position::distanceH(const Position& p) const {
-	if (latlon) {
+	if (latlon && p.latlon) {
 		return GreatCircle::distance(ll,p.ll);
-	} else {
+	} else if (!latlon && !p.latlon) {
 		return s3.vect2().Sub(p.vect2()).norm();
+	} else {
+		return MAXDOUBLE;
 	}
 }
 
@@ -262,9 +264,17 @@ double Position::distanceV(const Position& p) const {
 	return std::abs(s3.z - p.s3.z);
 }
 
-double Position::signedDistanceV(const Position& p) const {
-	return s3.z - p.s3.z;
+
+double Position::distanceChordH(const Position& p) const {
+	if (latlon && p.latlon) {
+		return GreatCircle::chord_distance(ll,p.ll);
+	} else if (!latlon && !p.latlon) {
+		return s3.vect2().Sub(p.vect2()).norm();
+	} else {
+		return MAXDOUBLE;
+	}
 }
+
 
 
 const Position Position::linear(const Velocity& v, double time) const {

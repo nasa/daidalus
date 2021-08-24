@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -869,9 +869,9 @@ public:
   int correctiveAlertLevel(int alerter_idx);
 
   /**
-   * @return maximum alert level for all alerters. Returns 0 if alerter list is empty.
+   * @return maximum number of alert levels for all alerters. Returns 0 if alerter list is empty.
    */
-  int maxAlertLevel() const;
+  int maxNumberOfAlertLevels() const;
 
   /**
    * Set instantaneous bands.
@@ -904,6 +904,15 @@ public:
   ParameterData getParameters() const;
 
   void updateParameterData(ParameterData& parameters) const;
+
+  /**
+    @Deprecated
+   * Use maxNumberOfAlertLevels instead
+   */
+  virtual int maxAlertLevel() const {
+    return maxNumberOfAlertLevels();
+  }
+
 
 private:
 

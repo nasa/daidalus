@@ -35,7 +35,7 @@
  * t_in  : Time to loss of separation
  * t_out : Time to recovery from loss of separation
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -105,7 +105,7 @@ public class CD2D {
 
   /** 
    * detection(s,vo,vi,D,B,T) computes the horizontal conflict time interval 
-   * (t_in,t_out) in [B,T], where 0 <= B < T
+   * (t_in,t_out) in [B,T], where {@code 0 <= B < T}
    */
   public static LossData detection(Vect2 s,Vect2 vo, Vect2 vi, double D, double B, double T) {
     double t_in  = T+1;
@@ -129,7 +129,7 @@ public class CD2D {
 
   /** 
    * detection(s,vo,vi,D,T) computes the horizontal conflict time interval 
-   * (t_in,t_out) in [0,T], where 0 <= B < T.
+   * (t_in,t_out) in [0,T], where {@code 0 <= B < T}.
    */
   public static LossData detection(Vect2 s,Vect2 vo, Vect2 vi, double D, double T) { 
     return detection(s,vo,vi,D,0,T);
@@ -145,7 +145,7 @@ public class CD2D {
 
   /**
    * cd2d(s,vo,vi,D,B,T) IFF there is an horizontal conflict in the time 
-   * interval [B,T], where 0 <= B < T.
+   * interval [B,T], where {@code 0 <= B < T}.
    */
   public static boolean cd2d(Vect2 s, Vect2 vo, Vect2 vi, double D, double B, double T) { 
     if (Double.isInfinite(T)) return cd2d(s,vo,vi,D);
@@ -157,7 +157,7 @@ public class CD2D {
 
   /**
    * cd2d(s,vo,vi,D,T) IFF there is an horizontal conflict in the time 
-   * interval [0,T], where T > 0.
+   * interval [0,T], where {@code T > 0}.
    */
   public static boolean cd2d(Vect2 s, Vect2 vo, Vect2 vi, double D, double T) {
     return cd2d(s,vo,vi,D,0,T);
@@ -175,7 +175,7 @@ public class CD2D {
 
   /** 
    * Returns the time to horizontal closest point of approach for s,vo,vi during the
-   * interval [B,T], where 0 <= B < T. 
+   * interval [B,T], where {@code 0 <= B < T}. 
    */
   public static double tcpa(Vect2 s, Vect2 vo, Vect2 vi, double B, double T) {
     if (vo.almostEquals(vi)) 
@@ -189,7 +189,7 @@ public class CD2D {
 
   /** 
    * Returns the time to horizontal closest point of approach for s,vo,vi, for
-   * interval [0,T], where T > 0.
+   * interval [0,T], where {@code T > 0}.
    */
   public static double tcpa(Vect2 s, Vect2 vo, Vect2 vi, double T) {
     return tcpa(s,vo,vi,0,T);

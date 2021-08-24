@@ -53,4 +53,4 @@ doc:
 clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a
 
-.PHONY: all lib examples
+.PHONY: all lib examples doc

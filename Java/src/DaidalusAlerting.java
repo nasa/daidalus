@@ -42,6 +42,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.nio.file.FileSystems;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import gov.nasa.larcfm.ACCoRD.Alerter;
 import gov.nasa.larcfm.ACCoRD.ConflictData;
@@ -63,6 +66,9 @@ public class DaidalusAlerting {
 
 		String input_file = "";
 		String output_file = "";
+		String ownship = "";
+		List<String> traffic = new ArrayList<String>();
+		
 		PrintWriter out = new PrintWriter(System.out);
 		ParameterData params = new ParameterData();
 		String conf = "";
@@ -114,6 +120,12 @@ public class DaidalusAlerting {
 			} else if (arga.startsWith("-") && arga.contains("=")) {
 				String keyval = arga.substring(arga.lastIndexOf('-')+1);
 				params.set(keyval);
+			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
+				++a;
+				ownship = args[a];
+			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
+				++a;
+				traffic.addAll(Arrays.asList(args[a].split(",")));
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DaidalusAlerting [<option>] <daa_file>");
@@ -122,7 +134,9 @@ public class DaidalusAlerting {
 				System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --echo\n\tEcho configuration and traffic list in standard outoput");
-				System.out.println("  --precision <n>\n\tOutput decimal precision");
+				System.err.println("  --precision <n>\n\tOutput decimal precision");
+				System.err.println("  --ownship <id>\n\tSpecify a particular aircraft as ownship");
+				System.err.println("  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -177,8 +191,16 @@ public class DaidalusAlerting {
 		System.out.println("Processing DAIDALUS file "+input_file);
 		System.out.println("Generating CSV file "+output_file);
 		DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
-		int max_alert_level = daa.maxAlertLevel();
-		if (max_alert_level <= 0) {
+
+		if (!ownship.isEmpty()) {
+			walker.setOwnship(ownship);
+		}
+		if (!traffic.isEmpty()) {
+			walker.selectTraffic(traffic);
+		}
+	
+		int max_alert_levels = daa.maxNumberOfAlertLevels();
+		if (max_alert_levels <= 0) {
 			return;
 		}
 		int corrective_level = daa.correctiveAlertLevel(1);
@@ -196,7 +218,7 @@ public class DaidalusAlerting {
 		if (!daa.isDisabledDTALogic()) {
 			line_units += ",,, [nmi]";
 		}
-		for (int level=1; level <= max_alert_level;++level) {
+		for (int level=1; level <= max_alert_levels;++level) {
 			out.print(", Time to Volume of Alert("+level+")");
 			line_units += ", [s]";
 		}
@@ -228,8 +250,10 @@ public class DaidalusAlerting {
 				int alert = daa.alertLevel(ac);
 				out.print(", "+alert);
 				if (!daa.isDisabledDTALogic()) {
-					out.print(", "+daa.isActiveDTALogic());
-					out.print(", "+daa.isActiveDTASpecialManeuverGuidance());
+					out.print(", "+daa.isActiveDTALogic());					
+					out.print(", "+(daa.isActiveDTASpecialManeuverGuidance() ? 
+							(daa.isEnabledDTALogicWithHorizontalDirRecovery() ? "Departing" : "Landing") : 
+								""));
 					if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
 						out.print(", ");
 					} else {
@@ -238,7 +262,7 @@ public class DaidalusAlerting {
 						out.print(", "+f.FmPrecision(Units.to("nmi",dh)));
 					}
 				}
-				for (int level=1; level <= max_alert_level; ++level) {
+				for (int level=1; level <= max_alert_levels; ++level) {
 					out.print(", ");
 					if (level <= alerter.mostSevereAlertLevel()) {
 						ConflictData det = daa.violationOfAlertThresholds(ac,level);

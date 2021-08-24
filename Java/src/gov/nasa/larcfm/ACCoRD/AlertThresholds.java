@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -32,7 +32,7 @@ public class AlertThresholds implements ParameterAcceptor, Detection3DAcceptor {
 	/** 
 	 * Creates an alert threholds object. Parameter det is a detector,
 	 * alerting_time is a non-negative alerting time (possibly positive infinity),
-	 * early_alerting_time is a early alerting time >= at (for maneuver guidance),
+	 * early_alerting_time is a early alerting time {@code >=} at (for maneuver guidance),
 	 * region is the type of guidance
 	 */
 	public AlertThresholds(Detection3D detector, double alerting_time, double early_alerting_time, 
@@ -154,14 +154,14 @@ public class AlertThresholds implements ParameterAcceptor, Detection3DAcceptor {
 	}
 
 	/**
-	 * Set early alerting time in seconds. Early alerting time is a positive number >= alerting time
+	 * Set early alerting time in seconds. Early alerting time is a positive number {@code >=} alerting time
 	 */
 	public void setEarlyAlertingTime(double t) {
 		early_alerting_time_ = Math.abs(t);
 	}
 
 	/**
-	 * Set early alerting time in specified units. Early alerting time is a positive number >= alerting time
+	 * Set early alerting time in specified units. Early alerting time is a positive number {@code >=} alerting time
 	 */
 	public void setEarlyAlertingTime(double t, String u) {
 		setEarlyAlertingTime(Units.from(u,t));

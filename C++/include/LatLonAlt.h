@@ -4,7 +4,7 @@
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -271,8 +271,8 @@ public:
 	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees 
 	 * of latitude converts to 85 degrees and 190 degrees west longitude map to 170 of east longitude.
 	 * 
-	 * @param lat latitude
-	 * @param lon longitude
+	 * @param lat latitude in radians
+	 * @param lon longitude in radians
 	 * @param alt altitude
 	 * @return normalized LatLonAlt value
 	 */

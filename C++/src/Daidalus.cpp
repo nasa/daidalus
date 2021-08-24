@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -250,7 +250,7 @@ const TrafficState& Daidalus::getAircraftStateAt(int idx) const {
       return core_.traffic[idx-1];
     }
   } else {
-    error.addError("getAircraftState: aircraft index "+Fmi(idx)+" is out of bounds");
+    error.addError("getAircraftStateAt: aircraft index "+Fmi(idx)+" is out of bounds");
     return TrafficState::INVALID();
   }
 }
@@ -589,10 +589,10 @@ void Daidalus::setVerticalPositionUncertainty(int ac_idx, double sz_std, const s
 }
 
 /**
- * Set horizontal speed uncertainty of aircraft at index ac_idx
- * v_EW_std: East/West position standard deviation in internal units
- * v_NS_std: North/South position standard deviation in internal units
- * v_EN_std: East/North position standard deviation in internal units
+ * Set horizontal velocity uncertainty of aircraft at index ac_idx
+ * v_EW_std: East/West speed standard deviation in internal units
+ * v_NS_std: North/South speed standard deviation in internal units
+ * v_EN_std: East/North speed standard deviation in internal units
  */
 void Daidalus::setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std) {
   if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
@@ -606,10 +606,10 @@ void Daidalus::setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, dou
 }
 
 /**
- * Set horizontal speed uncertainty of aircraft at index ac_idx
- * v_EW_std: East/West position standard deviation in given units
- * v_NS_std: North/South position standard deviation in given units
- * v_EN_std: East/North position standard deviation in given units
+ * Set horizontal velocity uncertainty of aircraft at index ac_idx
+ * v_EW_std: East/West speed standard deviation in given units
+ * v_NS_std: North/South speed standard deviation in given units
+ * v_EN_std: East/North speed standard deviation in given units
  */
 void Daidalus::setHorizontalVelocityUncertainty(int ac_idx, double v_EW_std, double v_NS_std,  double v_EN_std, const std::string& u) {
   setHorizontalVelocityUncertainty(ac_idx,Units::from(u,v_EW_std),Units::from(u,v_NS_std),Units::from(u,v_EN_std));
@@ -2630,10 +2630,10 @@ int Daidalus::correctiveAlertLevel(int alerter_idx) {
 }
 
 /**
- * @return maximum alert level for all alerters. Returns 0 if alerter list is empty.
+ * @return maximum number of alert levels for all alerters. Returns 0 if alerter list is empty.
  */
-int Daidalus::maxAlertLevel() const {
-  return core_.parameters.maxAlertLevel();
+int Daidalus::maxNumberOfAlertLevels() const {
+  return core_.parameters.maxNumberOfAlertLevels();
 }
 
 /**
@@ -3667,6 +3667,21 @@ int Daidalus::alertLevel(int ac_idx) {
 }
 
 /**
+ * Return the most severe alert level with respect to all traffic aircraft
+ * The number 0 means no alert. A negative number means no traffic aircraft
+ */
+int Daidalus::alertLevelAllTraffic() {
+  int max = -1;
+  for (int ac_idx=1; ac_idx <= lastTrafficIndex(); ++ac_idx) {
+    int alert = alertLevel(ac_idx);
+    if (alert > max) {
+      max = alert;
+    }
+  }
+  return max;
+}
+
+/**
  * Detects violation of alert thresholds for a given alert level with an
  * aircraft at index ac_idx.
  * Conflict data provides time to violation and time to end of violation
@@ -3754,6 +3769,9 @@ BandsRegion::Region Daidalus::regionOfAlertLevel(int ac_idx, int alert_level) {
     const TrafficState& intruder = core_.traffic[ac_idx-1];
     int alerter_idx = core_.alerter_index_of(intruder);
     if (1 <= alerter_idx && alerter_idx <= core_.parameters.numberOfAlerters()) {
+      if (alert_level == 0) {
+          return BandsRegion::NONE;
+      }
       const Alerter& alerter = core_.parameters.getAlerterAt(alerter_idx);
       if (0 < alert_level && alert_level <= alerter.mostSevereAlertLevel()) {
         return alerter.getLevel(alert_level).getRegion();

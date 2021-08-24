@@ -43,4 +43,4 @@ doc:
 clean:
 	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar
 
-.PHONY: all example lib
+.PHONY: all example lib doc

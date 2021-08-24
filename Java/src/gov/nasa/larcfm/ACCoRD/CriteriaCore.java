@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -516,12 +516,8 @@ public class CriteriaCore {
 	}
 
 	/** Return the horizontal epsilon that corresponds to the direction the traffic aircraft is currently turning indicated by sign of trackRate
-	 * 
-	 * @param s             relative position
-	 * @param vo            velocity of ownship
-	 * @param vi            velocity of intruder
-	 * @param epsh          horizontal epsilon
-	 * @param trackRate     trackRate of traffic
+	 * @param epsv          horizontal epsilon
+	 * @param vsRate        vsRate of traffic
 	 * @return horizontal epsilon
 	 */
 	public static int dataVsRateEpsilon(int epsv, double vsRate){

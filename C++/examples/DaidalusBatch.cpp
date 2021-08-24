@@ -117,7 +117,7 @@ int main(int argc, const char* argv[]) {
 	for (a=1;a < argc && argv[a][0]=='-'; ++a) {
 		std::string arga = argv[a];
 		options += arga + " ";
-		if (walker.processOptions(argv,a)) {
+		if (walker.processOptions(argv,argc,a)) {
 			++a;
 			options += walker.getOptionsString();
 		} if (arga == "--help" || arga == "-help" || arga == "-h") {

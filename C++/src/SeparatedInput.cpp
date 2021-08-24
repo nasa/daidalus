@@ -3,7 +3,7 @@
  *
  * Contact: Jeff Maddalon (j.m.maddalon@nasa.gov), Cesar Munoz, George Hagen
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -43,6 +43,7 @@ SeparatedInput::SeparatedInput() :
 						error("SeparatedInput") {
 	header = false;
 	bunits = false;
+	first_bunits = false;
 	caseSensitive = true;
 	parameters = ParameterData();
 	patternStr = Constants::wsPatternBase;
@@ -60,6 +61,7 @@ SeparatedInput::SeparatedInput(std::istream* ins) :
 	reader = ins;
 	header = false;
 	bunits = false;
+	first_bunits = false;
 	caseSensitive = true;
 	header_str.reserve(10); // note: reserve() is appropriate because we exclusively use push_back to populate the vectors
 	units_str.reserve(10);
@@ -82,6 +84,7 @@ SeparatedInput::SeparatedInput(const SeparatedInput& x) :
 	reader = x.reader;
 	header = x.header;
 	bunits = x.bunits;
+	first_bunits = x.first_bunits;
 	caseSensitive = x.caseSensitive;
 	header_str = x.header_str;
 	units_str = x.units_str;
@@ -106,6 +109,7 @@ SeparatedInput& SeparatedInput::operator=(const SeparatedInput& x) {
 	reader = x.reader;
 	header = x.header;
 	bunits = x.bunits;
+	first_bunits = x.first_bunits;
 	caseSensitive = x.caseSensitive;
 	header_str = x.header_str;
 	units_str = x.units_str;
@@ -174,6 +178,7 @@ void SeparatedInput::setFixedColumn(const string& widths, const string& nameList
 		fixed_width = true;
 		header = true;
 		bunits = true;
+		first_bunits = bunits;
 	} catch (int e) {
 		string outstr = "No exception";
 		if (e == 1) outstr = "In parsing fixed width file, number of names does not match number of widths";
@@ -356,13 +361,15 @@ bool SeparatedInput::readLine() {
 				if (!header) {
 					preambleImage += lineRead;
 				}
-			} else if ( ! bunits) {
+			} else if ( ! first_bunits) {
 				try {
 					bunits = process_units(str);
+					first_bunits = true;
 				}
 				catch (const SeparatedInputException &e) {
 					// use default units
 					bunits = false;
+					first_bunits = true;
 					process_line(str);
 					break;
 				}
@@ -484,6 +491,13 @@ bool SeparatedInput::process_units(const string& str) {
 		}
 	}
 	if (notFound > fields.size() / 2 || notFound+dash == fields.size()) {
+		if (dash > 0 && dash+notFound == fields.size()) {
+			for (unsigned int i = 0 ; i < units_str.size() ; ++i) {
+				if (units_str[i] == "unitless") {
+					units_str[i] = "unspecified";
+				}
+			}
+		}
 		throw SeparatedInputException("default units");
 	}
 	return true;

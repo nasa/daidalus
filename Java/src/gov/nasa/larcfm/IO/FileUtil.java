@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
 package gov.nasa.larcfm.IO;
 
+import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.ParameterData;
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
 
@@ -30,7 +32,7 @@ import java.util.List;
 public final class FileUtil {
 
 	  /**
-	   * Given a file name return the path of this name.
+	   * Given a file name, return the path of this name.
 	   * This also converts backward slashes to forward slashes.
 	   * @param filename the name of the file
 	   * @return the path of the file, if no path, then an empty string is returned.
@@ -116,7 +118,7 @@ public final class FileUtil {
 		Path targPath2 = srcPath.resolve(targ).toAbsolutePath().normalize();
 		return targPath2.toString();
 		// if there are any problems, comment out the above and uncomment this line:
-		// return targ;
+		//return targ;
 	}
 	
 	/**
@@ -186,8 +188,14 @@ public final class FileUtil {
 	}
 
 	/**
-	 * Search for a filename in one of four possible locations: one relative to the srcFile, in a subdir relative to srcFile, 
-	 * in a subDir relative to the current dir, in a \scenarios\subDir relative to the current dir, or the current dir.
+	 * Search for a filename in one of several possible locations: 
+	 * <ul>
+	 * <li> relative to the srcFile,
+	 * <li> in a <tt>subdir</tt> relative to srcFile, 
+	 * <li> in a <tt>subDir</tt> relative to the current dir,
+	 * <li> in a <tt>\scenarios\subDir</tt> relative to the current dir, or 
+	 * <li> the current dir.
+	 * </ul>
 	 * @param fileName filename of file one is looking for
 	 * @param srcFile source filename
 	 * @param subdir sub-directory
@@ -468,5 +476,20 @@ public final class FileUtil {
 		  pw.close();
 		  pw.flush();
 	  }
+	  
+//	  // parse CDCylinder(1000, "ft", 450, "ft")
+//	 public static Pair<Double,Double> CDCylinderParser(String str) {
+//		 String[] terms = str.split(", ");
+//		 if (terms.length < 4) return new Pair(-1.0,-1.0);
+//		 else {			 
+//			String term_0 = terms[0].replaceAll("\\(","");
+//			String term_1 = terms[1].replaceAll("\"","");
+//			String term_2 = terms[2];
+//			String term_3 = terms[3].replaceAll("\\)","").replaceAll("\"","");	 
+//			double D = Units.from(term_1,Double.parseDouble(term_0));
+//			double H = Units.from(term_3,Double.parseDouble(term_2));
+//			return new Pair<Double,Double>(D,H);
+//		 }	 
+//	 }
 
 }

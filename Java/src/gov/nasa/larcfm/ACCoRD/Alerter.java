@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -79,7 +79,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/**
-	 * @return DO-365 HAZ preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
+	 * DO-365 HAZ preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 55s, early alerting time = 75s,
 	 * bands region = NONE
 	 */
@@ -87,7 +87,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.DO_365_Phase_I_preventive,55,75,BandsRegion.NONE);
 
 	/**
-	 * @return DO-365 HAZ corrective thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * DO-365 HAZ corrective thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 55s, early alerting time = 75s, 
 	 * bands region = MID
 	 */
@@ -95,7 +95,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Phase_I,55,75,BandsRegion.MID);
 
 	/**
-	 * @return DO-365 HAZ warning thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * DO-365 HAZ warning thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 25s, early alerting time = 55s, 
 	 * bands region = NEAR
 	 */
@@ -117,7 +117,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds as defined in RTCA DO-365 Phase I (en-route).
+	 * alerting thresholds as defined in RTCA DO-365 Phase I (en-route).
 	 * Maneuver guidance logic produces multilevel bands:
 	 * MID: Corrective
 	 * NEAR: Warning
@@ -125,7 +125,7 @@ public class Alerter implements ParameterAcceptor {
 	public static final Alerter DWC_Phase_I = get_DWC_Phase_I();
 
 	/**
-	 * @return DO-365A HAZ preventive thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365A HAZ preventive thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 45s, early alerting time = 75s,
 	 * bands region = NONE
 	 */
@@ -133,7 +133,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Phase_II,45,75,BandsRegion.NONE);
 
 	/**
-	 * @return DO-365A HAZ corrective thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365A HAZ corrective thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 45s, early alerting time = 75s,
 	 * bands region = MID
 	 */
@@ -141,7 +141,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Phase_II,45,75,BandsRegion.MID);
 
 	/**
-	 * @return DO-365A HAZ warning thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365A HAZ warning thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 45s, early alerting time = 75s,
 	 * bands region = NEAR
 	 */
@@ -163,7 +163,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds as defined in RTCA DO-365A Phase II (DTA)
+	 * Alerting thresholds as defined in RTCA DO-365A Phase II (DTA)
 	 * Maneuver guidance logic produces multilevel bands:
 	 * MID: Corrective
 	 * NEAR: Warning
@@ -171,7 +171,7 @@ public class Alerter implements ParameterAcceptor {
 	public static final Alerter DWC_Phase_II = get_DWC_Phase_II();
 
 	/**
-	 * @return DO-365B HAZ preventive thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365B HAZ preventive thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 55s, early alerting time = 110s,
 	 * bands region = NONE
 	 */
@@ -179,7 +179,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Non_Coop,55,110,BandsRegion.NONE);
 
 	/**
-	 * @return DO-365B HAZ corrective thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365B HAZ corrective thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 55s, early alerting time = 110s,
 	 * bands region = MID
 	 */
@@ -187,7 +187,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.DO_365_DWC_Non_Coop,55,110,BandsRegion.MID);
 
 	/**
-	 * @return DO-365B HAZ warning thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365B HAZ warning thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 25s, early alerting time = 90s,
 	 * bands region = NEAR
 	 */
@@ -209,7 +209,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds as defined in RTCA DO-365B Non-Cooperative
+	 * Alerting thresholds as defined in RTCA DO-365B Non-Cooperative
 	 * Maneuver guidance logic produces multilevel bands:
 	 * MID: Corrective
 	 * NEAR: Warning
@@ -217,7 +217,7 @@ public class Alerter implements ParameterAcceptor {
 	public static final Alerter DWC_Non_Coop = get_DWC_Non_Coop();
 
 	/**
-	 * @return DO-365 HAZ preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
+	 * DO-365 HAZ preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 50s, early alerting time = 75s,
 	 * bands region = NONE, with SUM
 	 */
@@ -225,7 +225,7 @@ public class Alerter implements ParameterAcceptor {
 	new AlertThresholds(WCV_TAUMOD_SUM.DO_365_Phase_I_preventive,50,75,BandsRegion.NONE);
 
 	/**
-	 * @return DO-365 HAZ corrective thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * DO-365 HAZ corrective thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 50s, early alerting time = 75s, 
 	 * bands region = MID, with SUM
 	 */
@@ -233,7 +233,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Phase_I,50,75,BandsRegion.MID);
 
 	/**
-	 * @return DO-365 HAZ warning thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * DO-365 HAZ warning thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=0, alerting time = 25s, early alerting time = 55s, 
 	 * bands region = NEAR, with SUM
 	 */
@@ -255,7 +255,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds as defined in RTCA DO-365 Phase I (en-route)
+	 * Alerting thresholds as defined in RTCA DO-365 Phase I (en-route)
 	 * Maneuver guidance logic produces multilevel bands:
 	 * MID: Corrective
 	 * NEAR: Warning
@@ -263,7 +263,7 @@ public class Alerter implements ParameterAcceptor {
 	public static final Alerter DWC_Phase_I_SUM = get_DWC_Phase_I_SUM();
 
 	/**
-	 * @return DO-365A HAZ preventive thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365A HAZ preventive thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 40s, early alerting time = 75s,
 	 * bands region = NONE, with SUM
 	 */
@@ -271,7 +271,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Phase_II,40,75,BandsRegion.NONE);
 
 	/**
-	 * @return DO-365A HAZ corrective thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365A HAZ corrective thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 40s, early alerting time = 75s,
 	 * bands region = MID, with SUM
 	 */
@@ -279,7 +279,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Phase_II,40,75,BandsRegion.MID);
 
 	/**
-	 * @return DO-365A HAZ warning thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365A HAZ warning thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 40s, early alerting time = 75s,
 	 * bands region = MID, with SUM
 	 */
@@ -301,13 +301,13 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds as defined in RTCA DO-365A Phase II (DTA), with SUM
+	 * Alerting thresholds as defined in RTCA DO-365A Phase II (DTA), with SUM
 	 * Maneuver guidance logic produces warning bands:
 	 */
 	public static final Alerter DWC_Phase_II_SUM = get_DWC_Phase_II_SUM();
 
 	/**
-	 * @return DO-365B HAZ preventive thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365B HAZ preventive thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 50s, early alerting time = 110s,
 	 * bands region = NONE, with SUM
 	 */
@@ -315,7 +315,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Non_Coop,50,110,BandsRegion.NONE);
 
 	/**
-	 * @return DO-365B HAZ corrective thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365B HAZ corrective thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 55s, early alerting time = 110s,
 	 * bands region = MID, with SUM
 	 */
@@ -323,7 +323,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD_SUM.DO_365_DWC_Non_Coop,50,110,BandsRegion.MID);
 
 	/**
-	 * @return DO-365B HAZ warning thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365B HAZ warning thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0s, TCOA=0, alerting time = 20s, early alerting time = 90s,
 	 * bands region = NEAR, with SUM
 	 */
@@ -345,7 +345,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds as defined in RTCA DO-365B Non-Cooperative, with SUM
+	 * Alerting thresholds as defined in RTCA DO-365B Non-Cooperative, with SUM
 	 * Maneuver guidance logic produces multilevel bands:
 	 * MID: Corrective
 	 * NEAR: Warning
@@ -353,7 +353,7 @@ public class Alerter implements ParameterAcceptor {
 	public static final Alerter DWC_Non_Coop_SUM = get_DWC_Non_Coop_SUM();
 
 	/**
-	 * @return buffered HAZ preventive thresholds, i.e., DTHR=1nmi, ZTHR=750ft, 
+	 * Buffered HAZ preventive thresholds, i.e., DTHR=1nmi, ZTHR=750ft, 
 	 * TTHR=35s, TCOA=20s, alerting time = 60s, early alerting time = 75s,
 	 * bands region = NONE
 	 */
@@ -361,7 +361,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.Buffered_Phase_I_preventive,60,75,BandsRegion.NONE);
 
 	/**
-	 * @return buffered HAZ corrective thresholds, i.e., DTHR=1nmi, ZTHR=450ft, 
+	 * Buffered HAZ corrective thresholds, i.e., DTHR=1nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=20s, alerting time = 60s, early alerting time = 75s, 
 	 * bands region = MID
 	 */
@@ -369,7 +369,7 @@ public class Alerter implements ParameterAcceptor {
 			new AlertThresholds(WCV_TAUMOD.Buffered_DWC_Phase_I,60,75,BandsRegion.MID);
 
 	/**
-	 * @return buffered HAZ warning thresholds, i.e., DTHR=1nmi, ZTHR=450ft, 
+	 * Buffered HAZ warning thresholds, i.e., DTHR=1nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=20s, alerting time = 30s, early alerting time = 55s, 
 	 * bands region = NEAR
 	 */
@@ -424,7 +424,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds for ACCoRD's CD3D, i.e.,
+	 * Alerting thresholds for ACCoRD's CD3D, i.e.,
 	 * separation is given by cylinder of 5nmi/1000ft. Alerting time is 
 	 * 180s.
 	 */
@@ -441,7 +441,7 @@ public class Alerter implements ParameterAcceptor {
 	}
 
 	/** 
-	 * @return alerting thresholds for DAIDALUS single bands WCV_TAUMOD , i.e.,
+	 * Alerting thresholds for DAIDALUS single bands WCV_TAUMOD , i.e.,
 	 * separation is given by cylinder of DTHR=0.66nmi, ZTHR=450ft, TTHR=35s, TCOA=0, 
 	 * alerting time = 55s, early alerting time = 75s,
 	 */

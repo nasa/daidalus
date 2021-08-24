@@ -129,6 +129,13 @@ Static Public Member Functions</h2></td></tr>
 <tr class="separator:a1ea3d717bd97668873dae589341e6a1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a038550309ea0232328ebbd2263f83785"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_util.html#a038550309ea0232328ebbd2263f83785">root2b</a> (const double a, const double b, const double c, const int eps)</td></tr>
 <tr class="separator:a038550309ea0232328ebbd2263f83785"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a620b2e2b62f444550f1db5975c695429"><td class="memItemLeft" align="right" valign="top">static double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_util.html#a620b2e2b62f444550f1db5975c695429">rootNegC</a> (const double a, const double b, const double c)</td></tr>
+<tr class="separator:a620b2e2b62f444550f1db5975c695429"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fe913c236cea23e94c406c4f1e5f002"><td class="memItemLeft" align="right" valign="top"><a id="a8fe913c236cea23e94c406c4f1e5f002"></a>
+static int&#160;</td><td class="memItemRight" valign="bottom"><b>sign</b> (const bool b)</td></tr>
+<tr class="separator:a8fe913c236cea23e94c406c4f1e5f002"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f2e728fad68479f765a2e241f5b198a"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_util.html#a6f2e728fad68479f765a2e241f5b198a">sign</a> (const int b)</td></tr>
+<tr class="separator:a6f2e728fad68479f765a2e241f5b198a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09cf32d4c046c7d7c9f72c5e09fccd81"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_util.html#a09cf32d4c046c7d7c9f72c5e09fccd81">sign</a> (const double x)</td></tr>
 <tr class="separator:a09cf32d4c046c7d7c9f72c5e09fccd81"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa42e3c90f234d97f4a70699c98bebac8"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_util.html#aa42e3c90f234d97f4a70699c98bebac8">signTriple</a> (const double x)</td></tr>
@@ -328,7 +335,7 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
   <table class="params">
     <tr><td class="paramname">a</td><td>one number </td></tr>
     <tr><td class="paramname">b</td><td>another number </td></tr>
-    <tr><td class="paramname">maxUlps</td><td>maximum units of least precision </td></tr>
+    <tr><td class="paramname">maxUlps</td><td>the precision, or more specifically, the maximum units of least precision </td></tr>
   </table>
   </dd>
 </dl>
@@ -1285,6 +1292,15 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">val</td><td>numerator </td></tr>
+    <tr><td class="paramname">mod</td><td>denominator, assumed/required to be non-zero </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>modulo value</dd></dl>
+<p>Computes the modulo of val and mod. The returned value is in the range [0,mod)</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">val</td><td>numerator </td></tr>
     <tr><td class="paramname">mod</td><td>denominator </td></tr>
   </table>
   </dd>
@@ -1473,6 +1489,50 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
 
 </div>
 </div>
+<a id="a620b2e2b62f444550f1db5975c695429"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a620b2e2b62f444550f1db5975c695429">&#9670;&nbsp;</a></span>rootNegC()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">double larcfm::Util::rootNegC </td>
+          <td>(</td>
+          <td class="paramtype">const double&#160;</td>
+          <td class="paramname"><em>a</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const double&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const double&#160;</td>
+          <td class="paramname"><em>c</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Assumes c &lt; 0, b &gt; 0</p>
+<dl class="section return"><dt>Returns</dt><dd>positive root &gt;= 0 (eps == 1) </dd></dl>
+
+</div>
+</div>
 <a id="a334a512e70ad879d672fa1261c48de0e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a334a512e70ad879d672fa1261c48de0e">&#9670;&nbsp;</a></span>safe_modulo()</h2>
 
@@ -1519,7 +1579,7 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
 </div>
 </div>
 <a id="a09cf32d4c046c7d7c9f72c5e09fccd81"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a09cf32d4c046c7d7c9f72c5e09fccd81">&#9670;&nbsp;</a></span>sign()</h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a09cf32d4c046c7d7c9f72c5e09fccd81">&#9670;&nbsp;</a></span>sign() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1549,6 +1609,40 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>sign of value </dd></dl>
+
+</div>
+</div>
+<a id="a6f2e728fad68479f765a2e241f5b198a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f2e728fad68479f765a2e241f5b198a">&#9670;&nbsp;</a></span>sign() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int larcfm::Util::sign </td>
+          <td>(</td>
+          <td class="paramtype">const int&#160;</td>
+          <td class="paramname"><em>b</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Returns +1 if the argument is true, -1 otherwise</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">b</td><td>boolean value </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>sign as a number </dd></dl>
 
 </div>
 </div>
@@ -1756,7 +1850,7 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
 </table>
 </div><div class="memdoc">
 <p>Converts <code>rad</code> radians to the range [<code>0</code>, <code>2*pi</code>]. </p>
-<p>Note: this should not be used for argument reduction for trigonometric functions (Math.sin(to_2pi(x))</p>
+<p>Note: this should <b>not</b> be used for argument reduction for trigonometric functions (Math.sin(to_2pi(x)). Bad roundoff errors could occur.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">rad</td><td>Radians</td></tr>
@@ -1903,7 +1997,9 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Returns the smallest angle between two track angles [0,PI].</p>
+<p>Returns the smallest angle between two track angles [0,PI]. Reminder: This is also the angle from BOT to EOT from the point of view of the turn center. <br  />
+ It is not angle between two segments from the vertex's point of view. <br  />
+</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">alpha</td><td>one angle </td></tr>
@@ -1911,7 +2007,7 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>difference in angle </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>non-negative difference in angle </dd></dl>
 
 </div>
 </div>
@@ -2011,7 +2107,7 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
   <table class="params">
     <tr><td class="paramname">alpha</td><td>one angle </td></tr>
     <tr><td class="paramname">beta</td><td>another angle </td></tr>
-    <tr><td class="paramname">dir</td><td>= +/- 1 + right, - left </td></tr>
+    <tr><td class="paramname">dir</td><td>+1 = right, -1 = left </td></tr>
   </table>
   </dd>
 </dl>
@@ -2059,7 +2155,7 @@ precision" (ulps) corresponds to a and b agreeing to about 13 decimal places. Sa
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>direction of turn </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>+1 for right, -1 for left </dd></dl>
 
 </div>
 </div>

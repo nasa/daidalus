@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 United States Government as represented by
+ * Copyright (c) 2014-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -53,8 +53,8 @@ public class CD3D {
    * @param vi the intruder's velocity
    * @param D the minimum horizontal distance
    * @param H the minimum vertical distance
-   * @param B the the lower bound of the lookahead time (B >= 0)
-   * @param T the upper bound of the lookahead time (B < T)
+   * @param B the the lower bound of the lookahead time ({@code B >= 0})
+   * @param T the upper bound of the lookahead time ({@code B < T})
    * 
    * @return true, if the conflict time interval (t_in,t_out) is in [B,T].
    * The returned t_in and t_out values are truncated to be within [B,T]
@@ -146,8 +146,8 @@ public class CD3D {
    * @param vi the intruder's velocity
    * @param D the minimum horizontal distance
    * @param H the minimum vertical distance
-   * @param B the the lower bound of the lookahead time (B >= 0)
-   * @param T the upper bound of the lookahead time  (B < T)
+   * @param B the the lower bound of the lookahead time ({@code B >= 0})
+   * @param T the upper bound of the lookahead time  ({@code B < T})
    * 
    * @return true, if there is a conflict in the time interval [B,T].
    */
@@ -178,7 +178,7 @@ public class CD3D {
    * @param vi the intruder's velocity
    * @param D the minimum horizontal distance
    * @param H the minimum vertical distance
-   * @param T the upper bound of the lookahead time (T > 0)
+   * @param T the upper bound of the lookahead time ({@code T > 0})
    * 
    * @return true, if there is a conflict in the time interval [0,T].
    */  
@@ -264,8 +264,8 @@ public class CD3D {
    * @param vi the intruder's velocity
    * @param D the minimum horizontal distance
    * @param H the minimum vertical distance
-   * @param B the the lower bound of the lookahead time (B >= 0)
-   * @param T the upper bound of the lookahead time  (B < T)
+   * @param B the the lower bound of the lookahead time ({@code B >= 0})
+   * @param T the upper bound of the lookahead time  ({@code B < T})
    * 
    * @return the time to cylindrical closest point of approach for the interval [B,T].
    */
@@ -282,7 +282,7 @@ public class CD3D {
    * @param vi the intruder's velocity
    * @param D the minimum horizontal distance
    * @param H the minimum vertical distance
-   * @param T the upper bound of the lookahead time  (T > 0)
+   * @param T the upper bound of the lookahead time  ({@code T > 0})
    * 
    * @return the time to cylindrical closest point of approach for the interval [0,T].
    */

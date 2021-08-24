@@ -6,7 +6,7 @@
  *
  *
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -305,13 +305,8 @@ public:
 	 */
 	double distanceV(const Position& p) const;
 
-	/** Return the vertical distance between the current Position and the given Position. Positive values mean
-	 * the current Position is above the given Position
-	 *
-	 * @param p another position
-	 * @return vertical distance (positive values mean current position is above the given position
-	 */
-	double signedDistanceV(const Position& p) const;
+	double distanceChordH(const Position& p) const;
+
 
 	/**
 	 * Perform a linear projection of the current Position with given velocity and time.

@@ -90,24 +90,22 @@ $(function() {
 <div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">double</span> relative_;</div>
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    std::string options_;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    std::string ownship_;</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <a class="code" href="class_daidalus_processor.html">DaidalusProcessor</a>(<span class="keyword">const</span> std::string&amp; own);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    std::vector&lt;std::string&gt; traffic_;</div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160; </div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="keyword">public</span>:</div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    <a class="code" href="class_daidalus_processor.html">DaidalusProcessor</a>();</div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">void</span> setOwnship(<span class="keyword">const</span> std::string&amp; own);</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">double</span> getFrom() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keywordtype">double</span> getTo() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    std::string getOwnship() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_daidalus_processor.html">DaidalusProcessor</a>() { }</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> getFileNames(std::vector&lt;std::string&gt;&amp; txtFiles, <span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; names, <span class="keyword">const</span> std::string&amp; ext, <span class="keywordtype">int</span> i);</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keyword">static</span> std::string getHelpString();</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">bool</span> processOptions(<span class="keyword">const</span> <span class="keywordtype">char</span>* args[], <span class="keywordtype">int</span> i);</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    std::string getOptionsString();</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordtype">void</span> processFile(<span class="keyword">const</span> std::string&amp; filename, <a class="code" href="classlarcfm_1_1_daidalus.html">larcfm::Daidalus</a>&amp; daa);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> processTime(<a class="code" href="classlarcfm_1_1_daidalus.html">larcfm::Daidalus</a>&amp; daa, <span class="keyword">const</span> std::string&amp; filename) = 0;</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;};</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* DAIDALUSPROCESSOR_H_ */</span><span class="preprocessor"></span></div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordtype">double</span> getFrom() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keywordtype">double</span> getTo() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">virtual</span> ~<a class="code" href="class_daidalus_processor.html">DaidalusProcessor</a>() { }</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    <span class="keyword">static</span> <span class="keywordtype">void</span> getFileNames(std::vector&lt;std::string&gt;&amp; txtFiles, <span class="keyword">const</span> std::vector&lt;std::string&gt;&amp; names, <span class="keyword">const</span> std::string&amp; ext, <span class="keywordtype">int</span> i);</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    <span class="keyword">static</span> std::string getHelpString();</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    <span class="keywordtype">bool</span> processOptions(<span class="keyword">const</span> <span class="keywordtype">char</span>* args[], <span class="keywordtype">int</span> argc, <span class="keywordtype">int</span> i);</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    std::string getOptionsString();</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    <span class="keywordtype">void</span> processFile(<span class="keyword">const</span> std::string&amp; filename, <a class="code" href="classlarcfm_1_1_daidalus.html">larcfm::Daidalus</a>&amp; daa);</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    <span class="keyword">virtual</span> <span class="keywordtype">void</span> processTime(<a class="code" href="classlarcfm_1_1_daidalus.html">larcfm::Daidalus</a>&amp; daa, <span class="keyword">const</span> std::string&amp; filename) = 0;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;};</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#endif </span><span class="comment">/* DAIDALUSPROCESSOR_H_ */</span><span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasslarcfm_1_1_daidalus_html"><div class="ttname"><a href="classlarcfm_1_1_daidalus.html">larcfm::Daidalus</a></div><div class="ttdef"><b>Definition:</b> Daidalus.h:94</div></div>
 <div class="ttc" id="aclass_daidalus_processor_html"><div class="ttname"><a href="class_daidalus_processor.html">DaidalusProcessor</a></div><div class="ttdef"><b>Definition:</b> DaidalusProcessor.h:14</div></div>

@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class DaidalusProcessor {
@@ -17,17 +18,15 @@ public abstract class DaidalusProcessor {
 	private double relative_;
 	private String options_;
 	private String ownship_;
+	private List<String> traffic_;
 
 	public DaidalusProcessor() {
-		this("");
-	}
-
-	public DaidalusProcessor(String own) {
 		from_ = -1;
 		to_ = -1;
 		relative_ = 0;
 		options_ = "";
-		ownship_ = own;
+		ownship_ = "";
+		traffic_ = new ArrayList<String>();
 	}
 
 	public double getFrom() {
@@ -36,14 +35,6 @@ public abstract class DaidalusProcessor {
 
 	public double getTo() {
 		return to_;
-	}
-
-	public void setOwnship(String own) {
-		ownship_ = own;
-	}
-
-	public String getOwnship() {
-		return ownship_;
 	}
 
 	/** Given a list of names that may include files or directories,
@@ -94,7 +85,8 @@ public abstract class DaidalusProcessor {
 
 	public static String getHelpString() {
 		String s = "";
-		s += "  --ownship <id>\n\tSet ownship to aircraft with identifier <id>\n";
+		s += "  --ownship <id>\n\tSpecify a particular aircraft as ownship\n";
+		s += "  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic\n";
 		s += "  --from t\n\tCheck from time t\n";
 		s += "  --to t\n\tCheck up to time t\n";
 		s += "  --at [t | t+k | t-k]\n\tCheck times t, [t,t+k], or [t-k,t]. ";
@@ -103,19 +95,23 @@ public abstract class DaidalusProcessor {
 	}
 
 	public boolean processOptions(String[] args, int i) {
-		if (args[i].startsWith("--own") || args[i].startsWith("-own")) { 
+		if ((args[i].startsWith("--own") || args[i].startsWith("-own")) && i+1 < args.length) { 
 			++i;
 			ownship_ = args[i];
 			options_ += args[i]+" ";
-		} else if (args[i].equals("--from") || args[i].equals("-from")) {
+		} else if ((args[i].startsWith("--traf") || args[i].startsWith("-traf")) && i+1 < args.length) { 
+			++i;
+			traffic_.addAll(Arrays.asList(args[i].split(",")));
+			options_ += args[i]+" ";
+		} else if ((args[i].equals("--from") || args[i].equals("-from")) && i+1 < args.length) {
 			++i;
 			from_ = Double.parseDouble(args[i]);
 			options_ += args[i]+" ";
-		} else if (args[i].equals("--to") || args[i].equals("-to")) {
+		} else if ((args[i].equals("--to") || args[i].equals("-to")) && i+1 < args.length) {
 			++i;
 			to_ = Double.parseDouble(args[i]);
 			options_ += args[i]+" ";
-		} else if (args[i].equals("--at") || args[i].equals("-at")) {
+		} else if ((args[i].equals("--at") || args[i].equals("-at")) && i+1 < args.length) {
 			++i;
 			options_ += args[i]+" ";        
 			int k = args[i].indexOf("+");
@@ -158,6 +154,14 @@ public abstract class DaidalusProcessor {
 		double from = from_;
 		double to = to_;
 		DaidalusFileWalker dw = new DaidalusFileWalker(filename); 
+		
+		if (!ownship_.isEmpty()) {
+			dw.setOwnship(ownship_);
+		}
+		if (!traffic_.isEmpty()) {
+			dw.selectTraffic(traffic_);
+		}
+		
 		if (from < 0) {
 			from = dw.firstTime();        
 		}
@@ -172,16 +176,7 @@ public abstract class DaidalusProcessor {
 		}
 		if (dw.goToTime(from) && from <= to) {
 			while (!dw.atEnd() && dw.getTime() <= to) {
-				double t = dw.getTime();
 				dw.readState(daa);
-				if (!ownship_.equals("")) {
-					daa.resetOwnship(ownship_);
-					if (daa.hasError()) {
-						System.err.println("** Warning: State for ownship aircraft ("+ownship_+") not found at time. Skipping time "+
-								t+" [s]");
-						continue;
-					}
-				}
 				processTime(daa,filename);
 			} 
 		}   

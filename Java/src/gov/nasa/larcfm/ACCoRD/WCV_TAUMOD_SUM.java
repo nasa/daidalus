@@ -1,5 +1,5 @@
 /*
-> * Copyright (c) 2012-2020 United States Government as represented by
+> * Copyright (c) 2012-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -75,28 +75,28 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/**
-	 * @return DO-365 Phase I (en-route) preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft,
+	 * DO-365 Phase I (en-route) preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft,
 	 * TTHR=35s, TCOA=0, with SUM
 	 */
 	public static final WCV_TAUMOD_SUM DO_365_Phase_I_preventive =
 			new WCV_TAUMOD_SUM(WCVTable.DO_365_Phase_I_preventive);
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
+	 * DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=0, with SUM
 	 */
 	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_I = 
 			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_I);
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
+	 * DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
 	 * TTHR=0s, TCOA=0, with SUM
 	 */
 	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_II = 
 			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_II);
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
+	 * DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
 	 * TTHR=0s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD_SUM DO_365_DWC_Non_Coop = 
@@ -135,7 +135,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 	
 	/**
-	 * @return one static WCV_TAUMOD_SUM
+	 * One static WCV_TAUMOD_SUM
 	 */
 	public static final WCV_TAUMOD_SUM A_WCV_TAUMOD_SUM =
 			new WCV_TAUMOD_SUM();
@@ -376,10 +376,8 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	 * This functional call returns a ConflictData object detailing the conflict between times B and T from now (relative), if any.  
 	 * @param ownship   ownship state
 	 * @param intruder  intruder state
-	 * @param D   horizontal separation
-	 * @param H   vertical separation
-	 * @param B   beginning of detection time (>=0)
-	 * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
+	 * @param B   beginning of detection time ({@code >=0})
+	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return a ConflictData object detailing the conflict
 	 */
 	public ConflictData conflictDetectionWithTrafficState(TrafficState ownship, TrafficState intruder, 
@@ -542,7 +540,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return set z-score (number of standard deviations) for horizontal position (non-negative value)
+	 * Set z-score (number of standard deviations) for horizontal position (non-negative value)
 	 */
 	public void setHorizontalPositionZScore(double val) {
 		h_pos_z_score_enabled_ = true;
@@ -557,7 +555,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
+	 * Set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
 	public void setHorizontalVelocityZScoreMin(double val) {
 		h_vel_z_score_min_enabled_ = true;
@@ -572,7 +570,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
+	 * Set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
 	public void setHorizontalVelocityZScoreMax(double val) {
 		h_vel_z_score_max_enabled_ = true;
@@ -587,7 +585,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
+	 * Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public void setHorizontalVelocityZDistance(double val) {
 		h_vel_z_distance_enabled_ = true;
@@ -602,7 +600,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
+	 * Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public void setHorizontalVelocityZDistance(double val, String u) {
 		setHorizontalVelocityZDistance(Units.from(u,val));
@@ -617,7 +615,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return set z-score (number of standard deviations) for vertical position (non-negative value)
+	 * Set z-score (number of standard deviations) for vertical position (non-negative value)
 	 */
 	public void setVerticalPositionZScore(double val) {
 		v_pos_z_score_enabled_ = true;
@@ -632,7 +630,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	/** 
-	 * @return set z-score (number of standard deviations) for vertical velocity (non-negative value)
+	 * Set z-score (number of standard deviations) for vertical velocity (non-negative value)
 	 */
 	public void setVerticalSpeedZScore(double val) {
 		v_vel_z_score_enabled_ = true;

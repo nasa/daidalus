@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -8,18 +8,17 @@
 package gov.nasa.larcfm.Util;
 
 import java.text.SimpleDateFormat;  // Next three for strDate
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** A broad collection of utility functions */
 public final class Util {
-
 
 	/**
 	 * The maxUlps (see almostEqual() method) for (approximately) 13 digits of
@@ -231,7 +230,7 @@ public final class Util {
 
 		// special case of comparing to zero.
 		if (a == 0.0 || b == 0.0) {
-			double comp = 1.0e-13;  // should correspond to PRECISION_DEFAULT;
+			double comp = 1.0e-13;  // should correspond to PRECISION_DEFAULT
 			if (maxUlps == PRECISION5) comp = 1.0e-5;
 			if (maxUlps == PRECISION7) comp = 1.0e-7;
 			if (maxUlps == PRECISION9) comp = 1.0e-9;
@@ -241,9 +240,6 @@ public final class Util {
 			}
 		}
 
-		//if (Double.isNaN(a) || Double.isNaN(b)) {   // this operation is slooooooow
-		//    return false;
-		//  }
 		if (!(a < b || b < a)) { // idiom to filter out NaN's
 			return false;
 		}
@@ -268,11 +264,7 @@ public final class Util {
 		// doubles are required to be
 		// lexically ordered
 
-		if (intDiff <= maxUlps) {
-			return true;
-		}
-
-		return false;
+		return (intDiff <= maxUlps);
 	}
 
 	/** 
@@ -315,7 +307,6 @@ public final class Util {
 			rtn =  sgn*Math.ceil(Math.abs((nvoz)/discreteUnits))*discreteUnits;
 		else
 			rtn =  sgn*Math.floor(Math.abs((nvoz)/discreteUnits))*discreteUnits;
-		//f.pln(" #### vsDiscretize: voz = "+Units.str("fpm",voz)+" nvoz = "+Units.str("fpm",nvoz)+" rtn = "+Units.str("fpm",rtn));
 		return rtn;
 	}
 
@@ -399,6 +390,25 @@ public final class Util {
 			return Double.NaN; 
 		}
 	}
+	
+	/** Assumes {@code c < 0}, {@code b > 0}
+	 * 
+	 * @param a     a coefficient of quadratic
+	 * @param b     b coefficient of quadratic
+	 * @param c     c coefficient of quadratic
+	 * @return      positive root {@code >= 0} if quadratic discriminant is non-negative, -1 otherwise
+	 * 
+	 * NOTE: {@code c < 0}, {@code b > 0} and use of positive root (eps == 1) insures that the returned root is non-negative when discriminant is non-negative!
+	 */
+	public static double rootNegC(double a, double b, double c) {
+		if (a == 0) return -c / b;
+		double sqb = sq(b);
+		double ac  = 4*a*c;
+		if (almost_equals(sqb,ac) || sqb > ac) 
+			return (-b + sqrt_safe(sqb-ac)) / (2 * a);
+		return -1; 
+	}
+
 
 	/** root2b(a,b,c,eps) = root(a,2*b,c,eps) , eps = -1 or +1 
 	 * 
@@ -432,9 +442,8 @@ public final class Util {
 	 */
 	public static int sign(double x) {
 		// A true signum could be implemented in C++ as below.
-		// template <typename T> int sgn(T val) {
-		//   return (T(0) < val) - (val < T(0));
-		//}
+		// template <typename T> int sgn(T val) 
+		//   return (T(0) < val) - (val < T(0))
 		if (x >= 0)
 			return 1;
 		return -1;
@@ -472,9 +481,7 @@ public final class Util {
 	 * @return sign as a boolean
 	 */
 	public static boolean bsign(double x) {
-		if (x >= 0)
-			return true;
-		return false;
+		return (x >= 0);
 	}
 
 	public static double min(double x, double y) {
@@ -542,7 +549,7 @@ public final class Util {
 	}
 
 
-	private static final double twopi = 2 * Math.PI;
+	private static final double TWOPI = 2 * Math.PI;
 
 	/**
 	 * Converts <code>rad</code> radians to the range
@@ -557,7 +564,7 @@ public final class Util {
 	public static double to_pi(double rad) {
 		double r = to_2pi(rad);
 		if (r > Math.PI) 
-			return r-twopi;
+			return r-TWOPI;
 		else {
 			return r;
 		}
@@ -577,7 +584,7 @@ public final class Util {
 	}
 
 	/**
-	 * Computes the modulo of val and mod. If mod > 0, the returned value is in the r
+	 * Computes the modulo of val and mod. If {@code mod > 0}, the returned value is in the r
 	 * ange [0,mod). Otherwise, returns val.
 	 * 
 	 * @param val numerator
@@ -612,7 +619,44 @@ public final class Util {
 	 * [<code>0</code>, <code>2*pi</code>).
 	 */
 	public static double to_2pi(double rad) {
-		return modulo(rad,twopi);
+		return modulo(rad,TWOPI);
+	}
+
+	/**
+	 * Converts <code>rad</code> radians to the range
+	 * [<code>-pi/2</code>, <code>pi/2</code>]. 
+	 * <p>Note: this should <b>not</b> be used for argument reduction for trigonometric functions (Math.sin(to_2pi(x)).  Bad
+	 * roundoff errors could occur.</p>
+	 *
+	 * @param rad Radians
+	 *
+	 * @return <code>rad</code> in the range
+	 * [<code>-pi/2</code>, <code>pi/2</code>).
+	 */
+	public static double to_pi2(double rad) {
+		double pi2 = Math.PI/2.0;
+		rad = rad + pi2;
+		rad = to_pi(rad) - pi2;
+		return rad;
+	}
+
+	/**
+	 * Converts <code>deg</code> degrees to the range 
+	 * (<code>-90</code>, <code>90</code>].
+	 * 
+	 * @param deg Degrees
+	 * 
+	 * @return <code>deg</code> in the range (<code>-90</code>, <code>90</code>].
+	 */
+	public static double to_90(double deg) {
+		double pi2 = 90;
+		deg = deg + pi2;
+		deg = to_180(deg);
+		if (deg < 0) {
+			deg = 0.0;
+		}
+		deg = deg - pi2;
+		return deg;
 	}
 
 	/**
@@ -677,11 +721,10 @@ public final class Util {
 	 * Returns 1 if the minimal turn to goalTrack (i.e. less than pi) is to the right, else -1
 	 * @param initTrack   initial track [rad]
 	 * @param goalTrack   target track [rad]
-	 * @return direction of turn
+	 * @return +1 for right, -1 for left
 	 */
 	public static int turnDir(double initTrack, double goalTrack) {
-		if (Util.clockwise(initTrack,goalTrack)) return 1;
-		else return -1;
+		return sign(Util.clockwise(initTrack,goalTrack));
 	}
 
 
@@ -707,9 +750,9 @@ public final class Util {
 	/**
 	 * Returns the smallest angle between two track angles [0,PI].
 	 * 
-	 * @param before
-	 * @param after
-	 * @return
+	 * @param before starting velocity vector
+	 * @param after  ending velocity vector
+	 * @return difference in track angles
 	 */
 	public static double trackDelta(Velocity before, Velocity after) {
 		return turnDelta(before.trk(), after.trk());  
@@ -761,7 +804,7 @@ public final class Util {
 	 * 
 	 * @param alpha one angle
 	 * @param beta another angle
-	 * @param dir = +/- 1 + right, - left
+	 * @param dir +1 = right, -1 = left
 	 * @return angle difference
 	 */
 	public static double turnDelta(double alpha, double beta, int dir) {
@@ -876,17 +919,6 @@ public final class Util {
 		return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("T");
 	}
 
-	public static double[] arrayList2Array(ArrayList<Double> array) {
-		if (array == null) {
-			return null;
-		} 
-		final double[] result = new double[array.size()];
-		for (int i = 0; i < result.length; i++) {
-			result[i] = array.get(i);
-		}
-		return result;
-	}
-
 
 	/** Reads in a clock string and converts it to seconds.  
 	 * Accepts hh:mm:ss, mm:ss, and ss.
@@ -903,7 +935,7 @@ public final class Util {
 		} else if (fields2.length == 2) {
 			tm = parse_double(fields2[1]) + 60 * parse_double(fields2[0]); // min:sec
 		} else if (fields2.length == 1){
-			tm = parse_double(fields2[0]); //getColumn(_sec, head[TM_CLK]);
+			tm = parse_double(fields2[0]); 
 		}
 		return tm;
 	}
@@ -958,12 +990,14 @@ public final class Util {
 	 * @return string
 	 */
 	public static String list2str(List<? extends Object> l) {
-		String rtn =  "{";
+		StringBuilder rtn =  new StringBuilder(100);
+		rtn.append("{");
 		for (Object o : l) {
-			rtn = rtn + o.toString() + ", ";
+			rtn.append(o.toString());
+			rtn.append(", ");
 		}
-		rtn = rtn + "}";
-		return rtn;
+		rtn.append("}");
+		return rtn.toString();
 	}
 
 	/** Returns true if string s1 is less than or equal to string s2.
@@ -973,9 +1007,7 @@ public final class Util {
 	 * @return true, if s1 is less or equals to s2
 	 */
 	public static boolean less_or_equal(String s1, String s2) {
-		if (s1.compareTo(s2) >= 0) return true;
-		//f.pln(" Util::lessThan: s1 = "+s1+" s2 = "+s2+" rtn = "+rtn);
-		return false;
+		return (s1.compareTo(s2) >= 0);
 	}
 
 	public static String strDate() {
@@ -1034,7 +1066,7 @@ public final class Util {
 			endPts[i] = endPts[i - 1] + width;
 		}
 		endPts[k] = max;
-		return new Triple<int[],Double,Double>(histogram(data, endPts),min,max);
+		return new Triple<>(histogram(data, endPts),min,max);
 	}
 
 	/**
@@ -1086,7 +1118,7 @@ public final class Util {
 					if (comp.compare(ls.get(i), ls.get(i+1)) > 0) return false;
 				}
 			}
-		} else {
+		} else { // not increasing
 			if (strict ) {
 				for (int i = 0; i < ls.size()-1; ++i) {
 					if (comp.compare(ls.get(i), ls.get(i+1)) <= 0) return false;
@@ -1148,18 +1180,5 @@ public final class Util {
 	public static boolean relErrorTest(double testValue, double baseValue, double acceptibleError) {
 		return ((Math.abs(testValue-baseValue) / baseValue) < acceptibleError);
 	}
-	
-	//	/**
-	//	 * Create a List from a list of literals
-	//	 * @param elements
-	//	 * @return
-	//	 */
-	//	public static <T> List<T> mkList(T ... elements) {
-	//		List<T> l = new ArrayList<T>();
-	//		for (T x : elements) {
-	//			l.add(x);
-	//		}
-	//		return l;
-	//	}
 
 } // Util.java

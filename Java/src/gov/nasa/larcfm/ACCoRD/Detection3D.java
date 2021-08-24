@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020 United States Government as represented by
+ * Copyright (c) 2013-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -46,8 +46,8 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * @param vo  ownship velocity
 	 * @param si  intruder position
 	 * @param vi  intruder velocity
-	 * @param B   beginning of detection time (>=0)
-	 * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
+	 * @param B   beginning of detection time ({@code >=0})
+	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return true if there is a conflict within times B to T
 	 */
 	final public boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
@@ -67,10 +67,8 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * @param vo  ownship velocity
 	 * @param si  intruder position
 	 * @param vi  intruder velocity
-	 * @param D   horizontal separation
-	 * @param H   vertical separation
-	 * @param B   beginning of detection time (>=0)
-	 * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
+	 * @param B   beginning of detection time ({@code >= 0})
+	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return a ConflictData object detailing the conflict
 	 */
 	public abstract ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T);
@@ -90,8 +88,8 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * This functional call returns true if there will be a violation between times B and T from now (relative).  
 	 * @param ownship   ownship state
 	 * @param intruder  intruder state
-	 * @param B   beginning of detection time (>=0)
-	 * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
+	 * @param B   beginning of detection time ({@code >= 0})
+	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return true if there is a conflict within times B to T
 	 */
 	final public boolean conflictWithTrafficState(TrafficState ownship, TrafficState intruder, double B, double T) {
@@ -109,10 +107,8 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * This functional call returns a ConflictData object detailing the conflict between times B and T from now (relative), if any.  
 	 * @param ownship   ownship state
 	 * @param intruder  intruder state
-	 * @param D   horizontal separation
-	 * @param H   vertical separation
-	 * @param B   beginning of detection time (>=0)
-	 * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
+	 * @param B   beginning of detection time ({@code >= 0})
+	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return a ConflictData object detailing the conflict
 	 */
 	public ConflictData conflictDetectionWithTrafficState(TrafficState ownship, TrafficState intruder, 

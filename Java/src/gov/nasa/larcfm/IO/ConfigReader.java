@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -56,19 +56,22 @@ import java.util.List;
  * will read the parameters from that file and include those parameters as if they were parameters in this file.
  * The file imported may also have an "importConfigFile" option.
  * Only one importConfigFile option is allowed per file.
- * Parameters read from a secondary file will not overwrite parameters set in their parent file.
+ * Parameters in the parent file take precedence over the values in an imported file.
+ * </p>
+ * <p>
+ * It is possible to programmatically add additional import keys to a reader through the addIncludeName() method, allowing for multiple potential imports per file.
+ * The key importConfigFile is always first in the list of imports read, with others read in the order the keys were added. 
  * </p>
  */
 public final class ConfigReader implements ParameterReader, ParameterProvider, ErrorReporter {
 	private static final String INCLUDE_FILE = "importConfigFile";
 	
 	private ErrorLog error;
-	private String param_var[];
-	private boolean param_isValue[];
+	private String[] param_var;
+	private boolean[] param_isValue;
 	private ArrayList<String[]> param_val;
 	private int count;
-	private int count_itr[];
-	private boolean hasRead;
+	private int[] count_itr;
 	private boolean caseSensitive;
 	private ParameterData pd;
 	private List<String> includeNames;
@@ -113,14 +116,12 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 				param_var = new String[0];
 				param_val.clear();
 			}
-			return;
 		} catch (IOException e) {
 			error.addError("On close: "+e.getMessage());
 			if (param_var != null) {
 				param_var = new String[0];
 				param_val.clear();
 			}
-			return;
 		}
 	}
 	
@@ -151,60 +152,78 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 			count_itr[i] = 0;
 		}
 	}	
+
+	private void processParameters(SeparatedInput input) {
+		pd.copy(input.getParametersRef(), true);
+		param_var = new String[input.size()];
+		param_isValue = new boolean[input.size()];
+		param_val = new ArrayList<>(10);
+		count_itr = new int[input.size()];
+		for (int i = 0; i < input.size(); i++) {
+			if ( ! pd.contains(input.getHeading(i))) {
+				pd.set(input.getHeading(i),"0.0 ["+input.getUnit(i)+"]");						
+			}
+			param_var[i] = input.getHeading(i);
+			param_isValue[i] = true;
+			if (Double.MAX_VALUE == Units.parse(input.getColumnString(i), Double.MAX_VALUE)) {
+				param_isValue[i] = false;
+			}
+		}
+	}
+	
+	private void processTableOfParameters(SeparatedInput input) {
+		String[] values = new String[input.size()];
+		for(int i = 0; i < input.size(); i++) {
+			String s = input.getColumnString(i);
+			String unit = input.getUnit(i);
+			if (unit.equals("unspecified")) {
+				unit = pd.getUnit(param_var[i]);
+			}
+			try {
+				values[i] = s+" ["+unit+"]";
+				Double.parseDouble(s);
+			} catch (NumberFormatException e) {
+				values[i] = s;  // if not a double, then just add the string
+			}
+		}
+		param_val.add(values);			
+	}
 	
 	private void loadfile(SeparatedInput input, String srcPath) {
-		hasRead = false;
+		boolean hasReadParameters = false;
 		input.setCaseSensitive(caseSensitive);
       
 		while ( ! input.readLine()) {
 			// look for each possible heading
-			if ( ! hasRead) {
-				pd.copy(input.getParametersRef(), true);
-				param_var = new String[input.size()];
-				param_isValue = new boolean[input.size()];
-				param_val = new ArrayList<String[]>(10);
-				count_itr = new int[input.size()];
-				for(int i = 0; i < input.size(); i++) {
-					if ( ! pd.contains(input.getHeading(i))) {
-						pd.set(input.getHeading(i),"0.0 ["+input.getUnit(i)+"]");						
-					}
-					param_var[i] = input.getHeading(i);
-					param_isValue[i] = true;
-					if (Double.MAX_VALUE == Units.parse(input.getColumnString(i), Double.MAX_VALUE)) {
-						param_isValue[i] = false;
-					}
-				}
-				hasRead = true;
+			if ( ! hasReadParameters) {
+				processParameters(input);
+				hasReadParameters = true;
 			} 
 
-			String[] values = new String[input.size()];
-			for(int i = 0; i < input.size(); i++) {
-				String s = input.getColumnString(i);
-				String unit = input.getUnit(i);
-				if (unit.equals("unspecified")) {
-					unit = pd.getUnit(param_var[i]);
-				}
-				try {
-					values[i] = s+" ["+unit+"]";
-					Double.parseDouble(s);
-				} catch (NumberFormatException e) {
-					values[i] = s;  // if not a double, then just add the string
-				}
-			}
-			param_val.add(values);			
+			processTableOfParameters(input);
 		}
-		if ( ! hasRead) {
+		if ( ! hasReadParameters) {
 			pd.copy(input.getParametersRef(), true);
 		}
 		for (String name: includeNames) {
-			loadIncludeFile(FileUtil.file_search(pd.getString(name), srcPath, "."));			
+			if (pd.contains(name)) { // only attempt to read a file if the key exists in the source
+				String file = FileUtil.file_search(pd.getString(name), srcPath, ".");
+				if (file == null) {
+					error.addWarning("Could not find include file '"+pd.getString(name)+"', ignoring.");
+				} else {
+					loadIncludeFile(file);
+				}
+			}
 		}
 		preambleImage = input.getPreambleImage();
 		
 	}
 	
 	private void loadIncludeFile(String file) {
-		if (file == null || file.isEmpty()) return;
+		if (file == null || file.isEmpty()) {
+			error.addWarning("Include file name was empty or null, ignoring.");
+			return;
+		}
 		ConfigReader cr = new ConfigReader();
 		cr.open(file);
 		if (cr.hasError()) {
@@ -215,15 +234,25 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		}
 		ParameterData p = cr.getParameters();
 		pd.copy(p,false);
-		if (p.contains(INCLUDE_FILE)) {
-			String file2 = FileUtil.file_search(pd.getString(INCLUDE_FILE), FileUtil.get_path(file), ".");
-			if ( ! file.equals(file2)) {
-				loadIncludeFile(file2);
+		for (String name: includeNames) {
+			String file2 = FileUtil.file_search(pd.getString(name), FileUtil.get_path(file), ".");
+			if (file2 == null) {
+				error.addWarning("Could not find include file '"+pd.getString(name)+"', ignoring.");
+			} else {
+				if ( ! file.equals(file2)) {
+					loadIncludeFile(file2);
+				}
 			}
 		}
 	}
 
-	
+	/**
+	 * Add an additional import key to this reader.
+	 * If the file read contains this key, the reader will interpret its value as a file name to be imported.
+	 * Files are imported in the order these keys were defined.  
+	 * In the case of import duplication, the earlier definitions will take precedence.
+	 * @param name new import directive key
+	 */
 	public void addIncludeName(String name) {
 		if (name != null && ! name.isEmpty()) {
 			includeNames.add(name);			
@@ -283,8 +312,8 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		
 		// Update the counts, start at the rightmost column and move in
 		//   Note, if it gets to this point, then a set of valid
-		//   parameters have been loaded into the ParameterData structure;
-		//   therefore, from this point on, only a "false" should be returned
+		//   parameters have been loaded into the ParameterData structure.
+		//   Therefore, from this point on, only a "false" should be returned
 		//   from this call to nextIterate().  This means
 		//   the user should use the parameters that have been set.
 		//   The most this code should do is set it up so the next call to
@@ -293,23 +322,17 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		for (int j=count_itr.length-1; j >= 0; j--) {
 			if (count_itr[j] < param_val.size()-1) { // there are more values in this column
 				count_itr[j]++;
-				
-				// check if the value in the column is invalid, if so, skip this column and move to the next
-				if (param_isValue[j] && Double.MAX_VALUE == Units.parse(param_val.get(count_itr[j])[j], Double.MAX_VALUE)) {
-					count_itr[j] = 0;
-					if (j == 0) { // if there is an invalid value in the first column, then we are done
-						count_itr[j] = param_val.size();
-						return false;
-					}
-				} else {
+
+				// if a valid value, then we are done
+				if ( ! param_isValue[j] || Double.MAX_VALUE != Units.parse(param_val.get(count_itr[j])[j], Double.MAX_VALUE)) {
 					return false;
 				}
-			} else { // there are no more values in this column so reset the counter
-				count_itr[j] = 0;				
-				if (j == 0) { // if we reset the first column, then we are done
-					count_itr[j] = param_val.size();
-				}
 			}
+			// there are no more values in this column so reset the counter	
+			count_itr[j] = 0;
+		}
+		if (count_itr[0] == 0) { // if we have reset the first column, then set it up so next call to nextIterate will return EOF
+			count_itr[0] = param_val.size();
 		}
 		return false;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -74,7 +74,7 @@ public class Quad<T1, T2, T3, T4> {
      * @return a new Quad (4-tuple)
      * */
     public static <T1, T2, T3, T4> Quad<T1, T2, T3, T4> make(T1 t1, T2 t2, T3 t3, T4 t4) {
-        return new Quad<T1, T2, T3, T4>(t1, t2, t3, t4);
+        return new Quad<>(t1, t2, t3, t4);
     }
  
     /** Are these two Quad objects equal? */
@@ -83,14 +83,14 @@ public class Quad<T1, T2, T3, T4> {
             return false;
  
         final Quad<?, ?, ?, ?> other = (Quad<?,?,?,?>) o;
-        return equal(getFirst(), other.getFirst()) 
-        	&& equal(getSecond(), other.getSecond())
-        	&& equal(getThird(), other.getThird())
-        	&& equal(getFourth(), other.getFourth());
+        return localEquals(getFirst(), other.getFirst()) 
+        	&& localEquals(getSecond(), other.getSecond())
+        	&& localEquals(getThird(), other.getThird())
+        	&& localEquals(getFourth(), other.getFourth());
     }
     
     /** Are these two Quad objects equal? */
-    private static final boolean equal(Object o1, Object o2) {
+    private static final boolean localEquals(Object o1, Object o2) {
         if (o1 == null) {
             return o2 == null;
         }
