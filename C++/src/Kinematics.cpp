@@ -728,9 +728,9 @@ bool Kinematics::testLoSVs(const Vect3& so, const Velocity& vo, const Velocity& 
 double Kinematics::timeNeededForFLC(double deltaZ, double vsFLC, double vsAccel, bool kinematic) {
 	double rtn;
 	if (kinematic) {
-		rtn = abs(deltaZ / vsFLC) + abs(vsFLC / vsAccel);
+		rtn = std::abs(deltaZ / vsFLC) + std::abs(vsFLC / vsAccel);
 	} else {
-		rtn = abs(deltaZ / vsFLC);
+		rtn = std::abs(deltaZ / vsFLC);
 	}
 	return rtn;
 }
