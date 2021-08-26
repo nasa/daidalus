@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -592,7 +592,7 @@ public class DaidalusCore {
 	}
 
 	/**
-	 * Requires 0 <= conflict_region < CONFICT_BANDS
+	 * Requires {@code 0 <= conflict_region < CONFICT_BANDS}
 	 * @return sorted list of aircraft indices and alert_levels contributing to conflict (non-peripheral)
 	 * bands for given conflict region.
 	 * INTERNAL USE ONLY
@@ -603,7 +603,7 @@ public class DaidalusCore {
 	}
 
 	/**
-	 * Requires 0 <= conflict_region < CONFICT_BANDS
+	 * Requires {@code 0 <= conflict_region < CONFICT_BANDS}
 	 * @return Return time interval of conflict for given conflict region
 	 * INTERNAL USE ONLY
 	 */
@@ -785,11 +785,11 @@ public class DaidalusCore {
 	 * When the alerter object has been configured to consider ownship maneuvers, i.e.,
 	 * using spread values, the alerting logic could also use information about the ownship
 	 * turning, accelerating, and climbing status as follows:
-	 * - turning < 0: ownship is turning left, turning > 0: ownship is turning right, turning = 0: 
+	 * - {@code turning < 0}: ownship is turning left, {@code turning > 0}: ownship is turning right, turning = 0: 
 	 * do not make any turning assumption about the ownship.
-	 * - accelerating < 0: ownship is decelerating, accelerating > 0: ownship is accelerating, 
+	 * - {@code accelerating < 0}: ownship is decelerating, {@code accelerating > 0}: ownship is accelerating, 
 	 * accelerating = 0: do not make any accelerating assumption about the ownship.
-	 * - climbing < 0: ownship is descending, climbing > 0: ownship is climbing, climbing = 0:
+	 * - {@code climbing < 0}: ownship is descending, {@code climbing > 0}: ownship is climbing, climbing = 0:
 	 * do not make any climbing assumption about the ownship.
 	 * NOTES: 
 	 * 1. This method uses a 0-based traffic index.

@@ -223,8 +223,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>setListBool</b> (cons
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a44bcb2bdd0762f994740082c53197bef"><td class="memItemLeft" align="right" valign="top"><a id="a44bcb2bdd0762f994740082c53197bef"></a>
-static <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a>&#160;</td><td class="memItemRight" valign="bottom"><b>make</b> ()</td></tr>
+<tr class="memitem:a44bcb2bdd0762f994740082c53197bef"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_parameter_data.html#a44bcb2bdd0762f994740082c53197bef">make</a> ()</td></tr>
 <tr class="separator:a44bcb2bdd0762f994740082c53197bef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
@@ -309,10 +308,10 @@ static const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>d
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Copy a <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> object into this object. That is, A.copy(B,true) means A &lt;&mdash; B. </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Copy a <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> object into this object. That is, A.copy(B,true) means A &lt;&mdash; B. If either units or comments are not defined in B, then the values in A are used. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">p</td><td>source <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> </td></tr>
-    <tr><td class="paramname">overwrite</td><td>if a parameter key exists in both this object and p, if overwrite is true then p's value will be used, otherwise this object's value will be used </td></tr>
+    <tr><td class="paramname">overwrite</td><td>if true and a key exists in both this object and p, then use p's value, otherwise keep the original value </td></tr>
   </table>
   </dd>
 </dl>
@@ -777,7 +776,7 @@ static const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>d
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Will set methods update the units in the database, or will the units in the database be preserved? </p><dl class="section return"><dt>Returns</dt><dd>true, if the units in the database will be preserved when a set method is called. </dd></dl>
+<p>Will the units in the database will be updated if a subsequent set operation changes them. </p><dl class="section return"><dt>Returns</dt><dd>true, if the units in the database will be preserved when a set method is called. </dd></dl>
 
 </div>
 </div>
@@ -926,6 +925,32 @@ static const std::string&#160;</td><td class="memItemRight" valign="bottom"><b>d
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>string </dd></dl>
+
+</div>
+</div>
+<a id="a44bcb2bdd0762f994740082c53197bef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44bcb2bdd0762f994740082c53197bef">&#9670;&nbsp;</a></span>make()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> larcfm::ParameterData::make </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>A database of parameters. The database is initially empty. </p><dl class="section return"><dt>Returns</dt><dd>new database </dd></dl>
 
 </div>
 </div>
@@ -1490,10 +1515,10 @@ c = 10 [NM] </li>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>If true, then all subsequent calls to "set.." methods will not update the units in the database to the units supplied through a "set.." method. The only exception is if the units in the database are "unspecified" then the units in the database will be updated with the value of units supplied through a "set.." method.</p>
+<p>Controls whether all subsequent calls to "set.." methods will update the units in the database to the units supplied through a "set.." method. The "unspecified" unit is never preserved.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">v</td><td>true when the units in the database should be preserved </td></tr>
+    <tr><td class="paramname">v</td><td>If true, then the units in the database should be preserved </td></tr>
   </table>
   </dd>
 </dl>
@@ -1541,7 +1566,7 @@ c = 10 [NM] </li>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Will set methods disallow updating a unit if the new unit is incompatible with the old unit. Meters and feet are compatible, whereas meters and kilograms are not. Most of the time, one wants the enforcement that compatible units are required, but there may be some situations where this is undesired.</p>
+<p>Controls whether set methods disallow updating a unit if the new unit is incompatible with the old unit. Meters and feet are compatible, whereas meters and kilograms are not. Most of the time, one wants the enforcement that compatible units are required, but there may be some situations where this is undesired.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">v</td><td>true when the units in a set method must be compatible with the database. </td></tr>
@@ -1585,14 +1610,14 @@ c = 10 [NM] </li>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Return this <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> as a single line string that can subsequently be parsed by parseLine() </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Return this <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> as a single line string that can subsequently be parsed by parseLine()</p>
+<dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">separator</td><td>A unique (to the key and value set) character string to separate each entry. If this is null or the empty string, use the defaultEntrySeparator string instead. </td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Single-line string representation of this <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> object, possibly empty, or null if the separator is a substring of any key/value entry.</dd></dl>
-<p>Note that the delimiter will be included after each entry, including the last one. </p>
+<dl class="section return"><dt>Returns</dt><dd>Single-line string representation of this <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> object, possibly empty, or null if the separator is a substring of any key/value entry. </dd></dl>
 
 </div>
 </div>
@@ -1699,7 +1724,7 @@ c = 10 [NM] </li>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>If the entry does not exist or the supplied unit is not recognized, this returns false, otherwise it returns true. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>If the entry does not exist, this returns false, otherwise it returns true. </dd></dl>
 
 </div>
 </div>
@@ -1736,7 +1761,7 @@ c = 10 [NM] </li>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>If the entry does not exist or the supplied unit is not recognized, this returns false, otherwise it returns true. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>If the unit was changed then return true, otherwise false. The unit may not be changed because it was duplicative, incompatible, not a unit, etc. </dd></dl>
 
 </div>
 </div>

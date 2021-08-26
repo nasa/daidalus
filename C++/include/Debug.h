@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -121,16 +121,16 @@ public:
 	static void pln(int lvl, const std::string& msg);
 
 	/**
-	 * Output the <i>msg</i> to the console with the prepended <i>tag</i>.  Warnings are always
-	 * output and never cause a program termination.
+	 * Output the <i>msg</i> to the console with the prepended <i>tag</i>.  Warnings are 
+	 * output, provided the verbose level is 1 or greater, and should never cause a program termination.
 	 * 
 	 * @param tag the tag to indicate the location of this debug message.
 	 * @param msg message to indicate what has gone wrong.
 	 */
 	static void warning(const std::string& tag, const std::string& msg);
 	/**
-	 * Output the <i>msg</i> to the console with the prepended <i>WARNING</i> tag.  Warnings are always
-	 * output and never cause a program termination.
+	 * Output the <i>msg</i> to the console with the prepended <i>WARNING</i> tag.  Warnings are 
+	 * output, provided the verbose level is 1 or greater, and should never cause a program termination.
 	 * 
 	 * @param msg message to indicate what has gone wrong.
 	 */

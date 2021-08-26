@@ -1,7 +1,7 @@
 /*
  * Kinematics.cpp
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -98,7 +98,7 @@ double ProjectedKinematics::closestDistOnTurn(const Position& turnstart, const V
     if (turnstart.isLatLon()) {
     	return KinematicsLatLon::closestDistOnTurn(turnstart.lla(), v1, R, dir, x.lla(), endDist);
     }
-    return Kinematics::closestDistOnTurn(s3, v1, R, dir, x3, endDist);
+    return Kinematics::turnDistClosest(s3, v1, R, dir, x3, endDist);
 }
 
 std::pair<Position,Velocity> ProjectedKinematics::turn(const Position& so, const Velocity& vo, double t, double R, bool turnRight) {
@@ -106,7 +106,7 @@ std::pair<Position,Velocity> ProjectedKinematics::turn(const Position& so, const
 	if (so.isLatLon()) {
 		s3 = Projection::createProjection(so.lla().zeroAlt()).project(so);
 	}
-	std::pair<Vect3,Velocity> resp = Kinematics::turn(std::pair<Vect3,Velocity>(s3,vo),t,R,turnRight);
+	std::pair<Vect3,Velocity> resp = Kinematics::turn(s3,vo,t,R,Util::sign(turnRight));
 	Vect3 pres = resp.first;
 	Velocity vres = resp.second;
 	if (so.isLatLon()) {
@@ -176,7 +176,7 @@ std::pair<Position,Velocity> ProjectedKinematics::turnUntil(const Position& so, 
 	}
 	//Vect3 pres = Kinematics.turnUntilPosition(s3,vo,goalTrack, bankAngle,t,turnRight);
 	//Velocity vres = Kinematics.turnUntilVelocity(vo,goalTrack, bankAngle,t,turnRight);
-	std::pair<Vect3,Velocity> svres = Kinematics::turnUntil(s3, vo, t, goalTrack, bankAngle);
+	std::pair<Vect3,Velocity> svres = Kinematics::turnUntilTrack(s3, vo, t, goalTrack, bankAngle);
 	Vect3 pres = svres.first;
 	Velocity vres = svres.second;
 	//f.pln("Kin.turnProjection so = "+so+" pres = "+pres+" vo = "+vo+" vres=  "+vres);
@@ -383,7 +383,7 @@ std::pair<Position,Velocity> ProjectedKinematics::vsLevelOut(const Position& so,
 	if (so.isLatLon()) {
 		sv = Projection::createProjection(so.lla().zeroAlt()).project(so, vo);
 	}
-	std::pair<Vect3,Velocity> vat = Kinematics::vsLevelOut(sv, t, climbRate, targetAlt, a);
+	std::pair<Vect3,Velocity> vat = Kinematics::vsLevelOut(sv, t, climbRate, targetAlt, a, true);
 	if (so.isLatLon()) {
 		return Projection::createProjection(so.lla().zeroAlt()).inverse(vat.first,vat.second,true);
 	} else {

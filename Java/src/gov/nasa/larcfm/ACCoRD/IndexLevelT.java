@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020 United States Government as represented by
+ * Copyright (c) 2018-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -29,7 +29,7 @@ public class IndexLevelT {
 	}
 
 	/**
-	 * @return acs the list of aircraft identifiers from list of IndexLevelTs
+	 * Returns in acs the list of aircraft identifiers from list of IndexLevelTs
 	 */
 	public static void toStringList(List<String> acs, List<IndexLevelT> idxs, List<TrafficState> traffic) {
 		acs.clear();

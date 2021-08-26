@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -9,6 +9,7 @@
  *
  */
 
+#include <algorithm>
 #include "DaidalusFileWalker.h"
 
 namespace larcfm {
@@ -27,8 +28,72 @@ void DaidalusFileWalker::init() {
   sr_.setWindowSize(1);
   index_ = 0;
   times_ = sr_.sequenceKeys();
-  if (times_.size() > 0)
+  if (times_.size() > 0) {
     sr_.setActive(times_[0]);
+  }
+  ownship_ = "";
+}
+
+/**
+ * By default ownship is the first aircraft in the daa file.
+ * This method allows for the selection of a different aircraft as the ownship
+ * If aircraft with given name doesn't exist at a time step, no ownship or traffic
+ * is added to the Daidalus object at that particular time step.
+ */
+void DaidalusFileWalker::setOwnship(const std::string& name) {
+  ownship_ = name;
+}
+
+/**
+ * Returns the name of the ownship.
+ * An empty string refers to the aircraft that is the first in the daa file
+ */
+const std::string& DaidalusFileWalker::getOwnship() const {
+  return ownship_;
+}
+
+/**
+ * Reset the ownship value so that the first aircraft in the daa are considered
+ * the ownship.
+ */
+void DaidalusFileWalker::resetOwnship() {
+  setOwnship("");
+}
+
+/**
+ * By default all aircraft that are not the ownship are considered to be traffic.
+ * This method add a particular aircraft to the list of selected aircraft.
+ * Several aircraft can be selected, but if the list of selected aircraft is non empty,
+ * only the aircraft in the list are considered traffic.
+ */
+void DaidalusFileWalker::selectTraffic(const std::string& name) {
+  traffic_.push_back(name);
+}
+
+/**
+ * By default all aircraft that are not the ownship are considered to be traffic.
+ * This method add a list of aircraft to the list of selected aircraft.
+ * Several aircraft can be selected, but if the list of selected aircraft is non empty,
+ * only the aircraft in the list are considered traffic.
+ */
+void DaidalusFileWalker::selectTraffic(const std::vector<std::string>& names) {
+  traffic_.insert(traffic_.end(),names.begin(),names.end());
+}
+
+/**
+ * Returns the list of selected traffic. An empty list means that all aircraft that are
+ * not the ownship are considered traffic.
+ */
+const std::vector<std::string>& DaidalusFileWalker::getSelectedTraffic() const {
+  return traffic_;
+}
+
+/**
+ * Reset the list of selected aircraft so that all aircraft that are not ownship are
+ * considered traffic.
+ */
+void DaidalusFileWalker::resetSelectedTraffic() {
+  traffic_.clear();
 }
 
 double DaidalusFileWalker::firstTime() const {
@@ -181,16 +246,35 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
     daa.setParameterData(p_);
     daa.reset();
   }
-  for (int ac = 0; ac < sr_.size();++ac) {
-    std::string ida = sr_.getName(ac);
-    Position sa = sr_.getPosition(ac);
-    Velocity va = sr_. getVelocity(ac);
-    if (ac==0) {
-      daa.setOwnshipState(ida,sa,va,getTime());
-    } else {
-      daa.addTrafficState(ida,sa,va);
+  int own = 0; // By default onwship is 0
+  if (ownship_ != "") {
+    own = -1;
+    for (int ac = 0; ac < sr_.size();++ac) {
+      if (sr_.getName(ac) == ownship_) {
+        own = ac;
+        break;
+      }
     }
-    readExtraColumns(daa,sr_,ac);
+  }
+  if (own >= 0) {
+    std::string ido = sr_.getName(own);
+    Position so = sr_.getPosition(own);
+    Velocity vo = sr_. getVelocity(own);
+    daa.setOwnshipState(ido,so,vo,getTime());
+    readExtraColumns(daa,sr_,0);
+    for (int ac = 0; ac < sr_.size();++ac) {
+      if (ac == own) {
+        continue;
+      }
+      std::string ida = sr_.getName(ac);
+      if (traffic_.empty() ||
+          std::find(traffic_.begin(),traffic_.end(),ida) != traffic_.end()) {
+        Position sa = sr_.getPosition(ac);
+        Velocity va = sr_. getVelocity(ac);
+        daa.addTrafficState(ida,sa,va);
+        readExtraColumns(daa,sr_,ac);
+      }
+    }
   }
   goNext();
 }

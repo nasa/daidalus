@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -36,7 +36,7 @@ public class TargetUrgency {
    * @param si2 intruder2 position
    * @param vi2 intruder2 velocity
    * @param B detection start time (generally 0)               [relative] 
-   * @param T detection lookahead time, t <= 0 is "no data"    [relative] 
+   * @param T detection lookahead time, {@code t <= 0} is "no data"    [relative] 
    * @return true if intruder 1 is more urgent than intruder 2
    */
   public static boolean mostUrgent(Detection3D cd, Vect3 so, Velocity vo, Vect3 si1, Velocity vi1, Vect3 si2, Velocity vi2, double B, double T) {
@@ -71,9 +71,9 @@ public class TargetUrgency {
    * @param conflict true if a conflict was detected
    * @param tin time in for the conflict, in seconds (if conflict)    [relative]
    * @param tca critical time of conflict, in seconds (if conflict)   [relative]
-   * @param dist_tca distance at critical time, >= 0.0 (if conflict)
+   * @param dist_tca distance at critical time, {@code >= 0.0} (if conflict)
    * @param B detection start time (generally 0)                      [relative]
-   * @param T detection lookahead time, t <= 0 is "no data"           [relative]
+   * @param T detection lookahead time, {@code t <= 0} is "no data"           [relative]
    * @return urgency sorting value, with positive infinity being least urgent and negative infinity being most urgent
    */
   public static double sortValue(double cdist, boolean conflict, double tin, double tca, double dist_tca, double B, double T) {

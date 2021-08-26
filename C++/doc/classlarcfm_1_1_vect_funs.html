@@ -94,11 +94,9 @@ static <a class="el" href="classlarcfm_1_1_vect2.html">Vect2</a>&#160;</td><td c
 <tr class="memitem:ab99a440121b9cabe095f187b4145e65f"><td class="memItemLeft" align="right" valign="top"><a id="ab99a440121b9cabe095f187b4145e65f"></a>
 static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td class="memItemRight" valign="bottom"><b>midPoint</b> (const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;p0, const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;p1)</td></tr>
 <tr class="separator:ab99a440121b9cabe095f187b4145e65f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c48875f9def181c67e82aafb5ac4ed1"><td class="memItemLeft" align="right" valign="top"><a id="a4c48875f9def181c67e82aafb5ac4ed1"></a>
-static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td class="memItemRight" valign="bottom"><b>interpolate</b> (const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;v1, const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;v2, double f)</td></tr>
+<tr class="memitem:a4c48875f9def181c67e82aafb5ac4ed1"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_vect_funs.html#a4c48875f9def181c67e82aafb5ac4ed1">interpolate</a> (const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;v1, const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;v2, double f)</td></tr>
 <tr class="separator:a4c48875f9def181c67e82aafb5ac4ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d8e809b6029f537ef93184867f81364"><td class="memItemLeft" align="right" valign="top"><a id="a4d8e809b6029f537ef93184867f81364"></a>
-static <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a>&#160;</td><td class="memItemRight" valign="bottom"><b>interpolateVelocity</b> (const <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> &amp;v1, const <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> &amp;v2, double f)</td></tr>
+<tr class="memitem:a4d8e809b6029f537ef93184867f81364"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_vect_funs.html#a4d8e809b6029f537ef93184867f81364">interpolateVelocity</a> (const <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> &amp;v1, const <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> &amp;v2, double f)</td></tr>
 <tr class="separator:a4d8e809b6029f537ef93184867f81364"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:affbbb0c240562ba2cb74e79395faa8f7"><td class="memItemLeft" align="right" valign="top"><a id="affbbb0c240562ba2cb74e79395faa8f7"></a>
 static double&#160;</td><td class="memItemRight" valign="bottom"><b>angle_between</b> (const <a class="el" href="classlarcfm_1_1_vect2.html">Vect2</a> &amp;v1, const <a class="el" href="classlarcfm_1_1_vect2.html">Vect2</a> &amp;v2)</td></tr>
@@ -602,6 +600,110 @@ static <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a>&#160;</td><td c
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true iff divergent and relative speed is greater than a specified minimum relative speed </dd></dl>
+
+</div>
+</div>
+<a id="a4c48875f9def181c67e82aafb5ac4ed1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4c48875f9def181c67e82aafb5ac4ed1">&#9670;&nbsp;</a></span>interpolate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> larcfm::VectFuns::interpolate </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;&#160;</td>
+          <td class="paramname"><em>v1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlarcfm_1_1_vect3.html">Vect3</a> &amp;&#160;</td>
+          <td class="paramname"><em>v2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>f</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Interpolate between two vectors. <br  />
+ </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v1</td><td>first position </td></tr>
+    <tr><td class="paramname">v2</td><td>second position </td></tr>
+    <tr><td class="paramname">f</td><td>a fraction. Should be between 0 and 1 to interpolate. If 0, then v1 is returned, if 1 then v2 is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>interpolated vector </dd></dl>
+
+</div>
+</div>
+<a id="a4d8e809b6029f537ef93184867f81364"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d8e809b6029f537ef93184867f81364">&#9670;&nbsp;</a></span>interpolateVelocity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> larcfm::VectFuns::interpolateVelocity </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> &amp;&#160;</td>
+          <td class="paramname"><em>v1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classlarcfm_1_1_velocity.html">Velocity</a> &amp;&#160;</td>
+          <td class="paramname"><em>v2</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double&#160;</td>
+          <td class="paramname"><em>f</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Interpolate between two velocity vectors. <br  />
+ </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">v1</td><td>first position </td></tr>
+    <tr><td class="paramname">v2</td><td>second position </td></tr>
+    <tr><td class="paramname">f</td><td>a fraction. Should be between 0 and 1 to interpolate. If 0, then v1 is returned, if 1 then v2 is returned. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>interpolated vector </dd></dl>
 
 </div>
 </div>

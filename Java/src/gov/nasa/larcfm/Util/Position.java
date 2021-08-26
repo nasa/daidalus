@@ -5,7 +5,7 @@
  *           Jeff Maddalon             NASA Langley Research Center
  *
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -62,7 +62,7 @@ public final class Position implements OutputList {
 	/** A zero position in lat/lon */
 	public static final Position ZERO_LL = make(LatLonAlt.ZERO);
 	/** A zero position in Euclidean */
-	public static final Position ZERO_XYZ = make(Vect3.Zero());  
+	public static final Position ZERO_XYZ = make(Vect3.ZERO);  
 	/** An invalid position.  Note that this is not necessarily equal to other invalid positions -- use the isInvalid() test instead. */
 	public static final Position INVALID = make(Vect3.INVALID);
 
@@ -83,7 +83,7 @@ public final class Position implements OutputList {
 	
 	/** Construct a new Position object from a Vect3 object. This method
 	 * assumes the Vect3 is in internal units. 
-	 * @param v three dimensional vector
+	 * @param p three dimensional vector
 	 * @return new Position object
 	 */
 	public static Position make(Vect3 p) {
@@ -581,32 +581,6 @@ public final class Position implements OutputList {
 		return Math.abs(z() - p.z());
 	}
 
-//	/** Return the vertical distance between the current Position and the given Position. Positive values mean 
-//	 * the current Position is above the given Position 
-//	 * 
-//	 * @param p another position
-//	 * @return vertical distance (positive values mean current position is above the given position
-//	 */
-//	public double signedDistanceV(Position p) {
-//		return z() - p.z();
-//	}
-
-	//  /**
-	//   * Return a quickly calculated approximation for the distance between two points.  
-	//   * This assumes the area in question is fairly small and does not overlap with a pole.
-	//   * @param p second point
-	//   * @param d distance to compare to.
-	//   * @return
-	//   */
-	//  public double distanceHApprox(Position p) {
-	//	  if (isLatLon()) {
-	//		  double raddist = 6360000; // m per degree
-	//          double latdiff = (lla().lat() - p.lla().lat());
-	//          double londiff = (lla().lon() - p.lla().lon())*Math.cos(p.lla().lat());
-	//          return raddist*Math.sqrt(latdiff*latdiff + londiff*londiff);
-	//	  }
-	//	  return distanceH(p);
-	//  }
 
 	/** 
 	 * Perform a linear projection of the current Position with given velocity and time.  
@@ -1091,7 +1065,7 @@ public final class Position implements OutputList {
 		if (latlon) {
 			return "Position.mkLatLonAlt("+ f.Fm16(lat())+", "+f.Fm16(lon())+", "+f.Fm16(alt())+")";
 		} else {
-			return "Position.mkXYZ("+(f.Fm16(x())+", "+f.Fm16(y())+", "+f.Fm12(z())+")");
+			return "Position.mkXYZ("+(f.Fm16(x())+", "+f.Fm16(y())+", "+f.Fm16(z())+")");
 		}
 	}
 

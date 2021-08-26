@@ -3,7 +3,7 @@
  *
  * Contact: Jeff Maddalon (j.m.maddalon@nasa.gov), Cesar Munoz, George Hagen
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -314,6 +314,7 @@ namespace larcfm {
     bool header;         // header line read in
     std::vector<std::string> header_str;    // header line raw string
     bool bunits;          // units line read in
+    bool first_bunits;          // units line read in
     std::vector<std::string> units_str;     // Units type
     std::vector<double> units_factor;  // Units conversion value
     std::vector<std::string> line_str;      // raw line

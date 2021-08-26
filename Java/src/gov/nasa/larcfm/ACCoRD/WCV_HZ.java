@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 United States Government as represented by
+ * Copyright (c) 2012-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -25,7 +25,7 @@ public class WCV_HZ extends WCV_TAUMOD {
 	}  
 
 	/**
-	 * @return one static WCV_HZ
+	 * One static WCV_HZ
 	 */
 	public static final WCV_HZ A_WCV_HZ =
 			new WCV_HZ();

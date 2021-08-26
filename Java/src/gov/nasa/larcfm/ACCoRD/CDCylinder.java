@@ -36,7 +36,7 @@
  * t_in  : Time to loss of separation
  * t_out : Time to recovery of loss of separation
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -133,13 +133,13 @@ public class CDCylinder extends Detection3D {
 	}
 
 	/**
-	 * @return one static CDCylinder
+	 * One static CDCylinder
 	 */
 	public static final CDCylinder A_CDCylinder =
 			new CDCylinder();
 
 	/**
-	 * @return CDCylinder thresholds, i.e., D=5nmi, H=1000ft.
+	 * CDCylinder thresholds, i.e., D=5nmi, H=1000ft.
 	 */
 	public static final CDCylinder CD3DCylinder = A_CDCylinder;
 
@@ -193,8 +193,8 @@ public class CDCylinder extends Detection3D {
 	 * @param vi the intruder's velocity
 	 * @param D the minimum horizontal distance
 	 * @param H the minimum vertical distance
-	 * @param B the the lower bound of the lookahead time (B >= 0)
-	 * @param T the upper bound of the lookahead time (B < T)
+	 * @param B the the lower bound of the lookahead time ({@code B >= 0})
+	 * @param T the upper bound of the lookahead time ({@code B < T})
 	 * 
 	 * @return true, if the conflict time interval (t_in,t_out) is in [B,T].
 	 */
@@ -210,7 +210,7 @@ public class CDCylinder extends Detection3D {
 	 * @param vi the intruder's velocity
 	 * @param D the minimum horizontal distance
 	 * @param H the minimum vertical distance
-	 * @param T the the lookahead time (T > 0)
+	 * @param T the the lookahead time ({@code T > 0})
 	 * 
 	 * @return true, if the conflict time interval (t_in,t_out) is in [0,T].
 	 */

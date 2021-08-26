@@ -1,5 +1,5 @@
 /*
-> * Copyright (c) 2012-2020 United States Government as represented by
+> * Copyright (c) 2012-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -28,7 +28,7 @@ public class WCV_TEP extends WCV_tvar {
 	}
 
 	/**
-	 * @return one static WCV_TEP
+	 * One static WCV_TEP
 	 */
 	public static final WCV_TEP A_WCV_TEP =
 			new WCV_TEP();

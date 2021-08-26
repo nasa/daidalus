@@ -3,7 +3,7 @@
  * 
  * 2-D vectors.
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -18,7 +18,7 @@ package gov.nasa.larcfm.Util;
  * letter create a new object, just as a reminder of this behavior.</p>
  * 
  */ 
-public /*final*/ class Vect2 {
+public class Vect2 {
 
 	/** The x-component */
 	public final double  x;
@@ -51,14 +51,6 @@ public /*final*/ class Vect2 {
 	
 	public static Vect2 mk(double x, double y) {
 		return new Vect2(x,y);
-	}
-
-	/**
-	 * Zero constant.
-	 * @return zero vector
-	 */
-	public static Vect2 Zero() {
-		return new Vect2();
 	}
 
 	/** The x component 
@@ -98,9 +90,7 @@ public /*final*/ class Vect2 {
 		Vect2 other = (Vect2) obj;
 		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x))
 			return false;
-		if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y))
-			return false;
-		return true;
+		return (Double.doubleToLongBits(y) == Double.doubleToLongBits(other.y));
 	}
 
 	/**
@@ -193,8 +183,7 @@ public /*final*/ class Vect2 {
 	 * @return the dot product of <code>this</code> vector with itself.
 	 */
 	public double sqv() {
-		//This implementation
-		//return dot(x,y);
+		//This implementation: return dot(x,y)
 		//was replaced with this implementation
 		return x*x+y*y; 
 		//for performance reasons.
@@ -284,7 +273,7 @@ public /*final*/ class Vect2 {
 	 * @param vop  second vector
 	 * @return 1 if vop is to the right, -1 if vop is to the left
 	 */
-	public static int right_or_left(Vect2 vo, Vect2 vop) {
+	public static int rightOrLeft(Vect2 vo, Vect2 vop) {
 		return Util.sign(vop.det(vo));
 	}  
 
@@ -445,7 +434,7 @@ public /*final*/ class Vect2 {
 	 * @param vi velocity of intruder
 	 * @return time of closest point of approach
 	 */
-	public static double actual_tcpa (Vect2 so, Vect2 vo, Vect2 si, Vect2 vi) {
+	public static double actualTcpa (Vect2 so, Vect2 vo, Vect2 si, Vect2 vi) {
 		double rtn;
 		Vect2 s = so.Sub(si);
 		Vect2 v = vo.Sub(vi);
@@ -534,8 +523,7 @@ public /*final*/ class Vect2 {
 	 */
 	public static double distAlong(Vect2 s, Vect2 v, Vect2 q) {
 		double tp = q.Sub(s).dot(v)/v.sqv();
-		//return s.Add(v.Scal(tp)).Sub(s).norm();
-		//f.pln(" $$$ distAlong: tp = "+tp);
+		//return s.Add(v.Scal(tp)).Sub(s).norm()
 		return Util.sign(tp)*v.Scal(tp).norm();
 	}
 
@@ -548,9 +536,8 @@ public /*final*/ class Vect2 {
 	 * @param v1 direction vector of line 2
 	 * @return 2-dimensional point of intersection, or an invalid point if they are parallel
 	 */
-	public static Vect2 intersect_pt(Vect2 s0, Vect2 v0, Vect2 s1, Vect2 v1) {
+	public static Vect2 intersectPt(Vect2 s0, Vect2 v0, Vect2 s1, Vect2 v1) {
 		if (Util.almost_equals(v0.det(v1),0.0)) { // parallel: no intersection point
-			//		  f.pln(" Vect2.intersect_pt: $$$$$$$$ ERROR $$$$$$$$$");
 			return Vect2.INVALID;
 		} else {
 			Vect2 delta = s1.Sub(s0);
@@ -599,10 +586,6 @@ public /*final*/ class Vect2 {
 
 	public String toPVS(int precision) {
 		return "(# x:= "+f.FmPrecision(x,precision)+", y:= "+f.FmPrecision(y,precision)+" #)";
-	}
-
-	public String vStr() {
-		return "("+Units.str("deg",compassAngle())+", "+Units.str("knot",norm())+")";
 	}
 
 

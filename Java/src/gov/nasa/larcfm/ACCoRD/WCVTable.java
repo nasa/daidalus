@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 United States Government as represented by
+ * Copyright (c) 2012-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -95,41 +95,41 @@ public class WCVTable implements ParameterTable {
 	}
 
 	/**
-	 * @return DO-365 preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
+	 * DO-365 preventive thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=700ft, 
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCVTable DO_365_Phase_I_preventive = 
 			new WCVTable(0.66,"nmi",700,"ft",35,"s",0,"s");
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
+	 * DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft, 
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCVTable DO_365_DWC_Phase_I = new WCVTable();
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
+	 * DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500ft, ZTHR=450ft, 
 	 * TTHR=0, TCOA=0.
 	 */
 	public static final WCVTable DO_365_DWC_Phase_II = 
 			new WCVTable(1500,"ft",450,"ft",0,"s",0,"s");
 
 	/**
-	 * @return DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
+	 * DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200ft, ZTHR=450ft, 
 	 * TTHR=0, TCOA=0.
 	 */
 	public static final WCVTable DO_365_DWC_Non_Coop = 
 			new WCVTable(2200,"ft",450,"ft",0,"s",0,"s");
 
 	/**
-	 * @return buffered preventive thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=750ft, 
+	 * Buffered preventive thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=750ft, 
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCVTable Buffered_Phase_I_preventive = 
 			new WCVTable(1.0,"nmi",750,"ft",35,"s",20,"s");
 
 	/**
-	 * @return buffered Well-Clear thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=450ft,
+	 * Buffered Well-Clear thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCVTable Buffered_DWC_Phase_I = 

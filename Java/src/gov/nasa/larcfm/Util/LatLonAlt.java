@@ -4,7 +4,7 @@
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -77,6 +77,22 @@ public final class LatLonAlt {
 		return new LatLonAlt(Units.from("deg", lat),
 				Units.from("deg", lon),
 				Units.from("ft", alt));
+	}
+
+	public static LatLonAlt makeNormal(double lat, double lon, double alt) {
+		double latitude = Units.from("deg", lat);
+		double longitude = Units.from("deg", lon);
+		double altitude = Units.from("ft", alt);
+		
+		return normalize(latitude, longitude, altitude);
+	}
+
+	public static LatLonAlt makeTrunc(double lat, double lon, double alt) {
+		double latitude = Util.to_pi2(Units.from("deg", lat));
+		double longitude = Util.to_2pi(Units.from("deg", lon));
+		double altitude = Units.from("ft", alt);
+		
+		return mk(latitude,longitude,altitude);
 	}
 
 	/**
@@ -699,19 +715,20 @@ public final class LatLonAlt {
 	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees 
 	 * of latitude converts to 85 degrees and 190 degrees west longitude map to 170 of east longitude.
 	 * 
-	 * @param lat latitude
-	 * @param lon longitude
+	 * @param lat latitude in radians
+	 * @param lon longitude in radians
 	 * @param alt altitude
 	 * @return normalized LatLonAlt value
 	 */
 	public static LatLonAlt normalize(double lat, double lon, double alt) {
 		double nlat, nlon;
-		nlon = Util.to_pi(lon);
+		nlon = lon;
 		lat = Util.to_pi(lat);
 		nlat = Util.to_pi2_cont(lat);
 		if (lat != nlat) {
-			nlon = Util.to_pi(nlon + Math.PI);
+			nlon = nlon + Math.PI;
 		}
+		nlon = Util.to_pi(nlon);
 		return LatLonAlt.mk(nlat, nlon, alt);
 	}
 

@@ -17,14 +17,6 @@ DaidalusProcessor::DaidalusProcessor() {
 	ownship_ = "";
 }
 
-DaidalusProcessor::DaidalusProcessor(const std::string& own) {
-	from_ = -1;
-	to_ = -1;
-	relative_ = 0;
-	options_ = "";
-	ownship_ = own;
-}
-
 double DaidalusProcessor::getFrom() const {
 	return from_;
 }
@@ -33,17 +25,10 @@ double DaidalusProcessor::getTo() const {
 	return to_;
 }
 
-void DaidalusProcessor::setOwnship(const std::string& own) {
-	ownship_ = own;
-}
-
-std::string DaidalusProcessor::getOwnship() const {
-	return ownship_;
-}
-
 std::string DaidalusProcessor::getHelpString() {
 	std::string s = "";
-	s += "  --ownship <id>\n\tSet ownship to aircraft with identifier <id>\n";
+	s += "  --ownship <id>\n\tSpecify a particular aircraft as ownship\n";
+	s += "  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic\n";
 	s += "  --from\n\tCheck from time t\n";
 	s += "  --to t\n\tCheck up to time t\n";
 	s += "  --at [t | t+k | t-k]\n\tCheck times t, [t,t+k], or [t-k,t]. ";
@@ -51,24 +36,30 @@ std::string DaidalusProcessor::getHelpString() {
 	return s;
 }
 
-bool DaidalusProcessor::processOptions(const char* args[], int i) {
+bool DaidalusProcessor::processOptions(const char* args[], int argc, int i) {
 	std::string argi = args[i];
-	if (startsWith(argi,"--own") || startsWith(argi,"-own")) {
+	if ((startsWith(argi,"--own") || startsWith(argi,"-own")) && i+1 < argc) {
 		++i;
 		argi = args[i];
 		ownship_ = argi;
 		options_ += argi+" ";
-	} else if (argi == "--from" || argi == "-from") {
+	} else if ((startsWith(argi,"--traf") || startsWith(argi,"-traf")) && i+1 < argc) {
+		++i;
+		argi = args[i];
+		std::vector<std::string> s = split(argi,",");
+		traffic_.insert(traffic_.end(),s.begin(),s.end());
+		options_ += argi+" ";
+	} else if ((argi == "--from" || argi == "-from") && i+1 < argc) {
 		++i;
 		argi = args[i];
 		from_ = Util::parse_double(argi);
 		options_ += argi+" ";
-	} else if (argi == "--to" || argi == "-to") {
+	} else if ((argi == "--to" || argi == "-to") && i+1 < argc) {
 		++i;
 		argi = args[i];
 		to_ = Util::parse_double(argi);
 		options_ += argi+" ";
-	} else if (argi == "--at" || argi == "-at") {
+	} else if ((argi == "--at" || argi == "-at") && i+1 < argc) {
 		++i;
 		argi = args[i];
 		options_ += argi+" ";
@@ -110,6 +101,14 @@ std::string DaidalusProcessor::getOptionsString() {
 
 void DaidalusProcessor::processFile(const std::string& filename, Daidalus &daa) {
 	DaidalusFileWalker dw = DaidalusFileWalker(filename);
+
+	if (ownship_ != "") {
+		dw.setOwnship(ownship_);
+	}
+	if (!traffic_.empty()) {
+		dw.selectTraffic(traffic_);
+	}
+
 	double from = from_;
 	double to = to_;
 	if (from < 0) {
@@ -126,16 +125,7 @@ void DaidalusProcessor::processFile(const std::string& filename, Daidalus &daa) 
 	}
 	if (dw.goToTime(from) && from <= to) {
 		while (!dw.atEnd() && dw.getTime() <= to) {
-			double t = dw.getTime();
 			dw.readState(daa);
-			if (ownship_ != "") {
-				daa.resetOwnship(ownship_);
-				if (daa.hasError()) {
-					std::cerr << "** Warning: State for ownship aircraft ("<< ownship_ <<
-							") not found at time. Skipping time " << t << " [s]" << std::endl;
-					continue;
-				}
-			}
 			processTime(daa,filename);
 		}
 	}

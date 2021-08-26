@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -42,7 +42,7 @@ public class Pair<L, R> {
      * @return pair
      * */
     public static <L, R> Pair<L, R> make(L left, R right) {
-        return new Pair<L, R>(left, right);
+        return new Pair<>(left, right);
     }
  
     public final boolean equals(Object o) {
@@ -50,19 +50,18 @@ public class Pair<L, R> {
             return false;
  
         final Pair<?, ?> other = (Pair<?,?>) o;
-        return equal(first, other.first) 
-        	&& equal(second, other.second);
+        return localEquals(first, other.first) 
+        	&& localEquals(second, other.second);
     }
     
-    private static final boolean equal(Object o1, Object o2) {
+    private static final boolean localEquals(Object o1, Object o2) {
         if (o1 == null) {
             return o2 == null;
         }
         return o1.equals(o2);
     }
      
-    public int hashCode()
-    {
+    public int hashCode() {
         int hLeft = first == null ? 0 : first.hashCode();
         int hRight = second == null ? 0 : second.hashCode();
         

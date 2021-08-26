@@ -721,8 +721,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>setVerticalSpeedZScor
 <tr class="separator:a13bbf74fa98439581c2dcb13d3d9eff2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af03217a0ff2658a33038eb80386f6c72"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#af03217a0ff2658a33038eb80386f6c72">correctiveAlertLevel</a> (int alerter_idx)</td></tr>
 <tr class="separator:af03217a0ff2658a33038eb80386f6c72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a36757a28ad93f3078871866d3f1408b7"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#a36757a28ad93f3078871866d3f1408b7">maxAlertLevel</a> () const</td></tr>
-<tr class="separator:a36757a28ad93f3078871866d3f1408b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3021f4a04d95b51448038ec970f9dd2d"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#a3021f4a04d95b51448038ec970f9dd2d">maxNumberOfAlertLevels</a> () const</td></tr>
+<tr class="separator:a3021f4a04d95b51448038ec970f9dd2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8832750848e197699bda2dc6fda27e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#ac8832750848e197699bda2dc6fda27e0">setInstantaneousBands</a> ()</td></tr>
 <tr class="separator:ac8832750848e197699bda2dc6fda27e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87d87e2fc359a2ed422b8d3302b40734"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#a87d87e2fc359a2ed422b8d3302b40734">setKinematicBands</a> (bool type)</td></tr>
@@ -746,6 +746,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>toPVS</b> () c
 <tr class="memitem:ab7ddf2a01d499b7db4d32449324b5260"><td class="memItemLeft" align="right" valign="top"><a id="ab7ddf2a01d499b7db4d32449324b5260"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>updateParameterData</b> (<a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> &amp;parameters) const</td></tr>
 <tr class="separator:ab7ddf2a01d499b7db4d32449324b5260"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81400ae024597735afdfdb66345c6b77"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#a81400ae024597735afdfdb66345c6b77">maxAlertLevel</a> () const</td></tr>
+<tr class="separator:a81400ae024597735afdfdb66345c6b77"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac61880c53f64e148692d146a706caab3"><td class="memItemLeft" align="right" valign="top"><a id="ac61880c53f64e148692d146a706caab3"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>setParameterData</b> (const <a class="el" href="classlarcfm_1_1_parameter_data.html">ParameterData</a> &amp;p)</td></tr>
 <tr class="separator:ac61880c53f64e148692d146a706caab3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -774,7 +776,7 @@ static const aliasestype &amp;&#160;</td><td class="memItemRight" valign="bottom
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:af69dbfd75781402254cee1f3396e9541"><td class="memItemLeft" align="right" valign="top">static const std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#af69dbfd75781402254cee1f3396e9541">VERSION</a> = &quot;Pre-2.0.2&quot;</td></tr>
+<tr class="memitem:af69dbfd75781402254cee1f3396e9541"><td class="memItemLeft" align="right" valign="top">static const std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classlarcfm_1_1_daidalus_parameters.html#af69dbfd75781402254cee1f3396e9541">VERSION</a> = &quot;2.0.2&quot;</td></tr>
 <tr class="separator:af69dbfd75781402254cee1f3396e9541"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5235bb8018542054856b1f559e155fe"><td class="memItemLeft" align="right" valign="top"><a id="af5235bb8018542054856b1f559e155fe"></a>
 static const INT64FM&#160;</td><td class="memItemRight" valign="bottom"><b>ALMOST_</b> = PRECISION5</td></tr>
@@ -1649,21 +1651,47 @@ Alerting parameter n of "M of N" strategy </dd></dl>
 
 </div>
 </div>
-<a id="a36757a28ad93f3078871866d3f1408b7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a36757a28ad93f3078871866d3f1408b7">&#9670;&nbsp;</a></span>maxAlertLevel()</h2>
+<a id="a81400ae024597735afdfdb66345c6b77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81400ae024597735afdfdb66345c6b77">&#9670;&nbsp;</a></span>maxAlertLevel()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int larcfm::DaidalusParameters::maxAlertLevel </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>@Deprecated Use maxNumberOfAlertLevels instead </p>
+
+</div>
+</div>
+<a id="a3021f4a04d95b51448038ec970f9dd2d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3021f4a04d95b51448038ec970f9dd2d">&#9670;&nbsp;</a></span>maxNumberOfAlertLevels()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int larcfm::DaidalusParameters::maxAlertLevel </td>
+          <td class="memname">int larcfm::DaidalusParameters::maxNumberOfAlertLevels </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="section return"><dt>Returns</dt><dd>maximum alert level for all alerters. Returns 0 if alerter list is empty. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>maximum number of alert levels for all alerters. Returns 0 if alerter list is empty. </dd></dl>
 
 </div>
 </div>
@@ -2362,7 +2390,7 @@ Alerting parameter n of "M of N" strategy </dd></dl>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">const std::string larcfm::DaidalusParameters::VERSION = &quot;Pre-2.0.2&quot;</td>
+          <td class="memname">const std::string larcfm::DaidalusParameters::VERSION = &quot;2.0.2&quot;</td>
         </tr>
       </table>
   </td>

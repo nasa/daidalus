@@ -4,7 +4,7 @@
  * Contact: Jeff Maddalon
  * Organization: NASA/Langley Research Center
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -126,6 +126,8 @@ namespace larcfm {
 	 * @return angular distance
 	 */
   static double distance(const LatLonAlt& p1, const LatLonAlt& p2);
+
+  
 
 	/**
 	 * Determines if two points are close to each other, see
@@ -854,6 +856,8 @@ public:
 	 */
   static double chord_distance(double lat1, double lon1, double lat2, double lon2);
  
+  static double chord_distance(const LatLonAlt& lla1, const LatLonAlt& lla2);
+
 	/**
 	 * Return the chord distance (through the earth) corresponding to a given surface distance (at the nominal earth radius).
 	 * This is the distance of a direct line between two surface points.

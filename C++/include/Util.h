@@ -5,7 +5,7 @@
  *
  * Utility functions.
  *
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -57,6 +57,7 @@ typedef int64_t INT64FM;
 #define PINFINITY std::numeric_limits<double>::infinity()
 #define NINFINITY -std::numeric_limits<double>::infinity()
 #define MAXDOUBLE std::numeric_limits<double>::max()
+#define MAXINTEGER std::numeric_limits<int>::max()
 #ifndef ISNAN
 #define ISNAN std::isnan
 #endif
@@ -321,6 +322,29 @@ public:
 	 * @return root of quadratic
 	 */
 	static double root2b(const double a, const double b, const double c, const int eps);
+
+	/** Assumes {@code c < 0}, {@code b > 0}
+	 *
+	 * @param a     a coefficient of quadratic
+	 * @param b     b coefficient of quadratic
+	 * @param c     c coefficient of quadratic
+	 * @return      positive root {@code >= 0} if quadratic discriminant is non-negative, -1 otherwise
+	 *
+	 * NOTE: {@code c < 0}, {@code b > 0} and use of positive root (eps == 1) insures that the returned root is non-negative when discriminant is non-negative!
+	 */
+	static double rootNegC(const double a, const double b, const double c);
+
+
+	static int    sign(const bool b);
+
+	/** Returns +1 if the argument is true, -1 otherwise
+	 * 
+	 * @param b boolean value
+	 * @return sign as a number
+	 */
+	static int    sign(const int b);
+
+
 	/**
 	 * Returns +1 if the argument is positive or 0, -1 otherwise.  Note:
 	 * This is not the classic signum function from mathematics that
@@ -463,7 +487,7 @@ public:
 	 * Returns 1 if the minimal turn to goalTrack (i.e. less than pi) is to the right, else -1
 	 * @param initTrack   initial track [rad]
 	 * @param goalTrack   target track [rad]
-	 * @return direction of turn
+	 * @return +1 for right, -1 for left
 	 */
 	static int turnDir(double initTrack, double goalTrack);
 
@@ -505,10 +529,10 @@ public:
 	/**
 	 * Returns the angle between two tracks when turning in direction indicated by turnRight flag [0,2PI]
 	 * Note: this function can return an angle larger than PI!
-	 *
+	 * 
 	 * @param alpha one angle
 	 * @param beta another angle
-	 * @param dir = +/- 1 + right, - left
+	 * @param dir +1 = right, -1 = left
 	 * @return angle difference
 	 */
 	static double turnDelta(double alpha, double beta, int dir);

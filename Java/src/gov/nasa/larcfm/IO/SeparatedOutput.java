@@ -1,5 +1,5 @@
 /* 
- * Copyright (c) 2014-2020 United States Government as represented by
+ * Copyright (c) 2014-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -16,10 +16,10 @@ import gov.nasa.larcfm.Util.f;
 
 import java.io.Writer;
 import java.io.PrintWriter;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * <p>A class to writes a separated value file (separated by commas, spaces, or tabs).<p>
@@ -51,7 +51,7 @@ public final class SeparatedOutput implements ErrorReporter {
 	private ArrayList<String> comments;
 	private ArrayList<String> params;
 
-	private static final String nl = System.getProperty("line.separator");
+	private static final String NL = System.getProperty("line.separator");
 
 	private void init() {
 		header = false;
@@ -63,12 +63,12 @@ public final class SeparatedOutput implements ErrorReporter {
         space = "";
         empty = "";
         comment_char = "# ";
-        comments = new ArrayList<String>();
-        header_str = new ArrayList<String>();
-        units_str = new ArrayList<String>();
-        precision = new ArrayList<Integer>();
-        line_str = new ArrayList<String>();
-        params = new ArrayList<String>();
+        comments = new ArrayList<>();
+        header_str = new ArrayList<>();
+        units_str = new ArrayList<>();
+        precision = new ArrayList<>();
+        line_str = new ArrayList<>();
+        params = new ArrayList<>();
 	}
 
 	/** Create a new SeparatedOutput from the given writer 
@@ -446,7 +446,7 @@ public final class SeparatedOutput implements ErrorReporter {
     * @param pr  parameter object
     * @param filter parameters to filter out
     */
-   public void setParametersFilter(ParameterData pr, ArrayList<String> filter) {
+   public void setParametersFilter(ParameterData pr, List<String> filter) {
 	   for (String p: pr.getKeyList()) {
 		   if (! filter.contains(p)) {
 			   String s = pr.getString(p);
@@ -473,47 +473,40 @@ public final class SeparatedOutput implements ErrorReporter {
     */
    public void addComment(String c) {
 		String [] tmparray = c.split("\n");
-		for (String tmp: tmparray) {
-			comments.add(tmp);			
-		}
+		Collections.addAll(comments, tmparray);
    }
    
 	/**
 	 * Writes a line of the output.  The first call to writeLine will write the column headings, units, etc.
 	 */
-	public void writeLine() {
-		try {
-			if ( comments.size() != 0 ) {
-				for (String line: comments) {
-					writer.println(comment_char+line);
-					size++;
-				}
-				comments.clear();
-			}
-			if ( ! header) {
-				if (params.size() != 0) {
-					for (String p:params) {
-						writer.println(p);
-						size++;
-					}
-				}
-				print_line(header_str);
-				if (bunits) {
-					print_line(units_str);
-				}
-				header = true;
-			}
-			//f.pln(" $$$$$$$$$$$$$$$$$$$$ writeLine: line_str = "+line_str);
-			print_line(line_str);
-			line_str.clear();
-			column_count = -1;
-		} catch (IOException e) { 
-            error.addError("*** An IO exception has occured: "+e.getMessage());
-		}
-	}
+   public void writeLine() {
+	   if ( ! comments.isEmpty()) {
+		   for (String line: comments) {
+			   writer.println(comment_char+line);
+			   size++;
+		   }
+		   comments.clear();
+	   }
+	   if ( ! header) {
+		   if ( ! params.isEmpty()) {
+			   for (String p:params) {
+				   writer.println(p);
+				   size++;
+			   }
+		   }
+		   printLine(header_str);
+		   if (bunits) {
+			   printLine(units_str);
+		   }
+		   header = true;
+	   }
+	   printLine(line_str);
+	   line_str.clear();
+	   column_count = -1;
+   }
     
-    private void print_line(ArrayList<String> vals) throws IOException {
-    	if (vals.size() == 0) {
+    private void printLine(ArrayList<String> vals) {
+    	if (vals.isEmpty()) {
     		return;
     	}
     	writer.print(vals.get(0));
@@ -539,26 +532,30 @@ public final class SeparatedOutput implements ErrorReporter {
     }
     
     public String toString() {
-    	String str = "SeparateOutput: ";
-    	str += nl;
-    	str += " header_str:";
+    	StringBuilder str = new StringBuilder(100);
+    	str.append("SeparateOutput: ");
+    	str.append(NL);
+    	str.append(" header_str:");
     	for (String line: header_str) {
-    		str += ", " + line;  
+    		str.append(", ");
+    		str.append(line);  
     	}
 
-    	str += nl;
-    	str += " units_str:";
+    	str.append(NL);
+    	str.append(" units_str:");
     	for (String line: units_str) {
-    		str += ", " + line;  
+    		str.append(", ");
+    		str.append(line);  
     	}
 
-    	str += nl;
-    	str += " line_str:";
+    	str.append(NL);
+    	str.append(" line_str:");
     	for (String line: line_str) {
-    		str += ", " + line;  
+    		str.append(", ");
+    		str.append(line);  
     	}
 
-    	return str;
+    	return str.toString();
     }
 
 	

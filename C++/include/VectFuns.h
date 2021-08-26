@@ -1,7 +1,7 @@
 /*
  * VectFuns.h
  * 
- * Copyright (c) 2011-2020 United States Government as represented by
+ * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -59,9 +59,23 @@ public:
 
 	static Vect3 midPoint(const Vect3& p0, const Vect3& p1);
 
+	/**
+	 * Interpolate between two vectors.  
+	 * @param v1 first position
+	 * @param v2 second position
+	 * @param f a fraction.  Should be between 0 and 1 to interpolate. If 0, then v1 is returned, if 1 then v2 is returned.
+	 * @return interpolated vector
+	 */
 	static Vect3 interpolate(const Vect3& v1, const Vect3& v2, double f);
 
 	// f should be between 0 and 1 to interpolate
+	/**
+	 * Interpolate between two velocity vectors.  
+	 * @param v1 first position
+	 * @param v2 second position
+	 * @param f a fraction.  Should be between 0 and 1 to interpolate. If 0, then v1 is returned, if 1 then v2 is returned.
+	 * @return interpolated vector
+	 */
 	static Velocity interpolateVelocity(const Velocity& v1, const Velocity& v2, double f);
 
 	static double angle_between(const Vect2& v1, const Vect2& v2);
