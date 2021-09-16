@@ -293,10 +293,10 @@ public class BandsHysteresis {
 					idx=0;
 				}
 			} else {
-				if (mod_ > 0 && idx == 0) {
+				--idx;
+				if (mod_ > 0 && idx == -1) {
 					idx = ranges.size()-1;
 				}
-				--idx;
 			}
 		}
 		return 0 <= idx && idx < ranges.size() &&
