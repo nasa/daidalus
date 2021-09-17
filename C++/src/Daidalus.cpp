@@ -43,7 +43,7 @@
  *
  * The basic usage is
  * <pre>
- * Daidalus daa = new Daidalus();
+ * Daidalus daa;
  * daa.loadFromFile(<configurationfile>);
  *
  * ...
