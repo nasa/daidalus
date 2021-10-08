@@ -131,6 +131,12 @@ private:
       BandsRegion::Region corrective_region,
       bool dir, int idx_from, int idx_to) const;
 
+  //Utility for contiguous_resolution_region
+  // Returns size - 1 if idx < 0
+  // Returns 0 if idx >= size
+  // Returns 1 if size == 1
+  int wrap_around(int idx, int size) const;
+
   // check if region is above corrective region (corrective or above)
   static bool is_up_from_corrective_region(BandsRegion::Region corrective_region, BandsRegion::Region region);
 

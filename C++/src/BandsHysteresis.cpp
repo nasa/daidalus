@@ -246,20 +246,20 @@ bool BandsHysteresis::contiguous_resolution_region(const std::vector<BandsRange>
   int idx=idx_from;
   while (idx != idx_to && 0 <= idx && idx < static_cast<int>(ranges.size()) &&
       is_below_corrective_region(corrective_region,ranges[idx].region)) {
-    if (dir) {
-      ++idx;
-      if (mod_ > 0 &&  idx == static_cast<int>(ranges.size())) {
-        idx=0;
-      }
-    } else {
-      if (mod_ > 0 && idx == 0) {
-        idx = ranges.size()-1;
-      }
-      --idx;
+    idx += dir? 1 : -1;
+    if (mod_ > 0) {
+      wrap_around(idx, ranges.size());
     }
   }
   return 0 <= idx && idx < static_cast<int>(ranges.size()) &&
       is_below_corrective_region(corrective_region,ranges[idx].region);
+}
+
+int BandsHysteresis::wrap_around(int idx, int size) const {
+  if (size == 1) return 1;
+  if (idx < 0) return size - 1;
+  if (idx >= size) return 0;
+  return idx;
 }
 
 // Returns true if a is to the left of b (modulo mod). If mod is 0, this is the same a < b
