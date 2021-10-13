@@ -410,7 +410,7 @@ void DaidalusCore::reset_ownship(int idx) {
 
 // idx is 0-based index in traffic list
 bool DaidalusCore::remove_traffic(int idx) {
-  if (0 < idx && idx < static_cast<int>(traffic.size())) {
+  if (0 <= idx && idx < static_cast<int>(traffic.size())) {
     dta_hysteresis_acs_.erase(traffic[idx].getId());
     alerting_hysteresis_acs_.erase(traffic[idx].getId());
     traffic.erase(traffic.begin()+idx);

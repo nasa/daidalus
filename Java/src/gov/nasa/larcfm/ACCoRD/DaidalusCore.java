@@ -441,7 +441,7 @@ public class DaidalusCore {
 
 	// idx is 0-based index in traffic list
 	public boolean remove_traffic(int idx) {
-		if (0 < idx && idx < traffic.size()) {
+		if (0 <= idx && idx < traffic.size()) {
 			dta_hysteresis_acs_.remove(traffic.get(idx).getId());
 			alerting_hysteresis_acs_.remove(traffic.get(idx).getId());
 			traffic.remove(idx);
