@@ -106,8 +106,9 @@ bool DaidalusAltBands::conflict_free_traj_step(const Detection3D* conflict_det, 
       }
     }
     double tsk1 = Util::max(tsqj1,0.0);
+    double time_horizon_1 = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk1;
     if ((tsqj2 >= B &&
-        CD_future_traj(conflict_det,B,std::min(T+tsk1,tsqj2),trajdir,tsk1,parameters,ownship,traffic,target_step,instantaneous)) ||
+        CD_future_traj(conflict_det,B,std::min(time_horizon_1,tsqj2),trajdir,tsk1,parameters,ownship,traffic,target_step,instantaneous)) ||
         (recovery_det != NULL && tsqj2 >= 0 &&
             CD_future_traj(recovery_det,0,Util::min(B,tsqj2),trajdir,tsk1,parameters,ownship,traffic,target_step,instantaneous))) {
       return false;
@@ -121,7 +122,8 @@ bool DaidalusAltBands::conflict_free_traj_step(const Detection3D* conflict_det, 
       }
     }
     double tsk3 = Util::max(tsqj3,0.0);
-    return no_CD_future_traj(conflict_det,recovery_det,B,T+tsk3,trajdir,tsk3,parameters,ownship,traffic,target_step,instantaneous);
+    double time_horizon_3 = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk3;
+    return no_CD_future_traj(conflict_det,recovery_det,B,time_horizon_3,trajdir,tsk3,parameters,ownship,traffic,target_step,instantaneous);
   }
 }
 
