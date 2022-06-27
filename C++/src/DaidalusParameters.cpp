@@ -21,7 +21,7 @@
 
 namespace larcfm {
 
-const std::string DaidalusParameters::VERSION = "2.0.2";
+const std::string DaidalusParameters::VERSION = "2.0.3";
 const INT64FM DaidalusParameters::ALMOST_ = PRECISION5;
 bool DaidalusParameters::initialized = false;
 
@@ -201,6 +201,8 @@ DaidalusParameters::DaidalusParameters() : error("DaidalusParameters") {
 
   // Alerting logic
   ownship_centric_alerting_ = true;
+
+  bands_add_time_to_maneuver_ = false;
 
   corrective_region_ = BandsRegion::NEAR;
 
@@ -1781,19 +1783,47 @@ void DaidalusParameters::setAlertingLogic(bool ownship_centric) {
   ownship_centric_alerting_ = ownship_centric;
 }
 
-
 void DaidalusParameters::setOwnshipCentricAlertingLogic() {
   setAlertingLogic(true);
 }
-
 
 void DaidalusParameters::setIntruderCentricAlertingLogic() {
   setAlertingLogic(false);
 }
 
-
 bool DaidalusParameters::isAlertingLogicOwnshipCentric() const {
   return ownship_centric_alerting_;
+}
+
+/**
+ * Set logic of "bands add time to manevuer" to the value indicated by bands_add_time_to_maneuver
+ * By default this parameter is set to false. When set to true, the time to maneuver is
+ * considerd against alerting time when computing peripheral bands. The latter was the behavior in
+ * v.2.0.1 and v1.
+ */
+void DaidalusParameters::setBandsAddTimeToManeuver(bool bands_add_time_to_maneuver) {
+  bands_add_time_to_maneuver_ = bands_add_time_to_maneuver;
+}
+
+/**
+ * Set logic of "bands add time to manevuer" to true
+ */
+void DaidalusParameters::enableBandsAddTimeToManeuver() {
+  setBandsAddTimeToManeuver(true);
+}
+
+/**
+ * Set logic of "bands add time to manevuer" to false
+ */
+void DaidalusParameters::disableBandsAddTimeToManeuver() {
+  setBandsAddTimeToManeuver(false);
+}
+
+/**
+ * @return true if peripheral bands logic adds time to maneuver (as used in v1 and v2.0.1)
+ */
+bool DaidalusParameters::isEnabledBandsAddTimeToManeuver() const {
+  return bands_add_time_to_maneuver_;
 }
 
 /**
@@ -1984,6 +2014,7 @@ std::string DaidalusParameters::toPVS() const {
   s+="dta_height := "+FmPrecision(dta_height_)+", ";
   s+="dta_alerter := "+Fmi(dta_alerter_)+", ";
   s+="ownship_centric_alerting := "+Fmb(ownship_centric_alerting_)+", ";
+  s+="bands_add_time_to_maneuver := "+Fmb(bands_add_time_to_maneuver_)+", ";
   s+="corrective_region := "+BandsRegion::to_string(corrective_region_)+", ";
   s+="alerters := "+Alerter::listToPVS(alerters_);
   s+="#)";
@@ -2105,6 +2136,7 @@ void DaidalusParameters::updateParameterData(ParameterData& p) const {
   // Alerting logic
   p.setBool("ownship_centric_alerting",ownship_centric_alerting_);
   p.updateComment("ownship_centric_alerting","Alerting Logic");
+  p.setBool("bands_add_time_to_maneuver",bands_add_time_to_maneuver_);
   p.set("corrective_region",BandsRegion::to_string(corrective_region_));
   writeAlerterList(p);
 }
@@ -2500,6 +2532,10 @@ bool DaidalusParameters::setParameterData(const ParameterData& p) {
     setAlertingLogic(getBool(p,"ownship_centric_alerting"));
     setit = true;
   }
+  if (contains(p,"bands_add_time_to_maneuver")) {
+		setBandsAddTimeToManeuver(getBool(p,"bands_add_time_to_maneuver"));
+		setit = true;
+	}
   bool daidalus_v1=false;
   // Corrective Region
   if (contains(p,"corrective_region")) {

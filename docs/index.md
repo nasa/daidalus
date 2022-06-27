@@ -850,8 +850,8 @@ lower bounds and its type.
 ```java
   for (int i = 0; i < daa.horizontalSpeedBandsLength(); ++i ) {  
     Interval iv = daa.horizontalSpeedIntervalAt(i,"knot"); //i-th interval in knots
-    double lower_gs = iv.low; //[knot]
-    double upper_gs = iv.up;  //[knot]
+    double lower_hs = iv.low; //[knot]
+    double upper_hs = iv.up;  //[knot]
     BandsRegion regionType = daa.horizontalSpeedRegionAt(i);
     ... 
   } 
@@ -1095,14 +1095,14 @@ in DAIDALUS.
 | `lookahead_time` | `get/setLookaheadTime` | Time horizon of all DAIDALUS functions (Time) |
 | `left_trk` | `get/setLeftTrack` | Relative maximum horizontal direction maneuver to the left of current ownship direction (Angle) |
 | `right_trk` | `get/setRightTrack` | Relative maximum horizontal direction maneuver to the right of current ownship direction (Angle)|
-| `min_gs` | `get/setMinVerticalSpeed` |Absolute minimum horizontal speed maneuver  (Speed)|
-| `max_gs` | `get/setMaxGroundSpeed` |Absolute maximum horizontal speed maneuver (Speed) |
+| `min_hs` | `get/setMinHorizontalSpeed` |Absolute minimum horizontal speed maneuver  (Speed)|
+| `max_hs` | `get/setMaxHorizontalSpeed` |Absolute maximum horizontal speed maneuver (Speed) |
 | `min_vs` | `get/setMinVerticalSpeed` | Absolute minimum vertical speed maneuver (Speed)|
 | `max_vs` | `get/setMaxVerticalSpeed` | Absolute maximum vertical speed maneuver (Speed)|
 | `min_alt` | `get/setMinAltitude` | Absolute minimum altitude maneuver (Altitude)|
 | `max_alt` | `get/setMaxAltitude` | Absolute maximum altitude maneuver (Altitude) |
 | `trk_step` | `get/setTrackStep` | Granularity of horizontal direction maneuvers (Angle)|
-| `gs_step` | `get/setGroundSpeedStep` | Granularity of horizontal speed maneuvers (Speed)|
+| `hs_step` | `get/setHorizontalSpeedStep` | Granularity of horizontal speed maneuvers (Speed)|
 | `vs_step` | `get/setVerticalSpeedStep` | Granularity of vertical speed maneuvers (Speed)|
 | `alt_step` | `get/setAltitudeStep` | Granularity of altitude maneuvers (Altitude)|
 
@@ -1124,7 +1124,7 @@ in DAIDALUS.
 | `min_horizontal_recovery` | `get/setMinHorizontalRecovery` | Minimum horizontal separation used in the computation of recovery maneuvers (Distance)|
 | `min_vertical_recovery` | `get/setMinVerticalRecovery` | Minimum vertical separation used in the computation of recovery maneuvers (Distance)|
 | `recovery_trk` | `isEnabled/setRecoveryTrackBands` | Enable computation of horizontal direction recovery maneuvers (Boolean)|
-| `recovery_gs` | `isEnabled/setRecoveryGroundSpeedBands` | Enable computation of horizontal speed recovery maneuvers (Boolean)|
+| `recovery_hs` | `isEnabled/setRecoveryHorizontalSpeedBands` | Enable computation of horizontal speed recovery maneuvers (Boolean)|
 | `recovery_vs` | `isEnabled/setRecoveryVerticalSpeedBands` | Enable computation of vertical speed recovery maneuvers (Boolean)|
 | `recovery_alt` | `isEnabled/setRecoveryAltitudeBands` | Enable computation of altitude recovery maneuvers (Boolean)|
 
@@ -1154,11 +1154,11 @@ The following restrictions apply to these parameters.
 * `lookahead_time` is positive.
 * `left_trk` and `right_tk` are non-negative and less than 180
   degrees. 
-* `min_gs` is non-negative and strictly less than `max_gs`.
-* `min_vs` is strictly less than `max_gs`. Typically, `min_vs` is negative and
+* `min_hs` is non-negative and strictly less than `max_hs`.
+* `min_vs` is strictly less than `max_vs`. Typically, `min_vs` is negative and
 `max_vs` is positive.
 * `min_alt` is non-negative and strictly less than `max_alt`.
-* `trk_step`, `gs_step`, `vs_step`, and `alt_step` are strictly
+* `trk_step`, `hs_step`, `vs_step`, and `alt_step` are strictly
 positive small values.
 *  `horizontal_accel` is non-negative. If zero, horizontal speed maneuvers are computed
    assuming instantaneous speed changes.
@@ -1191,7 +1191,7 @@ When appropriate, explicit units can be provided when configuring these paramete
 either using a file or programmatically.  For example,  in a configuration file,
 units can be provided as follows:
 ```java
-max_gs = 700.0 [knot]
+max_hs = 700.0 [knot]
 ```
 The following configuration can also be achieved using the method
 ```java

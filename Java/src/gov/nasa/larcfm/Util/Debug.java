@@ -442,8 +442,8 @@ public class Debug {
 	}
 
 	/**
-	 * Print out a status message <tt>msg</tt>.
-	 * The output will only come out if <tt>verbose</tt> is true and if 
+	 * Print out a status message <code>msg</code>.
+	 * The output will only come out if <code>verbose</code> is true and if 
 	 * the verbose level ({@link #setVerbose} must be 2 to larger.  
 	 * 
 	 * @param verbose if true, the display status message
@@ -454,8 +454,8 @@ public class Debug {
 	}
 
 	/**
-	 * Print out a status message <tt>msg</tt>.
-	 * The output will only come out if <tt>verbose</tt> is true and if 
+	 * Print out a status message <code>msg</code>.
+	 * The output will only come out if <code>verbose</code> is true and if 
 	 * the verbose level ({@link #setVerbose} must be 2 to larger.  
 	 * 
 	 * @param msg the status message

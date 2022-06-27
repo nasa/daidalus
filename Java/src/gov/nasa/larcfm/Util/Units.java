@@ -2126,7 +2126,6 @@ public final class Units {
 	 * Creates a string that looks contains an HTML representation of all available
 	 * units, their factors, and their compatible units.
 	 * 
-	 * @param argv command line arguments
 	 * @throws UnitException if invalid unit
 	 */
 	public static String getAllUnitsHTML() {

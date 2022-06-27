@@ -33,7 +33,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.2";
+	public static final String VERSION = "2.0.3";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
@@ -152,10 +152,14 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	private int dta_alerter_;
 
 	// Alerting logic
-	private boolean ownship_centric_alerting_; // When true, alerting logic is ownship-centric. 
-	// Otherwise, it is intruder-centric.
-	private BandsRegion corrective_region_; // Corrective region for all alerters. 
-	// (IMPORTANT: all alerters should declare an alert level with a corrective region!)
+	// When true, alerting logic is ownship-centric. Otherwise, it is intruder-centric.
+	private boolean ownship_centric_alerting_; 
+	// By default the parameter bands_add_time_to_maneuver is set to false. When set to true, 
+	// the time to maneuver is considerd against alerting time when computing peripheral bands. The latter was the behavior in v.2.0.1 and v1.
+	private boolean bands_add_time_to_maneuver_;
+	// Corrective region for all alerters. IMPORTANT: all alerters should declare an alert level with a 
+	// corrective region!
+	private BandsRegion corrective_region_; 
 
 	private Map<String,String> units_; // Printed units of parameters
 
@@ -350,6 +354,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			// Alerting logic
 			ownship_centric_alerting_ = true;
 
+			bands_add_time_to_maneuver_ = false;
+
 			corrective_region_ = BandsRegion.NEAR;
 
 			alerters_ = new ArrayList<Alerter>();
@@ -451,6 +457,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 			// Alerting logic
 			ownship_centric_alerting_ = parameters.ownship_centric_alerting_;
+
+			bands_add_time_to_maneuver_ = parameters.bands_add_time_to_maneuver_;
 
 			corrective_region_ = parameters.corrective_region_;
 
@@ -2478,6 +2486,37 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			return ownship_centric_alerting_;
 		}
 
+		/**
+		 * Set logic of "bands add time to manevuer" to the value indicated by bands_add_time_to_maneuver
+		 * By default this parameter is set to false. When set to true, the time to maneuver is 
+		 * considerd against alerting time when computing peripheral bands. The latter was the behavior in 
+		 * v.2.0.1 and v1.
+		 */
+		public void setBandsAddTimeToManeuver(boolean bands_add_time_to_maneuver) {
+			bands_add_time_to_maneuver_ = bands_add_time_to_maneuver;
+		}
+
+		/**
+		 * Set logic of "bands add time to manevuer" to true
+		 */
+		public void enableBandsAddTimeToManeuver() {
+			setBandsAddTimeToManeuver(true);		
+		}
+
+		/**
+		 * Set logic of "bands add time to manevuer" to false
+		 */
+		public void disableBandsAddTimeToManeuver() {
+			setBandsAddTimeToManeuver(false);		
+		}
+
+		/**
+		 * @return true if peripheral bands logic adds time to maneuver (as used in v1 and v2.0.1) 
+		 */
+		public boolean isEnabledBandsAddTimeToManeuver() {
+			return bands_add_time_to_maneuver_;
+		}
+
 		/** 
 		 * Get corrective region for calculation of resolution maneuvers and bands saturation.
 		 */
@@ -2689,6 +2728,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			s+="dta_height := "+f.FmPrecision(dta_height_)+", ";
 			s+="dta_alerter := "+f.Fmi(dta_alerter_)+", ";
 			s+="ownship_centric_alerting := "+ownship_centric_alerting_+", ";
+			s+="bands_add_time_to_maneuver := "+bands_add_time_to_maneuver_+", ";
 			s+="corrective_region := "+corrective_region_.toString()+", ";
 			s+="alerters := "+Alerter.listToPVS(alerters_);
 			s+="#)";
@@ -2809,6 +2849,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			// Alerting logic
 			p.setBool("ownship_centric_alerting",ownship_centric_alerting_);
 			p.updateComment("ownship_centric_alerting","Alerting Logic");
+			p.setBool("bands_add_time_to_maneuver",bands_add_time_to_maneuver_);
 			p.set("corrective_region",corrective_region_.toString());
 			writeAlerterList(p);
 		}
@@ -3174,6 +3215,10 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			// Alerting logic
 			if (contains(p,"ownship_centric_alerting")) {
 				setAlertingLogic(getBool(p,"ownship_centric_alerting"));
+				setit = true;
+			}
+			if (contains(p,"bands_add_time_to_maneuver")) {
+				setBandsAddTimeToManeuver(getBool(p,"bands_add_time_to_maneuver"));
 				setit = true;
 			}
 			boolean daidalus_v1=false;
