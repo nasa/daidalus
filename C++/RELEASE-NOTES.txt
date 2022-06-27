@@ -16,11 +16,17 @@ Release DAIDALUS-v2.0.3:
 parameter is set to false. When set to true, the time to maneuver is
 considerd against alerting time when computing peripheral bands. The latter
 was the behavior in v.2.0.1 and v1.
-- Fixed remove_traffic to allow removing the first intruder.
-- Change in commented documentation in Daidalus.cpp
-- Hysteresis bugfix
-- Fixed memory leak in DaidalusCore. Thanks to reliable-matts for
-pointing it.
+- Fixed memory leak in DaidalusCore.h. Thanks to reliable-matts for
+pointing it out.
+
+Release DAIDALUS-v2.0.2c:
+------------------
+* June-27-2022
+ - Contact update
+ - Fixed remove_traffic to allow removing the first intruder.
+ - Change in commented documentation in Daidalus.cpp 
+ - Hysteresis bugfix
+ - Latest DAIDALUS-v2.0.2
 
 Release DAIDALUS-v2.0.2b:
 ------------------
