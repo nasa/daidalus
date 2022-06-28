@@ -1,7 +1,7 @@
 # Simple Makefile to build DAIDALUS library and example applications
 NAME=DAIDALUS
 MAJOR=2
-MINOR=.0.2
+MINOR=.0.3
 VERSION=$(NAME)$(MAJOR)
 RELEASE=$(NAME)v$(MAJOR)$(MINOR)
 
@@ -38,7 +38,17 @@ examples:
 doc:
 	doxygen 
 
+configs: examples
+	./DaidalusAlerting --echo --conf sum > DO_365B_SUM.conf  
+	./DaidalusAlerting --echo --conf no_sum > DO_365B_no_SUM.conf  
+	./DaidalusAlerting --echo --conf nom_a > Buffered_DWC_SC_228_nom_a.conf
+	./DaidalusAlerting --echo --conf nom_b > Buffered_DWC_SC_228_nom_b.conf
+	./DaidalusAlerting --echo --conf cd3d > CD3D.conf
+	./DaidalusAlerting --echo --conf tcasii > TCAS3D.conf
+	./DaidalusAlerting -echo -conf ../Configurations/DO_365A_SUM.conf > DO_365A_SUM.conf 
+	./DaidalusAlerting -echo -conf ../Configurations/DO_365A_no_SUM.conf > DO_365A_no_SUM.conf 
+
 clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a
 
-.PHONY: all lib examples doc
+.PHONY: all lib examples doc configs

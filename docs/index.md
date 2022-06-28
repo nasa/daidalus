@@ -9,62 +9,63 @@ Reference Manual - DAIDALUS-v2.0.x
 ===
 
 <!--ts-->
-   * [Note](#note)
-   * [Reference Manual - DAIDALUS-v2.0.x](#reference-manual---daidalus-v20x)
-   * [Introduction](#introduction)
-   * [Software Library](#software-library)
-      * [DAIDALUS v2 vs. DAIDALUS v1](#daidalus-v2-vs-daidalus-v1)
-      * [Getting the Code](#getting-the-code)
-      * [Compiling the Code](#compiling-the-code)
-      * [Example Applications](#example-applications)
-   * [Preliminaries](#preliminaries)
-      * [Packages and Name Space](#packages-and-name-space)
-      * [Units](#units)
-      * [Earth Projection and Aircraft States](#earth-projection-and-aircraft-states)
-      * [Winds](#winds)
-      * [Invalid Values](#invalid-values)
-   * [DAIDALUS Inputs](#daidalus-inputs)
-      * [Creating a Daidalus Object](#creating-a-daidalus-object)
-      * [Configuring Daidalus Object](#configuring-daidalus-object)
-      * [Providing Wind Information](#providing-wind-information)
-      * [Adding Aircraft States](#adding-aircraft-states)
-         * [Adding Ownship State](#adding-ownship-state)
-         * [Adding Traffic State](#adding-traffic-state)
-         * [Adding Sensor Uncertainty](#adding-sensor-uncertainty)
-      * [Dealing with Asynchronous Inputs](#dealing-with-asynchronous-inputs)
-   * [DAIDALUS Outputs](#daidalus-outputs)
-      * [Detection Logic](#detection-logic)
-      * [Alerting Logic](#alerting-logic)
-      * [Maneuver Guidance Logic](#maneuver-guidance-logic)
-         * [Horizontal Direction Bands](#horizontal-direction-bands)
-         * [Horizontal Speed Bands](#horizontal-speed-bands)
-         * [Vertical Speed Bands](#vertical-speed-bands)
-         * [Altitude Bands](#altitude-bands)
-         * [Recovery Bands Information](#recovery-bands-information)
-         * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
-         * [Directive Guidance](#directive-guidance)
-      * [DAA Performance Metrics](#daa-performance-metrics)
-   * [** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **](#-documents-has-been-updated-upto-this-point-)
-   * [Alerters](#alerters)
-   * [Sensor Uncertainty Mitigation](#sensor-uncertainty-mitigation)
-   * [Hysteresis Logic](#hysteresis-logic)
-   * [DTA Logic](#dta-logic)
-   * [Configurable Parameters](#configurable-parameters)
-      * [Bands Parameters](#bands-parameters)
-      * [Kinematic Parameters](#kinematic-parameters)
-      * [Recovery Bands Parameters](#recovery-bands-parameters)
-      * [Collision Avoidance Bands Parameters](#collision-avoidance-bands-parameters)
-      * [Alerting Logic Parameters](#alerting-logic-parameters)
-      * [Hysteresis Parameters](#hysteresis-parameters)
-      * [Sensor Uncertainty Mitigation Parameters](#sensor-uncertainty-mitigation-parameters)
-      * [DAA Terminal Area (DTA) Parameters](#daa-terminal-area-dta-parameters)
-      * [Considerations](#considerations)
-      * [Pre-Defined Configurations](#pre-defined-configurations)
-   * [Advanced Features](#advanced-features)
-      * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
-   * [Contact](#contact)
+* [Note](#note)
+* [Reference Manual - DAIDALUS-v2.0.x](#reference-manual---daidalus-v20x)
+* [Introduction](#introduction)
+* [Software Library](#software-library)
+   * [DAIDALUS v2 vs. DAIDALUS v1](#daidalus-v2-vs-daidalus-v1)
+   * [Getting the Code](#getting-the-code)
+   * [Compiling the Code](#compiling-the-code)
+   * [Example Applications](#example-applications)
+* [Preliminaries](#preliminaries)
+   * [Packages and Name Space](#packages-and-name-space)
+   * [Units](#units)
+   * [Earth Projection and Aircraft States](#earth-projection-and-aircraft-states)
+   * [Winds](#winds)
+   * [Invalid Values](#invalid-values)
+* [DAIDALUS Inputs](#daidalus-inputs)
+   * [Creating a Daidalus Object](#creating-a-daidalus-object)
+   * [Configuring Daidalus Object](#configuring-daidalus-object)
+   * [Providing Wind Information](#providing-wind-information)
+   * [Adding Aircraft States](#adding-aircraft-states)
+      * [Adding Ownship State](#adding-ownship-state)
+      * [Adding Traffic State](#adding-traffic-state)
+      * [Adding Sensor Uncertainty](#adding-sensor-uncertainty)
+   * [Dealing with Asynchronous Inputs](#dealing-with-asynchronous-inputs)
+* [DAIDALUS Outputs](#daidalus-outputs)
+   * [Detection Logic](#detection-logic)
+   * [Alerting Logic](#alerting-logic)
+   * [Maneuver Guidance Logic](#maneuver-guidance-logic)
+      * [Horizontal Direction Bands](#horizontal-direction-bands)
+      * [Horizontal Speed Bands](#horizontal-speed-bands)
+      * [Vertical Speed Bands](#vertical-speed-bands)
+      * [Altitude Bands](#altitude-bands)
+      * [Recovery Bands Information](#recovery-bands-information)
+      * [Aircraft Contributing to Bands](#aircraft-contributing-to-bands)
+      * [Directive Guidance](#directive-guidance)
+   * [DAA Performance Metrics](#daa-performance-metrics)
+* [** DOCUMENTS HAS BEEN UPDATED UPTO THIS POINT **](#-documents-has-been-updated-upto-this-point-)
+* [Alerters](#alerters)
+* [Sensor Uncertainty Mitigation](#sensor-uncertainty-mitigation)
+* [Hysteresis Logic](#hysteresis-logic)
+* [DTA Logic](#dta-logic)
+* [Configurable Parameters](#configurable-parameters)
+   * [Bands Parameters](#bands-parameters)
+   * [Kinematic Parameters](#kinematic-parameters)
+   * [Recovery Bands Parameters](#recovery-bands-parameters)
+   * [Collision Avoidance Bands Parameters](#collision-avoidance-bands-parameters)
+   * [Alerting Logic Parameters](#alerting-logic-parameters)
+   * [Hysteresis Parameters](#hysteresis-parameters)
+   * [Sensor Uncertainty Mitigation Parameters](#sensor-uncertainty-mitigation-parameters)
+   * [DAA Terminal Area (DTA) Parameters](#daa-terminal-area-dta-parameters)
+   * [Considerations](#considerations)
+   * [Pre-Defined Configurations](#pre-defined-configurations)
+* [Advanced Features](#advanced-features)
+   * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
+* [Contact](#contact)
 
-<!-- Added by: cmunoz, at: Sat Oct 10 11:23:30 EDT 2020 -->
+<!-- Created by https://github.com/ekalinin/github-markdown-toc -->
+<!-- Added by: cesar, at: Mon Jun 27 10:02:13 EDT 2022 -->
 
 <!--te-->
 
@@ -850,8 +851,8 @@ lower bounds and its type.
 ```java
   for (int i = 0; i < daa.horizontalSpeedBandsLength(); ++i ) {  
     Interval iv = daa.horizontalSpeedIntervalAt(i,"knot"); //i-th interval in knots
-    double lower_gs = iv.low; //[knot]
-    double upper_gs = iv.up;  //[knot]
+    double lower_hs = iv.low; //[knot]
+    double upper_hs = iv.up;  //[knot]
     BandsRegion regionType = daa.horizontalSpeedRegionAt(i);
     ... 
   } 
@@ -1095,14 +1096,14 @@ in DAIDALUS.
 | `lookahead_time` | `get/setLookaheadTime` | Time horizon of all DAIDALUS functions (Time) |
 | `left_trk` | `get/setLeftTrack` | Relative maximum horizontal direction maneuver to the left of current ownship direction (Angle) |
 | `right_trk` | `get/setRightTrack` | Relative maximum horizontal direction maneuver to the right of current ownship direction (Angle)|
-| `min_gs` | `get/setMinVerticalSpeed` |Absolute minimum horizontal speed maneuver  (Speed)|
-| `max_gs` | `get/setMaxGroundSpeed` |Absolute maximum horizontal speed maneuver (Speed) |
+| `min_hs` | `get/setMinHorizontalSpeed` |Absolute minimum horizontal speed maneuver  (Speed)|
+| `max_hs` | `get/setMaxHorizontalSpeed` |Absolute maximum horizontal speed maneuver (Speed) |
 | `min_vs` | `get/setMinVerticalSpeed` | Absolute minimum vertical speed maneuver (Speed)|
 | `max_vs` | `get/setMaxVerticalSpeed` | Absolute maximum vertical speed maneuver (Speed)|
 | `min_alt` | `get/setMinAltitude` | Absolute minimum altitude maneuver (Altitude)|
 | `max_alt` | `get/setMaxAltitude` | Absolute maximum altitude maneuver (Altitude) |
 | `trk_step` | `get/setTrackStep` | Granularity of horizontal direction maneuvers (Angle)|
-| `gs_step` | `get/setGroundSpeedStep` | Granularity of horizontal speed maneuvers (Speed)|
+| `hs_step` | `get/setHorizontalSpeedStep` | Granularity of horizontal speed maneuvers (Speed)|
 | `vs_step` | `get/setVerticalSpeedStep` | Granularity of vertical speed maneuvers (Speed)|
 | `alt_step` | `get/setAltitudeStep` | Granularity of altitude maneuvers (Altitude)|
 
@@ -1124,7 +1125,7 @@ in DAIDALUS.
 | `min_horizontal_recovery` | `get/setMinHorizontalRecovery` | Minimum horizontal separation used in the computation of recovery maneuvers (Distance)|
 | `min_vertical_recovery` | `get/setMinVerticalRecovery` | Minimum vertical separation used in the computation of recovery maneuvers (Distance)|
 | `recovery_trk` | `isEnabled/setRecoveryTrackBands` | Enable computation of horizontal direction recovery maneuvers (Boolean)|
-| `recovery_gs` | `isEnabled/setRecoveryGroundSpeedBands` | Enable computation of horizontal speed recovery maneuvers (Boolean)|
+| `recovery_hs` | `isEnabled/setRecoveryHorizontalSpeedBands` | Enable computation of horizontal speed recovery maneuvers (Boolean)|
 | `recovery_vs` | `isEnabled/setRecoveryVerticalSpeedBands` | Enable computation of vertical speed recovery maneuvers (Boolean)|
 | `recovery_alt` | `isEnabled/setRecoveryAltitudeBands` | Enable computation of altitude recovery maneuvers (Boolean)|
 
@@ -1154,11 +1155,11 @@ The following restrictions apply to these parameters.
 * `lookahead_time` is positive.
 * `left_trk` and `right_tk` are non-negative and less than 180
   degrees. 
-* `min_gs` is non-negative and strictly less than `max_gs`.
-* `min_vs` is strictly less than `max_gs`. Typically, `min_vs` is negative and
+* `min_hs` is non-negative and strictly less than `max_hs`.
+* `min_vs` is strictly less than `max_vs`. Typically, `min_vs` is negative and
 `max_vs` is positive.
 * `min_alt` is non-negative and strictly less than `max_alt`.
-* `trk_step`, `gs_step`, `vs_step`, and `alt_step` are strictly
+* `trk_step`, `hs_step`, `vs_step`, and `alt_step` are strictly
 positive small values.
 *  `horizontal_accel` is non-negative. If zero, horizontal speed maneuvers are computed
    assuming instantaneous speed changes.
@@ -1191,7 +1192,7 @@ When appropriate, explicit units can be provided when configuring these paramete
 either using a file or programmatically.  For example,  in a configuration file,
 units can be provided as follows:
 ```java
-max_gs = 700.0 [knot]
+max_hs = 700.0 [knot]
 ```
 The following configuration can also be achieved using the method
 ```java

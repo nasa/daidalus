@@ -1741,6 +1741,29 @@ public:
   bool isAlertingLogicOwnshipCentric() const;
 
   /**
+   * Set logic of "bands add time to manevuer" to the value indicated by bands_add_time_to_maneuver
+   * By default this parameter is set to false. When set to true, the time to maneuver is
+   * considerd against alerting time when computing peripheral bands. The latter was the behavior in
+   * v.2.0.1 and v1.
+   */
+  void setBandsAddTimeToManeuver(bool bands_add_time_to_maneuver);
+
+  /**
+   * Set logic of "bands add time to manevuer" to true
+   */
+  void enableBandsAddTimeToManeuver();
+
+  /**
+   * Set logic of "bands add time to manevuer" to false
+   */
+  void disableBandsAddTimeToManeuver();
+
+  /**
+   * @return true if peripheral bands logic adds time to maneuver (as used in v1 and v2.0.1)
+   */
+  bool isEnabledBandsAddTimeToManeuver() const;
+
+  /**
    * Get corrective region for calculation of resolution maneuvers and bands saturation.
    */
   BandsRegion::Region getCorrectiveRegion() const;

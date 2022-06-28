@@ -191,9 +191,9 @@ public final class FileUtil {
 	 * Search for a filename in one of several possible locations: 
 	 * <ul>
 	 * <li> relative to the srcFile,
-	 * <li> in a <tt>subdir</tt> relative to srcFile, 
-	 * <li> in a <tt>subDir</tt> relative to the current dir,
-	 * <li> in a <tt>\scenarios\subDir</tt> relative to the current dir, or 
+	 * <li> in a <code>subdir</code> relative to srcFile, 
+	 * <li> in a <code>subDir</code> relative to the current dir,
+	 * <li> in a <code>\scenarios\subDir</code> relative to the current dir, or 
 	 * <li> the current dir.
 	 * </ul>
 	 * @param fileName filename of file one is looking for

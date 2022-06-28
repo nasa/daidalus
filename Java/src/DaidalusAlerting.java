@@ -81,9 +81,13 @@ public class DaidalusAlerting {
 				// Load configuration file
 				arga = args[++a];
 				conf = FileSystems.getDefault().getPath(arga).getFileName().toString();				
-				conf = conf.substring(0,conf.lastIndexOf('.'));
+				conf = conf.contains(".") ? conf.substring(0,conf.lastIndexOf('.')) : conf;
 				if (!daa.loadFromFile(args[a])) {
-					if (arga.equals("no_sum")) {
+					if (arga.equals("sum")) {
+						// Configure DAIDALUS as in DO-365B, with SUM. This is the default.
+						daa.set_DO_365B(true,true);
+						conf = "sum";
+					} else if (arga.equals("no_sum")) {
 						// Configure DAIDALUS as in DO-365B, without SUM
 						daa.set_DO_365B(true,false);
 						conf = "no_sum";
@@ -108,7 +112,7 @@ public class DaidalusAlerting {
 						System.exit(1);
 					}
 				} else {
-					System.out.println("Loading configuration file "+arga);
+					System.err.println("Loading configuration file "+arga);
 				}
 			} else if (arga.equals("--echo") || arga.equals("-echo")) {
 				echo = true;
@@ -159,7 +163,7 @@ public class DaidalusAlerting {
 		}
 		if (input_file.equals("")) {
 			if (echo) {
-				System.out.println(daa.toString());
+				System.out.print(daa.toString());
 				System.exit(0);
 			} else {
 				System.err.println("** Error: One input file must be provided");
@@ -188,8 +192,8 @@ public class DaidalusAlerting {
 		}
 
 		DaidalusParameters.setDefaultOutputPrecision(precision);
-		System.out.println("Processing DAIDALUS file "+input_file);
-		System.out.println("Generating CSV file "+output_file);
+		System.err.println("Processing DAIDALUS file "+input_file);
+		System.err.println("Generating CSV file "+output_file);
 		DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
 
 		if (!ownship.isEmpty()) {

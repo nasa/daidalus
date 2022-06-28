@@ -73,7 +73,11 @@ int main(int argc, char* argv[]) {
       std::string base_filename = arga.substr(arga.find_last_of("/\\") + 1);
       conf = base_filename.substr(0,base_filename.find_last_of('.'));
       if (!daa.loadFromFile(arga)) {
-        if (arga == "no_sum") {
+        if (arga == "sum") {
+          // Configure DAIDALUS as in DO-365B, with SUM. This is the default.
+          daa.set_DO_365B(true,true);
+          conf = "sum";
+        } else if (arga == "no_sum") {
           // Configure DAIDALUS as in DO-365B, without SUM
           daa.set_DO_365B(true,false);
           conf = "no_sum";
@@ -98,7 +102,7 @@ int main(int argc, char* argv[]) {
           exit(1);
         }
       } else {
-        std::cout << "Loading configuration file " << arga << std::endl;
+        std::cerr << "Loading configuration file " << arga << std::endl;
       }
     } else if (arga == "--echo" || arga == "-echo") {
       echo = true;
@@ -150,7 +154,7 @@ int main(int argc, char* argv[]) {
   }
   if (input_file == "") {
     if (echo) {
-      std::cout << daa.toString() << std::endl;
+      std::cout << daa.toString();
       exit(0);
     } else {
       std::cerr << "** Error: One input file must be provided" << std::endl;
@@ -160,7 +164,7 @@ int main(int argc, char* argv[]) {
   std::ifstream file(input_file.c_str());
   if (!file.good()) {
     std::cerr << "** Error: File " << input_file << " cannot be read" << std::endl;
-    exit(0);
+    exit(1);
   }
   file.close();
   std::string name = input_file.substr(input_file.find_last_of("/\\") + 1);
@@ -174,8 +178,8 @@ int main(int argc, char* argv[]) {
   }
 
   DaidalusParameters::setDefaultOutputPrecision(precision);
-  std::cout << "Processing DAIDALUS file " << input_file << std::endl;
-  std::cout << "Generating CSV file " << output_file << std::endl;
+  std::cerr << "Processing DAIDALUS file " << input_file << std::endl;
+  std::cerr << "Generating CSV file " << output_file << std::endl;
   DaidalusFileWalker walker(input_file);
 
   if (ownship != "") {
@@ -222,7 +226,7 @@ int main(int argc, char* argv[]) {
   while (!walker.atEnd()) {
     walker.readState(daa);
     if (echo) {
-      std::cout << daa.toString() << std::endl;
+      std::cout << daa.toString();
     }
     // At this point, daa has the state information of ownhsip and traffic for a given time
     for (int ac=1; ac <= daa.lastTrafficIndex(); ++ac) {
