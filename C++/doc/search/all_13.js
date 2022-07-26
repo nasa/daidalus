@@ -33,7 +33,7 @@ var searchData=
   ['timetocorrectivevolume_1122',['timeToCorrectiveVolume',['../classlarcfm_1_1_daidalus.html#a604740edb9cc34c9c4df58cd89555b27',1,'larcfm::Daidalus']]],
   ['timetohorizontalclosestpointofapproach_1123',['timeToHorizontalClosestPointOfApproach',['../classlarcfm_1_1_daidalus.html#ab012a2fcb2b8d892584ac4d4ab1b3eb3',1,'larcfm::Daidalus::timeToHorizontalClosestPointOfApproach(int ac_idx) const'],['../classlarcfm_1_1_daidalus.html#a897f3ede9276f3cf23f30d0c8754f914',1,'larcfm::Daidalus::timeToHorizontalClosestPointOfApproach(int ac_idx, const std::string &amp;u) const']]],
   ['timetorecovery_1124',['timeToRecovery',['../classlarcfm_1_1_recovery_information.html#a6b03e92d12ba5964fc70d340e83d207a',1,'larcfm::RecoveryInformation']]],
-  ['timetotorecovery_1125',['timeToToRecovery',['../classlarcfm_1_1_recovery_information.html#ae671f4e20bc44bc51642ee5f2cb5fd14',1,'larcfm::RecoveryInformation']]],
+  ['timetorecovery_1125',['timeToRecovery',['../classlarcfm_1_1_recovery_information.html#ae671f4e20bc44bc51642ee5f2cb5fd14',1,'larcfm::RecoveryInformation']]],
   ['tiov_1126',['tiov',['../classlarcfm_1_1_daidalus_core.html#a19de4fff9ab586d751d62173527312a2',1,'larcfm::DaidalusCore']]],
   ['to_1127',['to',['../classlarcfm_1_1_units.html#aac2f400e7a0ee3098f8500245efdd886',1,'larcfm::Units::to(const double symbol, const double value)'],['../classlarcfm_1_1_units.html#a2fbd64e79587d1a9b4391fafbd4fbdd0',1,'larcfm::Units::to(const std::string &amp;symbol, double value)']]],
   ['to_5f180_1128',['to_180',['../classlarcfm_1_1_util.html#a78bbb8e1517f402aa35d7655ccfa381e',1,'larcfm::Util::to_180()'],['../namespacelarcfm.html#a4eafad96fd7f9b4614d8be66a900dbe9',1,'larcfm::to_180()']]],

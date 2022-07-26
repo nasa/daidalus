@@ -41,7 +41,7 @@ double RecoveryInformation::timeToRecovery() const {
 /**
  * @return Time to recovery in given units
  */
-double RecoveryInformation::timeToToRecovery(const std::string& u) const {
+double RecoveryInformation::timeToRecovery(const std::string& u) const {
   return Units::to(u,time_);
 }
 

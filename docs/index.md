@@ -925,7 +925,7 @@ algorithm, as opposed to well-clear bands algorithm, was used.
 * `boolean recoveryBandsSaturated()`: Returns `true` if recovery bands
   saturate. This may happen if recovery bands are disabled or
   well-clear recovery is not possible according to the configuration parameters.
-* `double timeToToRecovery(String u)`: Returns upper bound to time to
+* `double timeToRecovery(String u)`: Returns upper bound to time to
   recover violation of corrective volume. 
 * `double recoveryHorizontalDistance(String u)`: Returns lower bound
   to horizontal distance at time of closes approach during recovery  maneuver. 
