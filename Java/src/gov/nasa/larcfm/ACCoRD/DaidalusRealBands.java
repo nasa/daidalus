@@ -216,7 +216,8 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 						max_val_ = Util.min(max_val_,get_max(parameters));
 					}
 				}
-				circular_ = mod_ > 0 && Util.almost_equals(min_val_,max_val_,DaidalusParameters.ALMOST_);
+				circular_ = mod_ > 0 && Util.within_epsilon(min_val_,max_val_,get_step(parameters)*0.25);
+				// changed from alomst_equals to within_epsilon to avoid numeric instability in some cases
 				if (circular_) {
 					min_relative_ = mod_/2.0;
 					max_relative_ = mod_/2.0;
