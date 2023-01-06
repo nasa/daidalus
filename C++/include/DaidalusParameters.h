@@ -125,12 +125,18 @@ private:
   double dta_height_;
   int dta_alerter_;
 
-
   // Alerting logic
-  bool ownship_centric_alerting_; // When true, alerting logic is ownship-centric.
-  // Otherwise, it is intruder-centric.
-  BandsRegion::Region corrective_region_; // Corrective region for all alerters.
+  // When true, alerting logic is ownship-centric. Otherwise, it is intruder-centric.
+  bool ownship_centric_alerting_; 
+
+	// By default the parameter bands_add_time_to_maneuver is set to false. When set to true, 
+	// the time to maneuver is considerd against alerting time when computing peripheral bands. 
+  // The latter was the behavior in v.2.0.1 and v1.
+	bool bands_add_time_to_maneuver_;
+
+  // Corrective region for all alerters.
   // (IMPORTANT: all alerters should declare an alert level with a corrective region!)
+  BandsRegion::Region corrective_region_; 
 
   std::map<std::string,std::string> units_;
 
@@ -848,6 +854,29 @@ public:
    * @return true if alerting/guidance logic is ownship centric.
    */
   bool isAlertingLogicOwnshipCentric() const;
+
+  /**
+   * Set logic of "bands add time to manevuer" to the value indicated by bands_add_time_to_maneuver
+   * By default this parameter is set to false. When set to true, the time to maneuver is
+   * considerd against alerting time when computing peripheral bands. The latter was the behavior in
+   * v.2.0.1 and v1.
+   */
+  void setBandsAddTimeToManeuver(bool bands_add_time_to_maneuver);
+
+  /**
+   * Set logic of "bands add time to manevuer" to true
+   */
+  void enableBandsAddTimeToManeuver();
+
+  /**
+   * Set logic of "bands add time to manevuer" to false
+   */
+  void disableBandsAddTimeToManeuver();
+
+  /**
+   * @return true if peripheral bands logic adds time to maneuver (as used in v1 and v2.0.1)
+   */
+  bool isEnabledBandsAddTimeToManeuver() const;
 
   /**
    * Get corrective region for calculation of resolution maneuvers and bands saturation.

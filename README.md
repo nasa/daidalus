@@ -60,7 +60,7 @@ repository, visit https://shemesh.larc.nasa.gov/fm/DAIDALUS.
 
 ### Current Release
 
-v2.0.2b, May-31-2021
+v2.0.3, July-1-2022
 
 ### License
 

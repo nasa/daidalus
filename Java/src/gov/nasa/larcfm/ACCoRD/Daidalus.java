@@ -2704,6 +2704,39 @@ public class Daidalus implements GenericStateBands {
 		return core_.parameters.isAlertingLogicOwnshipCentric();
 	}
 
+	/**
+	* Set logic of "bands add time to manevuer" to the value indicated by bands_add_time_to_maneuver
+	* By default this parameter is set to false. When set to true, the time to maneuver is 
+	* considerd against alerting time when computing peripheral bands. The latter was the behavior in 
+	* v.2.0.1 and v1.
+	*/
+	public void setBandsAddTimeToManeuver(boolean bands_add_time_to_maneuver) {
+		core_.parameters.setBandsAddTimeToManeuver(bands_add_time_to_maneuver);
+		reset();
+	}
+
+	/**
+	 * Set logic of "bands add time to manevuer" to true
+	 */
+	public void enableBandsAddTimeToManeuver() {
+		setBandsAddTimeToManeuver(true);
+	}
+
+	/**
+	 * Set logic of "bands add time to manevuer" to false
+	 */
+	public void disableBandsAddTimeToManeuver() {
+		setBandsAddTimeToManeuver(false);
+	}
+
+	/**
+	 * @return true if peripheral bands logic adds time to maneuver (as used in v1
+	 *         and v2.0.1)
+	 */
+	public boolean isEnbaldeBandsAddTimeToManeuver() {
+		return core_.parameters.isEnabledBandsAddTimeToManeuver();
+	}
+
 	/** 
 	 * Get corrective region for calculation of resolution maneuvers and bands saturation.
 	 */

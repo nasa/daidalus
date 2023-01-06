@@ -125,12 +125,15 @@ public abstract class DaidalusIntegerBands {
 		int d = -1; // Set to the first index with no conflict
 		for (int k = 0; k <= max; ++k) {
 			double tsk = tstep*k;
-			if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			double time_horizon = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk;
+			if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,
+				time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				continue;
 			} else if (d >=0) {
 				l.add(new Integerval(d,k-1));
 				d = -1;
-			} else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			} else if (no_CD_future_traj(conflict_det,recovery_det,B,
+				time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				d = k;
 			}
 		}
@@ -160,13 +163,15 @@ public abstract class DaidalusIntegerBands {
 		boolean usevcrit = epsv != 0;    
 		for (int k=0; k <= max; ++k) {
 			double tsk = tstep*k;
+			double time_horizon = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk;
 			if ((B <= tsk && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
 					(recovery_det.isPresent() && 0 <= tsk && tsk <= B &&
 					LOS_at(recovery_det.get(),trajdir,tsk,parameters,ownship,traffic,0,false)) ||
 					(usehcrit && !kinematic_repulsive_at(tstep,trajdir,k,parameters,ownship,traffic,epsh)) ||
 					(usevcrit && !kinematic_vert_repul_at(tstep,trajdir,k,parameters,ownship,traffic,epsv))) {
 				return -1;
-			} else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			} else if (no_CD_future_traj(conflict_det,recovery_det,B,
+				time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				return k;
 			} 
 		}      
@@ -264,7 +269,9 @@ public abstract class DaidalusIntegerBands {
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
 		for (int k=0; k <= max; ++k) {
 			double tsk = tstep*k;
-			if (CD_future_traj(det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+			double time_horizon = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk;
+			if (CD_future_traj(det,B,
+				time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
 				return true;
 			}
 		}
