@@ -36,7 +36,7 @@ class RecoveryInformation {
   /**
    * @return Time to recovery in given units
    */
-  double timeToToRecovery(const std::string& u) const;
+  double timeToRecovery(const std::string& u) const;
 
   /**
    * @return Recovery horizontal distance in internal units, i.e., [m]

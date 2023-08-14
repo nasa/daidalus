@@ -40,7 +40,7 @@ public class RecoveryInformation {
 	/**
 	 * @return Time to recovery in given units
 	 */
-	public double timeToToRecovery(String u) {
+	public double timeToRecovery(String u) {
 		return Units.to(u,time_);
 	}
 
