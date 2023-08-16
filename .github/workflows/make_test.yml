@@ -14,7 +14,7 @@
         run: sudo apt install -y libcppunit-dev
 
       - name: Check current directory
-        run: pwd
+        run: pwd&&cd ./C++&&ls -la
       
       - name: Run Test
         run: |
