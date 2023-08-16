@@ -18,3 +18,27 @@ jobs:
 
     - name: Build with make
       run: cd Java&&make
+    
+    - name: Run Test
+      run: |
+        expected_output=$(cat <<EOF
+        ## DAIDALUSj V-2.0.2-FormalATM-v2.7.5
+        ## ... (expected output lines) ...
+        Preferred Altitude Direction: down
+        Recovery Information for Altitude Bands:
+          Time to Recovery: NaN [s]
+          Recovery Horizontal Distance: NaN [nmi]
+          Recovery Vertical Distance: NaN [ft]
+        EOF
+        )
+        actual_output=$(./Java/DaidalusExample)
+        if [[ "$actual_output" == "$expected_output" ]]; then
+          echo "Test passed: Output matches expected result"
+        else
+          echo "Test failed: Output does not match expected result"
+          echo "Expected:"
+          echo "$expected_output"
+          echo "Actual:"
+          echo "$actual_output"
+          exit 1
+        fi
