@@ -13,7 +13,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v2
       with:
-      	distribution: 'temurin'
+        distribution: 'temurin'
         java-version: '11' # Set to the desired Java version
 
     - name: Build with make
