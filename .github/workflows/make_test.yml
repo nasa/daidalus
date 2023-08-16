@@ -25,7 +25,7 @@
         run: |
           expected_output=$(cat <<EOF
           ##
-          ## DAIDALUSj V-2.0.2-FormalATM-v2.7.5
+          ## DAIDALUS++ V-2.0.2-FormalATM-v2.7.5
           ##
 
           Number of Aircraft: 2
