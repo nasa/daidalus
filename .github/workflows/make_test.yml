@@ -13,8 +13,8 @@ jobs:
     - name: Set up C++ environment
       uses: nicledomaS/cmake_build_action@v1.4
 
-    - name: Build with make
-      run: cd C++ && make
+    - name: install cppunit
+      run: sudo apt install -y libcppunit-dev
     
     - name: Run Test
       run: |
