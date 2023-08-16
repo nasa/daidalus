@@ -13,6 +13,11 @@
       - name: install cppunit
         run: sudo apt install -y libcppunit-dev
 
+      - name: Build with make
+        run: |
+          cd C++
+          make
+
       - name: Check current directory
         run: pwd&&cd ./C++&&ls -la
       
