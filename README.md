@@ -1,15 +1,9 @@
 ![](docs/DAIDALUS.jpeg "")
 
-Detect and AvoID Alerting Logic for Unmanned Systems
-========
+# Detect and AvoID Alerting Logic for Unmanned Systems
 
-Detect and Avoid Alerting Logic for Unmanned Systems (DAIDALUS) is a
-software library that implements a configurable detect and avoid (DAA)
-concept intended to support the integration of Unmanned Aircraft
-Systems into civil airspace.  DAIDALUS serves as a reference
-implementation of the functional requirements specified in DO-365, the
-Minimum Operational Performance Standards (MOPS) for Unmanned Aircraft
-Systems (UAS) developed by RTCA Special Committee 228 (SC-228).
+
+Detect and Avoid Alerting Logic for Unmanned Systems (DAIDALUS) is a software library that implements a configurable detect and avoid (DAA) concept intended to support the integration of Unmanned Aircraft Systems into civil airspace.  DAIDALUS serves as a reference implementation of the functional requirements specified in DO-365, the Minimum Operational Performance Standards (MOPS) for Unmanned Aircraft Systems (UAS) developed by RTCA Special Committee 228 (SC-228).
 
 This repository includes a prototype
 implementations written in Java and C++.  The repository also includes
@@ -47,6 +41,7 @@ To run the example application in a Unix environment, type from the
 directory Java (or C++):
 
 ```
+$ make # used to compile the files(run only once)
 $ ./DaidalusExample
 ```
 
