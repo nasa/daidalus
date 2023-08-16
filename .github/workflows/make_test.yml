@@ -101,10 +101,11 @@
             Airspeed Maneuver: 18.72 [s]
             Vertical Speed Maneuver: 14.78 [s]
             Altitude Maneuver: 2.3 [s]
-            
+
           EOF
           )
           actual_output=$(./C++/DaidalusExample)
+          pwd
           if [[ "$actual_output" == "$expected_output" ]]; then
             echo "Test passed: Output matches expected result"
           else
