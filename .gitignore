@@ -3,6 +3,7 @@
 *.class
 *~
 *.old
+*.mold
 *.pyc
 tmp/
 mold/
@@ -10,3 +11,5 @@ tests/
 C++/DaidalusExample
 C++/DaidalusAlerting
 C++/DaidalusBatch
+*.html --diff --merge
+*.html linguist-generated=true
