@@ -63,12 +63,27 @@ bool DaidalusIntegerBands::LOS_at(const Detection3D* det, bool trajdir, double t
   return det->violationAtWithTrafficState(own,traffic,tsk);
 }
 
-// In PVS: int_bands@first_los_step
+bool DaidalusIntegerBands::LOS_at_coast(const Detection3D* det, bool trajdir, double tsk, double tcoast,
+      const DaidalusParameters& parameters, const TrafficState& ownship, 
+      const TrafficState& traffic, int target_step, bool instantaneous) const {
+  if (tsk >= parameters.getLookaheadTime()) {
+		return false;
+	}
+	std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+	Vect3 sot = sovot.first;
+	Velocity vot = sovot.second;
+	Vect3 sat = vot.ScalAdd(-tsk,sot);
+	TrafficState own = ownship;
+	own.setPosition(Position(sat));
+	own.setAirVelocity(vot);
+	return det->conflictWithTrafficState(own,traffic,tsk,tsk+tcoast); 
+}
 
+// In PVS: int_bands@first_los_step
 int DaidalusIntegerBands::kinematic_first_los_step(const Detection3D* det, double tstep, bool trajdir,
     int min, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   for (int k=min; k<=max; ++k) {
-    if (LOS_at(det,trajdir,k*tstep,parameters,ownship,traffic,0,false)) {
+    if (LOS_at_coast(det,trajdir,k*tstep,tstep,parameters,ownship,traffic,0,false)) {
       return k;
     }
   }

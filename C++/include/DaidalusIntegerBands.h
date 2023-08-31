@@ -60,7 +60,11 @@ public:
       const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic, int target_step, bool instantaneous) const;
 
 private:
-  // In PVS: int_bands@first_los_step
+  bool LOS_at_coast(const Detection3D* det, bool trajdir, double tsk, double tcoast,
+      const DaidalusParameters& parameters, const TrafficState& ownship, 
+      const TrafficState& traffic, int target_step, bool instantaneous) const;	
+
+    // In PVS: int_bands@first_los_step
   int kinematic_first_los_step(const Detection3D* det, double tstep, bool trajdir,
       int min, int max, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const;
 
