@@ -1,0 +1,291 @@
+##
+## DAIDALUSj V-2.0.3-FormalATM-v2.7.5
+##
+
+# Daidalus Object
+# V-2.0.3
+# Bands Parameters
+lookahead_time = 180.0 [s]
+left_hdir = 180.0 [deg]
+right_hdir = 180.0 [deg]
+min_hs = 10.0 [knot]
+max_hs = 700.0 [knot]
+min_vs = -6000.0 [fpm]
+max_vs = 6000.0 [fpm]
+min_alt = 100.0 [ft]
+max_alt = 50000.0 [ft]
+# Relative Bands Parameters
+below_relative_hs = 0.0 [knot]
+above_relative_hs = 0.0 [knot]
+below_relative_vs = 0.0 [fpm]
+above_relative_vs = 0.0 [fpm]
+below_relative_alt = 0.0 [ft]
+above_relative_alt = 0.0 [ft]
+# Kinematic Parameters
+step_hdir = 1.0 [deg]
+step_hs = 5.0 [knot]
+step_vs = 100.0 [fpm]
+step_alt = 100.0 [ft]
+horizontal_accel = 2.0 [m/s^2]
+vertical_accel = 0.25 [G]
+turn_rate = 3.0 [deg/s]
+bank_angle = 0.0 [deg]
+vertical_rate = 500.0 [fpm]
+# Recovery Bands Parameters
+min_horizontal_recovery = 0.66 [nmi]
+min_vertical_recovery = 450.0 [ft]
+recovery_hdir = true
+recovery_hs = true
+recovery_vs = true
+recovery_alt = true
+# Collision Avoidance Bands Parameters
+ca_bands = true
+ca_factor = 0.1
+horizontal_nmac = 500.0 [ft]
+vertical_nmac = 100.0 [ft]
+# Hysteresis and persistence parameters
+recovery_stability_time = 3.0 [s]
+hysteresis_time = 5.0 [s]
+persistence_time = 4.0 [s]
+bands_persistence = true
+persistence_preferred_hdir = 15.0 [deg]
+persistence_preferred_hs = 100.0 [knot]
+persistence_preferred_vs = 250.0 [fpm]
+persistence_preferred_alt = 250.0 [ft]
+alerting_m = 2
+alerting_n = 4
+# Implicit Coordination Parameters
+conflict_crit = false
+recovery_crit = false
+# Sensor Uncertainty Mitigation Parameters
+h_pos_z_score = 1.5
+h_vel_z_score_min = 0.5
+h_vel_z_score_max = 1.0
+h_vel_z_distance = 5.0 [nmi]
+v_pos_z_score = 0.75
+v_vel_z_score = 1.5
+# Horizontal Contour Threshold
+contour_thr = 180.0 [deg]
+# DAA Terminal Area (DTA)
+dta_logic = 0
+dta_latitude = 0.0 [deg]
+dta_longitude = 0.0 [deg]
+dta_radius = 4.2 [nmi]
+dta_height = 2000.0 [ft]
+dta_alerter = 2
+# Alerting Logic
+ownship_centric_alerting = false
+bands_add_time_to_maneuver = false
+corrective_region = MID
+alerters = DWC_Phase_I,DWC_Phase_II,DWC_Non_Coop
+DWC_Phase_I_alert_1_region = NONE
+DWC_Phase_I_alert_1_alerting_time = 55.0 [s]
+DWC_Phase_I_alert_1_early_alerting_time = 75.0 [s]
+DWC_Phase_I_alert_1_spread_hdir = 0.0 [deg]
+DWC_Phase_I_alert_1_spread_hs = 0.0 [knot]
+DWC_Phase_I_alert_1_spread_vs = 0.0 [fpm]
+DWC_Phase_I_alert_1_spread_alt = 0.0 [ft]
+DWC_Phase_I_alert_1_detector = det_1
+DWC_Phase_I_det_1_WCV_DTHR = 0.66 [nmi]
+DWC_Phase_I_det_1_WCV_ZTHR = 700.0 [ft]
+DWC_Phase_I_det_1_WCV_TTHR = 35.0 [s]
+DWC_Phase_I_det_1_WCV_TCOA = 0.0 [s]
+DWC_Phase_I_load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Phase_I_alert_2_region = MID
+DWC_Phase_I_alert_2_alerting_time = 55.0 [s]
+DWC_Phase_I_alert_2_early_alerting_time = 75.0 [s]
+DWC_Phase_I_alert_2_spread_hdir = 0.0 [deg]
+DWC_Phase_I_alert_2_spread_hs = 0.0 [knot]
+DWC_Phase_I_alert_2_spread_vs = 0.0 [fpm]
+DWC_Phase_I_alert_2_spread_alt = 0.0 [ft]
+DWC_Phase_I_alert_2_detector = det_2
+DWC_Phase_I_det_2_WCV_DTHR = 0.66 [nmi]
+DWC_Phase_I_det_2_WCV_ZTHR = 450.0 [ft]
+DWC_Phase_I_det_2_WCV_TTHR = 35.0 [s]
+DWC_Phase_I_det_2_WCV_TCOA = 0.0 [s]
+DWC_Phase_I_load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Phase_I_alert_3_region = NEAR
+DWC_Phase_I_alert_3_alerting_time = 25.0 [s]
+DWC_Phase_I_alert_3_early_alerting_time = 55.0 [s]
+DWC_Phase_I_alert_3_spread_hdir = 0.0 [deg]
+DWC_Phase_I_alert_3_spread_hs = 0.0 [knot]
+DWC_Phase_I_alert_3_spread_vs = 0.0 [fpm]
+DWC_Phase_I_alert_3_spread_alt = 0.0 [ft]
+DWC_Phase_I_alert_3_detector = det_3
+DWC_Phase_I_det_3_WCV_DTHR = 0.66 [nmi]
+DWC_Phase_I_det_3_WCV_ZTHR = 450.0 [ft]
+DWC_Phase_I_det_3_WCV_TTHR = 35.0 [s]
+DWC_Phase_I_det_3_WCV_TCOA = 0.0 [s]
+DWC_Phase_I_load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Phase_II_alert_1_region = NONE
+DWC_Phase_II_alert_1_alerting_time = 45.0 [s]
+DWC_Phase_II_alert_1_early_alerting_time = 75.0 [s]
+DWC_Phase_II_alert_1_spread_hdir = 0.0 [deg]
+DWC_Phase_II_alert_1_spread_hs = 0.0 [knot]
+DWC_Phase_II_alert_1_spread_vs = 0.0 [fpm]
+DWC_Phase_II_alert_1_spread_alt = 0.0 [ft]
+DWC_Phase_II_alert_1_detector = det_1
+DWC_Phase_II_det_1_WCV_DTHR = 1500.0 [ft]
+DWC_Phase_II_det_1_WCV_ZTHR = 450.0 [ft]
+DWC_Phase_II_det_1_WCV_TTHR = 0.0 [s]
+DWC_Phase_II_det_1_WCV_TCOA = 0.0 [s]
+DWC_Phase_II_load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Phase_II_alert_2_region = MID
+DWC_Phase_II_alert_2_alerting_time = 45.0 [s]
+DWC_Phase_II_alert_2_early_alerting_time = 75.0 [s]
+DWC_Phase_II_alert_2_spread_hdir = 0.0 [deg]
+DWC_Phase_II_alert_2_spread_hs = 0.0 [knot]
+DWC_Phase_II_alert_2_spread_vs = 0.0 [fpm]
+DWC_Phase_II_alert_2_spread_alt = 0.0 [ft]
+DWC_Phase_II_alert_2_detector = det_2
+DWC_Phase_II_det_2_WCV_DTHR = 1500.0 [ft]
+DWC_Phase_II_det_2_WCV_ZTHR = 450.0 [ft]
+DWC_Phase_II_det_2_WCV_TTHR = 0.0 [s]
+DWC_Phase_II_det_2_WCV_TCOA = 0.0 [s]
+DWC_Phase_II_load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Phase_II_alert_3_region = NEAR
+DWC_Phase_II_alert_3_alerting_time = 45.0 [s]
+DWC_Phase_II_alert_3_early_alerting_time = 75.0 [s]
+DWC_Phase_II_alert_3_spread_hdir = 0.0 [deg]
+DWC_Phase_II_alert_3_spread_hs = 0.0 [knot]
+DWC_Phase_II_alert_3_spread_vs = 0.0 [fpm]
+DWC_Phase_II_alert_3_spread_alt = 0.0 [ft]
+DWC_Phase_II_alert_3_detector = det_3
+DWC_Phase_II_det_3_WCV_DTHR = 1500.0 [ft]
+DWC_Phase_II_det_3_WCV_ZTHR = 450.0 [ft]
+DWC_Phase_II_det_3_WCV_TTHR = 0.0 [s]
+DWC_Phase_II_det_3_WCV_TCOA = 0.0 [s]
+DWC_Phase_II_load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Non_Coop_alert_1_region = NONE
+DWC_Non_Coop_alert_1_alerting_time = 55.0 [s]
+DWC_Non_Coop_alert_1_early_alerting_time = 110.0 [s]
+DWC_Non_Coop_alert_1_spread_hdir = 0.0 [deg]
+DWC_Non_Coop_alert_1_spread_hs = 0.0 [knot]
+DWC_Non_Coop_alert_1_spread_vs = 0.0 [fpm]
+DWC_Non_Coop_alert_1_spread_alt = 0.0 [ft]
+DWC_Non_Coop_alert_1_detector = det_1
+DWC_Non_Coop_det_1_WCV_DTHR = 2200.0 [ft]
+DWC_Non_Coop_det_1_WCV_ZTHR = 450.0 [ft]
+DWC_Non_Coop_det_1_WCV_TTHR = 0.0 [s]
+DWC_Non_Coop_det_1_WCV_TCOA = 0.0 [s]
+DWC_Non_Coop_load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Non_Coop_alert_2_region = MID
+DWC_Non_Coop_alert_2_alerting_time = 55.0 [s]
+DWC_Non_Coop_alert_2_early_alerting_time = 110.0 [s]
+DWC_Non_Coop_alert_2_spread_hdir = 0.0 [deg]
+DWC_Non_Coop_alert_2_spread_hs = 0.0 [knot]
+DWC_Non_Coop_alert_2_spread_vs = 0.0 [fpm]
+DWC_Non_Coop_alert_2_spread_alt = 0.0 [ft]
+DWC_Non_Coop_alert_2_detector = det_2
+DWC_Non_Coop_det_2_WCV_DTHR = 2200.0 [ft]
+DWC_Non_Coop_det_2_WCV_ZTHR = 450.0 [ft]
+DWC_Non_Coop_det_2_WCV_TTHR = 0.0 [s]
+DWC_Non_Coop_det_2_WCV_TCOA = 0.0 [s]
+DWC_Non_Coop_load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+DWC_Non_Coop_alert_3_region = NEAR
+DWC_Non_Coop_alert_3_alerting_time = 25.0 [s]
+DWC_Non_Coop_alert_3_early_alerting_time = 90.0 [s]
+DWC_Non_Coop_alert_3_spread_hdir = 0.0 [deg]
+DWC_Non_Coop_alert_3_spread_hs = 0.0 [knot]
+DWC_Non_Coop_alert_3_spread_vs = 0.0 [fpm]
+DWC_Non_Coop_alert_3_spread_alt = 0.0 [ft]
+DWC_Non_Coop_alert_3_detector = det_3
+DWC_Non_Coop_det_3_WCV_DTHR = 2200.0 [ft]
+DWC_Non_Coop_det_3_WCV_ZTHR = 450.0 [ft]
+DWC_Non_Coop_det_3_WCV_TTHR = 0.0 [s]
+DWC_Non_Coop_det_3_WCV_TCOA = 0.0 [s]
+DWC_Non_Coop_load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
+###
+NAME lat lon alt trk gs vs time alerter s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std
+[none] [deg] [deg] [ft] [deg] [knot] [fpm] [s] [none] [nmi] [nmi] [nmi] [ft] [knot] [knot] [knot] [fpm]
+ownship, 33.95, -96.7, 8700.0, 207.1623882306, 160.4882117114, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+intruder, 33.86191658, -96.73272601, 9000.0, 358.0043334101, 203.0520906541, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+
+Number of Aircraft: 2
+Last Aircraft Index: 1
+
+Predicted Time to Violation of Alert Thresholds at Level 1 with intruder: 21.02 [s]
+Predicted Time to Violation of Alert Thresholds at Level 2 with intruder: 21.02 [s]
+Predicted Time to Violation of Alert Thresholds at Level 3 with intruder: 21.02 [s]
+Predicted Time to Violation of Corrective Volume with intruder: 21.02 [s]
+Alert Level 3 with intruder
+
+Conflict Aircraft for Bands Region FAR: {}
+Conflict Aircraft for Bands Region MID: {intruder}
+Conflict Aircraft for Bands Region NEAR: {intruder}
+
+Ownship Heading: 207.16 [deg]
+Region of Current Heading: NEAR
+Heading Bands [deg,deg]
+  NONE:	[0.0, 205.16]
+  NEAR:	[205.16, 241.16]
+  NONE:	[241.16, 360.0]
+Peripheral Aircraft for Heading Bands Region FAR: {}
+Peripheral Aircraft for Heading Bands Region MID: {}
+Peripheral Aircraft for Heading Bands Region NEAR: {}
+Heading Resolution (right): 241.16 [deg]
+Heading Resolution (left): 205.16 [deg]
+Preferred Heading Direction: left
+Recovery Information for Horizontal Speed Bands:
+  Time to Recovery: NaN [s]
+  Recovery Horizontal Distance: NaN [nmi]
+  Recovery Vertical Distance: NaN [ft]
+Ownship Airspeed: 160.49 [knot]
+Region of Current Airspeed: NEAR
+Airspeed Bands [knot,knot]:
+  NONE:	[10.0, 145.49]
+  NEAR:	[145.49, 700.0]
+Peripheral Aircraft for Airspeed Bands Region FAR: {}
+Peripheral Aircraft for Airspeed Bands Region MID: {}
+Peripheral Aircraft for Airspeed Bands Region NEAR: {}
+Airspeed Resolution (up): N/A
+Airspeed Resolution (down): 145.49 [knot]
+Preferred Airspeed Direction: down
+Recovery Information for Horizontal Speed Bands:
+  Time to Recovery: NaN [s]
+  Recovery Horizontal Distance: NaN [nmi]
+  Recovery Vertical Distance: NaN [ft]
+Ownship Vertical Speed: 0.0 [fpm]
+Region of Current Vertical Speed: NEAR
+Vertical Speed Bands [fpm,fpm]:
+  NONE:	[-6000.0, -500.0]
+  NEAR:	[-500.0, 2500.0]
+  NONE:	[2500.0, 6000.0]
+Peripheral Aircraft for Vertical Speed Bands Region FAR: {}
+Peripheral Aircraft for Vertical Speed Bands Region MID: {}
+Peripheral Aircraft for Vertical Speed Bands Region NEAR: {}
+Vertical Speed Resolution (up): 2500.0 [fpm]
+Vertical Speed Resolution (down): -500.0 [fpm]
+Preferred Vertical Speed Direction: down
+Recovery Information for Vertical Speed Bands:
+  Time to Recovery: NaN [s]
+  Recovery Horizontal Distance: NaN [nmi]
+  Recovery Vertical Distance: NaN [ft]
+Ownship Altitude: 8700.0 [ft]
+Region of Current Altitude: NEAR
+Altitude Bands [ft,ft]:
+  NONE:	[100.0, 8500.0]
+  NEAR:	[8500.0, 50000.0]
+Peripheral Aircraft for Altitude Bands Region FAR: {}
+Peripheral Aircraft for Altitude Bands Region MID: {}
+Peripheral Aircraft for Altitude Bands Region NEAR: {}
+Altitude Resolution (up): N/A
+Altitude Resolution (down): 8500.0 [ft]
+Preferred Altitude Direction: down
+Recovery Information for Altitude Bands:
+  Time to Recovery: NaN [s]
+  Recovery Horizontal Distance: NaN [nmi]
+  Recovery Vertical Distance: NaN [ft]
+
+Last Times to Maneuver with Respect to intruder:
+  Heading Maneuver: 20.03 [s]
+  Airspeed Maneuver: 18.72 [s]
+  Vertical Speed Maneuver: 14.78 [s]
+  Altitude Maneuver: 2.3 [s]
+
+Counter-clockwise Corrective Contour wrt Aircraft intruder: 
+(33.9359934044 [deg], -96.7082931938 [deg], 8700.0 [ft]) (33.9361052546 [deg], -96.7085929705 [deg], 8700.0 [ft]) (33.9362136755 [deg], -96.708895628 [deg], 8700.0 [ft]) (33.9363189456 [deg], -96.7092015081 [deg], 8700.0 [ft]) (33.9364213334 [deg], -96.7095109497 [deg], 8700.0 [ft]) (33.9365210997 [deg], -96.7098242905 [deg], 8700.0 [ft]) (33.9366184981 [deg], -96.7101418669 [deg], 8700.0 [ft]) (33.936713777 [deg], -96.7104640159 [deg], 8700.0 [ft]) (33.9368071803 [deg], -96.7107910753 [deg], 8700.0 [ft]) (33.9368989485 [deg], -96.7111233851 [deg], 8700.0 [ft]) (33.9369893195 [deg], -96.7114612879 [deg], 8700.0 [ft]) (33.9370785295 [deg], -96.7118051303 [deg], 8700.0 [ft]) (33.9371668137 [deg], -96.7121552637 [deg], 8700.0 [ft]) (33.9372544072 [deg], -96.7125120452 [deg], 8700.0 [ft]) (33.9373415453 [deg], -96.712875839 [deg], 8700.0 [ft]) (33.9374284644 [deg], -96.7132470174 [deg], 8700.0 [ft]) (33.9375154023 [deg], -96.7136259619 [deg], 8700.0 [ft]) (33.9376025991 [deg], -96.7140130651 [deg], 8700.0 [ft]) (33.9376902974 [deg], -96.7144087316 [deg], 8700.0 [ft]) (33.937778743 [deg], -96.7148133801 [deg], 8700.0 [ft]) (33.9378681852 [deg], -96.7152274452 [deg], 8700.0 [ft]) (33.9379588777 [deg], -96.7156513793 [deg], 8700.0 [ft]) (33.9380510784 [deg], -96.7160856552 [deg], 8700.0 [ft]) (33.9381450506 [deg], -96.7165307685 [deg], 8700.0 [ft]) (33.938241063 [deg], -96.7169872409 [deg], 8700.0 [ft]) (33.9383393901 [deg], -96.7174556234 [deg], 8700.0 [ft]) (33.9384403132 [deg], -96.7179365006 [deg], 8700.0 [ft]) (33.9385441201 [deg], -96.7184304947 [deg], 8700.0 [ft]) (33.9386511062 [deg], -96.7189382717 [deg], 8700.0 [ft]) (33.9387615745 [deg], -96.719460547 [deg], 8700.0 [ft]) (33.9388758364 [deg], -96.7199980935 [deg], 8700.0 [ft]) (33.9389942116 [deg], -96.7205517499 [deg], 8700.0 [ft]) (33.9241086021 [deg], -96.7483299327 [deg], 8700.0 [ft]) (33.9229806398 [deg], -96.7485540129 [deg], 8700.0 [ft]) (33.9220328059 [deg], -96.7484088965 [deg], 8700.0 [ft]) (33.9211672907 [deg], -96.7480947542 [deg], 8700.0 [ft]) (33.9203566466 [deg], -96.747671691 [deg], 8700.0 [ft]) (33.9195888331 [deg], -96.7471681662 [deg], 8700.0 [ft]) (33.9188575049 [deg], -96.7466006082 [deg], 8700.0 [ft]) (33.9181589778 [deg], -96.7459796718 [deg], 8700.0 [ft]) (33.9174910016 [deg], -96.745312828 [deg], 8700.0 [ft]) (33.9168521778 [deg], -96.7446056178 [deg], 8700.0 [ft]) (33.9162416552 [deg], -96.7438623294 [deg], 8700.0 [ft]) (33.9156589567 [deg], -96.7430863928 [deg], 8700.0 [ft]) (33.9151038781 [deg], -96.7422806249 [deg], 8700.0 [ft]) (33.914576426 [deg], -96.7414473871 [deg], 8700.0 [ft]) (33.9140767814 [deg], -96.7405886916 [deg], 8700.0 [ft]) (33.9136052795 [deg], -96.7397062734 [deg], 8700.0 [ft]) (33.9131624024 [deg], -96.7388016399 [deg], 8700.0 [ft]) (33.9127487813 [deg], -96.737876104 [deg], 8700.0 [ft]) (33.9123652103 [deg], -96.7369308051 [deg], 8700.0 [ft]) (33.91201267 [deg], -96.735966718 [deg], 8700.0 [ft]) (33.9116923658 [deg], -96.7349846523 [deg], 8700.0 [ft]) (33.9114057867 [deg], -96.7339852388 [deg], 8700.0 [ft]) (33.9111547919 [deg], -96.7329688993 [deg], 8700.0 [ft]) (33.9109417438 [deg], -96.731935793 [deg], 8700.0 [ft]) (33.9107697172 [deg], -96.7308857232 [deg], 8700.0 [ft]) (33.9106428428 [deg], -96.7298179749 [deg], 8700.0 [ft]) (33.9105669095 [deg], -96.7287310185 [deg], 8700.0 [ft]) (33.9105505086 [deg], -96.7276219281 [deg], 8700.0 [ft]) (33.9106074786 [deg], -96.726485106 [deg], 8700.0 [ft]) (33.9107631175 [deg], -96.7253089571 [deg], 8700.0 [ft]) (33.9110754606 [deg], -96.7240642199 [deg], 8700.0 [ft]) (33.9117901214 [deg], -96.7226165618 [deg], 8700.0 [ft]) 
+Counter-clockwise Corrective Hazard Zone wrt Aircraft intruder: 
+(33.9479307381 [deg], -96.6869763019 [deg], 8700.0 [ft]) (33.9481196002 [deg], -96.6869347367 [deg], 8700.0 [ft]) (33.9483090352 [deg], -96.686897151 [deg], 8700.0 [ft]) (33.9484989856 [deg], -96.6868635564 [deg], 8700.0 [ft]) (33.9486893934 [deg], -96.686833963 [deg], 8700.0 [ft]) (33.9488802006 [deg], -96.68680838 [deg], 8700.0 [ft]) (33.9490713491 [deg], -96.6867868151 [deg], 8700.0 [ft]) (33.9492627807 [deg], -96.6867692749 [deg], 8700.0 [ft]) (33.9494544371 [deg], -96.6867557648 [deg], 8700.0 [ft]) (33.9496462599 [deg], -96.686746289 [deg], 8700.0 [ft]) (33.9498381907 [deg], -96.6867408503 [deg], 8700.0 [ft]) (33.950030171 [deg], -96.6867394505 [deg], 8700.0 [ft]) (33.9502221423 [deg], -96.6867420899 [deg], 8700.0 [ft]) (33.9504140461 [deg], -96.6867487679 [deg], 8700.0 [ft]) (33.950605824 [deg], -96.6867594824 [deg], 8700.0 [ft]) (33.9507974176 [deg], -96.6867742302 [deg], 8700.0 [ft]) (33.9509887686 [deg], -96.6867930068 [deg], 8700.0 [ft]) (33.9511798185 [deg], -96.6868158065 [deg], 8700.0 [ft]) (33.9513705093 [deg], -96.6868426224 [deg], 8700.0 [ft]) (33.9515607828 [deg], -96.6868734463 [deg], 8700.0 [ft]) (33.9517505811 [deg], -96.686908269 [deg], 8700.0 [ft]) (33.9519398463 [deg], -96.6869470798 [deg], 8700.0 [ft]) (33.9521285209 [deg], -96.6869898668 [deg], 8700.0 [ft]) (33.9523165472 [deg], -96.6870366172 [deg], 8700.0 [ft]) (33.9525038681 [deg], -96.6870873167 [deg], 8700.0 [ft]) (33.9526904265 [deg], -96.6871419499 [deg], 8700.0 [ft]) (33.9528761655 [deg], -96.6872005001 [deg], 8700.0 [ft]) (33.9530610286 [deg], -96.6872629496 [deg], 8700.0 [ft]) (33.9532449595 [deg], -96.6873292793 [deg], 8700.0 [ft]) (33.9534279021 [deg], -96.6873994691 [deg], 8700.0 [ft]) (33.9536098006 [deg], -96.6874734976 [deg], 8700.0 [ft]) (33.9537905997 [deg], -96.6875513423 [deg], 8700.0 [ft]) (33.9539702443 [deg], -96.6876329794 [deg], 8700.0 [ft]) (33.9541486796 [deg], -96.6877183842 [deg], 8700.0 [ft]) (33.9543258514 [deg], -96.6878075307 [deg], 8700.0 [ft]) (33.9545017056 [deg], -96.6879003916 [deg], 8700.0 [ft]) (33.9546761886 [deg], -96.6879969388 [deg], 8700.0 [ft]) (33.9548492473 [deg], -96.6880971429 [deg], 8700.0 [ft]) (33.9550208289 [deg], -96.6882009733 [deg], 8700.0 [ft]) (33.9551908813 [deg], -96.6883083984 [deg], 8700.0 [ft]) (33.9553593525 [deg], -96.6884193855 [deg], 8700.0 [ft]) (33.9555261913 [deg], -96.6885339009 [deg], 8700.0 [ft]) (33.9556913468 [deg], -96.6886519097 [deg], 8700.0 [ft]) (33.9558547687 [deg], -96.6887733759 [deg], 8700.0 [ft]) (33.9560164072 [deg], -96.6888982625 [deg], 8700.0 [ft]) (33.9561762131 [deg], -96.6890265315 [deg], 8700.0 [ft]) (33.9563341377 [deg], -96.6891581439 [deg], 8700.0 [ft]) (33.9564901328 [deg], -96.6892930596 [deg], 8700.0 [ft]) (33.9566441509 [deg], -96.6894312375 [deg], 8700.0 [ft]) (33.9567961452 [deg], -96.6895726354 [deg], 8700.0 [ft]) (33.9569460693 [deg], -96.6897172104 [deg], 8700.0 [ft]) (33.9570938774 [deg], -96.6898649184 [deg], 8700.0 [ft]) (33.9572395247 [deg], -96.6900157144 [deg], 8700.0 [ft]) (33.9573829667 [deg], -96.6901695525 [deg], 8700.0 [ft]) (33.9575241596 [deg], -96.6903263858 [deg], 8700.0 [ft]) (33.9576630606 [deg], -96.6904861666 [deg], 8700.0 [ft]) (33.9577996272 [deg], -96.6906488462 [deg], 8700.0 [ft]) (33.9579338179 [deg], -96.690814375 [deg], 8700.0 [ft]) (33.9580655917 [deg], -96.6909827026 [deg], 8700.0 [ft]) (33.9581949085 [deg], -96.6911537778 [deg], 8700.0 [ft]) (33.9583217289 [deg], -96.6913275484 [deg], 8700.0 [ft]) (33.9584460143 [deg], -96.6915039614 [deg], 8700.0 [ft]) (33.9585677268 [deg], -96.6916829633 [deg], 8700.0 [ft]) (33.9586868293 [deg], -96.6918644993 [deg], 8700.0 [ft]) (33.9588032855 [deg], -96.6920485142 [deg], 8700.0 [ft]) (33.95891706 [deg], -96.692234952 [deg], 8700.0 [ft]) (33.959028118 [deg], -96.6924237559 [deg], 8700.0 [ft]) (33.9591364258 [deg], -96.6926148683 [deg], 8700.0 [ft]) (33.9592419503 [deg], -96.6928082309 [deg], 8700.0 [ft]) (33.9593446593 [deg], -96.693003785 [deg], 8700.0 [ft]) (33.9594445216 [deg], -96.6932014709 [deg], 8700.0 [ft]) (33.9595415068 [deg], -96.6934012284 [deg], 8700.0 [ft]) (33.9596355853 [deg], -96.6936029966 [deg], 8700.0 [ft]) (33.9597267283 [deg], -96.6938067141 [deg], 8700.0 [ft]) (33.9598149083 [deg], -96.6940123187 [deg], 8700.0 [ft]) (33.9599000982 [deg], -96.6942197479 [deg], 8700.0 [ft]) (33.9599822721 [deg], -96.6944289384 [deg], 8700.0 [ft]) (33.9600614051 [deg], -96.6946398266 [deg], 8700.0 [ft]) (33.9601374729 [deg], -96.694852348 [deg], 8700.0 [ft]) (33.9602104524 [deg], -96.6950664381 [deg], 8700.0 [ft]) (33.9602803213 [deg], -96.6952820314 [deg], 8700.0 [ft]) (33.9603470584 [deg], -96.6954990625 [deg], 8700.0 [ft]) (33.9604106433 [deg], -96.6957174651 [deg], 8700.0 [ft]) (33.9604710567 [deg], -96.6959371726 [deg], 8700.0 [ft]) (33.9605282802 [deg], -96.6961581182 [deg], 8700.0 [ft]) (33.9605822962 [deg], -96.6963802345 [deg], 8700.0 [ft]) (33.9606330884 [deg], -96.6966034539 [deg], 8700.0 [ft]) (33.9606806412 [deg], -96.6968277082 [deg], 8700.0 [ft]) (33.9607249403 [deg], -96.6970529292 [deg], 8700.0 [ft]) (33.960765972 [deg], -96.6972790483 [deg], 8700.0 [ft]) (33.9608037239 [deg], -96.6975059965 [deg], 8700.0 [ft]) (33.9608381844 [deg], -96.6977337047 [deg], 8700.0 [ft]) (33.9608693431 [deg], -96.6979621035 [deg], 8700.0 [ft]) (33.9608971905 [deg], -96.6981911233 [deg], 8700.0 [ft]) (33.9609217181 [deg], -96.6984206943 [deg], 8700.0 [ft]) (33.9609429184 [deg], -96.6986507465 [deg], 8700.0 [ft]) (33.960960785 [deg], -96.6988812099 [deg], 8700.0 [ft]) (33.9609753123 [deg], -96.6991120143 [deg], 8700.0 [ft]) (33.9609864961 [deg], -96.6993430892 [deg], 8700.0 [ft]) (33.9609943328 [deg], -96.6995743643 [deg], 8700.0 [ft]) (33.9609988201 [deg], -96.6998057691 [deg], 8700.0 [ft]) (33.9609999566 [deg], -96.7000372332 [deg], 8700.0 [ft]) (33.960997742 [deg], -96.7002686858 [deg], 8700.0 [ft]) (33.960992177 [deg], -96.7005000566 [deg], 8700.0 [ft]) (33.9609832632 [deg], -96.700731275 [deg], 8700.0 [ft]) (33.9609710034 [deg], -96.7009622706 [deg], 8700.0 [ft]) (33.9609554012 [deg], -96.7011929729 [deg], 8700.0 [ft]) (33.9609364615 [deg], -96.7014233117 [deg], 8700.0 [ft]) (33.96091419 [deg], -96.7016532168 [deg], 8700.0 [ft]) (33.9608885936 [deg], -96.7018826181 [deg], 8700.0 [ft]) (33.9608596799 [deg], -96.7021114457 [deg], 8700.0 [ft]) (33.9608274579 [deg], -96.7023396299 [deg], 8700.0 [ft]) (33.9607919373 [deg], -96.7025671011 [deg], 8700.0 [ft]) (33.960753129 [deg], -96.7027937901 [deg], 8700.0 [ft]) (33.9607110447 [deg], -96.7030196278 [deg], 8700.0 [ft]) (33.9606656974 [deg], -96.7032445453 [deg], 8700.0 [ft]) (33.9606171008 [deg], -96.7034684741 [deg], 8700.0 [ft]) (33.9605652697 [deg], -96.703691346 [deg], 8700.0 [ft]) (33.96051022 [deg], -96.703913093 [deg], 8700.0 [ft]) (33.9604519684 [deg], -96.7041336477 [deg], 8700.0 [ft]) (33.9603905326 [deg], -96.7043529427 [deg], 8700.0 [ft]) (33.9603259314 [deg], -96.7045709113 [deg], 8700.0 [ft]) (33.9602581845 [deg], -96.704787487 [deg], 8700.0 [ft]) (33.9601873125 [deg], -96.7050026039 [deg], 8700.0 [ft]) (33.960113337 [deg], -96.7052161964 [deg], 8700.0 [ft]) (33.9600362805 [deg], -96.7054281994 [deg], 8700.0 [ft]) (33.9599561666 [deg], -96.7056385484 [deg], 8700.0 [ft]) (33.9598730196 [deg], -96.7058471792 [deg], 8700.0 [ft]) (33.9597868649 [deg], -96.7060540283 [deg], 8700.0 [ft]) (33.9596977287 [deg], -96.7062590326 [deg], 8700.0 [ft]) (33.9596056382 [deg], -96.7064621298 [deg], 8700.0 [ft]) (33.9595106215 [deg], -96.7066632578 [deg], 8700.0 [ft]) (33.9594127074 [deg], -96.7068623554 [deg], 8700.0 [ft]) (33.9593119259 [deg], -96.707059362 [deg], 8700.0 [ft]) (33.9592083077 [deg], -96.7072542176 [deg], 8700.0 [ft]) (33.9591018843 [deg], -96.7074468627 [deg], 8700.0 [ft]) (33.9589926881 [deg], -96.7076372388 [deg], 8700.0 [ft]) (33.9588807524 [deg], -96.7078252877 [deg], 8700.0 [ft]) (33.9587661114 [deg], -96.7080109522 [deg], 8700.0 [ft]) (33.9586487999 [deg], -96.7081941757 [deg], 8700.0 [ft]) (33.9585288538 [deg], -96.7083749024 [deg], 8700.0 [ft]) (33.9584063095 [deg], -96.7085530774 [deg], 8700.0 [ft]) (33.9582812043 [deg], -96.7087286461 [deg], 8700.0 [ft]) (33.9581535765 [deg], -96.7089015553 [deg], 8700.0 [ft]) (33.9580234649 [deg], -96.7090717522 [deg], 8700.0 [ft]) (33.9578909092 [deg], -96.709239185 [deg], 8700.0 [ft]) (33.9577559497 [deg], -96.7094038026 [deg], 8700.0 [ft]) (33.9576186275 [deg], -96.709565555 [deg], 8700.0 [ft]) (33.9574789846 [deg], -96.7097243928 [deg], 8700.0 [ft]) (33.9573370633 [deg], -96.7098802677 [deg], 8700.0 [ft]) (33.9571929071 [deg], -96.7100331322 [deg], 8700.0 [ft]) (33.9570465598 [deg], -96.7101829398 [deg], 8700.0 [ft]) (33.956898066 [deg], -96.7103296447 [deg], 8700.0 [ft]) (33.9567474709 [deg], -96.7104732024 [deg], 8700.0 [ft]) (33.9565948204 [deg], -96.710613569 [deg], 8700.0 [ft]) (33.9564401611 [deg], -96.710750702 [deg], 8700.0 [ft]) (33.9562835401 [deg], -96.7108845594 [deg], 8700.0 [ft]) (33.956125005 [deg], -96.7110151005 [deg], 8700.0 [ft]) (33.9559646042 [deg], -96.7111422856 [deg], 8700.0 [ft]) (33.9558023865 [deg], -96.7112660759 [deg], 8700.0 [ft]) (33.9556384015 [deg], -96.7113864338 [deg], 8700.0 [ft]) (33.9554726989 [deg], -96.7115033226 [deg], 8700.0 [ft]) (33.9553053294 [deg], -96.7116167067 [deg], 8700.0 [ft]) (33.9551363439 [deg], -96.7117265515 [deg], 8700.0 [ft]) (33.9549657939 [deg], -96.7118328237 [deg], 8700.0 [ft]) (33.9547937313 [deg], -96.7119354909 [deg], 8700.0 [ft]) (33.9546202086 [deg], -96.7120345218 [deg], 8700.0 [ft]) (33.9544452787 [deg], -96.7121298862 [deg], 8700.0 [ft]) (33.9542689947 [deg], -96.7122215552 [deg], 8700.0 [ft]) (33.9540914106 [deg], -96.7123095008 [deg], 8700.0 [ft]) (33.9539125802 [deg], -96.7123936963 [deg], 8700.0 [ft]) (33.9537325582 [deg], -96.7124741161 [deg], 8700.0 [ft]) (33.9535513994 [deg], -96.7125507356 [deg], 8700.0 [ft]) (33.9533691589 [deg], -96.7126235315 [deg], 8700.0 [ft]) (33.9531858923 [deg], -96.7126924817 [deg], 8700.0 [ft]) (33.9530016555 [deg], -96.7127575653 [deg], 8700.0 [ft]) (33.9528165044 [deg], -96.7128187623 [deg], 8700.0 [ft]) (33.9526304956 [deg], -96.7128760543 [deg], 8700.0 [ft]) (33.9524436857 [deg], -96.7129294237 [deg], 8700.0 [ft]) (33.9522561316 [deg], -96.7129788544 [deg], 8700.0 [ft]) (33.9520678904 [deg], -96.7130243312 [deg], 8700.0 [ft]) (33.8960477699 [deg], -96.7259396999 [deg], 8700.0 [ft]) (33.8957696583 [deg], -96.7253912443 [deg], 8700.0 [ft]) (33.8954995317 [deg], -96.7248370283 [deg], 8700.0 [ft]) (33.8952374724 [deg], -96.7242772206 [deg], 8700.0 [ft]) (33.89498356 [deg], -96.7237119916 [deg], 8700.0 [ft]) (33.8947378719 [deg], -96.7231415133 [deg], 8700.0 [ft]) (33.8945004829 [deg], -96.7225659595 [deg], 8700.0 [ft]) (33.8942714651 [deg], -96.7219855053 [deg], 8700.0 [ft]) (33.8940508883 [deg], -96.7214003274 [deg], 8700.0 [ft]) (33.8938388196 [deg], -96.7208106039 [deg], 8700.0 [ft]) (33.8936353236 [deg], -96.7202165143 [deg], 8700.0 [ft]) (33.8934404621 [deg], -96.7196182394 [deg], 8700.0 [ft]) (33.8932542944 [deg], -96.7190159613 [deg], 8700.0 [ft]) (33.8930768772 [deg], -96.7184098632 [deg], 8700.0 [ft]) (33.8929082646 [deg], -96.7178001298 [deg], 8700.0 [ft]) (33.8927485077 [deg], -96.7171869464 [deg], 8700.0 [ft]) (33.8925976552 [deg], -96.7165704998 [deg], 8700.0 [ft]) (33.8924557531 [deg], -96.7159509775 [deg], 8700.0 [ft]) (33.8923228444 [deg], -96.7153285681 [deg], 8700.0 [ft]) (33.8921989697 [deg], -96.7147034609 [deg], 8700.0 [ft]) (33.8920841666 [deg], -96.7140758462 [deg], 8700.0 [ft]) (33.8919784701 [deg], -96.713445915 [deg], 8700.0 [ft]) (33.8918819123 [deg], -96.712813859 [deg], 8700.0 [ft]) (33.8917945227 [deg], -96.7121798704 [deg], 8700.0 [ft]) (33.8917163277 [deg], -96.7115441423 [deg], 8700.0 [ft]) (33.8916473512 [deg], -96.7109068681 [deg], 8700.0 [ft]) (33.8915876143 [deg], -96.7102682416 [deg], 8700.0 [ft]) (33.8915371349 [deg], -96.7096284572 [deg], 8700.0 [ft]) (33.8914959286 [deg], -96.7089877097 [deg], 8700.0 [ft]) (33.8914640079 [deg], -96.7083461939 [deg], 8700.0 [ft]) (33.8914413824 [deg], -96.707704105 [deg], 8700.0 [ft]) (33.8914280591 [deg], -96.7070616385 [deg], 8700.0 [ft]) (33.891424042 [deg], -96.7064189898 [deg], 8700.0 [ft]) (33.8914293323 [deg], -96.7057763545 [deg], 8700.0 [ft]) (33.8914439285 [deg], -96.7051339281 [deg], 8700.0 [ft]) (33.891467826 [deg], -96.7044919061 [deg], 8700.0 [ft]) (33.8915010177 [deg], -96.7038504839 [deg], 8700.0 [ft]) (33.8915434933 [deg], -96.7032098566 [deg], 8700.0 [ft]) (33.8915952401 [deg], -96.7025702191 [deg], 8700.0 [ft]) (33.8916562422 [deg], -96.7019317662 [deg], 8700.0 [ft]) (33.891726481 [deg], -96.701294692 [deg], 8700.0 [ft]) (33.8918059353 [deg], -96.7006591904 [deg], 8700.0 [ft]) (33.8918945808 [deg], -96.7000254549 [deg], 8700.0 [ft]) (33.8919119769 [deg], -96.6999084803 [deg], 8700.0 [ft]) 
+Counter-clockwise Corrective Hazard Zone (with alerting time) wrt Aircraft intruder: 
+(33.9479307381 [deg], -96.6869763019 [deg], 8700.0 [ft]) (33.9481196002 [deg], -96.6869347367 [deg], 8700.0 [ft]) (33.9483090352 [deg], -96.686897151 [deg], 8700.0 [ft]) (33.9484989856 [deg], -96.6868635564 [deg], 8700.0 [ft]) (33.9486893934 [deg], -96.686833963 [deg], 8700.0 [ft]) (33.9488802006 [deg], -96.68680838 [deg], 8700.0 [ft]) (33.9490713491 [deg], -96.6867868151 [deg], 8700.0 [ft]) (33.9492627807 [deg], -96.6867692749 [deg], 8700.0 [ft]) (33.9494544371 [deg], -96.6867557648 [deg], 8700.0 [ft]) (33.9496462599 [deg], -96.686746289 [deg], 8700.0 [ft]) (33.9498381907 [deg], -96.6867408503 [deg], 8700.0 [ft]) (33.950030171 [deg], -96.6867394505 [deg], 8700.0 [ft]) (33.9502221423 [deg], -96.6867420899 [deg], 8700.0 [ft]) (33.9504140461 [deg], -96.6867487679 [deg], 8700.0 [ft]) (33.950605824 [deg], -96.6867594824 [deg], 8700.0 [ft]) (33.9507974176 [deg], -96.6867742302 [deg], 8700.0 [ft]) (33.9509887686 [deg], -96.6867930068 [deg], 8700.0 [ft]) (33.9511798185 [deg], -96.6868158065 [deg], 8700.0 [ft]) (33.9513705093 [deg], -96.6868426224 [deg], 8700.0 [ft]) (33.9515607828 [deg], -96.6868734463 [deg], 8700.0 [ft]) (33.9517505811 [deg], -96.686908269 [deg], 8700.0 [ft]) (33.9519398463 [deg], -96.6869470798 [deg], 8700.0 [ft]) (33.9521285209 [deg], -96.6869898668 [deg], 8700.0 [ft]) (33.9523165472 [deg], -96.6870366172 [deg], 8700.0 [ft]) (33.9525038681 [deg], -96.6870873167 [deg], 8700.0 [ft]) (33.9526904265 [deg], -96.6871419499 [deg], 8700.0 [ft]) (33.9528761655 [deg], -96.6872005001 [deg], 8700.0 [ft]) (33.9530610286 [deg], -96.6872629496 [deg], 8700.0 [ft]) (33.9532449595 [deg], -96.6873292793 [deg], 8700.0 [ft]) (33.9534279021 [deg], -96.6873994691 [deg], 8700.0 [ft]) (33.9536098006 [deg], -96.6874734976 [deg], 8700.0 [ft]) (33.9537905997 [deg], -96.6875513423 [deg], 8700.0 [ft]) (33.9539702443 [deg], -96.6876329794 [deg], 8700.0 [ft]) (33.9541486796 [deg], -96.6877183842 [deg], 8700.0 [ft]) (33.9543258514 [deg], -96.6878075307 [deg], 8700.0 [ft]) (33.9545017056 [deg], -96.6879003916 [deg], 8700.0 [ft]) (33.9546761886 [deg], -96.6879969388 [deg], 8700.0 [ft]) (33.9548492473 [deg], -96.6880971429 [deg], 8700.0 [ft]) (33.9550208289 [deg], -96.6882009733 [deg], 8700.0 [ft]) (33.9551908813 [deg], -96.6883083984 [deg], 8700.0 [ft]) (33.9553593525 [deg], -96.6884193855 [deg], 8700.0 [ft]) (33.9555261913 [deg], -96.6885339009 [deg], 8700.0 [ft]) (33.9556913468 [deg], -96.6886519097 [deg], 8700.0 [ft]) (33.9558547687 [deg], -96.6887733759 [deg], 8700.0 [ft]) (33.9560164072 [deg], -96.6888982625 [deg], 8700.0 [ft]) (33.9561762131 [deg], -96.6890265315 [deg], 8700.0 [ft]) (33.9563341377 [deg], -96.6891581439 [deg], 8700.0 [ft]) (33.9564901328 [deg], -96.6892930596 [deg], 8700.0 [ft]) (33.9566441509 [deg], -96.6894312375 [deg], 8700.0 [ft]) (33.9567961452 [deg], -96.6895726354 [deg], 8700.0 [ft]) (33.9569460693 [deg], -96.6897172104 [deg], 8700.0 [ft]) (33.9570938774 [deg], -96.6898649184 [deg], 8700.0 [ft]) (33.9572395247 [deg], -96.6900157144 [deg], 8700.0 [ft]) (33.9573829667 [deg], -96.6901695525 [deg], 8700.0 [ft]) (33.9575241596 [deg], -96.6903263858 [deg], 8700.0 [ft]) (33.9576630606 [deg], -96.6904861666 [deg], 8700.0 [ft]) (33.9577996272 [deg], -96.6906488462 [deg], 8700.0 [ft]) (33.9579338179 [deg], -96.690814375 [deg], 8700.0 [ft]) (33.9580655917 [deg], -96.6909827026 [deg], 8700.0 [ft]) (33.9581949085 [deg], -96.6911537778 [deg], 8700.0 [ft]) (33.9583217289 [deg], -96.6913275484 [deg], 8700.0 [ft]) (33.9584460143 [deg], -96.6915039614 [deg], 8700.0 [ft]) (33.9585677268 [deg], -96.6916829633 [deg], 8700.0 [ft]) (33.9586868293 [deg], -96.6918644993 [deg], 8700.0 [ft]) (33.9588032855 [deg], -96.6920485142 [deg], 8700.0 [ft]) (33.95891706 [deg], -96.692234952 [deg], 8700.0 [ft]) (33.959028118 [deg], -96.6924237559 [deg], 8700.0 [ft]) (33.9591364258 [deg], -96.6926148683 [deg], 8700.0 [ft]) (33.9592419503 [deg], -96.6928082309 [deg], 8700.0 [ft]) (33.9593446593 [deg], -96.693003785 [deg], 8700.0 [ft]) (33.9594445216 [deg], -96.6932014709 [deg], 8700.0 [ft]) (33.9595415068 [deg], -96.6934012284 [deg], 8700.0 [ft]) (33.9596355853 [deg], -96.6936029966 [deg], 8700.0 [ft]) (33.9597267283 [deg], -96.6938067141 [deg], 8700.0 [ft]) (33.9598149083 [deg], -96.6940123187 [deg], 8700.0 [ft]) (33.9599000982 [deg], -96.6942197479 [deg], 8700.0 [ft]) (33.9599822721 [deg], -96.6944289384 [deg], 8700.0 [ft]) (33.9600614051 [deg], -96.6946398266 [deg], 8700.0 [ft]) (33.9601374729 [deg], -96.694852348 [deg], 8700.0 [ft]) (33.9602104524 [deg], -96.6950664381 [deg], 8700.0 [ft]) (33.9602803213 [deg], -96.6952820314 [deg], 8700.0 [ft]) (33.9603470584 [deg], -96.6954990625 [deg], 8700.0 [ft]) (33.9604106433 [deg], -96.6957174651 [deg], 8700.0 [ft]) (33.9604710567 [deg], -96.6959371726 [deg], 8700.0 [ft]) (33.9605282802 [deg], -96.6961581182 [deg], 8700.0 [ft]) (33.9605822962 [deg], -96.6963802345 [deg], 8700.0 [ft]) (33.9606330884 [deg], -96.6966034539 [deg], 8700.0 [ft]) (33.9606806412 [deg], -96.6968277082 [deg], 8700.0 [ft]) (33.9607249403 [deg], -96.6970529292 [deg], 8700.0 [ft]) (33.960765972 [deg], -96.6972790483 [deg], 8700.0 [ft]) (33.9608037239 [deg], -96.6975059965 [deg], 8700.0 [ft]) (33.9608381844 [deg], -96.6977337047 [deg], 8700.0 [ft]) (33.9608693431 [deg], -96.6979621035 [deg], 8700.0 [ft]) (33.9608971905 [deg], -96.6981911233 [deg], 8700.0 [ft]) (33.9609217181 [deg], -96.6984206943 [deg], 8700.0 [ft]) (33.9609429184 [deg], -96.6986507465 [deg], 8700.0 [ft]) (33.960960785 [deg], -96.6988812099 [deg], 8700.0 [ft]) (33.9609753123 [deg], -96.6991120143 [deg], 8700.0 [ft]) (33.9609864961 [deg], -96.6993430892 [deg], 8700.0 [ft]) (33.9609943328 [deg], -96.6995743643 [deg], 8700.0 [ft]) (33.9609988201 [deg], -96.6998057691 [deg], 8700.0 [ft]) (33.9609999566 [deg], -96.7000372332 [deg], 8700.0 [ft]) (33.960997742 [deg], -96.7002686858 [deg], 8700.0 [ft]) (33.960992177 [deg], -96.7005000566 [deg], 8700.0 [ft]) (33.9609832632 [deg], -96.700731275 [deg], 8700.0 [ft]) (33.9609710034 [deg], -96.7009622706 [deg], 8700.0 [ft]) (33.9609554012 [deg], -96.7011929729 [deg], 8700.0 [ft]) (33.9609364615 [deg], -96.7014233117 [deg], 8700.0 [ft]) (33.96091419 [deg], -96.7016532168 [deg], 8700.0 [ft]) (33.9608885936 [deg], -96.7018826181 [deg], 8700.0 [ft]) (33.9608596799 [deg], -96.7021114457 [deg], 8700.0 [ft]) (33.9608274579 [deg], -96.7023396299 [deg], 8700.0 [ft]) (33.9607919373 [deg], -96.7025671011 [deg], 8700.0 [ft]) (33.960753129 [deg], -96.7027937901 [deg], 8700.0 [ft]) (33.9607110447 [deg], -96.7030196278 [deg], 8700.0 [ft]) (33.9606656974 [deg], -96.7032445453 [deg], 8700.0 [ft]) (33.9606171008 [deg], -96.7034684741 [deg], 8700.0 [ft]) (33.9605652697 [deg], -96.703691346 [deg], 8700.0 [ft]) (33.96051022 [deg], -96.703913093 [deg], 8700.0 [ft]) (33.9604519684 [deg], -96.7041336477 [deg], 8700.0 [ft]) (33.9603905326 [deg], -96.7043529427 [deg], 8700.0 [ft]) (33.9603259314 [deg], -96.7045709113 [deg], 8700.0 [ft]) (33.9602581845 [deg], -96.704787487 [deg], 8700.0 [ft]) (33.9601873125 [deg], -96.7050026039 [deg], 8700.0 [ft]) (33.960113337 [deg], -96.7052161964 [deg], 8700.0 [ft]) (33.9600362805 [deg], -96.7054281994 [deg], 8700.0 [ft]) (33.9599561666 [deg], -96.7056385484 [deg], 8700.0 [ft]) (33.9598730196 [deg], -96.7058471792 [deg], 8700.0 [ft]) (33.9597868649 [deg], -96.7060540283 [deg], 8700.0 [ft]) (33.9596977287 [deg], -96.7062590326 [deg], 8700.0 [ft]) (33.9596056382 [deg], -96.7064621298 [deg], 8700.0 [ft]) (33.9595106215 [deg], -96.7066632578 [deg], 8700.0 [ft]) (33.9594127074 [deg], -96.7068623554 [deg], 8700.0 [ft]) (33.9593119259 [deg], -96.707059362 [deg], 8700.0 [ft]) (33.9592083077 [deg], -96.7072542176 [deg], 8700.0 [ft]) (33.9591018843 [deg], -96.7074468627 [deg], 8700.0 [ft]) (33.9589926881 [deg], -96.7076372388 [deg], 8700.0 [ft]) (33.9588807524 [deg], -96.7078252877 [deg], 8700.0 [ft]) (33.9587661114 [deg], -96.7080109522 [deg], 8700.0 [ft]) (33.9586487999 [deg], -96.7081941757 [deg], 8700.0 [ft]) (33.9585288538 [deg], -96.7083749024 [deg], 8700.0 [ft]) (33.9584063095 [deg], -96.7085530774 [deg], 8700.0 [ft]) (33.9582812043 [deg], -96.7087286461 [deg], 8700.0 [ft]) (33.9581535765 [deg], -96.7089015553 [deg], 8700.0 [ft]) (33.9580234649 [deg], -96.7090717522 [deg], 8700.0 [ft]) (33.9578909092 [deg], -96.709239185 [deg], 8700.0 [ft]) (33.9577559497 [deg], -96.7094038026 [deg], 8700.0 [ft]) (33.9576186275 [deg], -96.709565555 [deg], 8700.0 [ft]) (33.9574789846 [deg], -96.7097243928 [deg], 8700.0 [ft]) (33.9573370633 [deg], -96.7098802677 [deg], 8700.0 [ft]) (33.9571929071 [deg], -96.7100331322 [deg], 8700.0 [ft]) (33.9570465598 [deg], -96.7101829398 [deg], 8700.0 [ft]) (33.956898066 [deg], -96.7103296447 [deg], 8700.0 [ft]) (33.9567474709 [deg], -96.7104732024 [deg], 8700.0 [ft]) (33.9565948204 [deg], -96.710613569 [deg], 8700.0 [ft]) (33.9564401611 [deg], -96.710750702 [deg], 8700.0 [ft]) (33.9562835401 [deg], -96.7108845594 [deg], 8700.0 [ft]) (33.956125005 [deg], -96.7110151005 [deg], 8700.0 [ft]) (33.9559646042 [deg], -96.7111422856 [deg], 8700.0 [ft]) (33.9558023865 [deg], -96.7112660759 [deg], 8700.0 [ft]) (33.9556384015 [deg], -96.7113864338 [deg], 8700.0 [ft]) (33.9554726989 [deg], -96.7115033226 [deg], 8700.0 [ft]) (33.9553053294 [deg], -96.7116167067 [deg], 8700.0 [ft]) (33.9551363439 [deg], -96.7117265515 [deg], 8700.0 [ft]) (33.9549657939 [deg], -96.7118328237 [deg], 8700.0 [ft]) (33.9547937313 [deg], -96.7119354909 [deg], 8700.0 [ft]) (33.9546202086 [deg], -96.7120345218 [deg], 8700.0 [ft]) (33.9544452787 [deg], -96.7121298862 [deg], 8700.0 [ft]) (33.9542689947 [deg], -96.7122215552 [deg], 8700.0 [ft]) (33.9540914106 [deg], -96.7123095008 [deg], 8700.0 [ft]) (33.9539125802 [deg], -96.7123936963 [deg], 8700.0 [ft]) (33.9537325582 [deg], -96.7124741161 [deg], 8700.0 [ft]) (33.9535513994 [deg], -96.7125507356 [deg], 8700.0 [ft]) (33.9533691589 [deg], -96.7126235315 [deg], 8700.0 [ft]) (33.9531858923 [deg], -96.7126924817 [deg], 8700.0 [ft]) (33.9530016555 [deg], -96.7127575653 [deg], 8700.0 [ft]) (33.9528165044 [deg], -96.7128187623 [deg], 8700.0 [ft]) (33.9526304956 [deg], -96.7128760543 [deg], 8700.0 [ft]) (33.9524436857 [deg], -96.7129294237 [deg], 8700.0 [ft]) (33.9522561316 [deg], -96.7129788544 [deg], 8700.0 [ft]) (33.9520678904 [deg], -96.7130243312 [deg], 8700.0 [ft]) (33.8080150295 [deg], -96.7462041388 [deg], 8700.0 [ft]) (33.8077369176 [deg], -96.7456562483 [deg], 8700.0 [ft]) (33.8074667907 [deg], -96.7451026034 [deg], 8700.0 [ft]) (33.8072047311 [deg], -96.7445433725 [deg], 8700.0 [ft]) (33.8069508185 [deg], -96.7439787259 [deg], 8700.0 [ft]) (33.8067051301 [deg], -96.7434088354 [deg], 8700.0 [ft]) (33.8064677409 [deg], -96.7428338746 [deg], 8700.0 [ft]) (33.8062387228 [deg], -96.7422540184 [deg], 8700.0 [ft]) (33.8060181458 [deg], -96.7416694433 [deg], 8700.0 [ft]) (33.8058060769 [deg], -96.7410803273 [deg], 8700.0 [ft]) (33.8056025806 [deg], -96.7404868497 [deg], 8700.0 [ft]) (33.8054077188 [deg], -96.7398891911 [deg], 8700.0 [ft]) (33.805221551 [deg], -96.7392875334 [deg], 8700.0 [ft]) (33.8050441336 [deg], -96.7386820597 [deg], 8700.0 [ft]) (33.8048755207 [deg], -96.7380729543 [deg], 8700.0 [ft]) (33.8047157637 [deg], -96.7374604026 [deg], 8700.0 [ft]) (33.8045649111 [deg], -96.7368445909 [deg], 8700.0 [ft]) (33.8044230087 [deg], -96.7362257068 [deg], 8700.0 [ft]) (33.8042900999 [deg], -96.7356039384 [deg], 8700.0 [ft]) (33.8041662251 [deg], -96.7349794751 [deg], 8700.0 [ft]) (33.8040514219 [deg], -96.7343525068 [deg], 8700.0 [ft]) (33.8039457252 [deg], -96.7337232244 [deg], 8700.0 [ft]) (33.8038491674 [deg], -96.7330918194 [deg], 8700.0 [ft]) (33.8037617776 [deg], -96.7324584838 [deg], 8700.0 [ft]) (33.8036835825 [deg], -96.7318234104 [deg], 8700.0 [ft]) (33.803614606 [deg], -96.7311867925 [deg], 8700.0 [ft]) (33.8035548689 [deg], -96.7305488238 [deg], 8700.0 [ft]) (33.8035043895 [deg], -96.7299096983 [deg], 8700.0 [ft]) (33.8034631832 [deg], -96.7292696106 [deg], 8700.0 [ft]) (33.8034312624 [deg], -96.7286287555 [deg], 8700.0 [ft]) (33.8034086369 [deg], -96.7279873279 [deg], 8700.0 [ft]) (33.8033953136 [deg], -96.7273455231 [deg], 8700.0 [ft]) (33.8033912965 [deg], -96.7267035363 [deg], 8700.0 [ft]) (33.8033965868 [deg], -96.7260615628 [deg], 8700.0 [ft]) (33.803411183 [deg], -96.725419798 [deg], 8700.0 [ft]) (33.8034350805 [deg], -96.7247784373 [deg], 8700.0 [ft]) (33.8034682722 [deg], -96.7241376756 [deg], 8700.0 [ft]) (33.8035107479 [deg], -96.7234977081 [deg], 8700.0 [ft]) (33.8035624947 [deg], -96.7228587294 [deg], 8700.0 [ft]) (33.8036234969 [deg], -96.722220934 [deg], 8700.0 [ft]) (33.8036937359 [deg], -96.7215845159 [deg], 8700.0 [ft]) (33.8037731902 [deg], -96.7209496689 [deg], 8700.0 [ft]) (33.8038618358 [deg], -96.7203165861 [deg], 8700.0 [ft]) (33.803879232 [deg], -96.720199732 [deg], 8700.0 [ft]) 

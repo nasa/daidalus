@@ -6,6 +6,9 @@
 *.old
 *.mold
 *.pyc
+*.bak
+*.csv
+*.out
 tmp/
 mold/
 tests/

@@ -51,6 +51,17 @@ configs: examples
 	./DaidalusAlerting -echo -conf ../Configurations/DO_365A_no_SUM.conf > DO_365A_no_SUM.conf 
 
 clean:
-	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar
+	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar 
+
+mold:
+	./DaidalusExample --config no_sum --verbose > ../Regression/Java/DaidalusExample-no_sum.out
+	./DaidalusExample --config nom_a --verbose > ../Regression/Java/DaidalusExample-nom_a.out
+	./DaidalusExample --config nom_b --verbose > ../Regression/Java/DaidalusExample-nom_b.out
+	./DaidalusExample --config cd3d --verbose > ../Regression/Java/DaidalusExample-cd3d.out
+	./DaidalusExample --config tcasii --verbose > ../Regression/Java/DaidalusExample-tcasii.out
+	./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf --out ../Regression/Java/DaidalusqAlerting-no_sum.csv ../Scenarios/H1.daa 
+	./DaidalusAlerting --conf ../Configurations/DO_365B_SUM.conf --out ../Regression/Java/DaidalusAlerting-sum.csv ../Scenarios/H1_SUM.daa 
+	./DaidalusBatch --conf ../Configurations/DO_365B_no_SUM.conf --out ../Regression/Java/DaidalusBatch-no_sum.out ../Scenarios/H1.daa 
+	./DaidalusBatch --conf ../Configurations/DO_365B_SUM.conf --out ../Regression/Java/DaidalusBatch-sum.out ../Scenarios/H1_SUM.daa 
 
 .PHONY: all example lib doc configs
