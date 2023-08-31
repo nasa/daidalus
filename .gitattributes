@@ -1,0 +1,4 @@
+*.html -diff -merge
+*.js -diff -merge
+*.html linguist-generated=true
+*.js linguist-generated=true
