@@ -53,7 +53,7 @@ configs: examples
 clean:
 	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar 
 
-mold:
+mold: examples
 	./DaidalusExample --config no_sum --verbose > ../Regression/Java/DaidalusExample-no_sum.out
 	./DaidalusExample --config nom_a --verbose > ../Regression/Java/DaidalusExample-nom_a.out
 	./DaidalusExample --config nom_b --verbose > ../Regression/Java/DaidalusExample-nom_b.out

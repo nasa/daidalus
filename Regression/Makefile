@@ -1,5 +1,5 @@
 all:
-	@echo "make diffj | diffcpp | diff"
+	@echo "make mold | diff"
 
 gold:
 	cd ../Java;make mold
@@ -8,15 +8,17 @@ gold:
 moldj:
 	@cd ../Java;make mold > /dev/null 2> /dev/null
 
-diffj: moldj
-	diff -I "^#.*" Java/ gold/
+diffj: 
+	-diff -x ".*" -I "^#.*" Java/ gold/
 
 moldcpp:
 	@cd ../C++;make mold > /dev/null 2> /dev/null
 
-diffcpp: moldcpp
-	diff -I "^#.*" C++/ gold/
+diffcpp: 
+	-diff -x ".*" -I "^#.*" C++/ gold/
+
+mold: moldj moldcpp
 
 diff: diffj diffcpp
 
-.PHONY: gold
+.PHONY: gold mold

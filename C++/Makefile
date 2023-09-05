@@ -51,7 +51,7 @@ configs: examples
 clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a
 
-mold:
+mold: examples
 	./DaidalusExample --config no_sum --verbose > ../Regression/C++/DaidalusExample-no_sum.out
 	./DaidalusExample --config nom_a --verbose > ../Regression/C++/DaidalusExample-nom_a.out
 	./DaidalusExample --config nom_b --verbose > ../Regression/C++/DaidalusExample-nom_b.out
