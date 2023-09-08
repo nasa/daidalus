@@ -85,7 +85,9 @@ private:
 
 public:
   DaidalusCore();
-  virtual ~DaidalusCore() {};
+  virtual ~DaidalusCore() {
+    delete urgency_strategy_;
+  };
   DaidalusCore& operator=(const DaidalusCore& core);
 
   DaidalusCore(const DaidalusCore& core);

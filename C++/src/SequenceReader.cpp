@@ -105,7 +105,7 @@ void SequenceReader::loadfile() {
 	names.clear();
 	string lastName = ""; // the current aircraft name
 	//double lastTime = -1000000; // time must be increasing
-	int stateIndex = -1;
+	//int stateIndex = -1;
 
 	// save accuracy info in temp vars
 	double h = Constants::get_horizontal_accuracy();
@@ -181,7 +181,7 @@ void SequenceReader::loadfile() {
 				lastName = thisName;
 				nameIndex.push_back(thisName);
 				names.insert(thisName);
-				stateIndex++;
+				//stateIndex++;
 			}
 		}
 

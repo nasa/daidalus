@@ -1,9 +1,14 @@
+.vscode
 .DS_Store
 *.o
 *.class
 *~
 *.old
+*.mold
 *.pyc
+*.bak
+*.csv
+*.out
 tmp/
 mold/
 tests/

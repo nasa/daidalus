@@ -63,12 +63,27 @@ bool DaidalusIntegerBands::LOS_at(const Detection3D* det, bool trajdir, double t
   return det->violationAtWithTrafficState(own,traffic,tsk);
 }
 
-// In PVS: int_bands@first_los_step
+bool DaidalusIntegerBands::LOS_at_coast(const Detection3D* det, bool trajdir, double tsk, double tcoast,
+      const DaidalusParameters& parameters, const TrafficState& ownship, 
+      const TrafficState& traffic, int target_step, bool instantaneous) const {
+  if (tsk >= parameters.getLookaheadTime()) {
+		return false;
+	}
+	std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+	Vect3 sot = sovot.first;
+	Velocity vot = sovot.second;
+	Vect3 sat = vot.ScalAdd(-tsk,sot);
+	TrafficState own = ownship;
+	own.setPosition(Position(sat));
+	own.setAirVelocity(vot);
+	return det->conflictWithTrafficState(own,traffic,tsk,tsk+tcoast); 
+}
 
+// In PVS: int_bands@first_los_step
 int DaidalusIntegerBands::kinematic_first_los_step(const Detection3D* det, double tstep, bool trajdir,
     int min, int max,const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   for (int k=min; k<=max; ++k) {
-    if (LOS_at(det,trajdir,k*tstep,parameters,ownship,traffic,0,false)) {
+    if (LOS_at_coast(det,trajdir,k*tstep,tstep,parameters,ownship,traffic,0,false)) {
       return k;
     }
   }
@@ -116,12 +131,15 @@ void DaidalusIntegerBands::kinematic_traj_conflict_only_bands(std::vector<Intege
   int d = -1; // Set to the first index with no conflict
   for (int k = 0; k <= max; ++k) {
     double tsk = tstep*k;
-    if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    double time_horizon = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk;
+    if (d >=0 && no_CD_future_traj(conflict_det,recovery_det,B,
+      time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       continue;
     } else if (d >=0) {
       l.push_back( Integerval(d,k-1));
       d = -1;
-    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    } else if (no_CD_future_traj(conflict_det,recovery_det,B,
+      time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       d = k;
     }
   }
@@ -151,13 +169,15 @@ int DaidalusIntegerBands::first_kinematic_green(const Detection3D* conflict_det,
   bool usevcrit = epsv != 0;
   for (int k=0; k <= max; ++k) {
     double tsk = tstep*k;
+    double time_horizon = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk;
     if ((B <= tsk && LOS_at(conflict_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
         (recovery_det != NULL && 0 <= tsk && tsk <= B &&
             LOS_at(recovery_det,trajdir,tsk,parameters,ownship,traffic,0,false)) ||
             (usehcrit && !kinematic_repulsive_at(tstep,trajdir,k,parameters,ownship,traffic,epsh)) ||
             (usevcrit && !kinematic_vert_repul_at(tstep,trajdir,k,parameters,ownship,traffic,epsv))) {
       return -1;
-    } else if (no_CD_future_traj(conflict_det,recovery_det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    } else if (no_CD_future_traj(conflict_det,recovery_det,B,
+      time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       return k;
     }
   }
@@ -255,7 +275,8 @@ bool DaidalusIntegerBands::kinematic_any_conflict_step(const Detection3D* det, d
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic) const {
   for (int k=0; k <= max; ++k) {
     double tsk = tstep*k;
-    if (CD_future_traj(det,B,T+tsk,trajdir,tsk,parameters,ownship,traffic,0,false)) {
+    double time_horizon = parameters.isEnabledBandsAddTimeToManeuver() ? T : T+tsk;
+    if (CD_future_traj(det,B,time_horizon,trajdir,tsk,parameters,ownship,traffic,0,false)) {
       return true;
     }
   }

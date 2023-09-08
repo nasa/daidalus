@@ -69,7 +69,7 @@ DaidalusCore::DaidalusCore(const DaidalusCore& core)
 , current_time(core.current_time)
 , wind_vector(core.wind_vector)
 , parameters(core.parameters)
-, urgency_strategy_(core.urgency_strategy_)
+, urgency_strategy_(core.urgency_strategy_->copy())
 , cache_(0) // Cached_ variables are cleared
 , acs_conflict_bands_(std::vector<std::vector<IndexLevelT> >(BandsRegion::NUMBER_OF_CONFLICT_BANDS)) {
   stale();
