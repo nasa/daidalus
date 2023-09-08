@@ -47,6 +47,7 @@ To run the example application in a Unix environment, type from the
 directory Java (or C++):
 
 ```
+$ make # To compile (run only once)
 $ ./DaidalusExample
 ```
 
@@ -60,7 +61,7 @@ repository, visit https://shemesh.larc.nasa.gov/fm/DAIDALUS.
 
 ### Current Release
 
-v2.0.3, July-1-2022
+v2.0.3a, September-8-2023
 
 ### License
 
@@ -69,7 +70,7 @@ Agreement.  See the directory [`LICENSES`](LICENSES); see also the copyright not
 
 ### Contact
 
-[Aaron M. Dutle](http://shemesh.larc.nasa.gov/people/amd) (aaron.m.dutle@nasa.gov), NASA Langley Research Center.
+[Cesar A. Munoz](http://shemesh.larc.nasa.gov/people/cam) (cesar.a.munoz@nasa.gov), NASA Langley Research Center.
 
 ### Logo
 

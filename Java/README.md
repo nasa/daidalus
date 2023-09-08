@@ -1,7 +1,7 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 ---------------------------------------------------------
 
-Release: v2.0.3 (Java), July-1-2022
+Release: v2.0.3a (Java), September-8-2023
 
 Copyright: Copyright (c) 2021 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
@@ -104,4 +104,4 @@ produced by printing the string `daa.toString()` at every time step, where `daa`
 
 ### Contact
 
-[Aaron M. Dutle](http://shemesh.larc.nasa.gov/people/amd) (aaron.m.dutle@nasa.gov), NASA Langley Research Center.
+[Cesar A. Munoz](http://shemesh.larc.nasa.gov/people/cam) (cesar.a.munoz@nasa.gov), NASA Langley Research Center.

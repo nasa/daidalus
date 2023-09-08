@@ -1,7 +1,7 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.3-FormalATM-v2.7.5 (C++), July-1-2022
-Contact: Aaron Dutle (aaron.m.dutle@nasa.gov)
+Release:  v2.0.3-FormalATM-v2.7.5 (C++), September-8-2023
+Contact: Cesar Munoz (cesar.a.munoz@nasa.gov)
 
 Copyright: Copyright (c) 2021 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
@@ -10,8 +10,12 @@ Rights Reserved.
 
 Release DAIDALUS-v2.0.3:
 ------------------
-* July-1-2022
+* September-8-2023
+- Change to IntegerBands to account for the time between discrete points in the kinematic maneuvers. Should address some 'thread the needle'
+  scnerios.
+- Renamed RecoveryInformation::timeToToRecovery to RecoveryInformation::timeToRecovery.
 
+* July-1-2022
 - Added parameter bands_add_time_to_maneuver. By default this
 parameter is set to false. When set to true, the time to maneuver is
 considerd against alerting time when computing peripheral bands. The latter
