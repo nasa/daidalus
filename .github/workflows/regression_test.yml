@@ -1,0 +1,49 @@
+name: Run regression tests
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '11' # Set to the desired Java version
+
+    - name: Set up G++
+      run: sudo apt-get update -y && sudo apt-get install -y g++
+
+    - name: Build C++ with make
+      run: cd C++ && make
+    
+    - name: Build Java with make
+      run: cd Java&&make
+    
+    - name: Build Regression results
+      run: cd Regression&&make mold&&make gold
+
+    - name: Rename .result Files
+      run: |
+        find ./RegressionResults -type f -name '*.result' -print0 | while IFS= read -r -d '' file; do
+          newfile="${file%.result}"
+          mv "$file" "$newfile"
+        done
+    
+    - name: Run Test
+      run: |
+        rsync -aEim --delete ./Regression/ ./RegressionResults/
+    
+    - name: Check Differences
+      run: |
+        if [ $? -eq 0 ]; then
+          echo "No differences found."
+        else
+          echo "Differences detected. Please review the code"
+          exit 1
+        fi
