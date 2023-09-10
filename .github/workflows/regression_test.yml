@@ -37,13 +37,9 @@ jobs:
     
     - name: Run Test
       run: |
-        rsync -aEim --delete --ignore-times ./Regression/ ./RegressionResults/
-    
-    - name: Check Differences
-      run: |
-        if [ $? -eq 0 ]; then
+        if diff -qr ./Regression ./RegressionResults; then
           echo "No differences found."
         else
-          echo "Differences detected. Please review the code"
+          echo "Differences detected. Exiting with status code 1."
           exit 1
         fi
