@@ -106,7 +106,7 @@ jobs:
           Altitude Maneuver: 2.3 [s]
         EOF
         )
-        actual_output=$(./C++/YourCPlusPlusExecutable)
+        actual_output=$(./C++/DaidalusExample)
         if [[ "$actual_output" == "$expected_output" ]]; then
           echo "Test passed: Output matches expected result"
         else
