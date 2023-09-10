@@ -1,5 +1,5 @@
 # File: ../Scenarios/H1.daa
-Time: 0.0 [s]
+Time: 0.0
 NAME lat lon alt trk gs vs time alerter s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std
 [none] [deg] [deg] [ft] [deg] [knot] [fpm] [s] [none] [nmi] [nmi] [nmi] [ft] [knot] [knot] [knot] [fpm]
 Ownship, 33.81494, -117.0, 17000.0, 0.0, 200.0, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
