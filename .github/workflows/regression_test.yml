@@ -37,7 +37,7 @@ jobs:
     
     - name: Run Test
       run: |
-        rsync -aEim --delete ./Regression/ ./RegressionResults/
+        rsync -aEim --delete --checksum ./Regression/ ./RegressionResults/
     
     - name: Check Differences
       run: |
