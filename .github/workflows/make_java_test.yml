@@ -1,0 +1,122 @@
+name: Java Make Workflow
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '11' # Set to the desired Java version
+
+    - name: Build with make
+      run: cd Java&&make
+    
+    - name: Run Test
+      run: |
+        expected_output=$(cat <<EOF
+        ##
+        ## DAIDALUSj V-2.0.3-FormalATM-v2.7.5
+        ##
+
+        Number of Aircraft: 2
+        Last Aircraft Index: 1
+
+        Predicted Time to Violation of Alert Thresholds at Level 1 with intruder: 21.02 [s]
+        Predicted Time to Violation of Alert Thresholds at Level 2 with intruder: 21.02 [s]
+        Predicted Time to Violation of Alert Thresholds at Level 3 with intruder: 21.02 [s]
+        Predicted Time to Violation of Corrective Volume with intruder: 21.02 [s]
+        Alert Level 3 with intruder
+
+        Conflict Aircraft for Bands Region FAR: {}
+        Conflict Aircraft for Bands Region MID: {intruder}
+        Conflict Aircraft for Bands Region NEAR: {intruder}
+
+        Ownship Heading: 207.16 [deg]
+        Region of Current Heading: NEAR
+        Heading Bands [deg,deg]
+          NONE:	[0.0, 205.16]
+          NEAR:	[205.16, 241.16]
+          NONE:	[241.16, 360.0]
+        Peripheral Aircraft for Heading Bands Region FAR: {}
+        Peripheral Aircraft for Heading Bands Region MID: {}
+        Peripheral Aircraft for Heading Bands Region NEAR: {}
+        Heading Resolution (right): 241.16 [deg]
+        Heading Resolution (left): 205.16 [deg]
+        Preferred Heading Direction: left
+        Recovery Information for Horizontal Speed Bands:
+          Time to Recovery: NaN [s]
+          Recovery Horizontal Distance: NaN [nmi]
+          Recovery Vertical Distance: NaN [ft]
+        Ownship Airspeed: 160.49 [knot]
+        Region of Current Airspeed: NEAR
+        Airspeed Bands [knot,knot]:
+          NONE:	[10.0, 145.49]
+          NEAR:	[145.49, 700.0]
+        Peripheral Aircraft for Airspeed Bands Region FAR: {}
+        Peripheral Aircraft for Airspeed Bands Region MID: {}
+        Peripheral Aircraft for Airspeed Bands Region NEAR: {}
+        Airspeed Resolution (up): N/A
+        Airspeed Resolution (down): 145.49 [knot]
+        Preferred Airspeed Direction: down
+        Recovery Information for Horizontal Speed Bands:
+          Time to Recovery: NaN [s]
+          Recovery Horizontal Distance: NaN [nmi]
+          Recovery Vertical Distance: NaN [ft]
+        Ownship Vertical Speed: 0.0 [fpm]
+        Region of Current Vertical Speed: NEAR
+        Vertical Speed Bands [fpm,fpm]:
+          NONE:	[-6000.0, -500.0]
+          NEAR:	[-500.0, 2500.0]
+          NONE:	[2500.0, 6000.0]
+        Peripheral Aircraft for Vertical Speed Bands Region FAR: {}
+        Peripheral Aircraft for Vertical Speed Bands Region MID: {}
+        Peripheral Aircraft for Vertical Speed Bands Region NEAR: {}
+        Vertical Speed Resolution (up): 2500.0 [fpm]
+        Vertical Speed Resolution (down): -500.0 [fpm]
+        Preferred Vertical Speed Direction: down
+        Recovery Information for Vertical Speed Bands:
+          Time to Recovery: NaN [s]
+          Recovery Horizontal Distance: NaN [nmi]
+          Recovery Vertical Distance: NaN [ft]
+        Ownship Altitude: 8700.0 [ft]
+        Region of Current Altitude: NEAR
+        Altitude Bands [ft,ft]:
+          NONE:	[100.0, 8500.0]
+          NEAR:	[8500.0, 50000.0]
+        Peripheral Aircraft for Altitude Bands Region FAR: {}
+        Peripheral Aircraft for Altitude Bands Region MID: {}
+        Peripheral Aircraft for Altitude Bands Region NEAR: {}
+        Altitude Resolution (up): N/A
+        Altitude Resolution (down): 8500.0 [ft]
+        Preferred Altitude Direction: down
+        Recovery Information for Altitude Bands:
+          Time to Recovery: NaN [s]
+          Recovery Horizontal Distance: NaN [nmi]
+          Recovery Vertical Distance: NaN [ft]
+
+        Last Times to Maneuver with Respect to intruder:
+          Heading Maneuver: 20.03 [s]
+          Airspeed Maneuver: 18.72 [s]
+          Vertical Speed Maneuver: 14.78 [s]
+          Altitude Maneuver: 2.3 [s]
+        EOF
+        )
+        actual_output=$(./Java/DaidalusExample)
+        if [[ "$actual_output" == "$expected_output" ]]; then
+          echo "Test passed: Output matches expected result"
+        else
+          echo "Test failed: Output does not match expected result"
+          echo "Expected:"
+          echo "$expected_output"
+          echo "Actual:"
+          echo "$actual_output"
+          exit 1
+        fi
