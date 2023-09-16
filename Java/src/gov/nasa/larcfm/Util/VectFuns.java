@@ -806,38 +806,4 @@ public final class VectFuns {
 		return ret;
 	}
 
-	/** 
-	 * This parses a space or comma-separated string as a Vect3 (an inverse to the toString 
-	 * method).  If three bare values are present, then it is interpreted as the default units for 
-	 * a Vect3: [NM,NM,ft].  If there are 3 value/unit pairs then each values is interpreted with regard 
-	 * to the appropriate unit.  If the string cannot be parsed, an INVALID Vect3 is
-	 * returned. 
-	 * 
-	 * @param str string to parse
-	 * @return point
-	 */
-	public static Vect3 parse(String str) {
-		String[] fields = str.split(Constants.wsPatternParens);
-		if (fields[0].equals("")) {
-			fields = Arrays.copyOfRange(fields,1,fields.length);
-		}
-		try {
-			if (fields.length == 3) {
-				return Vect3.make(
-						Double.parseDouble(fields[0]),
-						Double.parseDouble(fields[1]),
-						Double.parseDouble(fields[2]));
-			} else if (fields.length == 6) {
-				return Vect3.makeXYZ(
-						Double.parseDouble(fields[0]), Units.clean(fields[1]),
-						Double.parseDouble(fields[2]), Units.clean(fields[3]),
-						Double.parseDouble(fields[4]), Units.clean(fields[5]));
-			}
-		} catch (Exception e) {
-			// ignore exceptions
-		}
-		return Vect3.INVALID;	
-	}
-
-
 }

@@ -79,17 +79,6 @@ public:
 	static Point mk(double x, double y, double z);
 
 	/**
-	 * New point from Euclidean coordinates in conventional units.
-	 *
-	 * @param x the x-point [NM]
-	 * @param y the y-point [NM]
-	 * @param z the z-point [ft]
-	 *
-	 * @return the point
-	 */
-	static Point make(double x, double y, double z);
-
-	/**
 	 * New point from Euclidean coordinates in the given units.
 	 *
 	 * @param x the x-point
@@ -194,19 +183,7 @@ public:
 	 * @return a string representing this point
 	 */
 	std::string toStringNP(int precision, const std::string& xUnits, const std::string& yUnits, const std::string& zUnits) const;
-
-	/** 
-	 * This parses a space or comma-separated string as a Point (an inverse to the toString 
-	 * method).  If three bare values are present, then it is interpreted as the default units for 
-	 * a point: [NM,NM,ft].  If there are 3 value/unit pairs then each values is interpreted with regard 
-	 * to the appropriate unit.  If the string cannot be parsed, an INVALID value is
-	 * returned. 
-	 * 
-	 * @param str string to parse
-	 * @return point
-	 */
-	static Point parse(const std::string& str);
-
+	
 };
 }
 

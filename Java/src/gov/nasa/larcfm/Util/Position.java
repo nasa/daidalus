@@ -137,19 +137,6 @@ public final class Position implements OutputList {
 	/**
 	 * Creates a new Euclidean position with coordinates (<code>x</code>,<code>y</code>,<code>z</code>).
 	 * 
-	 * @param x coordinate [nmi]
-	 * @param y coordinate [nmi]
-	 * @param z altitude [ft]
-	 * @return new position
-	 */
-	public static Position makeXYZ(double x, double y, double z) {
-		return mkXYZ(Units.from(Units.NM, x), Units.from(Units.NM, y), Units.from(Units.ft,z));
-	}
-
-
-	/**
-	 * Creates a new Euclidean position with coordinates (<code>x</code>,<code>y</code>,<code>z</code>).
-	 * 
 	 * @param x coordinate [m]
 	 * @param y coordinate [m]
 	 * @param z altitude [m]
@@ -1239,31 +1226,4 @@ public final class Position implements OutputList {
 		return new Position(LatLonAlt.parse(s));
 	}
 
-	/** This interprets a string as a XYZ position with units in NM/NM/ft or the specified units (inverse of toString()) 
-	 * 
-	 * @param s string to parse
-	 * @return position
-	 */
-	public static Position parseXYZ(String s) {
-		Vect3 v = VectFuns.parse(s);
-		return make(v);
-	}
-
-	/**
-	 * This interprets a string into a LatLonAlt or XYZ position, if appropriate units are given.
-	 * If no units are present, it returns an invalid Position.
-	 * @param s string to parse
-	 * @return position
-	 */
-	public static Position parse(String s) {
-		String[] fields = s.split(Constants.wsPatternParens);
-		if (fields[0].equals("")) {
-			fields = Arrays.copyOfRange(fields,1,fields.length);
-		}
-		if (fields.length == 6) {
-			if (Units.isCompatible(Units.clean(fields[1]), "deg") && Units.isCompatible(Units.clean(fields[3]), "deg") && Units.isCompatible(Units.clean(fields[5]), "ft")) return parseLL(s); // latlonalt
-			if (Units.isCompatible(Units.clean(fields[1]), "m") && Units.isCompatible(Units.clean(fields[3]), "m") && Units.isCompatible(Units.clean(fields[5]), "m")) return parseXYZ(s); // Euclidean
-		}
-		return Position.INVALID;
-	}
 }

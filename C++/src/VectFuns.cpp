@@ -19,9 +19,7 @@
 #include <cmath>
 #include <float.h>
 
-
 namespace larcfm {
-
 
 bool VectFuns::LoS(const Vect3& so, const Vect3& si, double D, double H) {
 	Vect3 s = so.Sub(si);
@@ -72,7 +70,6 @@ Velocity VectFuns::interpolateVelocity(const Velocity& v1, const Velocity& v2, d
         return Velocity::mkTrkGsVs(newtrk,newgs,newvs);
 }
 
-
 // This appears to use the right-hand rule to determine it returns the inside or outside angle
 double VectFuns::angle_between(const Vect2& v1, const Vect2& v2) {
 	Vect2 VV1 = v1.Scal(1.0/v1.norm());
@@ -87,8 +84,6 @@ double VectFuns::angle_between(const Vect2& a, const Vect2& b, const Vect2& c) {
 	if (d == 0.0) return M_PI;
 	return Util::acos_safe(A.dot(B)/d);
 }
-
-
 
 bool VectFuns::divergentHorizGt(const Vect2& s, const Vect2& vo, const Vect2& vi, double minRelSpeed) {
 	Vect2 v = vo.Sub(vi);
@@ -208,7 +203,6 @@ std::pair<Vect2,double> VectFuns::intersection2D(const Vect2& so1, const Vect2& 
 	return intersection2D(so1,vo,si1,vi);
 }
 
-
 std::pair<Vect2,double> VectFuns::intersectSegments(const Vect2& so, const Vect2& so2, const Vect2& si, const Vect2& si2) {
 	Vect2 vo = so2.Sub(so);
 	Vect2 vi = si2.Sub(si);
@@ -228,7 +222,6 @@ Vect3 VectFuns::closestPoint3(const Vect3& a, const Vect3& b, const Vect3& so) {
 	return ab.Scal(so.Sub(a).dot(ab)/ab.dot(ab)).Add(a);
 }
 
-
 Vect3 VectFuns::closestPoint(const Vect3& a, const Vect3& b, const Vect3& so) {
 	if (a.almostEquals(b)) return Vect3::INVALID();
 	Vect2 c = closestPoint(a.vect2(), b.vect2(), so.vect2());
@@ -241,7 +234,6 @@ Vect3 VectFuns::closestPoint(const Vect3& a, const Vect3& b, const Vect3& so) {
 		f = -f;
 	}
 	return a.AddScal(f, v);
-
 
 //	Vect3 v = a.Sub(b).PerpL().Hat2D(); // perpendicular vector to line
 //	Vect3 s2 = so.AddScal(100, v);
@@ -260,7 +252,6 @@ Vect2 VectFuns::closestPoint(const Vect2& a, const Vect2& b, const Vect2& so) {
 //	Vect2 cp = intersection(so,s2,100,a,b).first;
 //	return cp;
 }
-
 
 Vect3 VectFuns::closestPointOnSegment(const Vect3& a, const Vect3& b, const Vect3& so) {
 	Vect3 i = closestPoint(a,b,so);
@@ -320,8 +311,6 @@ std::pair<Vect3,double> VectFuns::closestPointOnSegment3_extended(const Vect3& a
 	}
 }
 
-
-
 /**
  * Computes 2D intersection point of two lines, but also finds z component (projected by time from line 1)
  * @param s0 starting point of line 1
@@ -345,7 +334,6 @@ double  VectFuns::timeOfIntersection(const Vect3& so3, const Velocity& vo3, cons
 	//f.pln(" $$$ intersection: tt = "+tt);
 	return tt;
 }
-
 
 /**
  * Returns true if x is "behind" so , that is, x is within the region behind the perpendicular line to vo through so.
@@ -376,19 +364,6 @@ int VectFuns::passingDirection(const Vect3& so, const Velocity& vo, const Vect3&
 	return 1;
 }
 
-
-//	static int dirForBehind(Vect2 so, Vect2 vo, Vect2 si, Vect2 vi) {
-//		if (divergent(so,vo,si,vi)) return 0;
-//		double sdetvi = so.Sub(si).det(vi);
-//		double toi = 0.0;
-//		if (sdetvi != 0.0) toi = -vo.det(vi)/sdetvi;
-//		Vect2 nso = so.AddScal(toi,vo);
-//		Vect2 nsi = si.AddScal(toi,vi);
-//		int ahead = Util::sign(nso.Sub(nsi).dot(vi)); // Are we ahead of intruder at crossing pt
-//		int onRight = Util::sign(nsi.Sub(nso).det(vo)); // Are we ahead of intruder at crossing pt
-//		return ahead*onRight;
-//	}
-
 int VectFuns::dirForBehind(const Vect2& so, const Vect2& vo, const Vect2& si, const Vect2& vi) {
 	if (divergent(so,vo,si,vi)) return 0;
 	return (rightOfLine(si, vi, so) ? -1 : 1);
@@ -397,23 +372,5 @@ int VectFuns::dirForBehind(const Vect2& so, const Vect2& vo, const Vect2& si, co
 int VectFuns::dirForBehind(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) {
      return dirForBehind(so.vect2(),vo.vect2(),si.vect2(),vi.vect2());
 }
-
-Vect3 VectFuns::parse(const std::string& s) {
-	std::vector<std::string> fields = split(s, Constants::wsPatternParens);
-	while (fields.size() > 0 && equals(fields[0], "")) {
-		fields.erase(fields.begin());
-	}
-	if (fields.size() == 3) {
-		return Vect3::make(Util::parse_double(fields[0]), Util::parse_double(fields[1]), Util::parse_double(fields[2]));
-	}
-	else if (fields.size() == 6) {
-		return Vect3::make(Util::parse_double(fields[0]), Units::clean(fields[1]),
-			Util::parse_double(fields[2]), Units::clean(fields[3]),
-			Util::parse_double(fields[4]), Units::clean(fields[5]));
-	}
-	return Vect3::INVALID();
-}
-
-
 
 }

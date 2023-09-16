@@ -38,8 +38,6 @@ const Point& Point::INVALIDP() {
 	return *p;
 }
 
-
-
 Point Point::mk(const Vect3& v) {
 	return Point(v.x,v.y,v.z);
 }     
@@ -50,10 +48,6 @@ Point Point::mk(const Vect2& v, double alt) {
 
 Point Point::mk(double x, double y, double z) {
 	return Point(x,y,z);
-}     
-
-Point Point::make(double x, double y, double z) {
-	return make(x,"NM",y,"NM",z,"ft");
 }     
 
 Point Point::make(double x, const std::string& unitsX, double y, const std::string& unitsY, double z, const std::string& unitsZ) {
@@ -137,38 +131,4 @@ std::string Point::toStringNP(int precision) const {
 
 std::string Point::toStringNP(int precision, const std::string& xUnits, const std::string& yUnits, const std::string& zUnits) const {
 	return FmPrecision(Units::to(xUnits, x), precision)+", "+FmPrecision(Units::to(yUnits, y), precision)+", "+FmPrecision(Units::to(zUnits, z), precision);
-}
-
-// static Point parse(std::string str) {
-// 	String[] fields = str.split(Constants::wsPatternParens);
-// 	try {
-// 		if (fields.length == 3) {
-// 			return make(
-// 					Double.parseDouble(fields[0]),
-// 					Double.parseDouble(fields[1]),
-// 					Double.parseDouble(fields[2]));
-// 		} else if (fields.length == 6) {
-// 			return make(
-// 					Double.parseDouble(fields[0]), Units.clean(fields[1]),
-// 					Double.parseDouble(fields[2]), Units.clean(fields[3]),
-// 					Double.parseDouble(fields[4]), Units.clean(fields[5]));
-// 		}
-// 	} catch (Exception e) {}
-// 	return make(Vect3.INVALID);	
-// }
-
-
-Point Point::parse(const std::string& s) {
-	std::vector<std::string> fields = split(s, Constants::wsPatternParens);
-	while (fields.size() > 0 && equals(fields[0], "")) {
-		fields.erase(fields.begin());
-	}
-	if (fields.size() == 3) {
-		return make(Util::parse_double(fields[0]),Util::parse_double(fields[1]),Util::parse_double(fields[2]));
-	} else if (fields.size() == 6) {
-		return make(Util::parse_double(fields[0]),Units::clean(fields[1]),
-				Util::parse_double(fields[2]),Units::clean(fields[3]),
-				Util::parse_double(fields[4]),Units::clean(fields[5]));
-	}
-	return mk(Vect3::INVALID());
 }

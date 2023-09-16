@@ -47,19 +47,11 @@ public final class StateVector implements OutputList {
 		this.v = Velocity.ZERO;
 	}
 	
-	public static StateVector makeXYZ(double x, double y, double z, double trk, double gs, double vs, double t){
-		Vect3 s = Vect3.makeXYZ(x,"nmi",y,"nmi",z,"ft");
-		Velocity v = Velocity.makeTrkGsVs(trk,gs,vs);
-		return new StateVector(s,v,t);
-	}
-	
 	public StateVector(Pair<Vect3,Velocity> sv, double t ) {
 		this.s = sv.first;
 		this.v = sv.second;
 		this.t = t;
-  }
-
-
+ 	}
 	
 	public Pair<Vect3,Velocity> pair() {
 		return new Pair<Vect3,Velocity>(s,v);

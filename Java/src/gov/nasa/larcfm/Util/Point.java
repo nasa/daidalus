@@ -86,19 +86,6 @@ public final class Point extends Vect3 implements OutputList {
 	}     
 
 	/**
-	 * New point from Euclidean coordinates in conventional units.
-	 *
-	 * @param x the x-point [NM]
-	 * @param y the y-point [NM]
-	 * @param z the z-point [ft]
-	 *
-	 * @return the point
-	 */
-	public static Point make(double x, double y, double z) {
-		return make(x,"NM",y,"NM",z,"ft");
-	}     
-
-	/**
 	 * New point from Euclidean coordinates in the given units.
 	 *
 	 * @param x the x-point
@@ -259,37 +246,6 @@ public final class Point extends Vect3 implements OutputList {
 	 */
 	public String toStringNP(int precision, String xUnits, String yUnits, String zUnits) {
 		return f.FmPrecision(Units.to(xUnits, x()), precision)+", "+f.FmPrecision(Units.to(yUnits, y()), precision)+", "+f.FmPrecision(Units.to(zUnits, z()), precision);	
-	}
-
-	/** 
-	 * This parses a space or comma-separated string as a Point (an inverse to the toString 
-	 * method).  If three bare values are present, then it is interpreted as the default units for 
-	 * a point: [NM,NM,ft].  If there are 3 value/unit pairs then each values is interpreted with regard 
-	 * to the appropriate unit.  If the string cannot be parsed, an INVALID value is
-	 * returned. 
-	 * 
-	 * @param str string to parse
-	 * @return point
-	 */
-	public static Point parse(String str) {
-		String[] fields = str.split(Constants.wsPatternParens);
-		if (fields[0].equals("")) {
-			fields = Arrays.copyOfRange(fields,1,fields.length);
-		}
-		try {
-			if (fields.length == 3) {
-				return make(
-						Double.parseDouble(fields[0]),
-						Double.parseDouble(fields[1]),
-						Double.parseDouble(fields[2]));
-			} else if (fields.length == 6) {
-				return make(
-						Double.parseDouble(fields[0]), Units.clean(fields[1]),
-						Double.parseDouble(fields[2]), Units.clean(fields[3]),
-						Double.parseDouble(fields[4]), Units.clean(fields[5]));
-			}
-		} catch (Exception e) {}
-		return mk(Vect3.INVALID);	
 	}
 
 }

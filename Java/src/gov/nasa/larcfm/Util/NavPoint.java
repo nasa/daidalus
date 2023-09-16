@@ -85,20 +85,6 @@ public class NavPoint {
 		return new NavPoint(Position.makeLatLonAlt(lat,lon,alt), t);
 	}
 
-
-	/**
-	 * Creates a new Euclidean NavPoint with coordinates (<code>x</code>,<code>y</code>,<code>z</code>).
-	 * 
-	 * @param x coordinate [nmi]
-	 * @param y coordinate [nmi]
-	 * @param z altitude [ft]
-	 * @param t time [s]
-	 * @return a new NavPoint
-	 */
-	public static NavPoint makeXYZ(double x, double y, double z, double t) {
-		return new NavPoint(Position.makeXYZ(x, y, z), t);
-	}
-
 	/**
 	 * Creates a new Euclidean NavPoint with coordinates (<code>x</code>,<code>y</code>,<code>z</code>).
 	 * 
@@ -111,7 +97,6 @@ public class NavPoint {
 	public static NavPoint mkXYZ(double x, double y, double z, double t) {
 		return new NavPoint(Position.mkXYZ(x, y, z), t);
 	}
-
 
 	/**
 	 * Returns true if any components of this NavPoint are marked as Invalid

@@ -70,17 +70,9 @@ NavPoint NavPoint::mkLatLonAlt(double lat, double lon, double alt, double t) {
 	return NavPoint(Position::mkLatLonAlt(lat,lon,alt), t);
 }
 
-
-NavPoint NavPoint::makeXYZ(double x, double y, double z, double t) {
-	return NavPoint(Position::makeXYZ(x, y, z), t);
-}
-
 bool NavPoint::isInvalid() const {
 	return p.isInvalid() || t != t;
 }
-
-
-
 
 bool NavPoint::almostEquals(const NavPoint& v) const {
 	return Constants::almost_equals_time(t,v.t)

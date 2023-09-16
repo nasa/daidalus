@@ -45,7 +45,6 @@ const Position& Position::ZERO_XYZ() {
 	return *pos;
 }
 
-
 Position::Position() : ll(LatLonAlt::ZERO()) , s3(Vect3::ZERO()) {
 	latlon = true;
 }
@@ -79,15 +78,9 @@ Position Position::makeLatLonAlt(double lat, std::string lat_unit, double lon, s
 	return Position(LatLonAlt::make(lat, lat_unit, lon, lon_unit, alt, alt_unit));
 }
 
-Position Position::makeXYZ(double x, double y, double z) {
-	return Position(Units::from("nm", x), Units::from("nm", y), Units::from("ft",z));
-}
-
-
 Position Position::mkXYZ(double x, double y, double z) {
 	return Position(x,y,z);
 }
-
 
 Position Position::makeXYZ(double x, std::string x_unit, double y, std::string y_unit, double z, std::string z_unit) {
 	return Position(Units::from(x_unit, x), Units::from(y_unit, y), Units::from(z_unit,z));
@@ -129,8 +122,6 @@ bool Position::almostEquals2D(const Position& pp, double epsilon_horiz) const {
 	}
 }
 
-
-
 bool Position::operator == (const Position& v) const {  // strict equality
 	return s3.x==v.s3.x && s3.y==v.s3.y && s3.z==v.s3.z && latlon == v.latlon && ll.lat()==v.ll.lat() && ll.lon()==v.ll.lon() && ll.alt()==v.ll.alt();
 }
@@ -139,7 +130,6 @@ bool Position::operator == (const Position& v) const {  // strict equality
 bool Position::operator != (const Position& v) const {  // strict disequality
 	return s3.x!=v.s3.x || s3.y!=v.s3.y || s3.z!=v.s3.z || latlon != v.latlon;
 }
-
 
 bool Position::isInvalid() const {
 	return s3.isInvalid() || ll.isInvalid();
@@ -264,7 +254,6 @@ double Position::distanceV(const Position& p) const {
 	return std::abs(s3.z - p.s3.z);
 }
 
-
 double Position::distanceChordH(const Position& p) const {
 	if (latlon && p.latlon) {
 		return GreatCircle::chord_distance(ll,p.ll);
@@ -274,8 +263,6 @@ double Position::distanceChordH(const Position& p) const {
 		return MAXDOUBLE;
 	}
 }
-
-
 
 const Position Position::linear(const Velocity& v, double time) const {
 	if (time == 0 || v.isZero()) {
@@ -298,7 +285,6 @@ const Position Position::linearEst(double dn, double de) const {
 	return newNP;
 }
 
-
 const Position Position::linearEst(const Velocity& vo, double time) const {
 	Position newNP;
 	if (latlon) {
@@ -312,7 +298,6 @@ const Position Position::linearEst(const Velocity& vo, double time) const {
 	}
 	return newNP;
 }
-
 
 const std::pair<Position,Velocity> Position::linearDist2D(double track, double d, double gsAt_d) const {
 	  //f.pln(" $$$$$$ linearDist: v.track = "+Units::str("deg",v.compassAngle()));
@@ -344,7 +329,6 @@ const Position Position::linearDist2D(double track, double d) const {
 	  }
 }
 
-
 const Position Position::midPoint(const Position& p2) const{
 	if (latlon) {
 		return Position(GreatCircle::interpolate(ll,p2.lla(),0.5));
@@ -352,7 +336,6 @@ const Position Position::midPoint(const Position& p2) const{
 		return Position(VectFuns::midPoint(s3,p2.vect3()));
 	}
 }
-
 
 Position Position::interpolate(const Position& p2, double f) const {
   if (latlon) {
@@ -399,11 +382,6 @@ Velocity Position::finalVelocity(const Position& p, double dt) const {
 	}
 }
 
-
-
-
-
-
 double Position::representativeTrack(const Position& p) const {
 	if (p.latlon != latlon) {
 		fdln("Position.representativeTrack call given an inconsistent argument.");
@@ -416,7 +394,6 @@ double Position::representativeTrack(const Position& p) const {
 		return v.compassAngle();
 	}
 }
-
 
 // returns intersection point and time of intersection relative to position so
 // a negative time indicates that the intersection occurred in the past (relative to directions of travel of so1)
@@ -433,7 +410,6 @@ std::pair<Position,double> Position::intersection(const Position& so, const Velo
 		return std::pair<Position,double>(Position(pvt.first),pvt.second );
 	}
 }
-
 
 /** Returns intersection point and time of intersection relative to the time of position so
  *  for time return value, it assumes that an aircraft travels from so1 to so2 in dto seconds and the other aircraft from si to si2
@@ -452,7 +428,6 @@ std::pair<Position,double> Position::intersection(const Position& so, const Posi
 		return std::pair<Position,double>(Position(pvt.first),pvt.second);
 	}
 }
-
 
 /** Returns intersection point and time of intersection relative to the time of position so
  *  for time return value, it assumes that an aircraft travels from so1 to so2 in dto seconds and the other aircraft from si to si2
@@ -473,22 +448,6 @@ Position Position::intersection2D(const Position& so, const Position& so2, const
 	}
 
 }
-
-
-
-
-
-//  Velocity Position::averageVelocity(const Position& p2, double speed) {
-//	  if (p2.latlon != latlon) {
-//		  fdln("Position.averageVelocity call given an inconsistent argument.");
-//		  return Velocity::ZEROV();
-//	  }
-//	  if (latlon) {
-//		  return GreatCircle::velocity_average_speed(ll,p2.ll,speed);
-//	  } else {
-//		  return Velocity::makeVel(s3,p2.s3,speed);
-//	  }
-//}
 
 /** Return the average velocity between the current position and the given position, with the given speed [internal units]. */
 Velocity Position::averageVelocity(const Position& p2, double speed) const {
@@ -514,7 +473,6 @@ Velocity Position::avgVelocity(const Position& p2, double dt) const {
   } else {
     return Velocity::genVel(s3,p2.s3,dt);
   }
-
 }
 
 bool Position::isWest(const Position& a) const {
@@ -524,7 +482,6 @@ bool Position::isWest(const Position& a) const {
 		  return x() < a.x();
 	  }
 }
-
 
 bool Position::LoS(const Position& p2, double D, double H) {
 	if (p2.isInvalid()) return false;
@@ -545,7 +502,6 @@ bool Position::collinear(Position p1, Position p2) const {
 		return VectFuns::collinear(vect3(),p1.vect3(),p2.vect3());
 }
 
-
 std::string Position::toUnitTest() const{
 	if (latlon) {
 		return "Position.makeLatLonAlt("+ Fm12(Units::to("deg",lat()))
@@ -564,7 +520,6 @@ std::string Position::toUnitTestSI() const {
 	}
 }
 
-
 std::string Position::toString() const {
 	return toString(Constants::get_output_precision());
 }
@@ -582,7 +537,6 @@ std::string Position::toString2D(int prec) const {
 	else
 		return "("+Units::str("NM",s3.x,prec)+", "+Units::str("NM",s3.y,prec)+")";
 }
-
 
 /**
  * Return a string representation using the given unit conversions (latitude and longitude,
@@ -663,26 +617,6 @@ std::vector<std::string> Position::toStringList(int precision, int latLonExtraPr
 /** This interprets a string as a LatLonAlt position with units of deg/deg/ft or in the specified units (inverse of toString()) */
 const Position Position::parseLL(const std::string& s) {
 	return Position::make(LatLonAlt::parse(s));
-}
-
-/** This interprets a string as a XYZ position with units of nmi/nmi/ft or in the specified units (inverse of toString()) */
-const Position Position::parseXYZ(const std::string& s) {
-	Vect3 v = VectFuns::parse(s); // Vect3.parse assumes internal units
-	//return makeXYZ(v.x, v.y, v.z);
-	return Position::make(v);
-}
-
-const Position Position::parse(const std::string& s) {
-	std::vector<std::string> fields = split(s, Constants::wsPatternParens);
-	while (fields.size() > 0 && equals(fields[0], "")) {
-		fields.erase(fields.begin());
-	}
-	if (fields.size() == 6) {
-		if (Units::isCompatible(Units::clean(fields[1]), "deg") && Units::isCompatible(Units::clean(fields[3]), "deg") && Units::isCompatible(Units::clean(fields[5]), "ft")) return parseLL(s);
-		if (Units::isCompatible(Units::clean(fields[1]), "m") && Units::isCompatible(Units::clean(fields[3]), "m") && Units::isCompatible(Units::clean(fields[5]), "m")) return parseXYZ(s);
-	}
-	return Position::INVALID();
-
 }
 
 }

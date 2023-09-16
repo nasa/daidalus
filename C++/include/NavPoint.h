@@ -80,24 +80,10 @@ public:
     static NavPoint mkLatLonAlt(double lat, double lon, double alt, double t);
 
 	/**
-	 * Creates a new Euclidean NavPoint with coordinates (<code>x</code>,<code>y</code>,<code>z</code>).
-	 * 
-	 * @param x coordinate [nmi]
-	 * @param y coordinate [nmi]
-	 * @param z altitude [ft]
-	 * @param t time [s]
-	 * @return a new NavPoint
-	 */
-    static NavPoint makeXYZ(double x, double y, double z, double t);
-
-	/**
 	 * Returns true if any components of this NavPoint are marked as Invalid
 	 * @return true, if invalid
 	 */
     bool isInvalid() const;
-
-
-    
     
     /** A zero NavPoint, in lat/lon coordinates */
     static const NavPoint& ZERO_LL();
