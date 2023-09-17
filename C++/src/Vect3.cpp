@@ -41,10 +41,6 @@ Vect3 Vect3::mkXYZ(double x, double y, double z) {
 	return Vect3(x,y,z);
 }
 
-Vect3 Vect3::make(double x, double y, double z) {
-	return Vect3(Units::from("NM",x),Units::from("NM",y),Units::from("ft",z));
-}
-
 Vect3 Vect3::make(double x, const std::string& xunits, double y, const std::string& yunits, double z, const std::string& zunits) {
 	return Vect3(Units::from(xunits, x), Units::from(yunits, y), Units::from(zunits, z));
 }

@@ -104,19 +104,6 @@ public class Vect3 {
 		return new Vect3(x,y,z);
 	}
 
-	/**
-	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in external units.
-	 * 
-	 * @param x Real value [NM]
-	 * @param y Real value [NM]
-	 * @param z Real value [ft]
-	 * @return a new vector
-	 */
-	public static Vect3 make(double x, double y, double z) {
-		return new Vect3(Units.from("NM",x),Units.from("NM",y),Units.from("ft",z));
-	}
-
-
 	public Vect3 mkX(double nx) {
 		return mkXYZ(nx, y ,z);
 	}

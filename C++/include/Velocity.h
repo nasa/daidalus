@@ -31,12 +31,30 @@ namespace larcfm {
  * The other right handed coordinate system, East-North-Down can probably 
  * be used without error, but this has not be tested very well. 
  * The track angle is defined by the "true north, clockwise convention."
- *
+ * Track and gs (norm of vector) are cached so that a zero velocity vector
+ * keeps its track, even when the norm is 0 (physically, a vehicle has always a heading, even if the
+ * norm of the velocity is zero)
+*
  */
-class Velocity: public Vect3 {
+class Velocity {
 
 private:
+	double trk_; // Track (true north, clockwise, radians)
+    double gs_;  // Norm of velicity vector (internal units)
+	Vect3 v_;    // 3-D vector
 
+	/**
+	 * Instantiates a new velocity in internal units.
+	 *
+	 * @param trk the trk (clockwise, true north)
+	 * @param gs the grouns speed
+	 * @param vx the vx
+	 * @param vy the vy
+	 * @param vz the vz
+	 */
+	Velocity(const double trk, const double gs, 
+		const double vx, const double vy, const double vz);
+	
 	/**
 	 * Instantiates a new velocity in internal units.
 	 *
@@ -52,7 +70,19 @@ public:
 	 */
 	Velocity();
 
-	explicit Velocity(const Vect3& v3);
+	const Vect3& vect3() const;
+
+	Vect2 vect2() const;
+
+	bool isZero() const;
+
+	bool isInvalid() const;
+
+	double x() const;
+
+	double y() const;
+
+	double z() const;
 
 	/**
 	 * Angle in explicit units in corresponding range [-<code>Math.PI</code>, <code>Math.PI</code>].
@@ -149,7 +179,7 @@ public:
 	 * @param maxVs   maximum vs
 	 * @return true, if the velocities compare correctly
 	 */
-	bool compare(const Velocity& v, double maxTrk, double maxGs, double maxVs);
+	bool compare(const Velocity& v, double maxTrk, double maxGs, double maxVs) const;
 
 	/**
 	 * Compare two velocities based on horizontal and vertical components.  This could be used against a set of nacV ADS-B limits, for example.
@@ -158,9 +188,17 @@ public:
 	 * @param vertDelta vertical tolerance (absolute value)
 	 * @return true if the velocities are within both horizontal and vertical tolerances of each other.
 	 */
-	bool compare(const Velocity& v, double horizDelta, double vertDelta);
+	bool compare(const Velocity& v, double horizDelta, double vertDelta) const;
 
-
+	/**
+	 * New velocity from Vect3 in internal units.
+	 *
+	 * @param v the 3-D velocity vector [mps,mps,mps]
+	 *
+	 * @return the velocity
+	 */
+	static Velocity make(const Velocity& v);
+	
 	/**
 	 * New velocity from Vect3 in internal units.
 	 *
@@ -190,19 +228,6 @@ public:
 	 * 
 	 */
 	static Velocity mkVxyz(const double vx, const double vy, const double vz);
-
-
-	/**
-	 * New velocity from Euclidean coordinates in "conventional" units.
-	 *
-	 * @param vx the x-velocity [knot]
-	 * @param vy the y-velocity [knot]
-	 * @param vz the z-velocity [fpm]
-	 *
-	 * @return the velocity
-	 */
-	static Velocity makeVxyz(const double vx, const double vy, const double vz);
-
 
 	/**
 	 * New velocity from Euclidean coordinates in explicit units.
@@ -278,6 +303,12 @@ public:
 	 */
 	static double track(const Vect3& p1, const Vect3& p2);
 
+	Velocity Neg() const;
+
+	Velocity Add(const Velocity& v) const;
+
+	Velocity Sub(const Velocity& v) const;
+
 	/**
 	 * Return the velocity if moving from p1 to p2 over the given time
 	 * @param p1 first point
@@ -285,24 +316,23 @@ public:
 	 * @param dt time
 	 * @return the velocity
 	 */
-	static Velocity genVel(const Vect3& p1, const Vect3& p2, double dt) ;
-
+	static Velocity genVel(const Vect3& p1, const Vect3& p2, double dt);
 
 	/**
 	 * New velocity from existing velocity by adding the given track angle to this
 	 * vector's track angle.  Essentially, this rotates the vector, a positive
 	 * angle means a clockwise rotation.
-	 * @param trk track angle [rad]
+	 * @param atrk track angle [rad]
 	 * @return new velocity
 	 */
-	Velocity mkAddTrk(double trk) const;
+	Velocity mkAddTrk(double atrk) const;
 
 
 	/** Return a zero velocity vector */
-	static const Velocity& ZEROV();
+	static const Velocity& ZERO();
 
 	/** An invalid velocity, used for error reporting */
-	static const Velocity& INVALIDV();
+	static const Velocity& INVALID();
 
 
 	/** Return the x component of velocity given the track and ground
@@ -352,10 +382,10 @@ public:
 
 	/**
 	 * New velocity from existing velocity, changing only the ground speed
-	 * @param gs ground speed [m/s]
+	 * @param ags ground speed [m/s]
 	 * @return new velocity
 	 */
-	Velocity mkGs(double gs) const;
+	Velocity mkGs(double ags) const;
 
 	/**
 	 * New velocity from existing velocity, changing only the ground speed
@@ -380,8 +410,6 @@ public:
 	 */
 	Velocity mkVs(double vs, std::string u) const;
 
-	Velocity NegV() const;
-
 	/**
 	 * If the z component of the velocity vector is smaller than the threshold, return a new vector with this component set to 0.
 	 * Return the original vector if the vertical speed is greater than the threshold.
@@ -399,17 +427,6 @@ public:
 	 * @return Velocity object
 	 */
 	static Velocity parseXYZ(const std::string& str);
-
-	/**
-	 * This parses a space or comma-separated string as a Trk/Gs/Vs Velocity (an inverse to the toString method).  If three bare values are
-	 * present, then it is interpreted as degrees/knots/fpm. If there are 3 value/unit pairs then each values is
-	 * interpreted wrt the appropriate unit.  If the string cannot be parsed, an INVALID value is
-	 * returned.
-	 *
-	 * @param str string to parse
-	 * @return velocity
-	 */
-	static Velocity parse(const std::string& str);
 
 	std::string toUnitTest() const;
 
@@ -496,32 +513,16 @@ public:
 	 */
 	std::string toStringNP(const std::string& utrk, const std::string& ugs, const std::string& uvs, int precision) const;
 
+	/**
+	 * String representation, with user-specified precision
+	 * @param utrk units of track
+	 * @param ugs units of ground speed
+	 * @param uvs units of vertical speed
+	 * @return a string representation
+	 */
+	std::string toStringNP(const std::string& utrk, const std::string& ugs, const std::string& uvs) const;
 
 };
-
-/**
- * \deprecated {Use Velocity:: version.}
- * Return the x component of velocity given the track and ground
- * speed.  The track angle is assumed to use the radians from true
- * North-clockwise convention.
- */
-double trkgs2vx(double trk, double gs);
-
-/**
- * \deprecated {Use Velocity:: version.}
- * Return the y component of velocity given the track and ground
- *	speed.  The track angle is assumed to use the radians from
- *	true North-clockwise convention.
- */
-double trkgs2vy(double trk, double gs);
-
-/**
- * \deprecated {Use Velocity:: version.}
- * Return the 2-dimensional Euclidean vector for velocity given the track and ground
- *	speed.  The track angle is assumed to use the radians from
- *	true North-clockwise convention.
- */
-Vect2 trkgs2v(double trk, double gs);
 
 }
 

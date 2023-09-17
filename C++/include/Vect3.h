@@ -102,18 +102,7 @@ public:
 	 */
 	static Vect3 mkXYZ(double x, double y, double z);
 
-	/**
-	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in external units.
-	 * 
-	 * @param x Real value [NM]
-	 * @param y Real value [NM]
-	 * @param z Real value [ft]
-	 * @return a new vector
-	 */
-	static Vect3 make(double x, double y, double z);
-
 	static Vect3 make(double x, const std::string& xunits, double y, const std::string& yunits, double z, const std::string& zunits);
-
 
 	Vect3 mkX(double nx);
 
