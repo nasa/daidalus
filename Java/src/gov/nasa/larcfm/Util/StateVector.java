@@ -69,7 +69,7 @@ public final class StateVector implements OutputList {
 		return t;
 	}
 	public StateVector linear(double deltaTm) {
-		Vect3 sAtTm = s.linear(v,deltaTm);
+		Vect3 sAtTm = s.linear(v.vect3(),deltaTm);
 		return new StateVector(sAtTm,v,t+deltaTm);
 	}
 	                        

@@ -148,9 +148,9 @@ const LatLonAlt LatLonAlt::linearEst(double dn, double de) const {
 }
 
 const LatLonAlt LatLonAlt::linearEst(const Velocity& vo, double tm)  const{
-	double dn = vo.Scal(tm).y;
-	double de = vo.Scal(tm).x;
-	double nAlt = alti + vo.z*tm;
+	double dn = vo.vect3().Scal(tm).y;
+	double de = vo.vect3().Scal(tm).x;
+	double nAlt = alti + vo.z()*tm;
 	return linearEst(dn,de).mkAlt(nAlt);
 }
 

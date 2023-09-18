@@ -245,7 +245,7 @@ public final class SimpleProjection implements EuclideanProjection {
     /** Given a velocity from a point in Euclidean 3-space, return a projection of this velocity.  If toLatLon is true, the velocity is projected into the geodetic coordinate space */
 	public Velocity inverseVelocity(Vect3 s, Velocity v, boolean toLatLon){
 		if (toLatLon) {
-			Vect3 s2 = s.linear(v,TIME_STEP);
+			Vect3 s2 = s.linear(v.vect3(),TIME_STEP);
 			LatLonAlt lla1 = inverse(s);
 			LatLonAlt lla2 = inverse(s2);
 			Velocity nv = GreatCircle.velocity_initial(lla1,lla2,TIME_STEP);

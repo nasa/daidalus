@@ -97,7 +97,7 @@ Point Point::Scal(double k) const {
 }
 
 Point Point::linear(const Velocity& v, double t) const {
-	return mk(x + v.x*t,y + v.y*t,z +v.z*t);
+	return mk(x + v.x()*t,y + v.y()*t,z +v.z()*t);
 }
 
 std::string Point::toString() const {

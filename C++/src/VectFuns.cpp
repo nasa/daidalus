@@ -99,15 +99,15 @@ bool VectFuns::divergent(const Vect2& so, const Vect2& vo, const Vect2& si, cons
 	  return so.Sub(si).dot(vo.Sub(vi)) > 0;
 }
 
-bool VectFuns::divergent(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) {
+bool VectFuns::divergent(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) {
 	  return so.Sub(si).dot(vo.Sub(vi)) > 0;
 }
 
-double VectFuns::rateOfClosureHorizontal(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) {
+double VectFuns::rateOfClosureHorizontal(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) {
 	return -so.Sub(si).vect2().Hat().dot(vo.Sub(vi).vect2());
 }
 
-double VectFuns::rateOfClosureVertical(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) {
+double VectFuns::rateOfClosureVertical(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) {
 	return Util::sign(si.z-so.z)*(vo.z-vi.z);
 }
 
@@ -143,7 +143,7 @@ double VectFuns::distAtTau(const Vect3& s, const Vect3& vo, const Vect3& vi, boo
  * @return Pair (2-dimensional point of intersection with 3D projection, relative time of intersection, relative to the so3)
  * If the lines are parallel, this returns the pair (0,NaN).
  */
-std::pair<Vect3,double> VectFuns::intersection(const Vect3& so3, const Velocity& vo3, const Vect3& si3, const Velocity& vi3) {
+std::pair<Vect3,double> VectFuns::intersection(const Vect3& so3, const Vect3& vo3, const Vect3& si3, const Vect3& vi3) {
 	Vect2 so = so3.vect2();
 	Vect2 vo = vo3.vect2();
 	Vect2 si = si3.vect2();
@@ -181,8 +181,8 @@ double VectFuns::distanceH(const Vect3& soA, const Vect3& soB) {
 }
 
 std::pair<Vect3,double> VectFuns::intersectionAvgZ(const Vect3& so1, const Vect3& so2, double dto, const Vect3& si1, const Vect3& si2) {
-	Velocity vo3 = Velocity::genVel(so1, so2, dto);
-	Velocity vi3 = Velocity::genVel(si1, si2, dto);      // its ok to use any time here,  all times are relative to so
+	Vect3 vo3 = Velocity::genVel(so1, so2, dto).vect3();
+	Vect3 vi3 = Velocity::genVel(si1, si2, dto).vect3();      // its ok to use any time here,  all times are relative to so
 	std::pair<Vect3,double> iP = intersection(so1,vo3,si1,vi3);
 	Vect3 interSec = iP.first;
 			double do1 = distanceH(so1,interSec);
@@ -356,8 +356,8 @@ int VectFuns::passingDirection(const Vect3& so, const Velocity& vo, const Vect3&
 //fpln("toi="+toi);
 //fpln("int = "+	intersection(so,vo,si,vi));
 	if (ISNAN(toi) || toi < 0 || tii < 0) return 0;
-	Vect3 so3 = so.linear(vo, toi);
-	Vect3 si3 = si.linear(vi, toi);
+	Vect3 so3 = so.linear(vo.vect3(), toi);
+	Vect3 si3 = si.linear(vi.vect3(), toi);
 //fpln("so3="+so3);
 //fpln("si3="+si3);
 	if (behind(so3.vect2(), si3.vect2(), vi.vect2())) return -1;

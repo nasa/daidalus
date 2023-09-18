@@ -837,7 +837,7 @@ public final class GreatCircle {
 			return p1;
 		}
 		double f = angle_from_distance(v.gs() * t) / d;
-		return interpolate_impl(p1, p2, d, f, p1.alt() + v.z * t);
+		return interpolate_impl(p1, p2, d, f, p1.alt() + v.z() * t);
 	}
 
 	/**
@@ -891,7 +891,7 @@ public final class GreatCircle {
 	 */
 	public static LatLonAlt linear_rhumb(LatLonAlt s, Velocity v, double t) {
 		return linear_rhumb_impl(s, v.trk(), angle_from_distance(v.gs() * t),
-				v.z * t);
+				v.z() * t);
 	}
 
 	/**
@@ -1023,7 +1023,7 @@ public final class GreatCircle {
 	 */
 	public static LatLonAlt linear_initial(LatLonAlt s, Velocity v, double t) {
 		return linear_initial_impl(s, v.trk(), angle_from_distance(v.gs() * t),
-				v.z * t);
+				v.z() * t);
 	}
 
 	/**

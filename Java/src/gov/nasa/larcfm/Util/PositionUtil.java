@@ -64,7 +64,7 @@ public final class PositionUtil {
 			Pair<LatLonAlt, Double> p = GreatCircle.intersection(so.lla(), vo, si.lla(), vi);
 			return Pair.make(Position.make(p.first), p.second);
 		} else {
-			Pair<Vect3, Double> p = VectFuns.intersection(so.vect3(), vo, si.vect3(), vi);
+			Pair<Vect3, Double> p = VectFuns.intersection(so.vect3(), vo.vect3(), si.vect3(), vi.vect3());
 			return Pair.make(Position.make(p.first), p.second);
 		}
 	}
@@ -179,18 +179,16 @@ public final class PositionUtil {
 		if (so.isLatLon()) {
 			return GreatCircle.passingDirection(so.lla(), vo, si.lla(), vi);
 		} else {
-			return VectFuns.passingDirection(so.vect3(), vo, si.vect3(), vi);
+			return VectFuns.passingDirection(so.vect3(), vo.vect3(), si.vect3(), vi.vect3());
 		}
 		
 	}
-	
-
 
 	public static int dirForBehind(Position so, Velocity vo, Position si, Velocity vi) {
 		if (so.isLatLon()) {
 			return GreatCircle.dirForBehind(so.lla(), vo, si.lla(), vi);
 		} else {
-			return VectFuns.dirForBehind(so.vect3(),vo,si.vect3(),vi);
+			return VectFuns.dirForBehind(so.vect3(),vo.vect3(),si.vect3(),vi.vect3());
 		}
 	}
 	

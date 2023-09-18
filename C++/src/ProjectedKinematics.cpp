@@ -36,7 +36,7 @@ std::pair<Position,Velocity> ProjectedKinematics::linear(const Position& so, con
 	if (so.isLatLon()) {
 		s3 = Projection::createProjection(so.lla().zeroAlt()).project(so);
 	}
-	Vect3 ns = s3.linear(vo,t);
+	Vect3 ns = s3.linear(vo.vect3(),t);
 	if (so.isLatLon()) {
 		return Projection::createProjection(so.lla().zeroAlt()).inverse(ns,vo,true);
 	} else {
@@ -229,7 +229,7 @@ std::pair<Position,Velocity> ProjectedKinematics::vsAccel(const Position& so, co
 		s3 = Projection::createProjection(so.lla().zeroAlt()).project(so);
 	}
 	Vect3 pres = Kinematics::vsAccelPos(s3,vo,t, a);
-	Velocity vres = Velocity::mkVxyz(vo.x, vo.y, vo.z+a*t);
+	Velocity vres = Velocity::mkVxyz(vo.x(), vo.y(), vo.z()+a*t);
 	if (so.isLatLon()) {
 		return Projection::createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
 	} else {
@@ -263,7 +263,7 @@ std::pair<Position,double> ProjectedKinematics::intersection(const Position& so,
 		so3 = proj.project(so);
 		si3 = proj.project(si);
 	}
-	std::pair<Vect3,double> intersect = VectFuns::intersection(so3, vo, si3, vi);
+	std::pair<Vect3,double> intersect = VectFuns::intersection(so3,vo.vect3(),si3,vi.vect3());
 	if (so.isLatLon()) {
 		return std::pair<Position,double>(Position(proj.inverse(intersect.first)),intersect.second);
 	} else {
@@ -362,7 +362,7 @@ Triple<Position,Velocity,double> ProjectedKinematics::vsLevelOutFinal(const Posi
 			sv = Projection::createProjection(so.lla().zeroAlt()).project(so, vo);
 		}
 		StateVector vat = Kinematics::vsLevelOutFinal(sv, climbRate, targetAlt, a);
-		if (vat.t() < 0) return Triple<Position,Velocity,double>(Position::INVALID(), Velocity::INVALIDV(), vat.t());
+		if (vat.t() < 0) return Triple<Position,Velocity,double>(Position::INVALID(), Velocity::INVALID(), vat.t());
 		if (so.isLatLon()) {
 			std::pair<Position,Velocity>p = Projection::createProjection(so.lla().zeroAlt()).inverse(vat.s(),vat.v(),true);
 			return Triple<Position,Velocity,double>(p.first, p.second, vat.t());

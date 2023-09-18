@@ -271,7 +271,7 @@ const Position Position::linear(const Velocity& v, double time) const {
 	if (latlon) {
 		return Position(GreatCircle::linear_initial(ll,v,time));
 	} else {
-		return Position(s3.linear(v,time));
+		return Position(s3.linear(v.vect3(),time));
 	}
 }
 
@@ -360,7 +360,7 @@ double Position::track(const Position& p) const {
 
 Velocity Position::initialVelocity(const Position& p, double dt) const {
 	if (dt<=0) {
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	} else {
 		if (isLatLon()) {
 			return GreatCircle::velocity_initial(lla(), p.lla(), dt);
@@ -372,7 +372,7 @@ Velocity Position::initialVelocity(const Position& p, double dt) const {
 
 Velocity Position::finalVelocity(const Position& p, double dt) const {
 	if (dt<=0) {
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	} else {
 		if (isLatLon()) {
 			return GreatCircle::velocity_final(lla(), p.lla(), dt);
@@ -406,7 +406,7 @@ std::pair<Position,double> Position::intersection(const Position& so, const Velo
 		std::pair<LatLonAlt,double> pgc = GreatCircle::intersection(so.lla(),vo, si.lla(),vi);
 		return std::pair<Position,double>(Position(pgc.first),pgc.second );
 	} else {
-		std::pair<Vect3,double> pvt = VectFuns::intersection(so.vect3(),vo,si.vect3(),vi);
+		std::pair<Vect3,double> pvt = VectFuns::intersection(so.vect3(),vo.vect3(),si.vect3(),vi.vect3());
 		return std::pair<Position,double>(Position(pvt.first),pvt.second );
 	}
 }
@@ -453,7 +453,7 @@ Position Position::intersection2D(const Position& so, const Position& so2, const
 Velocity Position::averageVelocity(const Position& p2, double speed) const {
   if (p2.latlon != latlon) {
 	fpln("Position.averageVelocity call given an inconsistent argument.");
-    return Velocity::ZEROV();
+    return Velocity::ZERO();
   }
   if (latlon) {
     return GreatCircle::velocity_average_speed(ll,p2.ll,speed);
@@ -466,7 +466,7 @@ Velocity Position::averageVelocity(const Position& p2, double speed) const {
 Velocity Position::avgVelocity(const Position& p2, double dt) const {
   if (p2.latlon != latlon) {
     fpln("Position.averageVelocity call given an inconsistent argument.");
-    return Velocity::ZEROV();
+    return Velocity::ZERO();
   }
   if (latlon) {
     return GreatCircle::velocity_average(ll,p2.ll,dt);

@@ -108,7 +108,7 @@ public:
 	 * @param vi intruder velocity
 	 * @return true, if divergent
 	 */
-	static bool divergent(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi);
+	static bool divergent(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi);
 
 
 	/**
@@ -119,7 +119,7 @@ public:
 	 * @param vi velocity of second aircraft
 	 * @return rate of closure
 	 */
-	static double rateOfClosureHorizontal(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) ;
+	static double rateOfClosureHorizontal(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) ;
 
 	/**
 	 * Return the vertical rate of closure of two aircraft in the given state
@@ -129,7 +129,7 @@ public:
 	 * @param vi velocity of second aircraft
 	 * @return rate of closure
 	 */
-	static double rateOfClosureVertical(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi);
+	static double rateOfClosureVertical(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi);
 
 	/** time of closest approach, if parallel return Double.MAX_VALUE
 	 * @param s    relative position of aircraft
@@ -160,7 +160,7 @@ public:
 	 * @return Pair (2-dimensional point of intersection with 3D projection, relative time of intersection, relative to the so3)
 	 * If the lines are parallel, this returns the pair (0,NaN).
 	 */
-	static std::pair<Vect3,double> intersection(const Vect3& so3, const Velocity& vo3, const Vect3& si3, const Velocity& vi3);
+	static std::pair<Vect3,double> intersection(const Vect3& so3, const Vect3& vo3, const Vect3& si3, const Vect3& vi3);
 
 	static std::pair<Vect2,double> intersection2D(const Vect2& so, const Vect2& vo, const Vect2& si, const Vect2& vi);
 

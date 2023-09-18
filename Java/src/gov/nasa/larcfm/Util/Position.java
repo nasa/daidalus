@@ -589,7 +589,7 @@ public final class Position implements OutputList {
 		if (latlon) {
 			return make(GreatCircle.linear_initial(ll,v,time));
 		} else {
-			return make(s3.linear(v, time)); 
+			return make(s3.linear(v.vect3(), time)); 
 		}
 	}
 
@@ -815,7 +815,7 @@ public final class Position implements OutputList {
 			Pair<LatLonAlt,Double> pgc = GreatCircle.intersection(so.lla(),vo, si.lla(),vi);
 			return new Pair<Position,Double>(make(pgc.first),pgc.second );
 		} else {
-			Pair<Vect3,Double> pvt = VectFuns.intersection(so.vect3(),vo,si.vect3(),vi);
+			Pair<Vect3,Double> pvt = VectFuns.intersection(so.vect3(),vo.vect3(),si.vect3(),vi.vect3());
 			return new Pair<Position,Double>(make(pvt.first),pvt.second );
 		}
 	}

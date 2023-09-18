@@ -418,7 +418,7 @@ Velocity SequenceReader::getSequenceVelocity(const string& name, double time) {
 		return sequenceTable[time][name].second;
 	} else {
 		error.addWarning("getSequenceVelocity: invalid name/time combination");
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	}
 }
 

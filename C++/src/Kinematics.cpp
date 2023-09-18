@@ -140,7 +140,7 @@ std::pair<Vect3,Velocity> Kinematics::linear(const std::pair<Vect3,Velocity>& sv
 }
 
 std::pair<Vect3,Velocity> Kinematics::linear(Vect3 so, Velocity vo, double t) {
-	return std::pair<Vect3,Velocity>(so.linear(vo,t),vo);
+	return std::pair<Vect3,Velocity>(so.linear(vo.vect3(),t),vo);
 }
 
 /**
@@ -153,7 +153,7 @@ std::pair<Vect3,Velocity> Kinematics::linear(Vect3 so, Velocity vo, double t) {
  */
 std::pair<Vect3,Velocity> Kinematics::turnByDist2D(const Vect3& so, const Vect3& center, int dir, double d, double gsAt_d) {
     double R = so.distanceH(center);
-    if (R==0.0) return std::pair<Vect3,Velocity>(so,Velocity::INVALIDV());
+    if (R==0.0) return std::pair<Vect3,Velocity>(so,Velocity::INVALID());
 	double alpha = dir*d/R;
 	double trkFromCenter = Velocity::track(center, so);
 	double nTrk = trkFromCenter + alpha;
@@ -191,9 +191,9 @@ std::pair<Vect3,Velocity> Kinematics::turnOmega(const Vect3& s0, const Velocity&
 	// New implementation avoids calculating track and groundspeed,
 	// reduces trig functions to one sine and one cosine.
 	Velocity nv = v0.mkAddTrk(omega*t);
-	double xT = s0.x + (v0.y-nv.y)/omega;
-	double yT = s0.y + (-v0.x+nv.x)/omega;
-	double zT = s0.z + v0.z*t;
+	double xT = s0.x + (v0.y()-nv.y())/omega;
+	double yT = s0.y + (-v0.x()+nv.x())/omega;
+	double zT = s0.z + v0.z()*t;
 	Vect3 ns = Vect3(xT,yT,zT);
 	return std::pair<Vect3,Velocity>(ns,nv);
 }
@@ -356,7 +356,7 @@ std::pair<Vect2,Vect2> Kinematics::directTo(const Vect2& bot, const Vect2& v0, c
 
 Quad<Vect3,Velocity,double,int> Kinematics::directToPoint(const Vect3& so, const Velocity& vo, const Vect3& wp, double R){
 	Vect2 EOT = directTo(so.vect2(),vo.vect2(),wp.vect2(),R).first;
-	if (EOT.isInvalid()) return Quad<Vect3,Velocity,double,int>(Vect3::INVALID(), Velocity::INVALIDV(), -1.0, 0);
+	if (EOT.isInvalid()) return Quad<Vect3,Velocity,double,int>(Vect3::INVALID(), Velocity::INVALID(), -1.0, 0);
 	double finalTrack = wp.vect2().Sub(EOT).trk();
 	// this should not be based on final track direction, but rather on the actual turn taken.
 	//		double turnDelta = Util.signedTurnDelta(vo.trk(),finalTrack);
@@ -370,7 +370,7 @@ Quad<Vect3,Velocity,double,int> Kinematics::directToPoint(const Vect3& so, const
 
 Triple<Vect3,double,double> Kinematics::genDirectToVertex(const Vect3& so, const Velocity& vo, const Vect3& wp, double bankAngle, double timeBeforeTurn){
 	//std::pair<Vect2,Vect2> eot = directTo(Vect2 bot, Vect2 v0, Vect2 goal, double R) {
-	Vect3 soPlus = so.Add(vo.Scal(timeBeforeTurn));
+	Vect3 soPlus = so.Add(vo.vect3().Scal(timeBeforeTurn));
 	double R = Kinematics::turnRadius(vo.gs(), bankAngle);
 	//public Triple<Vect3,Velocity,double> directToPoint(Vect3 soPlus, Velocity vo, Vect3 wp, double R) {
 	Quad<Vect3,Velocity,double,int> dtp = directToPoint(soPlus,vo,wp,R);
@@ -379,7 +379,7 @@ Triple<Vect3,double,double> Kinematics::genDirectToVertex(const Vect3& so, const
 	}
 	Vect3 si = dtp.first;
 	Velocity vi = dtp.second;
-	std::pair<Vect3,double> ipPair = VectFuns::intersection(soPlus,vo,si,vi);
+	std::pair<Vect3,double> ipPair = VectFuns::intersection(soPlus,vo.vect3(),si,vi.vect3());
 	if (ipPair.second != ipPair.second) { // NaN
 		return Triple<Vect3,double,double>(Vect3::INVALID(), -1.0, -1.0);
 	}
@@ -415,7 +415,7 @@ bool Kinematics::testLoSTrk(const Vect3& so, const Velocity& vo, const Velocity&
 	bool rtn = false;
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = turnUntilTrack(so, vo, t, nvo.trk(), bankAngOwn).first;
-		Vect3 siAtTm = si.linear(vi,t);
+		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
 		double distV = std::abs(soAtTm.Sub(siAtTm).z);
 		if (distH < D && distV< H) {
@@ -438,7 +438,7 @@ Vect3 Kinematics::gsAccelPos(const Vect3& so3, const Velocity& vo3, double tm, d
 	Vect2 so = so3.vect2();
 	Vect2 vo = vo3.vect2();
 	Vect2 sK = so.Add(vo.Hat().Scal(vo.norm()*tm+0.5*a*tm*tm));
-	double nz = so3.z + vo3.z*tm;
+	double nz = so3.z + vo3.z()*tm;
 	return Vect3(sK,nz);
 }
 
@@ -626,7 +626,7 @@ bool Kinematics::testLoSGs(const Vect3& so, const Velocity& vo, const Velocity& 
 	bool rtn = false;
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = gsAccelUntil(so, vo, t, nvo.gs(), gsAccelOwn).first;
-		Vect3 siAtTm = si.linear(vi,t);
+		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
 		double distV = std::abs(soAtTm.Sub(siAtTm).z);
 		if (distH < D && distV < H) rtn =true;
@@ -648,7 +648,7 @@ double Kinematics::elevationAngle(Velocity v) {
 
 
 Vect3 Kinematics::vsAccelPos(const Vect3& so3, const Velocity& vo3, double t, double a) {
-	return Vect3(so3.x + t*vo3.x, so3.y + t*vo3.y, so3.z + vo3.z*t + 0.5*a*t*t);
+	return Vect3(so3.x + t*vo3.x(), so3.y + t*vo3.y(), so3.z + vo3.z()*t + 0.5*a*t*t);
 }
 
 std::pair<Vect3,Velocity> Kinematics::vsAccel(const Vect3& so3, const Velocity& vo3,  double t, double a) {
@@ -679,7 +679,7 @@ Triple<Vect3,Velocity,double> Kinematics::vsAccelGoal(const Vect3& so, const Vel
 	if (goalVs < vo.vs()) sgn = -1;
 	double accelTime = vsAccelTime(vo, goalVs, vsAccel);
 	Vect3 nso = vsAccelPos(so, vo, accelTime,  sgn*vsAccel);
-	Velocity nvo = Velocity::mkVxyz(vo.x,vo.y,goalVs);
+	Velocity nvo = Velocity::mkVxyz(vo.x(),vo.y(),goalVs);
 	return Triple<Vect3,Velocity,double>(nso,nvo,accelTime);
 }
 
@@ -698,7 +698,7 @@ std::pair<Vect3,Velocity> Kinematics::vsAccelUntil(const Vect3& so, const Veloci
 		return vsAccel(so,vo,t,sgn*vsAccel_d);
 	} else {
 		Vect3 posEnd = vsAccelPos(so,vo,accelTime,sgn*vsAccel_d);
-		Velocity nvo = Velocity::mkVxyz(vo.x,vo.y, goalVs);
+		Velocity nvo = Velocity::mkVxyz(vo.x(),vo.y(), goalVs);
 		return linear(posEnd,nvo,t-accelTime);
 	}
 }
@@ -717,7 +717,7 @@ bool Kinematics::testLoSVs(const Vect3& so, const Velocity& vo, const Velocity& 
 	bool rtn = false;
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = vsAccelUntil(so, vo, t, nvo.vs(), vsAccelOwn).first;
-		Vect3 siAtTm = si.linear(vi,t);
+		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
 		double distV = std::abs(soAtTm.Sub(siAtTm).z);
 		if (distH < D && distV < H) rtn =true;
@@ -965,18 +965,18 @@ StateVector Kinematics::vsLevelOutFinal(const std::pair<Vect3,Velocity>& sv0, do
 	double T3 = qV.third;
 	if (T1 < 0) {         //  overshoot case
 		//fpln(" $$$$$$ vsLevelOutFinal: T1 < 0,      targetAlt = "+Units::str("ft",targetAlt)+" currentAlt = "+Units::str("ft",sv0.first.z()));
-		return StateVector(Vect3::INVALID(),Velocity::INVALIDV(),-1.0);
+		return StateVector(Vect3::INVALID(),Velocity::INVALID(),-1.0);
 	}
 	return StateVector(vsLevelOutCalculation(sv0, targetAlt, qV.fourth, qV.fifth, T1, qV.second, T3, T3),T3);
 }
 
 StateVector Kinematics::vsLevelOutFinal(const std::pair<Vect3,Velocity>& sv0, double climbRate, double targetAlt, double a) {
-	Tuple5<double,double,double,double,double> qV = vsLevelOutTimesBase(sv0.first.z,sv0.second.z,climbRate,targetAlt,a,-a,true);
+	Tuple5<double,double,double,double,double> qV = vsLevelOutTimesBase(sv0.first.z,sv0.second.z(),climbRate,targetAlt,a,-a,true);
 	double T1 = qV.first;
 	double T3 = qV.third;
 	if (T1 < 0) {         //  overshoot case
 		//f.pln(" $$$$$$ vsLevelOutFinal: T1 < 0,      targetAlt = "+Units.str("ft",targetAlt)+" currentAlt = "+Units.str("ft",sv0.first.z()));
-		return StateVector(Vect3::INVALID(),Velocity::INVALIDV(),-1.0);
+		return StateVector(Vect3::INVALID(),Velocity::INVALID(),-1.0);
 	}
 	return StateVector(vsLevelOutCalculation(sv0, targetAlt, qV.fourth, qV.fifth, T1, qV.second, T3, T3),T3);
 }
@@ -1089,14 +1089,14 @@ Tuple5<double,double,double,double,double> Kinematics::vsLevelOutTimes(double s0
 Tuple5<double,double,double,double,double> Kinematics::vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt,
 		double accelup, double acceldown, bool allowClimbRateChange) {
 	double s0z = svo.first.z;
-	double v0z = svo.second.z;
+	double v0z = svo.second.z();
 	return vsLevelOutTimes(s0z, v0z, climbRate, targetAlt, accelup, acceldown, allowClimbRateChange);
 }
 
 Tuple5<double,double,double,double,double> Kinematics::vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt,
 		double a, bool allowClimbRateChange) {
 	double s0z = svo.first.z;
-	double v0z = svo.second.z;
+	double v0z = svo.second.z();
 	return vsLevelOutTimes(s0z, v0z, climbRate, targetAlt, a, -a, allowClimbRateChange);
 }
 
@@ -1111,7 +1111,7 @@ double Kinematics::vsLevelOutClimbRate(const std::pair<Vect3, Velocity>& svo, do
 		double accelup, double acceldown, bool allowClimbRateChange) {
 	Tuple5<double,double,double,double,double> ntp = vsLevelOutTimes(svo, climbRate, targetAlt, accelup, acceldown, allowClimbRateChange);
 	//fpln(" $$$ vsLevelOutTimes: "+ntp.first+" "+ ntp.second+" "+ ntp.third+" "+ntp.fourth+" "+ntp.fifth);
-	return vsLevelOutCalculation(svo, targetAlt, ntp.fourth, ntp.fifth, ntp.first, ntp.second, ntp.third, ntp.first).second.z;
+	return vsLevelOutCalculation(svo, targetAlt, ntp.fourth, ntp.fifth, ntp.first, ntp.second, ntp.third, ntp.first).second.z();
 
 }
 
@@ -1168,12 +1168,12 @@ std::pair<Vect3, Velocity> Kinematics::vsLevelOutCalculation(const std::pair<Vec
 	Vect3 s0 = sv0.first;
 	Velocity v0 = sv0.second;
 	double soz = s0.z;
-	double voz = v0.z;
+	double voz = v0.z();
 	std::pair<double, double> vsL = vsLevelOutCalc(soz,voz, targetAlt, a1, a2, t1, t2, t3, t);
 	double nz = vsL.first;
 	double nvs = vsL.second;
 	Velocity nv = v0.mkVs(nvs);
-	Vect3 ns = s0.linear(v0,t).mkZ(nz);
+	Vect3 ns = s0.linear(v0.vect3(),t).mkZ(nz);
 	return std::pair<Vect3, Velocity>(ns,nv);
 }
 
@@ -1227,7 +1227,7 @@ Vect4 Kinematics::minDistBetweenTrk(const Vect3& so, const Velocity& vo, const V
 			minT = t;
 		}
 		Vect3 s = soAtTm.Sub(siAtTm);
-        bool divg = s.dot(vown.Sub(vtraf)) > 0;
+        bool divg = s.dot(vown.Sub(vtraf).vect3()) > 0;
        if (divg) break;
 
 	}
@@ -1286,7 +1286,7 @@ Vect4 Kinematics::minDistBetweenGs(const Vect3& so, const Velocity& vo, const Ve
 	//fpln(" $$$$$$$$$$$$$$$$$$$$ minDistBetweenTrk: step = "+step);
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = Kinematics::gsAccelUntil(so, vo, t, nvo.gs(), gsAccelOwn).first;
-		Vect3 siAtTm = si.linear(vi,t);
+		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		//fpln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 		double dist = soAtTm.Sub(siAtTm).norm();
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
@@ -1338,7 +1338,7 @@ Vect4 Kinematics::minDistBetweenVs(const Vect3& so, const Velocity& vo, const Ve
 	double minT = -1;
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = Kinematics::vsAccelUntil(so, vo, t, nvo.vs(), vsAccelOwn).first;
-		Vect3 siAtTm = si.linear(vi,t);
+		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		//fpln(" $$$$ minDistBetweenVs: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 		double dist = soAtTm.Sub(siAtTm).norm();
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();

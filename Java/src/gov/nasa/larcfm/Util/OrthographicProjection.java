@@ -151,7 +151,7 @@ public final class OrthographicProjection implements EuclideanProjection {
     /** Given a velocity from a point in Euclidean 3-space, return a projection of this velocity.  If toLatLon is true, the velocity is projected into the geodetic coordinate space */
     public Velocity inverseVelocity(Vect3 s, Velocity v, boolean toLatLon){
     	if (toLatLon) {
-    	  Vect3 s2 = s.linear(v,TIME_STEP);
+    	  Vect3 s2 = s.linear(v.vect3(),TIME_STEP);
     	  return GreatCircle.velocity_initial(inverse(s),inverse(s2),TIME_STEP);
     	} else {
     		return v;

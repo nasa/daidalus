@@ -139,7 +139,7 @@ Velocity OrthographicProjection::projectVelocity(const Position& ss, const Veloc
 Velocity OrthographicProjection::inverseVelocity(const Vect3& s, const Velocity& v, bool toLatLon) const {
 	if (toLatLon) {
 		double timeStep = 10.0;
-		Vect3 s2 = s.linear(v,timeStep);
+		Vect3 s2 = s.linear(v.vect3(),timeStep);
 		LatLonAlt lla1 = inverse(s);
 		LatLonAlt lla2 = inverse(s2);
 		Velocity nv = GreatCircle::velocity_initial(lla1,lla2,timeStep);

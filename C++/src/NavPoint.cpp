@@ -283,7 +283,7 @@ Velocity NavPoint::initialVelocity(const NavPoint& s1, const NavPoint& s2) {
 	}
 	double dt = s2.time() - s1.time();
 	if (dt == 0) {
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	} else if (dt > 0) {
 		if (s2.isLatLon()) {
 			return GreatCircle::velocity_initial(s1.p.lla(), s2.p.lla(), dt);
@@ -310,7 +310,7 @@ Velocity NavPoint::finalVelocity(const NavPoint& s1, const NavPoint& s2) {
 	}
 	double dt = s2.time() - s1.time();
 	if (dt == 0) {
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	} else if (dt > 0) {
 		if (s2.isLatLon()) {
 			return GreatCircle::velocity_final(s1.p.lla(), s2.p.lla(), dt);
@@ -338,7 +338,7 @@ Velocity NavPoint::averageVelocity(const NavPoint& s1, const NavPoint& s2) {
 	}
 	double dt = s2.time() - s1.time();
 	if (dt == 0) {
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	} else if (dt > 0) {
 		if (s2.isLatLon()) {
 			return GreatCircle::velocity_average(s1.p.lla(), s2.p.lla(), dt);

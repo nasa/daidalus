@@ -365,7 +365,7 @@ LatLonAlt GreatCircle::linear_gcgs(const LatLonAlt& p1, const LatLonAlt& p2, con
 		return p1;
 	}
 	double f = angle_from_distance(v.gs() * t) / d;
-	return interpolate_impl(p1, p2, d, f, p1.alt() + v.z*t);
+	return interpolate_impl(p1, p2, d, f, p1.alt() + v.z()*t);
 }
 
 LatLonAlt GreatCircle::linear_gc(LatLonAlt p1, LatLonAlt p2, double d) {
@@ -376,7 +376,7 @@ LatLonAlt GreatCircle::linear_gc(LatLonAlt p1, LatLonAlt p2, double d) {
 }
 
 LatLonAlt GreatCircle::linear_rhumb(const LatLonAlt& s, const Velocity& v, double t) {
-	return linear_rhumb_impl(s, v.trk(), GreatCircle::angle_from_distance(v.gs() * t), v.z*t);
+	return linear_rhumb_impl(s, v.trk(), GreatCircle::angle_from_distance(v.gs() * t), v.z()*t);
 }
 
 LatLonAlt GreatCircle::linear_rhumb(const LatLonAlt& s, double track, double dist) {
@@ -508,7 +508,7 @@ bool GreatCircle::gauss_check(double a, double b, double c, double A, double B, 
 
 
 LatLonAlt GreatCircle::linear_initial(const LatLonAlt& s, const Velocity& v, double t) {
-	return linear_initial_impl(s, v.trk(), GreatCircle::angle_from_distance(v.gs() * t), v.z*t);
+	return linear_initial_impl(s, v.trk(), GreatCircle::angle_from_distance(v.gs() * t), v.z()*t);
 }
 
 LatLonAlt GreatCircle::linear_initial(const LatLonAlt& s, double track, double dist) {
@@ -948,16 +948,16 @@ Velocity GreatCircle::velocity_initial(const LatLonAlt& p1, const LatLonAlt& p2,
 	if (std::abs(t) < minDt || Util::almost_equals(std::abs(t) + minDt, minDt,
 			PRECISION7)) {
 		// time is negative or very small (less than 1 ms)
-		return Velocity::ZEROV();
+		return Velocity::ZERO();
 	}
 	double d = angular_distance(p1, p2);
 	if (Constants::almost_equals_radian(d)) {
 		if (Constants::almost_equals_alt(p1.alt(), p2.alt())) {
 			// If the two points are about 1 meter apart, then count them as
 			// the same.
-			return Velocity::ZEROV();
+			return Velocity::ZERO();
 		} else {
-			return Velocity::ZEROV().mkVs((p2.alt() - p1.alt()) / t);
+			return Velocity::ZERO().mkVs((p2.alt() - p1.alt()) / t);
 		}
 	}
 	double gs = GreatCircle::distance_from_angle(d, 0.0) / t;

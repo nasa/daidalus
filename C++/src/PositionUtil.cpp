@@ -55,7 +55,7 @@ namespace larcfm {
 			std::pair<LatLonAlt, double> p = GreatCircle::intersection(so.lla(), vo, si.lla(), vi);
 			return std::pair<Position,double>( Position(p.first), p.second);
 		} else {
-			std::pair<Vect3, double> p = VectFuns::intersection(so.vect3(), vo, si.vect3(), vi);
+			std::pair<Vect3, double> p = VectFuns::intersection(so.vect3(), vo.vect3(), si.vect3(), vi.vect3());
 			return std::pair<Position,double>( Position(p.first), p.second);
 		}
 	}

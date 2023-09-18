@@ -265,9 +265,9 @@ public final class LatLonAlt {
 	 * @return new lat/lon position in direction v0
 	 */
 	public LatLonAlt linearEst(Velocity vo, double tm) {
-		double dn = vo.Scal(tm).y();
-		double de = vo.Scal(tm).x();
-		double nAlt = alti + vo.z*tm;
+		double dn = vo.vect3().Scal(tm).y();
+		double de = vo.vect3().Scal(tm).x();
+		double nAlt = alti + vo.z()*tm;
 		return linearEst(dn,de).mkAlt(nAlt);   
 	}
 

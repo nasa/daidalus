@@ -354,7 +354,7 @@ namespace larcfm {
   }
   
   Velocity StateReader::getVelocity(int ac) const {
-	if (ac < 0 || ac >= size()) return Velocity::ZEROV();
+	if (ac < 0 || ac >= size()) return Velocity::ZERO();
 	return states[ac].velocityLast();
   }
   

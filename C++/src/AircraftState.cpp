@@ -315,7 +315,7 @@ void AircraftState::add(const Position& ss, const Velocity& vv, double tm) {
 
 
 StateVector AircraftState::get(int i) {
-	if (i >= sz || i < 0) return StateVector(Vect3::ZERO(),Velocity::ZEROV(),0.0);
+	if (i >= sz || i < 0) return StateVector(Vect3::ZERO(),Velocity::ZERO(),0.0);
 	updateProjection();
 	return StateVector(Vect3(projS2[i], projH[i]), Velocity::mkVxyz(projV2[i].x, projV2[i].y, projVZ[i]), time(i));
 }
@@ -366,7 +366,7 @@ const Position& AircraftState::position(int i) const {
 }
 
 const Velocity& AircraftState::velocity(int i) const {
-	if (i >= sz || i < 0) return Velocity::ZEROV();
+	if (i >= sz || i < 0) return Velocity::ZERO();
 	return v_list[ext2int(i)];
 }
 
@@ -437,11 +437,11 @@ void AircraftState::updateProjection() {
 			if (AircraftState::projectVelocity) {
 				Velocity v = sp.projectVelocity(s, velocity(j));
 				projV2[j] = v.vect2();
-				projVZ[j] = v.z;
+				projVZ[j] = v.z();
 			} else {
 				Velocity v = velocity(j); // sp.projectVelocity(s, velocity(j));
 				projV2[j] = v.vect2(); // sp.projectVelocity(s, velocity(j));
-				projVZ[j] = v.z;
+				projVZ[j] = v.z();
 			}
 			projT[j] = time(j);
 		}
@@ -452,7 +452,7 @@ void AircraftState::updateProjection() {
 			projH[j] = s.alt();
 			Velocity v = velocity(j);
 			projV2[j] = v.vect2();
-			projVZ[j] = v.z;
+			projVZ[j] = v.z();
 			projT[j] = time(j);
 		}
 	}
@@ -563,7 +563,7 @@ StateVector AircraftState::predLinear(double t) {
 		error.addWarning("predLinear: no data points before time");
 	}
 	pair<Vect3,Velocity> vv = get(i).pair();
-	return StateVector(vv.first.AddScal(dt, vv.second), vv.second, t);
+	return StateVector(vv.first.AddScal(dt, vv.second.vect3()), vv.second, t);
 }
 
 Position AircraftState::positionLinear(double t) const {
@@ -586,7 +586,7 @@ Velocity AircraftState::velocityAt(double t) const {
 	}
 	if (time(i) > t) {
 		error.addWarning("velocity: no data points before time");
-		return Velocity::INVALIDV();
+		return Velocity::INVALID();
 	}
 	return velocity(i);
 }
@@ -610,7 +610,7 @@ bool AircraftState::inLevelFlight() {
 	} else {
 		vonl = get(point-1).v();
 	}
-	return std::abs(vol.z) < minClimbVelocity && std::abs(vonl.z) < minClimbVelocity;
+	return std::abs(vol.z()) < minClimbVelocity && std::abs(vonl.z()) < minClimbVelocity;
 }
 
 bool AircraftState::closeEnough(Velocity v1, Velocity v2) {
@@ -742,7 +742,7 @@ void AircraftState::prune() {
 	//f.pln("prune: initially, start = "+oldest+" size = " + sz);
 	if (sz < 2)
 		return;
-	double baseAccel = (velocity(sz-1).z - velocity(sz - 2).z) / (time(sz-1) - time(sz - 2));
+	double baseAccel = (velocity(sz-1).z() - velocity(sz - 2).z()) / (time(sz-1) - time(sz - 2));
 	//f.pln(" baseAccel = " + baseAccel);
 	int largestPruned = -1;  // relative index
 	lastV = velocity(0);
@@ -750,7 +750,7 @@ void AircraftState::prune() {
 	for (int i = 1; i < sz; i++) {
 		//f.pln("!! s = " + s(i) + "  v =" + v(i) + " t = " + t(i));
 		double delT = time(i) - lastT;
-		double accel = (velocity(i).z - lastV.z) / delT;
+		double accel = (velocity(i).z() - lastV.z()) / delT;
 		lastV = velocity(i);
 		lastT = time(i);
 		//f.pln("!! for i = "+i+" accel = " + accel);
