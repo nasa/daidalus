@@ -689,46 +689,6 @@ LatLonAlt GreatCircle::closest_point_circle(const LatLonAlt& p1, const LatLonAlt
 	return LatLonAlt::INVALID(); // weird triangle
 }
 
-
-
-//LatLonAlt GreatCircle::closest_point_segment(const LatLonAlt& p1, const LatLonAlt& p2, const LatLonAlt& x) {
-//	double a = angular_distance(x,p2);
-//	double b = angular_distance(p1,p2);
-//	double c = angular_distance(p1,x);
-//	double A = angle_between(p2,p1,x);
-//	double B = angle_between(p1,x,p2);
-//	double C = angle_between(x,p2,p1);
-//
-//	// collinear
-//	if (Util::within_epsilon(A, 0.000001) || Util::within_epsilon(C, 0.000001) || Util::within_epsilon(M_PI-A, 0.000001) || Util::within_epsilon(M_PI-C, 0.000001)) {
-////		if (Util::almost_equals(A, 0.0) || Util::almost_equals(C, 0.0) || Util::almost_equals(A, Math.PI) || Util::almost_equals(C, Math.PI)) {
-//		if (b >= a && b >= c) {
-//			return x;
-//		} else if (a >= b && a >= c) {
-//			return p1;
-//		} else {
-//			return p2;
-//		}
-//	}
-//
-//	if (A <= M_PI/2 && C <= M_PI/2) {
-//		//   B
-//		//  / \
-//		// A---C
-//		return closest_point_circle(p1,p2,x,a,b,c,A,B,C);
-//	} else if (A <= M_PI/2 && C > M_PI/2) {
-//		//    -- B
-//		//  /   /
-//		// A---C
-//		return p2;
-//	} else {
-//		// B--
-//		//  \   \
-//		//   A---C
-//		return p1;
-//	}
-//}
-
 /**
  * Given two great circles defined by a1,a2 and b1,b2, return the intersection poin that is closest a1.  Use LatLonAlt.antipode() to get the other value.
  * This assumes that the arc distance between a1,a2 < 90 and b1,b2 < 90
