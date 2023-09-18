@@ -349,10 +349,10 @@ double DaidalusCore::minVerticalRecovery() const {
   return TCASTable::TCASII_RA().getZTHR(sl);
 }
 
-void DaidalusCore::set_ownship_state(const std::string& id, const Position& pos, const Velocity& vel, double time) {
+void DaidalusCore::set_ownship_state(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel, double time) {
   traffic.clear();
-  ownship = TrafficState::makeOwnship(id,pos,vel);
-  ownship.applyWindVector(wind_vector);
+  ownship = TrafficState::makeOwnship(id,pos,vel,airvel);
+  wind_vector = ownship.windVector();
   current_time = time;
   stale();
 }
@@ -418,6 +418,18 @@ bool DaidalusCore::remove_traffic(int idx) {
     return true;
   }
   return false;
+}
+
+void DaidalusCore::set_ownship_airvelocity(double heading, double airspeed) {
+	if (has_ownship()) {
+		ownship.resetAirVelocity(Velocity::mkTrkGsVs(heading,airspeed,ownship.verticalSpeed()));
+		wind_vector = ownship.windVector();
+    std::vector<TrafficState>::iterator ac_ptr;
+    for (ac_ptr=traffic.begin();ac_ptr != traffic.end(); ++ac_ptr) {
+			ac_ptr->applyWindVector(wind_vector);
+		}
+		stale();
+	}
 }
 
 void DaidalusCore::set_wind_velocity(const Velocity& wind) {

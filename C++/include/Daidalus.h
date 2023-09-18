@@ -195,12 +195,22 @@ public:
    * @param id Ownship's identifier
    * @param pos Ownship's position
    * @param vel Ownship's ground velocity
+   * @param airvel Ownship's air velocity
+   * @param time Time stamp of ownship's state
+   */
+  void setOwnshipState(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel, double time);
+
+  /**
+   * Set ownship state and current time. Clear all traffic and assume previous wind.
+   * @param id Ownship's identifier
+   * @param pos Ownship's position
+   * @param vel Ownship's ground velocity
    * @param time Time stamp of ownship's state
    */
   void setOwnshipState(const std::string& id, const Position& pos, const Velocity& vel, double time);
 
   /**
-   * Set ownship state at time 0.0. Clear all traffic.
+   * Set ownship state at time 0.0. Clear all traffic and assume previous wind.
    * @param id Ownship's identifier
    * @param pos Ownship's position
    * @param vel Ownship's ground velocity
@@ -208,10 +218,12 @@ public:
   void setOwnshipState(const std::string& id, const Position& pos, const Velocity& vel);
 
   /**
-   * Add traffic state at given time.
+   * Add traffic state at given time. Assume previous wind.
    * If time is different from current time, traffic state is projected, past or future,
    * into current time. If it's the first aircraft, this aircraft is
-   * set as the ownship.
+   * set as the ownship. If a traffic state with the same id already exists,
+	 * the traffic state is overwritten. If id is ownship's, nothing is done and 
+	 * the value -1 is returned. 
    * @param id Aircraft's identifier
    * @param pos Aircraft's position
    * @param vel Aircraft's ground velocity
@@ -293,6 +305,31 @@ public:
 
   /* Wind Setting */
 
+	/**
+	 * Get ownship's heading in internal units [0-2PI]
+	 */
+	double getOwnshipHeading() const;
+
+  /**
+	 * Get ownship's heading in given units [0-2PI]
+	 */
+  double getOwnshipHeading(const std::string& units) const;
+  
+  /**
+	 * Get ownship's air speed in internal units [m/s]
+	 */
+	double getOwnshipAirSpeed() const;
+
+  /**
+	 * Get ownship's air apeed in given units 
+	 */
+	double getOwnshipAirSpeed(const std::string& units) const;
+
+  /**
+	 * Set ownship's air velocity. This method resets the wind setting and the air velocity of all traffic aircraft.
+	 */
+	void setOwnshipAirVelocity(double heading, double airspeed);
+  
   /**
    * Get wind velocity specified in the TO direction
    */

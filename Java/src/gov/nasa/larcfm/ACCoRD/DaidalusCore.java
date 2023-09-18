@@ -378,10 +378,10 @@ public class DaidalusCore {
 		return TCASTable.TCASII_RA.getZTHR(sl);
 	}
 
-	public void set_ownship_state(String id, Position pos, Velocity vel, double time) {
+	public void set_ownship_state(String id, Position pos, Velocity vel, Velocity airvel, double time) {
 		traffic.clear();
-		ownship = TrafficState.makeOwnship(id,pos,vel);
-		ownship.applyWindVector(wind_vector);
+		ownship = TrafficState.makeOwnship(id,pos,vel,airvel);
+		wind_vector = ownship.windVector();
 		current_time = time;
 		stale(); 
 	}
@@ -449,6 +449,17 @@ public class DaidalusCore {
 			return true;
 		}
 		return false;
+	}
+
+	public void set_ownship_airvelocity(double heading, double airspeed) {
+		if (has_ownship()) {
+			ownship.resetAirVelocity(Velocity.mkTrkGsVs(heading,airspeed,ownship.verticalSpeed()));
+			wind_vector = ownship.windVector();
+			for (TrafficState ac : traffic) {
+				ac.applyWindVector(wind_vector);
+			}
+			stale();
+		}
 	}
 
 	public void set_wind_velocity(Velocity wind) {
@@ -676,7 +687,7 @@ public class DaidalusCore {
 	public static int epsilonV(TrafficState ownship, TrafficState ac) {
 		if (ownship.isValid() && ac.isValid()) {
 			Vect3 s = ownship.get_s().Sub(ac.get_s());
-			return CriteriaCore.verticalCoordinationLoS(s,ownship.get_v(),ac.get_v(),
+			return CriteriaCore.verticalCoordinationLoS(s,ownship.get_v().vect3(),ac.get_v().vect3(),
 					ownship.getId(), ac.getId());
 		} else {
 			return 0;

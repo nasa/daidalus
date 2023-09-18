@@ -34,16 +34,16 @@ const TrafficState& TrafficState::INVALID() {
   return tmp;
 }
 
-TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel) :
+TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel) :
                                     id_(id),
                                     pos_(pos),
                                     gvel_(vel),
-                                    avel_(vel),
+                                    avel_(airvel),
                                     eprj_(Projection::createProjection(Position::ZERO_LL())),
                                     alerter_(1),
                                     posxyz_(pos),
                                     sxyz_(pos.vect3()),
-                                    velxyz_(vel) {}
+                                    velxyz_(airvel) {}
 
 TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel, EuclideanProjection eprj, int alerter) :
                                     id_(id),
@@ -64,12 +64,21 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
   }
 }
 
-// Set air velocity to new_avel
-void TrafficState::setAirVelocity(const Velocity& new_avel) {
+// Set air velocity to new_avel. This method sets ground speed appropriately based on current wind
+void TrafficState::setAirVelocity(const Velocity& airvel) {
   Velocity wind = windVector();
-  avel_ = new_avel;
-  gvel_ = Velocity(new_avel.Add(wind));
+  avel_ = airvel;
+  gvel_ = Velocity(airvel.Add(wind));
   applyEuclideanProjection();
+}
+
+/**
+  * Reset air velocity.  
+	* @param airvel New air velocity
+	*/
+void TrafficState::resetAirVelocity(const Velocity& airvel) {
+  avel_ = airvel;
+	applyEuclideanProjection();
 }
 
 // Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
@@ -105,8 +114,8 @@ void TrafficState::setAsOwnship() {
   }
 }
 
-TrafficState TrafficState::makeOwnship(const std::string& id, const Position& pos, const Velocity& vel) {
-  TrafficState ac = TrafficState(id,pos,vel);
+TrafficState TrafficState::makeOwnship(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel) {
+  TrafficState ac = TrafficState(id,pos,vel,airvel);
   ac.setAsOwnship();
   return ac;
 }
@@ -135,11 +144,7 @@ int TrafficState::getAlerterIndex() const {
 
 void TrafficState::applyWindVector(const Velocity& wind_vector) {
   avel_ = Velocity(gvel_.Sub(wind_vector));
-  if (isLatLon()) {
-    applyEuclideanProjection();
-  } else {
-    velxyz_ = avel_;
-  }
+  applyEuclideanProjection();
 }
 
 Velocity TrafficState::windVector() const {

@@ -205,7 +205,7 @@ void DaidalusFileWalker::readExtraColumns(Daidalus& daa, const SequenceReader& s
 			if (pcol.contains("heading") && pcol.contains("airspeed")) {
 				double heading = pcol.getValue("heading");
 				double airspeed = pcol.getValue("airspeed");
-				//daa.setOwnshipAirVelocity(heading,airspeed);
+				daa.setOwnshipAirVelocity(heading,airspeed);
 			}
 		}   
     if (pcol.contains("alerter")) {

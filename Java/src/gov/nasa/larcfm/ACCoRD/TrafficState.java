@@ -21,7 +21,7 @@ public class TrafficState {
 
 	private final String id_;
 	private Position pos_;
-	private Velocity gvel_; // Ground velocity
+	private Velocity gvel_; 	  // Ground velocity
 	private Velocity avel_;       // Air velocity
 	private EuclideanProjection eprj_; // Projection 
 	private int alerter_;         // Index to alert levels used by this aircraft
@@ -53,15 +53,16 @@ public class TrafficState {
 	 * @param id Aircraft's identifier
 	 * @param pos Aircraft's position 
 	 * @param vel Aircraft's ground velocity
+	 * @param airvel Aircraft's air velocity
 	 */
-	private TrafficState(String id, Position pos, Velocity vel) {
+	private TrafficState(String id, Position pos, Velocity vel, Velocity airvel) {
 		id_ = id;
 		pos_ = pos;
 		gvel_ = vel;
-		avel_ = vel;
+		avel_ = airvel;
 		posxyz_ = pos;
 		sxyz_ = pos.vect3();
-		velxyz_ = vel;
+		velxyz_ = airvel;
 		eprj_ = Projection.createProjection(Position.ZERO_LL);
 		alerter_ = 1;
 		sum_ = new SUMData();
@@ -108,11 +109,20 @@ public class TrafficState {
 		sum_ = new SUMData(ac.sum_);
 	}
 
-	// Set air velocity to new_avel
-	public void setAirVelocity(Velocity new_avel) {
+	// Set air velocity to airvel. This method sets ground speed appropriately based on current wind
+	public void setAirVelocity(Velocity airvel) {
 		Velocity wind = windVector();
-		avel_ = new_avel;
-		gvel_ = new_avel.Add(wind);
+		avel_ = airvel;
+		gvel_ = airvel.Add(wind);
+		applyEuclideanProjection();
+	}
+
+	/**
+	 * Reset air velocity.  
+	 * @param airvel New air velocity
+	 */
+	public void resetAirVelocity(Velocity airvel) {
+		avel_ = airvel;
 		applyEuclideanProjection();
 	}
 
@@ -154,10 +164,11 @@ public class TrafficState {
 	 * @param id Ownship's identifier
 	 * @param pos Ownship's position
 	 * @param vel Ownship's ground velocity
+	 * @param airvel Ownship's air velocity
 	 */
 
-	public static TrafficState makeOwnship(String id, Position pos, Velocity vel) {
-		TrafficState ac = new TrafficState(id,pos,vel);
+	public static TrafficState makeOwnship(String id, Position pos, Velocity vel, Velocity airvel) {
+		TrafficState ac = new TrafficState(id,pos,vel,airvel);
 		ac.setAsOwnship();
 		return ac;
 	}
@@ -207,11 +218,7 @@ public class TrafficState {
 	 */
 	public void applyWindVector(Velocity wind_vector) {
 		avel_ = gvel_.Sub(wind_vector);
-		if (isLatLon()) {
-			applyEuclideanProjection();
-		} else {
-			velxyz_ = avel_;
-		}  
+		applyEuclideanProjection();
 	}
 
 	/**
@@ -361,7 +368,7 @@ public class TrafficState {
 
 	public String toPVS() {
 		return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
-				", v:= "+get_v().toPVS()+", alerter:= "+alerter_+
+				", v:= "+get_v().vect3().toPVS()+", alerter:= "+alerter_+
 				", unc := (# s_EW_std:= "+f.FmPrecision(sum_.get_s_EW_std())+
 				", s_NS_std:= "+f.FmPrecision(sum_.get_s_NS_std())+
 				", s_EN_std:= "+f.FmPrecision(sum_.get_s_EN_std())+

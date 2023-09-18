@@ -15,7 +15,6 @@ import gov.nasa.larcfm.Util.Velocity;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class DaidalusFileWalker implements ErrorReporter {
 
 	private SequenceReader sr_;
@@ -214,7 +213,16 @@ public class DaidalusFileWalker implements ErrorReporter {
 	public static void readExtraColumns(Daidalus daa, SequenceReader sr, int ac_idx) {
 		ParameterData pcol = extraColumnsToParameters(sr,daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
 		if (pcol.size() > 0) {
-			daa.setParameterData(pcol);
+			if (ac_idx == 0) {
+				// Note that daidalus parameters (in column format) and air velocity are ignored for traffic aircraft
+				// The index of the aircraft below is the index in daa
+				daa.setParameterData(pcol);
+				if (pcol.contains("heading") && pcol.contains("airspeed")) {
+					double heading = pcol.getValue("heading");
+					double airspeed = pcol.getValue("airspeed");
+					daa.setOwnshipAirVelocity(heading,airspeed);
+				}
+			}
 			if (pcol.contains("alerter")) {
 				daa.setAlerterIndex(ac_idx,pcol.getInt("alerter"));
 			}

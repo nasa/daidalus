@@ -43,8 +43,14 @@ public:
 
   static const TrafficState& INVALID();
 
-  // Set air velocity to new_avel
-  void setAirVelocity(const Velocity &new_avel);
+  // Set air velocity to new_avel. This method sets ground speed appropriately based on current wind
+  void setAirVelocity(const Velocity &airvel);
+
+  /**
+	 * Reset air velocity.  
+	 * @param airvel New air velocity
+	 */
+  void resetAirVelocity(const Velocity &airvel); 
 
   // Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
   // the resulting aircraft is considered as another intruder.
@@ -56,8 +62,9 @@ private:
    * @param id Aircraft's identifier
    * @param pos Aircraft's position
    * @param vel Aircraft's ground velocity
+   * @param airvel Aircraft's air velocity
    */
-  TrafficState(const std::string& id, const Position& pos, const Velocity& vel);
+  TrafficState(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel);
 
   /**
    * Create a traffic state
@@ -87,9 +94,10 @@ public:
    * @param id Ownship's identifier
    * @param pos Ownship's position
    * @param vel Ownship's ground velocity
+   * @param airvel Ownship's air velocity
    */
 
-  static TrafficState makeOwnship(const std::string& id, const Position& pos, const Velocity& vel);
+  static TrafficState makeOwnship(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel);
 
   /**
    * Set aircraft as intruder of ownship

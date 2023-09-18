@@ -180,7 +180,7 @@ public:
    */
   double minVerticalRecovery() const;
 
-  void set_ownship_state(const std::string& id, const Position& pos, const Velocity& vel, double time);
+  void set_ownship_state(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel, double time);
 
   // Return 0-based index in traffic list (-1 if aircraft doesn't exist)
   int find_traffic_state(const std::string& id) const;
@@ -194,6 +194,8 @@ public:
   // idx is 0-based index in traffic list
   bool remove_traffic(int idx);
 
+  void set_ownship_airvelocity(double heading, double airspeed);
+  
   void set_wind_velocity(const Velocity& wind);
 
   bool linear_projection(double offset);

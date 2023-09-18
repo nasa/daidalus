@@ -260,22 +260,35 @@ const TrafficState& Daidalus::getAircraftStateAt(int idx) const {
  * @param id Ownship's identifier
  * @param pos Ownship's position
  * @param vel Ownship's ground velocity
+ * @param airvel Ownship's air velocity
  * @param time Time stamp of ownship's state
  */
-void Daidalus::setOwnshipState(const std::string& id, const Position& pos, const Velocity& vel, double time) {
+void Daidalus::setOwnshipState(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel, double time) {
   if (!hasOwnship() || !equals(core_.ownship.getId(),id) ||
       time < getCurrentTime() ||
       time-getCurrentTime() > getHysteresisTime()) {
     // Full reset (including hysteresis) if adding a different ownship or time is
     // in the past. Note that wind is not clear.
     clearHysteresis();
-    core_.set_ownship_state(id,pos,vel,time);
+    core_.set_ownship_state(id,pos,vel,airvel,time);
   } else {
     // Otherwise, reset cache values but keeps hysteresis.
-    core_.set_ownship_state(id,pos,vel,time);
+    core_.set_ownship_state(id,pos,vel,airvel,time);
     stale_bands();
   }
 }
+
+/**
+  * Set ownship state and current time. Clear all traffic and assume previous wind.
+  * @param id Ownship's identifier
+  * @param pos Ownship's position
+  * @param vel Ownship's ground velocity
+  * @param time Time stamp of ownship's state
+  */
+void Daidalus::setOwnshipState(const std::string& id, const Position& pos, const Velocity& vel, double time) {
+  setOwnshipState(id,pos,vel,vel.Sub(core_.wind_vector),time);
+}
+
 
 /**
  * Set ownship state at time 0.0. Clear all traffic.
@@ -288,10 +301,12 @@ void Daidalus::setOwnshipState(const std::string& id, const Position& pos, const
 }
 
 /**
- * Add traffic state at given time.
+ * Add traffic state at given time. Assume previous wind.
  * If time is different from current time, traffic state is projected, past or future,
  * into current time. If it's the first aircraft, this aircraft is
- * set as the ownship.
+ * set as the ownship. If a traffic state with the same id already exists,
+ * the traffic state is overwritten. If id is ownship's, nothing is done and 
+ * the value -1 is returned. 
  * @param id Aircraft's identifier
  * @param pos Aircraft's position
  * @param vel Aircraft's ground velocity
@@ -436,6 +451,42 @@ double Daidalus::getCurrentTime(const std::string& u) const {
 }
 
 /* Wind Setting */
+
+/**
+	* Get ownship's heading in internal units [0-2PI]
+	*/
+double Daidalus::getOwnshipHeading() const {
+  return core_.ownship.horizontalDirection();
+}
+
+/**
+	* Get ownship's heading in given units [0-2PI]
+	*/
+double Daidalus::getOwnshipHeading(const std::string& units) const {
+  return core_.ownship.horizontalDirection(units);
+}
+  
+/**
+	* Get ownship's air speed in internal units [m/s]
+	*/
+double Daidalus::getOwnshipAirSpeed() const {
+  return core_.ownship.horizontalSpeed();
+}
+
+/**
+	* Get ownship's air apeed in given units 
+	*/
+double Daidalus::getOwnshipAirSpeed(const std::string& units) const {
+  return core_.ownship.horizontalSpeed(units);
+}
+
+/**
+	* Set ownship's air velocity. This method resets the wind setting and the air velocity of all traffic aircraft.
+	*/
+void Daidalus::setOwnshipAirVelocity(double heading, double airspeed) {
+	core_.set_ownship_airvelocity(heading,airspeed);
+	stale_bands();
+}
 
 /**
  * Get wind velocity specified in the TO direction
