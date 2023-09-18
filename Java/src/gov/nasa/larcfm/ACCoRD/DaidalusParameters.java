@@ -33,7 +33,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.3";
+	public static final String VERSION = "2.0.4";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
@@ -54,14 +54,16 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 	// Bands
 	private double lookahead_time_; // [s] Lookahead time
-	private double left_hdir_;  // Left horizontal direction [0 - pi]
-	private double right_hdir_; // Right horizontal direction [0 - pi]
-	private double min_hs_;     // Minimum horizontal speed
-	private double max_hs_;     // Maximum horizontal speed
-	private double min_vs_;     // Minimum vertical speed 
-	private double max_vs_;     // Maximum vertical speed
-	private double min_alt_;    // Minimum altitude
-	private double max_alt_;    // Maximum altitude
+	private double left_hdir_;      // Left horizontal direction [0 - pi]
+	private double right_hdir_;     // Right horizontal direction [0 - pi]
+	private double min_airspeed_;   // Minimum airspeed for calculation of horizontal direction bands
+	private double min_hs_;         // Minimum horizontal speed
+	private double max_hs_;         // Maximum horizontal speed
+	private double min_vs_;         // Minimum vertical speed
+	private double max_vs_;         // Maximum vertical speed
+	private double min_alt_;        // Minimum altitude// Maximum altitude
+
+	private double max_alt_;        // Maximum altitude
 
 	// Relative bands
 	// The following values specify above and below values for the computation of bands 
@@ -198,6 +200,9 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			right_hdir_ = Units.from("deg",180.0);
 			units_.put("right_hdir","deg");
 
+			min_airspeed_  = Units.from("knot",10.0);  
+			units_.put("min_airspeed","knot");
+			
 			min_hs_  = Units.from("knot",10.0);  
 			units_.put("min_hs","knot");
 
@@ -378,6 +383,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			lookahead_time_ = parameters.lookahead_time_;
 			left_hdir_ = parameters.left_hdir_;
 			right_hdir_ = parameters.right_hdir_;
+			min_airspeed_ = parameters.min_airspeed_;   
 			min_hs_ = parameters.min_hs_;   
 			max_hs_ = parameters.max_hs_;   
 			min_vs_ = parameters.min_vs_;   
@@ -586,12 +592,26 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/** 
+		 * @return minimum airspeed speed in internal units [m/s].
+		 */
+		public double getMinAirSpeed() {
+			return min_airspeed_;
+		}
+
+		/** 
+		 * @return minimum air speed in specified units [u].
+		 */
+		public double getMinAirSpeed(String u) {
+			return Units.to(u,getMinAirSpeed());
+		}
+		
+		/** 
 		 * @return minimum horizontal speed in internal units [m/s].
 		 */
 		public double getMinHorizontalSpeed() {
 			return min_hs_;
 		}
-
+		
 		/** 
 		 * @return minimum horizontal speed in specified units [u].
 		 */
@@ -1142,6 +1162,30 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/** 
+		 * Set minimum air speed to value in internal units [m/s].
+		 * Minimum air speed must be greater or equal than min horizontal speed.
+		 */
+		public boolean setMinAirSpeed(double val) {
+			if (error.isNonNegative("setMinAirSpeed",val)) {
+				min_airspeed_ = val;
+				return true;
+			}
+			return false;
+		}
+
+		/** 
+		 * Set minimum air speed to value in specified units [u].
+		 * Minimum air speed must be greater or equal than min horizontal speed.
+		 */
+		public boolean setMinAirSpeed(double val, String u) {		
+			if (setMinAirSpeed(Units.from(u,val))) {
+				units_.put("min_airspeed",u);
+				return true;
+			}
+			return false;
+		}
+		
+		/** 
 		 * Set minimum horizontal speed to value in internal units [m/s].
 		 * Minimum horizontal speed must be greater than horizontal speed step.
 		 */
@@ -1152,7 +1196,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			}
 			return false;
 		}
-
+		
 		/** 
 		 * Set minimum horizontal speed to value in specified units [u].
 		 * Minimum horizontal speed must be greater than horizontal speed step.
@@ -2671,6 +2715,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			s+="lookahead_time := "+f.FmPrecision(lookahead_time_)+", ";
 			s+="left_hdir := "+f.FmPrecision(left_hdir_)+", ";
 			s+="right_hdir := "+f.FmPrecision(right_hdir_)+", ";
+			s+="min_airspeed := "+f.FmPrecision(min_airspeed_)+", ";
 			s+="min_hs := "+f.FmPrecision(min_hs_)+", ";
 			s+="max_hs := "+f.FmPrecision(max_hs_)+", ";
 			s+="min_vs := "+f.FmPrecision(min_vs_)+", ";
@@ -2762,6 +2807,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			p.updateComment("lookahead_time","Bands Parameters");
 			p.setInternal("left_hdir", left_hdir_, getUnitsOf("left_hdir"));
 			p.setInternal("right_hdir", right_hdir_, getUnitsOf("right_hdir"));
+			p.setInternal("min_airspeed", min_airspeed_, getUnitsOf("min_airspeed"));
 			p.setInternal("min_hs", min_hs_, getUnitsOf("min_hs"));
 			p.setInternal("max_hs", max_hs_, getUnitsOf("max_hs"));
 			p.setInternal("min_vs", min_vs_, getUnitsOf("min_vs"));
@@ -2940,6 +2986,11 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 				units_.put("right_hdir",getUnit(p,"right_hdir"));
 				setit = true;
 			}
+			if (contains(p,"min_airspeed")) { 
+				setMinAirSpeed(getValue(p,"min_airspeed"));
+				units_.put("min_airspeed",getUnit(p,"min_airspeed"));
+				setit = true;
+			} 
 			if (contains(p,"min_hs")) { 
 				setMinHorizontalSpeed(getValue(p,"min_hs"));
 				units_.put("min_hs",getUnit(p,"min_hs"));

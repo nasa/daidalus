@@ -27,15 +27,16 @@ private:
   ErrorLog error;
 
   // Bands
-  double lookahead_time_;
-  double left_hdir_;
-  double right_hdir_;
-  double min_hs_;
-  double max_hs_;
-  double min_vs_;
-  double max_vs_;
-  double min_alt_;
-  double max_alt_;
+  double lookahead_time_; // [s] Lookahead time
+  double left_hdir_;      // Left horizontal direction [0 - pi]
+  double right_hdir_;     // Right horizontal direction [0 - pi]
+  double min_airspeed_;   // Minimum airspeed for calculation of horizontal direction bands
+  double min_hs_;         // Minimum horizontal speed
+  double max_hs_;         // Maximum horizontal speed
+  double min_vs_;         // Minimum vertical speed
+  double max_vs_;         // Maximum vertical speed
+  double min_alt_;        // Minimum altitude
+  double max_alt_;        // Maximum altitude
 
   // Relative bands
   // The following values specify above and below values for the computation of bands
@@ -206,6 +207,16 @@ public:
 
   double getRightHorizontalDirection(const std::string& u) const;
 
+  /** 
+		* @return minimum airspeed speed in internal units [m/s].
+		*/
+  double getMinAirSpeed() const;
+
+  /** 
+		* @return minimum air speed in specified units [u].
+		*/
+  double getMinAirSpeed(const std::string& u) const;
+
   double getMinHorizontalSpeed() const;
 
   double getMinHorizontalSpeed(const std::string& u) const;
@@ -370,6 +381,18 @@ public:
 
   bool setRightHorizontalDirection(double val, const std::string& u);
 
+	/** 
+   * Set minimum air speed to value in internal units [m/s].
+   * Minimum air speed must be greater or equal than min horizontal speed.
+   */
+	bool setMinAirSpeed(double val);
+
+  /** 
+   * Set minimum air speed to value in specified units [u].
+   * Minimum air speed must be greater or equal than min horizontal speed.
+   */
+	bool setMinAirSpeed(double val, const std::string& u);
+    
   bool setMinHorizontalSpeed(double val);
 
   bool setMinHorizontalSpeed(double val, const std::string& u);
