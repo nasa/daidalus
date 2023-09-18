@@ -24,7 +24,7 @@ bool DaidalusIntegerBands::CD_future_traj(const Detection3D* det, double B, doub
   std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
   Vect3 sot = sovot.first;
   Velocity vot = sovot.second;
-  Vect3 sat = tsk == 0.0 ? sot : vot.ScalAdd(-tsk,sot);
+  Vect3 sat = tsk == 0.0 ? sot : vot.vect3().ScalAdd(-tsk,sot);
   TrafficState own = ownship;
   own.setPosition(Position(sat));
   own.setAirVelocity(vot);
@@ -56,7 +56,7 @@ bool DaidalusIntegerBands::LOS_at(const Detection3D* det, bool trajdir, double t
   std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
   Vect3 sot = sovot.first;
   Velocity vot = sovot.second;
-  Vect3 sat = vot.ScalAdd(-tsk,sot);
+  Vect3 sat = vot.vect3().ScalAdd(-tsk,sot);
   TrafficState own = ownship;
   own.setPosition(Position(sat));
   own.setAirVelocity(vot);
@@ -72,7 +72,7 @@ bool DaidalusIntegerBands::LOS_at_coast(const Detection3D* det, bool trajdir, do
 	std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 	Vect3 sot = sovot.first;
 	Velocity vot = sovot.second;
-	Vect3 sat = vot.ScalAdd(-tsk,sot);
+	Vect3 sat = vot.vect3().ScalAdd(-tsk,sot);
 	TrafficState own = ownship;
 	own.setPosition(Position(sat));
 	own.setAirVelocity(vot);
@@ -238,9 +238,9 @@ bool DaidalusIntegerBands::kinematic_vert_repul_at(double tstep, bool trajdir, i
   }
   std::pair<Vect3,Velocity> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
   Vect3 so = sovo.first;
-  Vect3 vo = sovo.second;
+  Vect3 vo = sovo.second.vect3();
   Vect3 si = traffic.get_s();
-  Vect3 vi = traffic.get_v();
+  Vect3 vi = traffic.get_v().vect3();
   bool rep = true;
   if (k==1) {
     rep = CriteriaCore::vertical_new_repulsive_criterion(so.Sub(si),vo,vi,kinematic_linvel(parameters,ownship,tstep,trajdir,0),epsv);
@@ -248,7 +248,7 @@ bool DaidalusIntegerBands::kinematic_vert_repul_at(double tstep, bool trajdir, i
   if (rep) {
     std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
     Vect3 sot = sovot.first;
-    Vect3 vot = sovot.second;
+    Vect3 vot = sovot.second.vect3();
     Vect3 sit = vi.ScalAdd(k*tstep,si);
     Vect3 st = sot.Sub(sit);
     Vect3 vop = kinematic_linvel(parameters,ownship,tstep,trajdir,k-1);
@@ -323,7 +323,7 @@ bool DaidalusIntegerBands::no_instantaneous_conflict(const Detection3D* conflict
   Vect3 s = so.Sub(si);
   return
       (!usehcrit || CriteriaCore::horizontal_new_repulsive_criterion(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),epsh)) &&
-      (!usevcrit || CriteriaCore::vertical_new_repulsive_criterion(s,vo,vi,nvo,epsv)) &&
+      (!usevcrit || CriteriaCore::vertical_new_repulsive_criterion(s,vo.vect3(),vi.vect3(),nvo.vect3(),epsv)) &&
       no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,0.0,parameters,ownship,traffic,target_step,true);
 }
 

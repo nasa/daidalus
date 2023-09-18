@@ -187,7 +187,7 @@ public class CriteriaCore {
 	// from PVS
 	public static boolean criterion_3D(Vect3 sp, Velocity v, int epsH, int epsV, Velocity nv, double D, double H) {
 		return (Horizontal.horizontal_sep(sp.vect2(),D) && horizontal_criterion_0(sp.vect2(),epsH,nv.vect2(),D)) ||
-				(vertical_criterion(epsV,sp,v,nv,D,H) &&
+				(vertical_criterion(epsV,sp,v.vect3(),nv.vect3(),D,H) &&
 						(horizontal_los(sp.vect2(),D) || 
 								horizontal_criterion_0(sp.vect2(),epsH,(nv.Sub(v)).vect2(),D)));
 	}
@@ -295,27 +295,6 @@ public class CriteriaCore {
 
 	public static void print_horizontal_los_terms_SI(Vect3 s,  Vect3 vo, Vect3 vi, Vect3 nvo, int eps) {
 		print_horizontal_los_terms_SI(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),eps);
-	}
-
-	// for debugging 
-	public static void print_horizontal_los_terms(Vect2 s,  Vect2 vo, Vect2 vi, Vect2 nvo, int eps) {
-		Vect2 v = vo.Sub(vi);
-		Vect2 nv = nvo.Sub(vi);
-		boolean rtn = eps*s.det(v) <= 0 && eps*s.det(nv) <= 0 
-				&& (((s.dot(v) < 0 &&  eps*nv.det(v) < 0))
-						|| (s.dot(v) >= 0 && s.dot(nv) > s.dot(v)));
-		f.pln("#### repulsiveCriteria, nvo = "+nvo+" vo = "+vo+" vi = "+vi);
-		f.pln("#### repulsiveCriteria: s = "+f.sStr(s)+" eps*s.det(v) <= 0 = "+(eps*s.det(v) <= 0)+" eps*s.det(nv) <= 0 = "+(eps*s.det(nv) <= 0));
-		f.pln("#### repulsiveCriteria: s.dot(v) < 0 = "+(s.dot(v) < 0)+ "  eps*nv.det(v) < 0 = "+(eps*nv.det(v) < 0));
-		f.pln("#### repulsiveCriteria: eps = "+eps+ " s.dot(nv) >= 0 = "+(s.dot(nv) >=0));
-		f.pln("#### repulsiveCriteria: (s.dot(v) >=0 && s.dot(nv) >s.dot(v)) = "+((s.dot(v) >=0 && s.dot(nv) >s.dot(v))));
-		f.pln("#### repulsiveCriteria: s.det(v) = "+s.det(v)+" s.dot(v) = "+s.dot(v)+"  nv.det(v) =" +nv.det(v)+"  s.dot(nv) =" +s.dot(nv));
-		f.pln("#### rtn = "+rtn);
-	}
-
-	// for debugging
-	public static void printRepulsiveCriteriaTerms(Vect3 s,  Vect3 vo, Vect3 vi, Vect3 nvo, int eps) {
-		print_horizontal_los_terms(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),eps);
 	}
 
 	/**
@@ -440,7 +419,7 @@ public class CriteriaCore {
 			boolean horizChange = trkChanged(vo,nvo) || gsChanged(vo,nvo);
 			boolean vertChange = vsChanged(vo,nvo);
 			boolean vlc;
-			vlc = verticalRepulsiveCriterion(s,vo,vi,nvo,H, minRelVs, epsv);
+			vlc = verticalRepulsiveCriterion(s,vo.vect3(),vi.vect3(),nvo.vect3(),H, minRelVs, epsv);
 			boolean hlc;
 			hlc = horizontalRepulsiveCriterion(s,  vo, vi, nvo, epsh);
 			if (horizChange && vertChange) return hlc && vlc;
@@ -538,7 +517,7 @@ public class CriteriaCore {
 	 * @return horizontal epsilon
 	 */
 	public static int dataTurnEpsilon(Vect3 s, Velocity vo, Velocity vi, int epsh, double trackRate){
-		int trafSrchDir = trkSearchDirection(s.Neg(), vi, vo, epsh);
+		int trafSrchDir = trkSearchDirection(s.Neg(), vi.vect3(), vo.vect3(), epsh);
 		int absDir = -1;
 		if (trackRate >= 0) absDir = 1;
 		if (absDir == trafSrchDir) return epsh;

@@ -62,7 +62,7 @@ std::pair<LatLonAlt,Velocity> KinematicsLatLon::turnOmega(const LatLonAlt& so, c
 	double vFinalTrk = GreatCircle::initial_course(center,so);
 	double nTrk = vFinalTrk + alpha;
 	LatLonAlt sn = GreatCircle::linear_initial(center, nTrk, radius);
-	sn = sn.mkAlt(so.alt() + vo.z*t);
+	sn = sn.mkAlt(so.alt() + vo.z()*t);
 	//double finalTrk = currentTrk+theta;
 	double final_course = GreatCircle::final_course(center,sn);   // TODO: THIS IS PROBABLY BETTER
 	double finalTrk = final_course + Util::sign(omega)*M_PI/2;
@@ -242,7 +242,7 @@ std::pair<LatLonAlt,Velocity> KinematicsLatLon::gsAccel(const LatLonAlt& so, con
 	double dist = vo.gs()*t + 0.5*a*t*t;
 	double currentTrk = vo.trk();
 	LatLonAlt sn = GreatCircle::linear_initial(so, currentTrk, dist);
-	sn = sn.mkAlt(so.alt() + vo.z*t);
+	sn = sn.mkAlt(so.alt() + vo.z()*t);
 	double vnGs = vo.gs() + a*t;
 	Velocity vn = vo.mkGs(vnGs);
 	//fpln(" $$$$$ gsAccel: sn = "+sn+" vn = "+vn);
@@ -274,9 +274,9 @@ std::pair<LatLonAlt,Velocity> KinematicsLatLon::vsAccel(const LatLonAlt& so, con
 	double dist = vo.gs()*t;
 	double currentTrk = vo.trk();
 	LatLonAlt sn = GreatCircle::linear_initial(so, currentTrk, dist);
-	double nsz = so.alt() + vo.z*t + 0.5*a*t*t;
+	double nsz = so.alt() + vo.z()*t + 0.5*a*t*t;
 	sn = sn.mkAlt(nsz);
-	Velocity  vn = vo.mkVs(vo.z + a*t);
+	Velocity  vn = vo.mkVs(vo.z() + a*t);
 	return std::pair<LatLonAlt,Velocity>(sn,vn);
 }
 
@@ -297,7 +297,7 @@ std::pair<LatLonAlt,Velocity> KinematicsLatLon::vsAccelUntil(const LatLonAlt& so
 		return vsAccel(so, vo, t, sgn*vsAccel_d);
 	else {
 		LatLonAlt posEnd = vsAccel(so,vo,accelTime,sgn*vsAccel_d).first;
-		Velocity nvo = Velocity::mkVxyz(vo.x,vo.y, goalVs);
+		Velocity nvo = Velocity::mkVxyz(vo.x(),vo.y(), goalVs);
 		return linear(posEnd,nvo,t-accelTime);
 	}
 }
@@ -311,7 +311,7 @@ std::pair<LatLonAlt, Velocity> KinematicsLatLon::vsLevelOutCalculation(std::pair
 	LatLonAlt s0 = sv0.first;
 	Velocity v0 = sv0.second;
 	double soz = s0.alt();
-	double voz = v0.z;
+	double voz = v0.z();
 	std::pair<double, double> vsL = Kinematics::vsLevelOutCalc(soz,voz, targetAlt, a1, a2, t1, t2, t3, t);
 	double nz = vsL.first;
 	double nvs = vsL.second;
@@ -335,6 +335,5 @@ std::pair<LatLonAlt, Velocity> KinematicsLatLon::vsLevelOut(std::pair<LatLonAlt,
 		double targetAlt, double a) {
 	return vsLevelOut(sv0, t, climbRate, targetAlt, a, -a, true);
 }
-
 
 }

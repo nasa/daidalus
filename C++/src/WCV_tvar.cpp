@@ -115,7 +115,7 @@ bool WCV_tvar::horizontal_WCV(const Vect2& s, const Vect2& v) const {
 ConflictData WCV_tvar::conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
   LossData ret = WCV3D(so,vo,si,vi,B,T);
   double t_tca = (ret.getTimeIn() + ret.getTimeOut())/2;
-  double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table.getDTHR(),table.getZTHR());
+  double dist_tca = so.linear(vo.vect3(), t_tca).Sub(si.linear(vi.vect3(), t_tca)).cyl_norm(table.getDTHR(),table.getZTHR());
   return ConflictData(ret, t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
 }
 
@@ -135,7 +135,7 @@ LossData WCV_tvar::WCV_interval(const Vect3& so, const Velocity& vo, const Vect3
   Vect2 vi2 = vi.vect2();
   Vect2 v2 = vo2.Sub(vi2);
   double sz = so.z-si.z;
-  double vz = vo.z-vi.z;
+  double vz = vo.z()-vi.z();
 
   Interval ii = wcv_vertical->vertical_WCV_interval(table.getZTHR(),table.getTCOA(),B,T,sz,vz);
 
@@ -199,10 +199,10 @@ void WCV_tvar::horizontalHazardZone(std::vector<Position>& haz, const TrafficSta
   haz.clear();
   const Position& po = ownship.getPosition();
   Velocity v = Velocity::make(ownship.getVelocity().Sub(intruder.getVelocity()));
-  if (Util::almost_equals(getTTHR()+T,0) || Util::almost_equals(v.norm2D(),0)) {
+  if (Util::almost_equals(getTTHR()+T,0) || Util::almost_equals(v.vect3().norm2D(),0)) {
     CDCylinder::circular_arc(haz,po,Velocity::mkVxyz(getDTHR(),0,0),2*Pi,false);
   } else {
-    Vect3 pu = Horizontal::unit_perpL(v);
+    Vect3 pu = Horizontal::unit_perpL(v.vect3());
     Velocity vD = Velocity::make(pu.Scal(getDTHR()));
     CDCylinder::circular_arc(haz,po,vD,Pi,true);
     hazard_zone_far_end(haz,po,v,pu,T);

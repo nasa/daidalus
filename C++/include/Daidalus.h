@@ -8,7 +8,6 @@
 #ifndef DAIDALUSBANDS_H_
 #define DAIDALUSBANDS_H_
 
-#include "GenericStateBands.h"
 #include "DaidalusCore.h"
 #include "DaidalusAltBands.h"
 #include "DaidalusDirBands.h"
@@ -91,7 +90,7 @@ namespace larcfm {
  *
  */
 
-class Daidalus : public GenericStateBands, public ErrorReporter {
+class Daidalus : public ErrorReporter {
 
 private:
   mutable ErrorLog  error;
@@ -2754,60 +2753,6 @@ public:
   std::string getMessageNoClear() const;
 
   // Deprecate interface methods
-
-  /**
-  @Deprecated
-   * Use setOwnshipState instead.
-   * Set ownship state at time 0.0. Clear all traffic.
-   * @param id Ownship's identified
-   * @param pos Ownship's position
-   * @param vel Ownship's ground velocity
-   */
-  virtual void setOwnship(const std::string& id, const Position& pos, const Velocity& vel) {
-    setOwnshipState(id,pos,vel);
-  }
-
-  /**
-  @Deprecated
-   * Use setOwnshipState instead.
-   * Set ownship state at time 0.0. Clear all traffic. Name of ownship will be "Ownship"
-   * @param pos Ownship's position
-   * @param vel Ownship's ground velocity
-   */
-  virtual void setOwnship(const Position& pos, const Velocity& vel) {
-    setOwnship("Ownship",pos,vel);
-  }
-
-  /**
-  @Deprecated
-   * Add traffic state at current time. If it's the first aircraft, this aircraft is
-   * set as the ownship.
-   * @param id Aircraft's identifier
-   * @param pos Aircraft's position
-   * @param vel Aircraft's ground velocity
-   * Same function as addTrafficState, but it doesn't return index of added traffic. This is neeeded
-   * for compatibility with GenericBands
-   */
-  void addTraffic(const std::string& id, const Position& pos, const Velocity& vel) {
-    addTrafficState(id,pos,vel);
-  }
-
-  /**
-  @Deprecated
-   * Use addTrafficState instead
-   * Add traffic state at current time. If it's the first aircraft, this aircraft is
-   * set as the ownship. Name of aircraft is AC_n, where n is the index of the aicraft
-   * @param pos Aircraft's position
-   * @param vel Aircraft's ground velocity
-   * Same function as addTrafficState, but it doesn't return index of added traffic.
-   */
-  void addTraffic(const Position& pos, const Velocity& vel) {
-    if (!hasOwnship()) {
-      setOwnship(pos,vel);
-    } else {
-      addTrafficState("AC_"+Fmi(core_.traffic.size()+1),pos,vel);
-    }
-  }
 
   /**
     @Deprecated

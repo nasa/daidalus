@@ -249,7 +249,7 @@ public class CDCylinder extends Detection3D {
 
 	@Deprecated
 	public static boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
-		return CD3D.cd3d(so.Sub(si), vo, vi, D, H, B, T); 
+		return CD3D.cd3d(so.Sub(si), vo.vect3(), vi.vect3(), D, H, B, T); 
 	}
 
 	// The non-static methods violation and conflict are
@@ -259,9 +259,9 @@ public class CDCylinder extends Detection3D {
 	public static ConflictData conflict_detection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
 		Vect3 s = so.Sub(si);
 		Velocity v = vo.Sub(vi);
-		double t_tca = CD3D.tccpa(s, vo, vi, D, H, B, T);
-		double dist_tca = s.linear(v,t_tca).cyl_norm(D, H);
-		LossData ld = CD3D.detection(s,vo,vi,D,H,B,T);
+		double t_tca = CD3D.tccpa(s, vo.vect3(), vi.vect3(), D, H, B, T);
+		double dist_tca = s.linear(v.vect3(),t_tca).cyl_norm(D, H);
+		LossData ld = CD3D.detection(s,vo.vect3(),vi.vect3(),D,H,B,T);
 		return new ConflictData(ld,t_tca,dist_tca,s,v);
 	}
 
@@ -270,7 +270,7 @@ public class CDCylinder extends Detection3D {
 	}
 
 	public static double time_of_closest_approach(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
-		return CD3D.tccpa(so.Sub(si),vo,vi,D,H,B,T);
+		return CD3D.tccpa(so.Sub(si),vo.vect3(),vi.vect3(),D,H,B,T);
 	}
 
 	public double timeOfClosestApproach(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
@@ -387,10 +387,10 @@ public class CDCylinder extends Detection3D {
 		haz.clear();
 		Position po = ownship.getPosition();
 		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
-		if (Util.almost_equals(T,0) || Util.almost_equals(v.norm2D(),0)) {
+		if (Util.almost_equals(T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			circular_arc(haz,po,Velocity.mkVxyz(D_,0,0),2*Math.PI,false);
 		} else {
-			Vect3 sD = Horizontal.unit_perpL(v).Scal(D_);
+			Vect3 sD = Horizontal.unit_perpL(v.vect3()).Scal(D_);
 			Velocity vD = Velocity.make(sD);
 			circular_arc(haz,po,vD,Math.PI,true);	
 			circular_arc(haz,po.linear(v,T),vD.Neg(),Math.PI,true);

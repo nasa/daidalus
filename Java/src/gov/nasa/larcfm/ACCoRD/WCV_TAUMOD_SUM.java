@@ -404,9 +404,9 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 
 		Vect3 s = so.Sub(si);
 		Velocity v = vo.Sub(vi);
-		LossData ld = WCV_taumod_uncertain_interval(B,T,s,v,s_err,sz_err,v_err,vz_err);
+		LossData ld = WCV_taumod_uncertain_interval(B,T,s,v.vect3(),s_err,sz_err,v_err,vz_err);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-		double dist_tca = s.linear(v, t_tca).cyl_norm(table.DTHR,table.ZTHR);
+		double dist_tca = s.linear(v.vect3(), t_tca).cyl_norm(table.DTHR,table.ZTHR);
 		return new ConflictData(ld,t_tca,dist_tca,s,v);
 	}
 

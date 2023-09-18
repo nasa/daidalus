@@ -165,10 +165,10 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, 
   double tin = INFINITY;
   double tout = -INFINITY;
   double tmin = INFINITY;
-  int sl_first = table_.getSensitivityLevel(so.z+B*vo.z);
-  int sl_last = table_.getSensitivityLevel(so.z+T*vo.z);
-  if (sl_first == sl_last || Util::almost_equals(vo.z,0.0)) {
-    Triple<double,double,double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,B,T);
+  int sl_first = table_.getSensitivityLevel(so.z+B*vo.z());
+  int sl_last = table_.getSensitivityLevel(so.z+T*vo.z());
+  if (sl_first == sl_last || Util::almost_equals(vo.z(),0.0)) {
+    Triple<double,double,double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z(),si2,si.z,vi2,vi.z(),B,T);
     tin = ra3dint.first;
     tout = ra3dint.second;
     tmin = ra3dint.third;
@@ -177,8 +177,8 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, 
     for (double t_B = B; t_B < T; sl = sl_first < sl_last ? sl+1 : sl-1) {
       if (table_.isValidSensitivityLevel(sl)) {
         double level = sl_first < sl_last ? table_.getLevelAltitudeUpperBound(sl) :table_.getLevelAltitudeLowerBound(sl);
-        double t_level = !ISFINITE(level) ? INFINITY :(level-so.z)/vo.z;
-        Triple<double,double,double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,t_B,Util::min(t_level,T));
+        double t_level = !ISFINITE(level) ? INFINITY :(level-so.z)/vo.z();
+        Triple<double,double,double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z(),si2,si.z,vi2,vi.z(),t_B,Util::min(t_level,T));
         if (Util::almost_less(ra3dint.first,ra3dint.second)) {
           tin = Util::min(tin,ra3dint.first);
           tout = Util::max(tout,ra3dint.second);
@@ -191,7 +191,7 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, 
       }
     }
   }
-  double dmin = s.linear(v, tmin).cyl_norm(DMOD_max, ZTHR_max);
+  double dmin = s.linear(v.vect3(), tmin).cyl_norm(DMOD_max, ZTHR_max);
   return  ConflictData(tin,tout,tmin,dmin,s,v);}
 
 // Assumes 0 <= B < T
@@ -452,17 +452,17 @@ void TCAS3D::horizontalHazardZone(std::vector<Position>& haz, const TrafficState
   haz.clear();
   Position po = ownship.getPosition();
   Velocity v = Velocity::make(ownship.getVelocity().Sub(intruder.getVelocity()));
-  if (Util::almost_equals(TAUMOD+T,0) || Util::almost_equals(v.norm2D(),0)) {
+  if (Util::almost_equals(TAUMOD+T,0) || Util::almost_equals(v.vect3().norm2D(),0)) {
     CDCylinder::circular_arc(haz,po,Velocity::mkVxyz(DMOD,0,0),2*Pi,false);
   } else {
-    Vect3 sD = Horizontal::unit_perpL(v).Scal(DMOD);
+    Vect3 sD = Horizontal::unit_perpL(v.vect3()).Scal(DMOD);
     Velocity vD = Velocity::make(sD);
     CDCylinder::circular_arc(haz,po,vD,Pi,usehmdf);
     Position TAU_center = WCV_TAUMOD::TAU_center(po,v,TAUMOD,T);
-    Vect3 vC = v.Scal(0.5*TAUMOD);     // TAUMOD Center (relative)
+    Vect3 vC = v.vect3().Scal(0.5*TAUMOD);     // TAUMOD Center (relative)
     if (usehmdf) {
-      Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
-      Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);
+      Vect3 vDC = vC.Sub(vD.vect3()); // Far end point opposite to -vD (vC-relative);
+      Vect3 nvDC = vC.Add(vD.vect3()); // Far end point opposite to vD (vC-relative);
       double sqa = vDC.sqv2D();
       double alpha = Util::atan2_safe(vDC.det2D(nvDC)/sqa,vDC.dot2D(nvDC)/sqa);
       Velocity velDC = Velocity::make(vDC);
@@ -476,7 +476,7 @@ void TCAS3D::horizontalHazardZone(std::vector<Position>& haz, const TrafficState
         double alpha = Util::atan2_safe(nsCD.det2D(sCD)/sqa,nsCD.dot2D(sCD)/sqa);
         CDCylinder::circular_arc(haz,TAU_center,nvCD,alpha,false);
       } else { // Two circles: DMOD and TAUMOD. They intersect at +/- vD.
-        Vect3 sT = Horizontal::unit_perpL(v).Scal(std::sqrt(sqa));
+        Vect3 sT = Horizontal::unit_perpL(v.vect3()).Scal(std::sqrt(sqa));
         Velocity vT = Velocity::make(sT);
         Vect3 nsT = sT.Neg();
         Velocity nvT = Velocity::make(nsT);

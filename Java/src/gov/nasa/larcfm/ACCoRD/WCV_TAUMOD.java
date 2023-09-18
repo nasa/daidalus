@@ -141,19 +141,19 @@ public class WCV_TAUMOD extends WCV_tvar {
 	}
 
 	public static Position TAU_center(Position po, Velocity v, double TTHR, double T) {
-		Vect3 nv = v.Scal(0.5*TTHR+T);
+		Vect3 nv = v.vect3().Scal(0.5*TTHR+T);
 		return po.linear(Velocity.make(nv),1);
 	}
 
 	public static double TAU_radius(Velocity v, double DTHR, double TTHR) {
-		double inside = Util.sq(DTHR) + 0.25*Util.sq(TTHR)*v.sqv();
+		double inside = Util.sq(DTHR) + 0.25*Util.sq(TTHR)*v.vect3().sqv2D();
 		return Util.sqrt_safe(inside);
 	}
 
 	public void hazard_zone_far_end(List<Position> haz,
 			Position po, Velocity v, Vect3 pu, double T) {
 		Vect3 vD = pu.Scal(getDTHR());
-		Vect3 vC = v.Scal(0.5*getTTHR());     // TAUMOD Center (relative)
+		Vect3 vC = v.vect3().Scal(0.5*getTTHR());     // TAUMOD Center (relative)
 		Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
 		Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);
 		double sqa = vDC.sqv2D();

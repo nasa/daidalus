@@ -126,7 +126,7 @@ bool CriteriaCore::horizontal_criterion_0(const Vect2& sp, int eps, const Vect2&
 // from PVS
 bool CriteriaCore::criterion_3D(const Vect3& sp, const Velocity&  v, int epsH, int epsV, const Velocity&  nv, double D, double H) {
   return (Horizontal::horizontal_sep(sp.vect2(),D) && horizontal_criterion_0(sp.vect2(),epsH,nv.vect2(),D)) ||
-      (vertical_criterion(epsV,sp,v,nv,D,H) &&
+      (vertical_criterion(epsV,sp,v.vect3(),nv.vect3(),D,H) &&
           (horizontal_los(sp.vect2(),D) ||
               horizontal_criterion_0(sp.vect2(),epsH,(nv.Sub(v)).vect2(),D)));
 }
@@ -255,7 +255,7 @@ bool CriteriaCore::criteria(const Vect3& s, const Velocity&  vo, const Velocity&
     bool horizChange = trkChanged(vo,nvo) || gsChanged(vo,nvo);
     bool vertChange = vsChanged(vo,nvo);
     bool vlc, hlc;
-    vlc = verticalRepulsiveCriterion(s,vo,vi,nvo,H, minRelVs, epsv);
+    vlc = verticalRepulsiveCriterion(s,vo.vect3(),vi.vect3(),nvo.vect3(),H, minRelVs, epsv);
     hlc = horizontalRepulsiveCriteria(s,  vo, vi, nvo, epsh);
     if (horizChange && vertChange) return hlc && vlc;
     else if (horizChange) return hlc;
@@ -321,7 +321,7 @@ int CriteriaCore::dataVsRateEpsilon(int epsv, double vsRate){
 }
 
 int CriteriaCore::dataTurnEpsilon(const Vect3& s, const Velocity& vo, const Velocity& vi, int epsh, double trackRate){
-  int trafSrchDir = trkSearchDirection(s.Neg(), vi, vo, epsh);
+  int trafSrchDir = trkSearchDirection(s.Neg(),vi.vect3(),vo.vect3(), epsh);
   int absDir = -1;
   if (trackRate >= 0) absDir = 1;
   if (absDir == trafSrchDir) return epsh;

@@ -159,19 +159,19 @@ bool WCV_TAUMOD::contains(const Detection3D* cd) const {
 }
 
 Position WCV_TAUMOD::TAU_center(const Position& po, const Velocity& v, double TTHR, double T) {
-  Vect3 nv = v.Scal(0.5*TTHR+T);
+  Vect3 nv = v.vect3().Scal(0.5*TTHR+T);
   return po.linear(Velocity::make(nv),1);
 }
 
 double WCV_TAUMOD::TAU_radius(const Velocity& v, double DTHR, double TTHR) {
-  double inside = Util::sq(DTHR) + 0.25*Util::sq(TTHR)*v.sqv();
+  double inside = Util::sq(DTHR) + 0.25*Util::sq(TTHR)*v.vect3().sqv2D();
   return Util::sqrt_safe(inside);
 }
 
 void WCV_TAUMOD::hazard_zone_far_end(std::vector<Position>& haz,
     const Position& po, const Velocity& v, const Vect3& pu, double T) const {
   Vect3 vD = pu.Scal(getDTHR());
-  Vect3 vC = v.Scal(0.5*getTTHR());     // TAUMOD Center (relative)
+  Vect3 vC = v.vect3().Scal(0.5*getTTHR());     // TAUMOD Center (relative)
   Vect3 vDC = vC.Sub(vD); // Far end point opposite to -vD (vC-relative);
   Vect3 nvDC = vC.Add(vD); // Far end point opposite to vD (vC-relative);
   double sqa = vDC.sqv2D();

@@ -103,12 +103,12 @@ public class WCV_TCPA extends WCV_tvar {
 		Position npo = po.linear(v,getTTHR()+T);
 		Velocity vu = Velocity.make(pu);
 		haz.add(npo.linear(vu,-getDTHR()));
-		double b = v.norm2D()*getTTHR();
+		double b = v.vect3().norm2D()*getTTHR();
 		if (Util.almost_greater(getDTHR(),b)) {
 			// Far end has the form of a cap
 			double a = Util.sqrt_safe(Util.sq(getDTHR())-Util.sq(b));
 			double alpha = Util.acos_safe(b/getDTHR());
-			Vect3 vD = pu.ScalAdd(-a,v.Hat().Scal(b));
+			Vect3 vD = pu.ScalAdd(-a,v.vect3().Hat().Scal(b));
 			CDCylinder.circular_arc(haz,po.linear(v,T),
 					Velocity.make(vD),2*alpha,true);
 		}

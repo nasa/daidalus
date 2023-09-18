@@ -119,7 +119,7 @@ public abstract class WCV_tvar extends Detection3D {
 	private ConflictData WCV3D(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
 		LossData ld = WCV_interval(so,vo,si,vi,B,T);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-		double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table.DTHR,table.ZTHR);
+		double dist_tca = so.linear(vo.vect3(), t_tca).Sub(si.linear(vi.vect3(), t_tca)).cyl_norm(table.DTHR,table.ZTHR);
 		return new ConflictData(ld,t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
 	}
 
@@ -135,7 +135,7 @@ public abstract class WCV_tvar extends Detection3D {
 		Vect2 vi2 = vi.vect2();
 		Vect2 v2 = vo2.Sub(vi2);
 		double sz = so.z-si.z;
-		double vz = vo.z-vi.z;
+		double vz = vo.z()-vi.z();
 
 		Interval ii = wcv_vertical.vertical_WCV_interval(table.ZTHR,table.TCOA,B,T,sz,vz);
 
@@ -207,10 +207,10 @@ public abstract class WCV_tvar extends Detection3D {
 		haz.clear();
 		Position po = ownship.getPosition();
 		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
-		if (Util.almost_equals(getTTHR()+T,0) || Util.almost_equals(v.norm2D(),0)) {
+		if (Util.almost_equals(getTTHR()+T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			CDCylinder.circular_arc(haz,po,Velocity.mkVxyz(getDTHR(),0,0),2*Math.PI,false);
 		} else {
-			Vect3 pu = Horizontal.unit_perpL(v);
+			Vect3 pu = Horizontal.unit_perpL(v.vect3());
 			Velocity vD = Velocity.make(pu.Scal(getDTHR()));
 			CDCylinder.circular_arc(haz,po,vD,Math.PI,true);	
 			hazard_zone_far_end(haz,po,v,pu,T);

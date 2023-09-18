@@ -16,6 +16,7 @@
 
 #include "LossData.h"
 #include "Vect3.h"
+#include "Velocity.h"
 #include "Horizontal.h"
 #include "Vertical.h"
 #include "Interval.h"
