@@ -20,14 +20,14 @@ namespace larcfm {
 TrafficState::TrafficState() :
                                 id_("_NoAc_"),
                                 pos_(Position::INVALID()),
-                                gvel_(Velocity::INVALIDV()),
-                                avel_(Velocity::INVALIDV()),
+                                gvel_(Velocity::INVALID()),
+                                avel_(Velocity::INVALID()),
                                 eprj_(Projection::createProjection(Position::ZERO_LL())),
                                 alerter_(0),
                                 sum_(SUMData::EMPTY()),
                                 posxyz_(Position::INVALID()),
                                 sxyz_(Vect3::INVALID()),
-                                velxyz_(Velocity::INVALIDV()) {}
+                                velxyz_(Velocity::INVALID()) {}
 
 const TrafficState& TrafficState::INVALID() {
   static TrafficState tmp;
@@ -171,7 +171,7 @@ Vect3 TrafficState::pos_to_s(const Position& p) const {
 Velocity TrafficState::vel_to_v(const Position& p, const Velocity& v) const {
   if (p.isLatLon()) {
     if (!pos_.isLatLon()) {
-      return Velocity::INVALIDV();
+      return Velocity::INVALID();
     }
     return eprj_.projectVelocity(p,v);
   }
@@ -277,7 +277,7 @@ std::string TrafficState::formattedTraffic(const std::vector<TrafficState>& traf
 
 std::string TrafficState::toPVS() const {
   return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
-      ", v:= "+get_v().toPVS()+", alerter:= "+Fmi(alerter_)+
+      ", v:= "+get_v().vect3().toPVS()+", alerter:= "+Fmi(alerter_)+
       ", unc := (# s_EW_std:= "+FmPrecision(sum_.get_s_EW_std())+
       ", s_NS_std:= "+FmPrecision(sum_.get_s_NS_std())+
       ", s_EN_std:= "+FmPrecision(sum_.get_s_EN_std())+

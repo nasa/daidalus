@@ -85,7 +85,7 @@ public class ConflictData extends LossData {
 	 * assuming straight line trajectory.
 	 */
 	public double VMD(double T) {
-		return Vertical.vmd(s_.z,v_.z,T);
+		return Vertical.vmd(s_.z,v_.z(),T);
 	}
 
 	/** 
@@ -119,7 +119,7 @@ public class ConflictData extends LossData {
 	 * @return Horizontal separation in internal units at given time
 	 */
 	public double horizontalSeparationAtTime(double time) {
-		return s_.AddScal(time,v_).norm2D();
+		return s_.AddScal(time,v_.vect3()).norm2D();
 	}
 
 	/**
@@ -155,7 +155,7 @@ public class ConflictData extends LossData {
 	 * @return Vertical separation in internal units at given time
 	 */
 	public double verticalSeparationAtTime(double time) {
-		return Math.abs(s_.AddScal(time,v_).z);
+		return Math.abs(s_.AddScal(time,v_.vect3()).z);
 	}
 
 	/**
@@ -181,7 +181,7 @@ public class ConflictData extends LossData {
 	 * When aircraft are diverging, tcpa is defined as 0
 	 */
 	public double tcpa3D() {
-		return Vect3.tcpa(s_,Vect3.ZERO,v_,Velocity.ZERO);
+		return Vect3.tcpa(s_,Vect3.ZERO,v_.vect3(),Vect3.ZERO);
 	}
 
 	/**
@@ -189,7 +189,7 @@ public class ConflictData extends LossData {
 	 * @return time to co-altitude in seconds. Returns NaN is v_.z is zero.
 	 */
 	public double tcoa() {
-		return Vertical.time_coalt(s_.z,v_.z);
+		return Vertical.time_coalt(s_.z,v_.z());
 	}
 
 	/**
@@ -197,7 +197,7 @@ public class ConflictData extends LossData {
 	 * @return Horizontal closure rate in internal units at current time
 	 */
 	public double horizontalClosureRate() {
-		return v_.norm2D();
+		return v_.vect3().norm2D();
 	}
 
 	/**
@@ -214,7 +214,7 @@ public class ConflictData extends LossData {
 	 * @return Vertical closure rate in internal units at current time
 	 */
 	public double verticalClosureRate() {
-		return Math.abs(v_.z);
+		return Math.abs(v_.z());
 	}
 
 	/**

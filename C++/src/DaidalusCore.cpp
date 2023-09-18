@@ -124,7 +124,7 @@ void DaidalusCore::clear() {
  *  Clear wind vector from this object.
  */
 void DaidalusCore::clear_wind() {
-  set_wind_velocity(Velocity::ZEROV());
+  set_wind_velocity(Velocity::ZERO());
 }
 
 bool DaidalusCore::set_alerter_ownship(int alerter_idx) {
@@ -650,7 +650,7 @@ int DaidalusCore::epsilonH(const TrafficState& ownship, const TrafficState& ac) 
 int DaidalusCore::epsilonV(const TrafficState& ownship, const TrafficState& ac) {
   if (ownship.isValid() && ac.isValid()) {
     Vect3 s = ownship.get_s().Sub(ac.get_s());
-    return CriteriaCore::verticalCoordinationLoS(s,ownship.get_v(),ac.get_v(),
+    return CriteriaCore::verticalCoordinationLoS(s,ownship.get_v().vect3(),ac.get_v().vect3(),
         ownship.getId(), ac.getId());
   } else {
     return 0;

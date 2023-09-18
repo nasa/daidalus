@@ -28,7 +28,7 @@ class ConflictData : public LossData {
 
 private:
   Vect3 s_; // Relative position
-  Vect3 v_; // Relative velocity
+  Velocity v_; // Relative velocity
 
 public:
 
@@ -37,8 +37,8 @@ public:
 
   std::string toString() const;
 
-  ConflictData(double t_in, double t_out, double t_crit, double d_crit, const Vect3& s, const Vect3& v);
-  ConflictData(const LossData& ld, double t_crit, double d_crit, const Vect3& s, const Vect3& v);
+  ConflictData(double t_in, double t_out, double t_crit, double d_crit, const Vect3& s, const Velocity& v);
+  ConflictData(const LossData& ld, double t_crit, double d_crit, const Vect3& s, const Velocity& v);
   ConflictData();
 
   static const ConflictData& EMPTY();
@@ -51,7 +51,7 @@ public:
   /**
    * Returns internal vector representation of relative aircraft velocity.
    */
-  Vect3 const & get_v() const;
+  Velocity const & get_v() const;
 
   /**
    * Returns HMD, in internal units, within lookahead time t, in seconds, assuming straight line trajectory.
