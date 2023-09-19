@@ -24,14 +24,12 @@ public:
 	bool raw;
 	int format;
 	std::ostream* out;
-	double prj_t;
 
 	DaidalusBatch() {
 		verbose = false;
 		raw = false;
 		format = STANDARD;
 		out = &std::cout;
-		prj_t = 0;
 	}
 
 	static void printHelpMsg() {
@@ -44,7 +42,6 @@ public:
 		std::cout << "  --verbose\n\tPrint extra information" << std::endl;
 		std::cout << "  --raw\n\tPrint raw information" << std::endl;
 		std::cout << "  --pvs\n\tProduce PVS output format" << std::endl;
-		std::cout << "  --project t\n\tLinearly project all aircraft t seconds for computing bands and alerting" << std::endl;
 		std::cout << "  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]" << std::endl;
 		std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;
 		std::cout << getHelpString() << std::endl;
@@ -135,10 +132,6 @@ int main(int argc, const char* argv[]) {
 			walker.raw = true;
 		} else if (arga == "--pvs" || arga == "-pvs") {
 			walker.format = PVS;
-		} else if (startsWith(arga,"--proj") || startsWith(arga,"-proj")) {
-			++a;
-			walker.prj_t = Util::parse_double(argv[a]);
-			options += arga+" ";
 		} else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
 			++a;
 			std::istringstream(argv[a]) >> precision;

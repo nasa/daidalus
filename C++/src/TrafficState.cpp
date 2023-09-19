@@ -227,11 +227,11 @@ std::string TrafficState::formattedHeader(const std::string& utrk, const std::st
   std::string s1="NAME";
   std::string s2="[none]";
   if (pos_.isLatLon()) {
-    s1 += " lat lon alt trk gs vs";
-    s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"]";
+			s1 += " lat lon alt trk gs vs heading airspeed";
+			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
   } else {
-    s1 += " sx sy sz trk gs vs";
-    s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"]";
+			s1 += " sx sy sz trk gs vs heading airspeed";
+			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
   }
   s1 += " time alerter";
   s2 += " [s] [none]";
@@ -243,12 +243,13 @@ std::string TrafficState::formattedHeader(const std::string& utrk, const std::st
 std::string TrafficState::formattedTrafficState(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time) const {
   std::string s= getId();
   if (pos_.isLatLon()) {
-    s += ", "+pos_.lla().toString("deg","deg",ualt,Constants::get_output_precision());
+    s += ", "+pos_.lla().toString("deg","deg",ualt);//,Constants::get_output_precision());
   } else {
-    s += ", "+fsStrNP(pos_.vect3(), Constants::get_output_precision(),uxy,uxy,ualt);
+    s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt); //, Constants::get_output_precision(),uxy,uxy,ualt);
   }
-  s += ", "+avel_.toStringNP(utrk,ugs,uvs,Constants::get_output_precision())+", "+
-      FmPrecision(time,Constants::get_output_precision());
+  s += ", "+gvel_.toStringNP(utrk,ugs,uvs); // Constants::get_output_precision())+", "+
+  s += ", "+avel_.toStringNP(utrk,ugs,uvs);
+  s += ", "+FmPrecision(time); //Constants::get_output_precision());
   s += ", "+Fmi(alerter_);
   s += ", "+FmPrecision(sum_.get_s_EW_std(uxy));
   s += ", "+FmPrecision(sum_.get_s_NS_std(uxy));
@@ -282,7 +283,8 @@ std::string TrafficState::formattedTraffic(const std::vector<TrafficState>& traf
 
 std::string TrafficState::toPVS() const {
   return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
-      ", v:= "+get_v().vect3().toPVS()+", alerter:= "+Fmi(alerter_)+
+      ", v:= "+get_v().vect3().toPVS()+
+      ", alerter:= "+Fmi(alerter_)+
       ", unc := (# s_EW_std:= "+FmPrecision(sum_.get_s_EW_std())+
       ", s_NS_std:= "+FmPrecision(sum_.get_s_NS_std())+
       ", s_EN_std:= "+FmPrecision(sum_.get_s_EN_std())+

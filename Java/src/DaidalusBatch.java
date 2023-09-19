@@ -21,7 +21,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 	static int format = STANDARD; 
 	static PrintWriter out = new PrintWriter(System.out);
 	static String output = "";
-	static double prj_t = 0;
 
 	static void printHelpMsg() {
 		System.err.println("Usage:");
@@ -33,7 +32,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 		System.err.println("  --verbose\n\tPrint extra information");
 		System.err.println("  --raw\n\tPrint raw information");
 		System.err.println("  --pvs\n\tProduce PVS output format");
-		System.err.println("  --project t\n\tLinearly project all aircraft t seconds for computing bands and alerting");
 		System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
 		System.err.println("  --precision <n>\n\tOutput decimal precision");
 		System.err.println(getHelpString());
@@ -65,10 +63,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 				raw = true;
 			} else if (args[a].equals("--pvs") || args[a].equals("-pvs")) {
 				format = PVS;
-			} else if (args[a].startsWith("--proj") || args[a].startsWith("-proj")) {
-				++a;
-				prj_t = Double.parseDouble(args[a]);
-				options += args[a]+" ";
 			} else if (args[a].startsWith("--prec") || args[a].startsWith("-prec")) {
 				++a;
 				precision = Integer.parseInt(args[a]);

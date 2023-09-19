@@ -3,7 +3,7 @@ all:
 
 gold:
 	cd ../Java;make mold
-	rsync -avz Java/ gold/
+	rsync --exclude '.*' -avz Java/ gold/
 
 moldj:
 	@cd ../Java;make mold > /dev/null 2> /dev/null

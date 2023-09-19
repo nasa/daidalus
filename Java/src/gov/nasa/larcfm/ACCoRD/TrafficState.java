@@ -315,11 +315,11 @@ public class TrafficState {
 		String s1="NAME";
 		String s2="[none]";
 		if (pos_.isLatLon()) {
-			s1 += " lat lon alt trk gs vs";
-			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"]";
+			s1 += " lat lon alt trk gs vs heading airspeed";
+			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
 		} else {
-			s1 += " sx sy sz trk gs vs";
-			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"]";
+			s1 += " sx sy sz trk gs vs heading airspeed";
+			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
 		}
 		s1 += " time alerter";
 		s2 += " [s] [none]";
@@ -335,7 +335,9 @@ public class TrafficState {
 		} else {
 			s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt);
 		}
-		s += ", "+avel_.toStringNP(utrk,ugs,uvs)+", "+f.FmPrecision(time);
+		s += ", "+gvel_.toStringNP(utrk,ugs,uvs);
+		s += ", "+avel_.toStringNP(utrk,ugs,uvs);
+		s += ", "+f.FmPrecision(time);
 		s += ", "+alerter_;
 		s += ", "+f.FmPrecision(sum_.get_s_EW_std(uxy));
 		s += ", "+f.FmPrecision(sum_.get_s_NS_std(uxy));
@@ -368,7 +370,8 @@ public class TrafficState {
 
 	public String toPVS() {
 		return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
-				", v:= "+get_v().vect3().toPVS()+", alerter:= "+alerter_+
+				", v:= "+get_v().vect3().toPVS()+
+				", alerter:= "+alerter_+
 				", unc := (# s_EW_std:= "+f.FmPrecision(sum_.get_s_EW_std())+
 				", s_NS_std:= "+f.FmPrecision(sum_.get_s_NS_std())+
 				", s_EN_std:= "+f.FmPrecision(sum_.get_s_EN_std())+
