@@ -37,7 +37,7 @@ public:
   /* Current time */
   double current_time;
   /* Wind vector in TO direction */
-  Velocity wind_vector;
+  Vect3 wind_vector;
   DaidalusParameters parameters;
 
   /* Strategy for most urgent aircraft */
@@ -196,7 +196,7 @@ public:
 
   void set_ownship_airvelocity(double heading, double airspeed);
   
-  void set_wind_velocity(const Velocity& wind);
+  void set_wind_velocity(const Vect3& wind);
 
   bool linear_projection(double offset);
 

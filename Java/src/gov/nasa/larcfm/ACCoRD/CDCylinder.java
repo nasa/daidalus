@@ -258,7 +258,7 @@ public class CDCylinder extends Detection3D {
 
 	public static ConflictData conflict_detection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
 		Vect3 s = so.Sub(si);
-		Velocity v = vo.Sub(vi);
+		Velocity v = vo.Sub(vi.vect3());
 		double t_tca = CD3D.tccpa(s, vo.vect3(), vi.vect3(), D, H, B, T);
 		double dist_tca = s.linear(v.vect3(),t_tca).cyl_norm(D, H);
 		LossData ld = CD3D.detection(s,vo.vect3(),vi.vect3(),D,H,B,T);
@@ -386,7 +386,7 @@ public class CDCylinder extends Detection3D {
 			TrafficState ownship, TrafficState intruder, double T) {
 		haz.clear();
 		Position po = ownship.getPosition();
-		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
+		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
 		if (Util.almost_equals(T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			circular_arc(haz,po,Velocity.mkVxyz(D_,0,0),2*Math.PI,false);
 		} else {

@@ -896,7 +896,7 @@ public final class Position implements OutputList {
 				f.pln(" --> angular_distance = "+Units.str("deg",angular_distance));
 			}
 		}  
-		Velocity relVel = vo.Sub(vi);
+		Velocity relVel = vo.Sub(vi.vect3());
 		Position so2 = so.linear(relVel,T);	  
 		//Plan debug1 = Plan.make(so,so2,Units.from("kn",250));
 		//Plan debug2 = Plan.make(si,si2,Units.from("kn",250));

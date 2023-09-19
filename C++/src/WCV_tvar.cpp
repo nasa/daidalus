@@ -116,7 +116,7 @@ ConflictData WCV_tvar::conflictDetection(const Vect3& so, const Velocity& vo, co
   LossData ret = WCV3D(so,vo,si,vi,B,T);
   double t_tca = (ret.getTimeIn() + ret.getTimeOut())/2;
   double dist_tca = so.linear(vo.vect3(), t_tca).Sub(si.linear(vi.vect3(), t_tca)).cyl_norm(table.getDTHR(),table.getZTHR());
-  return ConflictData(ret, t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
+  return ConflictData(ret, t_tca,dist_tca,so.Sub(si),vo.Sub(vi.vect3()));
 }
 
 LossData WCV_tvar::WCV3D(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
@@ -198,7 +198,7 @@ void WCV_tvar::horizontalHazardZone(std::vector<Position>& haz, const TrafficSta
     double T) const {
   haz.clear();
   const Position& po = ownship.getPosition();
-  Velocity v = Velocity::make(ownship.getVelocity().Sub(intruder.getVelocity()));
+  Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
   if (Util::almost_equals(getTTHR()+T,0) || Util::almost_equals(v.vect3().norm2D(),0)) {
     CDCylinder::circular_arc(haz,po,Velocity::mkVxyz(getDTHR(),0,0),2*Pi,false);
   } else {

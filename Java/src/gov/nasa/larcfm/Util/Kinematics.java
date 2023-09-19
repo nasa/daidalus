@@ -2871,10 +2871,10 @@ public final class Kinematics {
 			//Velocity vtraf = turnUntilVelocity(vi, nvi.verticalSpeed(), bankAngTraf, t, turnRightTraf);
 			Pair<Vect3,Velocity> psv = turnUntilTrack(so, vo, t, nvo.trk(), bankAngOwn);		
 			Vect3 soAtTm = psv.first;
-			Velocity vown = psv.second;
+			Vect3 vown = psv.second.vect3();
 			Pair<Vect3,Velocity> psvi = turnUntilTrack(si, vi, t, nvi.trk(), bankAngOwn);
 			Vect3 siAtTm = psvi.first;
-			Velocity vtraf = psvi.second;
+			Vect3 vtraf = psvi.second.vect3();
 			//f.pln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 			Vect3 s = soAtTm.Sub(siAtTm);
 			double dist = s.norm();
@@ -2887,7 +2887,7 @@ public final class Kinematics {
 				minDistV = distV;
 				minT = t;
 			}
-			boolean divg = s.dot(vown.Sub(vtraf).vect3()) > 0;
+			boolean divg = s.dot(vown.Sub(vtraf)) > 0;
 			if (divg) break;
 		}
 		return new Vect4(minDistH,minDist,minDistV,minT);

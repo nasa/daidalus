@@ -556,31 +556,31 @@ public class Daidalus {
 	 * Get wind velocity specified in the TO direction
 	 */
 	public Velocity getWindVelocityTo() {
-		return core_.wind_vector;
+		return Velocity.make(core_.wind_vector);
 	}
 
 	/**
 	 * Get wind velocity specified in the From direction
 	 */
 	public Velocity getWindVelocityFrom() {
-		return core_.wind_vector.Neg();
+		return Velocity.make(core_.wind_vector.Neg());
 	}
 
 	/**
 	 * Set wind velocity specified in the TO direction
-	 * @param wind_vector: Wind velocity specified in TO direction
+	 * @param windto: Wind velocity specified in TO direction
 	 */
-	public void setWindVelocityTo(Velocity wind_vector) {
-		core_.set_wind_velocity(wind_vector);
+	public void setWindVelocityTo(Velocity windto) {
+		core_.set_wind_velocity(windto.vect3());
 		stale_bands();
 	}
 
 	/**
 	 * Set wind velocity specified in the From direction
-	 * @param nwind_vector: Wind velocity specified in From direction
+	 * @param windfrom: Wind velocity specified in From direction
 	 */
-	public void setWindVelocityFrom(Velocity nwind_vector) {
-		setWindVelocityTo(nwind_vector.Neg());
+	public void setWindVelocityFrom(Velocity windfrom) {
+		setWindVelocityTo(windfrom.Neg());
 	}
 
 	/**

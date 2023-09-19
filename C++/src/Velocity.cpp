@@ -64,10 +64,6 @@ double Velocity::z() const {
 	return v_.z;
 }
 
-Velocity Velocity::make(const Velocity& v) {
-	return Velocity(v.trk_,v.gs_,v.x(),v.y(),v.z());
-}
-
 Velocity Velocity::make(const Vect3& v) {
 	return Velocity(v.x,v.y,v.z);
 }
@@ -107,20 +103,20 @@ Velocity Velocity::Neg() const {
 	return Velocity(to_pi(trk_+M_PI),gs_,-v_.x,-v_.y,-v_.z);
 }
 
-Velocity Velocity::Add(const Velocity& v) const {
-    if (Util::almost_equals(v_.x,-v.x()) && Util::almost_equals(v_.y,-v.y())) {
+Velocity Velocity::Add(const Vect3& v) const {
+    if (Util::almost_equals(v_.x,-v.x) && Util::almost_equals(v_.y,-v.y)) {
         // Set to zero but maintain the original track
-		return Velocity(trk_,0.0,0.0,0.0,v_.z+v.z());
+		return Velocity(trk_,0.0,0.0,0.0,v_.z+v.z);
     }
-    return mkVxyz(v_.x+v.x(),v_.y+v.y(),v_.z+v.z());
+    return mkVxyz(v_.x+v.x,v_.y+v.y,v_.z+v.z);
 }
 
-Velocity Velocity::Sub(const Velocity& v) const {
-    if (Util::almost_equals(v_.x,v.x()) && Util::almost_equals(v_.y,v.y())) {
+Velocity Velocity::Sub(const Vect3& v) const {
+    if (Util::almost_equals(v_.x,v.x) && Util::almost_equals(v_.y,v.y)) {
         // Set to zero but maintain the original track
-		return Velocity(trk_,0.0,0.0,0.0,v_.z-v.z());
+		return Velocity(trk_,0.0,0.0,0.0,v_.z-v.z);
     }
-    return mkVxyz(v_.x-v.x(),v_.y-v.y(),v_.z-v.z());
+    return mkVxyz(v_.x-v.x,v_.y-v.y,v_.z-v.z);
 }
 
 Velocity Velocity::genVel(const Vect3& p1, const Vect3& p2, double dt) {
@@ -207,7 +203,7 @@ bool Velocity::compare(const Velocity& v, double maxTrk, double maxGs, double ma
 }
 
 bool Velocity::compare(const Velocity& v, double horizDelta, double vertDelta) const {
-	return std::abs(v_.z-v.z()) <= vertDelta && Sub(v).vect3().norm2D() <= horizDelta;
+	return std::abs(v_.z-v.z()) <= vertDelta && vect2().Sub(v.vect2()).norm() <= horizDelta;
 }
 
 const Velocity& Velocity::ZERO() {

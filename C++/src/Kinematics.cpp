@@ -1211,10 +1211,10 @@ Vect4 Kinematics::minDistBetweenTrk(const Vect3& so, const Velocity& vo, const V
 		//Vect3 siAtTm = turnUntilPosition(si, vi, nvi.track(), bankAngTraf, t, turnRightTraf);
 		std::pair<Vect3,Velocity> psv = Kinematics::turnUntilTrack(so, vo, t, nvo.trk(), bankAngOwn);
 		Vect3 soAtTm = psv.first;
-		Velocity vown = psv.second;
+		Vect3 vown = psv.second.vect3();
 		std::pair<Vect3,Velocity> psvi = Kinematics::turnUntilTrack(si, vi, t, nvi.trk(), bankAngOwn);
 		Vect3 siAtTm = psvi.first;
-		Velocity vtraf = psvi.second;
+		Vect3 vtraf = psvi.second.vect3();
 		//fpln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 		double dist = soAtTm.Sub(siAtTm).norm();
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
@@ -1227,7 +1227,7 @@ Vect4 Kinematics::minDistBetweenTrk(const Vect3& so, const Velocity& vo, const V
 			minT = t;
 		}
 		Vect3 s = soAtTm.Sub(siAtTm);
-        bool divg = s.dot(vown.Sub(vtraf).vect3()) > 0;
+        bool divg = s.dot(vown.Sub(vtraf)) > 0;
        if (divg) break;
 
 	}

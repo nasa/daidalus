@@ -333,7 +333,7 @@ public:
   /**
    * Get wind velocity specified in the TO direction
    */
-  const Velocity& getWindVelocityTo() const;
+  Velocity getWindVelocityTo() const;
 
   /**
    * Get wind velocity specified in the From direction
@@ -342,15 +342,15 @@ public:
 
   /**
    * Set wind velocity specified in the TO direction
-   * @param wind_velocity: Wind velocity specified in TO direction
+   * @param windto: Wind velocity specified in TO direction
    */
-  void setWindVelocityTo(const Velocity& wind_vector);
+  void setWindVelocityTo(const Velocity& windto);
 
   /**
    * Set wind velocity specified in the From direction
-   * @param nwind_velocity: Wind velocity specified in From direction
+   * @param windfrom: Wind velocity specified in From direction
    */
-  void setWindVelocityFrom(const Velocity& nwind_vector);
+  void setWindVelocityFrom(const Velocity& windfrom);
 
   /**
    * Set no wind velocity

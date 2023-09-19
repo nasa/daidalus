@@ -387,7 +387,7 @@ ConflictData WCV_TAUMOD_SUM::conflictDetectionWithTrafficState(const TrafficStat
   vz_err = Util::max(vz_err, MinError);
 
   Vect3 s = so.Sub(si);
-  Velocity v = vo.Sub(vi);
+  Velocity v = vo.Sub(vi.vect3());
   LossData ld = WCV_taumod_uncertain_interval(B,T,s,v.vect3(),s_err,sz_err,v_err,vz_err);
   double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
   double dist_tca = s.linear(v.vect3(), t_tca).cyl_norm(table.DTHR,table.ZTHR);

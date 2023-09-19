@@ -28,9 +28,9 @@
    */
   public final class Velocity implements OutputList {
 
-    private double trk_; // Track (true north, clockwise, radians)
-    private double gs_;  // Norm of velicity vector (internal units)
-    private Vect3 v_;    // 3-D vector
+    private final double trk_; // Track (true north, clockwise, radians)
+    private final double gs_;  // Norm of velicity vector (internal units)
+    private final Vect3 v_;    // 3-D vector
 
     /**
 	 * Instantiates a new velocity in internal units.
@@ -95,21 +95,10 @@
     }
 
     /** A zero velocity */
-    public final static Velocity ZERO = new Velocity(0.0,0.0,0.0);
+    public final static Velocity ZERO = new Velocity();
 
     /** An invalid velocity.  Note that this is not necessarily equal to other invalid velocities -- use the isInvalid() test instead. */
     public final static Velocity INVALID = new Velocity(Double.NaN,Double.NaN,Double.NaN); 
-    
-    /**
-     * New velocity from Velocity.
-     * 
-     * @param v the 3-D velocity vector (in internal units).
-     * 
-     * @return the velocity
-     */
-    public static Velocity make(Velocity v) {
-      return new Velocity(v.trk_,v.gs_,v.x(),v.y(),v.z());
-    }    
     
     /**
      * New velocity from Vect3.
@@ -223,20 +212,20 @@
       return new Velocity(Util.to_pi(trk_+Math.PI),gs_,-v_.x,-v_.y,-v_.z);
     }
 
-    public Velocity Add(Velocity v)  {
-      if (Util.almost_equals(v_.x,-v.x()) && Util.almost_equals(v_.y,-v.y())) {
+    public Velocity Add(Vect3 v)  {
+      if (Util.almost_equals(v_.x,-v.x) && Util.almost_equals(v_.y,-v.y)) {
         // Set to zero but maintain the original track
-        return new Velocity(trk_,0.0,0.0,0.0,v_.z+v.z());
+        return new Velocity(trk_,0.0,0.0,0.0,v_.z+v.z);
       }
-      return mkVxyz(v_.x+v.x(),v_.y+v.y(),v_.z+v.z());
+      return mkVxyz(v_.x+v.x,v_.y+v.y,v_.z+v.z);
     }
 
-    public Velocity Sub(Velocity v)  {
-      if (Util.almost_equals(v_.x,v.x()) && Util.almost_equals(v_.y,v.y())) {
+    public Velocity Sub(Vect3 v)  {
+      if (Util.almost_equals(v_.x,v.x) && Util.almost_equals(v_.y,v.y)) {
         // Maintain the original track
-        return new Velocity(trk_,0.0,0.0,0.0,v_.z-v.z());
+        return new Velocity(trk_,0.0,0.0,0.0,v_.z-v.z);
       }
-      return mkVxyz(v_.x-v.x(),v_.y-v.y(),v_.z-v.z());
+      return mkVxyz(v_.x-v.x,v_.y-v.y,v_.z-v.z);
     }
 
     /**
@@ -469,7 +458,7 @@
      * @return true if the velocities are within both horizontal and vertical tolerances of each other.
      */
     public boolean compare(Velocity v, double horizDelta, double vertDelta) {
-      return Math.abs(v_.z-v.z()) <= vertDelta && Sub(v).vect3().norm2D() <= horizDelta;
+      return Math.abs(v_.z-v.z()) <= vertDelta && vect2().Sub(v.vect2()).norm() <= horizDelta;
     }
 
     // Utilities

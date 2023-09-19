@@ -137,7 +137,7 @@ LossData CDCylinder::detection(const Vect3& s, const Vect3& vo, const Vect3& vi,
 
 ConflictData CDCylinder::conflict_detection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double D, double H, double B, double T) {
   Vect3 s = so.Sub(si);
-  Velocity v = vo.Sub(vi);
+  Velocity v = vo.Sub(vi.vect3());
   double t_tca = CD3D::tccpa(s, vo.vect3(), vi.vect3(), D, H, B, T);
   double dist_tca = s.linear(v.vect3(),t_tca).cyl_norm(D, H);
   LossData ld = CD3D::detection(s,vo.vect3(),vi.vect3(),D,H,B,T);
@@ -251,7 +251,7 @@ void CDCylinder::horizontalHazardZone(std::vector<Position>& haz,
     const TrafficState& ownship, const TrafficState& intruder, double T) const {
   haz.clear();
   const Position& po = ownship.getPosition();
-  Velocity v = Velocity::make(ownship.getVelocity().Sub(intruder.getVelocity()));
+  Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
   if (Util::almost_equals(T,0) || Util::almost_equals(v.vect3().norm2D(),0)) {
     circular_arc(haz,po,Velocity::mkVxyz(D_,0,0),2*Pi,false);
   } else {

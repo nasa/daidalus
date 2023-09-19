@@ -124,7 +124,7 @@ void DaidalusCore::clear() {
  *  Clear wind vector from this object.
  */
 void DaidalusCore::clear_wind() {
-  set_wind_velocity(Velocity::ZERO());
+  set_wind_velocity(Vect3::ZERO());
 }
 
 bool DaidalusCore::set_alerter_ownship(int alerter_idx) {
@@ -432,7 +432,7 @@ void DaidalusCore::set_ownship_airvelocity(double heading, double airspeed) {
 	}
 }
 
-void DaidalusCore::set_wind_velocity(const Velocity& wind) {
+void DaidalusCore::set_wind_velocity(const Vect3& wind) {
   if (has_ownship()) {
     ownship.applyWindVector(wind);
     std::vector<TrafficState>::iterator ac_ptr;
@@ -652,7 +652,7 @@ int DaidalusCore::alerter_index_of(const TrafficState& intruder) {
 int DaidalusCore::epsilonH(const TrafficState& ownship, const TrafficState& ac) {
   if (ownship.isValid() && ac.isValid()) {
     Vect2 s = ownship.get_s().Sub(ac.get_s()).vect2();
-    Vect2 v = ownship.get_v().Sub(ac.get_v()).vect2();
+    Vect2 v = ownship.get_v().vect2().Sub(ac.get_v().vect2());
     return CriteriaCore::horizontalCoordination(s,v);
   } else {
     return 0;

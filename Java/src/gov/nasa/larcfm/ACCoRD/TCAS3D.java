@@ -139,7 +139,7 @@ public class TCAS3D extends Detection3D {
 	public ConflictData RA3D(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
 
 		Vect3 s = so.Sub(si);
-		Velocity v = vo.Sub(vi);
+		Velocity v = vo.Sub(vi.vect3());
 		Vect2 so2 = so.vect2();
 		Vect2 vo2 = vo.vect2();
 		Vect2 si2 = si.vect2();
@@ -456,7 +456,7 @@ public class TCAS3D extends Detection3D {
 		double DMOD = Util.max(table_.getDMOD(sl),table_.getHMD(sl));
 		haz.clear();
 		Position po = ownship.getPosition();
-		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
+		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
 		if (Util.almost_equals(TAUMOD+T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			CDCylinder.circular_arc(haz,po,Velocity.mkVxyz(DMOD,0,0),2*Math.PI,false);
 		} else {

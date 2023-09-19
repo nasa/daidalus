@@ -128,7 +128,7 @@ bool CriteriaCore::criterion_3D(const Vect3& sp, const Velocity&  v, int epsH, i
   return (Horizontal::horizontal_sep(sp.vect2(),D) && horizontal_criterion_0(sp.vect2(),epsH,nv.vect2(),D)) ||
       (vertical_criterion(epsV,sp,v.vect3(),nv.vect3(),D,H) &&
           (horizontal_los(sp.vect2(),D) ||
-              horizontal_criterion_0(sp.vect2(),epsH,(nv.Sub(v)).vect2(),D)));
+              horizontal_criterion_0(sp.vect2(),epsH,nv.vect2().Sub(v.vect2()),D)));
 }
 
 // ***************************************** Repulsive Criteria ******************************************
@@ -262,8 +262,8 @@ bool CriteriaCore::criteria(const Vect3& s, const Velocity&  vo, const Velocity&
     else if (vertChange) return vlc;
     else return (hlc || vlc);
   } else {
-    Velocity v = Velocity::make(vo.Sub(vi));
-    Velocity nv = Velocity::make(nvo.Sub(vi));
+    Velocity v = vo.Sub(vi.vect3());
+    Velocity nv = nvo.Sub(vi.vect3());
     return criterion_3D(s,v,epsh,epsv,nv,D,H);
   }
 }

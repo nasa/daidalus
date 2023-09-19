@@ -128,13 +128,13 @@ public:
    * Set wind velocity
    * @param wind_vector Wind velocity specified in the TO direction
    */
-  void applyWindVector(const Velocity& wind_vector);
+  void applyWindVector(const Vect3& wind_vector);
 
   /**
    * Return wind velocity in the to direction
    * @return
    */
-  Velocity windVector() const;
+  Vect3 windVector() const;
 
   /**
    * Return Euclidean projection

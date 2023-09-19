@@ -189,15 +189,6 @@ public:
 	 * @return true if the velocities are within both horizontal and vertical tolerances of each other.
 	 */
 	bool compare(const Velocity& v, double horizDelta, double vertDelta) const;
-
-	/**
-	 * New velocity from Vect3 in internal units.
-	 *
-	 * @param v the 3-D velocity vector [mps,mps,mps]
-	 *
-	 * @return the velocity
-	 */
-	static Velocity make(const Velocity& v);
 	
 	/**
 	 * New velocity from Vect3 in internal units.
@@ -305,9 +296,9 @@ public:
 
 	Velocity Neg() const;
 
-	Velocity Add(const Velocity& v) const;
+	Velocity Add(const Vect3& v) const;
 
-	Velocity Sub(const Velocity& v) const;
+	Velocity Sub(const Vect3& v) const;
 
 	/**
 	 * Return the velocity if moving from p1 to p2 over the given time

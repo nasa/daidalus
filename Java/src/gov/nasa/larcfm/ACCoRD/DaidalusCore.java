@@ -32,7 +32,7 @@ public class DaidalusCore {
 	/* Current time */
 	public double current_time;   
 	/* Wind vector in TO direction */
-	public Velocity wind_vector;  
+	public Vect3 wind_vector; 
 	/* Kinematic bands parameters */
 	public DaidalusParameters parameters;
 	/* Strategy for most urgent aircraft */
@@ -75,7 +75,7 @@ public class DaidalusCore {
 		ownship = TrafficState.INVALID;
 		traffic = new ArrayList<TrafficState>(); 
 		current_time = 0;
-		wind_vector = Velocity.ZERO;
+		wind_vector = Vect3.ZERO;
 		parameters = new DaidalusParameters();
 		urgency_strategy = NoneUrgencyStrategy.NONE_URGENCY_STRATEGY;
 
@@ -155,7 +155,7 @@ public class DaidalusCore {
 	 *  Clear wind vector from this object.   
 	 */
 	public void clear_wind() {
-		set_wind_velocity(Velocity.ZERO);
+		set_wind_velocity(Vect3.ZERO);
 	}
 
 	public boolean set_alerter_ownship(int alerter_idx) {
@@ -462,7 +462,7 @@ public class DaidalusCore {
 		}
 	}
 
-	public void set_wind_velocity(Velocity wind) {
+	public void set_wind_velocity(Vect3 wind) {
 		if (has_ownship()) {
 			ownship.applyWindVector(wind);
 			for (TrafficState ac : traffic) {
@@ -677,7 +677,7 @@ public class DaidalusCore {
 	public static int epsilonH(TrafficState ownship, TrafficState ac) {
 		if (ownship.isValid() && ac.isValid()) {
 			Vect2 s = ownship.get_s().Sub(ac.get_s()).vect2();
-			Vect2 v = ownship.get_v().Sub(ac.get_v()).vect2();   
+			Vect2 v = ownship.get_v().vect2().Sub(ac.get_v().vect2());
 			return CriteriaCore.horizontalCoordination(s,v);
 		} else {
 			return 0;

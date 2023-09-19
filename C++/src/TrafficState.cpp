@@ -56,7 +56,7 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
     sxyz_ = eprj.project(pos);
     Velocity v = eprj.projectVelocity(pos,vel);
     posxyz_ = Position(sxyz_);
-    velxyz_ = Velocity::make(v);
+    velxyz_ = v;
   } else {
     posxyz_ = pos;
     sxyz_ = pos.vect3();
@@ -66,7 +66,7 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
 
 // Set air velocity to new_avel. This method sets ground speed appropriately based on current wind
 void TrafficState::setAirVelocity(const Velocity& airvel) {
-  Velocity wind = windVector();
+  Vect3 wind = windVector();
   avel_ = airvel;
   gvel_ = Velocity(airvel.Add(wind));
   applyEuclideanProjection();
@@ -96,7 +96,7 @@ void TrafficState::applyEuclideanProjection() {
     sxyz_ = eprj_.project(pos_);
     Velocity v = eprj_.projectVelocity(pos_, avel_);
     posxyz_ = Position(sxyz_);
-    velxyz_ = Velocity::make(v);
+    velxyz_ = v;
   } else {
     posxyz_ = pos_;
     sxyz_ = pos_.vect3();
@@ -142,13 +142,13 @@ int TrafficState::getAlerterIndex() const {
   return alerter_;
 }
 
-void TrafficState::applyWindVector(const Velocity& wind_vector) {
+void TrafficState::applyWindVector(const Vect3& wind_vector) {
   avel_ = Velocity(gvel_.Sub(wind_vector));
   applyEuclideanProjection();
 }
 
-Velocity TrafficState::windVector() const {
-  return Velocity(gvel_.Sub(avel_));
+Vect3 TrafficState::windVector() const {
+  return gvel_.vect3().Sub(avel_.vect3());
 }
 
 const EuclideanProjection& TrafficState::getEuclideanProjection() const {

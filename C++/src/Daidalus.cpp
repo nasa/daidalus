@@ -491,32 +491,32 @@ void Daidalus::setOwnshipAirVelocity(double heading, double airspeed) {
 /**
  * Get wind velocity specified in the TO direction
  */
-const Velocity& Daidalus::getWindVelocityTo() const {
-  return core_.wind_vector;
+Velocity Daidalus::getWindVelocityTo() const {
+  return Velocity::make(core_.wind_vector);
 }
 
 /**
  * Get wind velocity specified in the From direction
  */
 Velocity Daidalus::getWindVelocityFrom() const {
-  return core_.wind_vector.Neg();
+  return Velocity::make(core_.wind_vector.Neg());
 }
 
 /**
  * Set wind velocity specified in the TO direction
- * @param wind_velocity: Wind velocity specified in TO direction
+ * @param windto: Wind velocity specified in TO direction
  */
-void Daidalus::setWindVelocityTo(const Velocity& wind_vector) {
-  core_.set_wind_velocity(wind_vector);
+void Daidalus::setWindVelocityTo(const Velocity& windto) {
+  core_.set_wind_velocity(windto.vect3());
   stale_bands();
 }
 
 /**
  * Set wind velocity specified in the From direction
- * @param nwind_velocity: Wind velocity specified in From direction
+ * @param windfrom: Wind velocity specified in From direction
  */
-void Daidalus::setWindVelocityFrom(const Velocity& nwind_vector) {
-  setWindVelocityTo(nwind_vector.Neg());
+void Daidalus::setWindVelocityFrom(const Velocity& windfrom) {
+  setWindVelocityTo(windfrom.Neg());
 }
 
 /**

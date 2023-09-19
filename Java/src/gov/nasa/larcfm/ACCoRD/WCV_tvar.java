@@ -120,7 +120,7 @@ public abstract class WCV_tvar extends Detection3D {
 		LossData ld = WCV_interval(so,vo,si,vi,B,T);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
 		double dist_tca = so.linear(vo.vect3(), t_tca).Sub(si.linear(vi.vect3(), t_tca)).cyl_norm(table.DTHR,table.ZTHR);
-		return new ConflictData(ld,t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
+		return new ConflictData(ld,t_tca,dist_tca,so.Sub(si),vo.Sub(vi.vect3()));
 	}
 
 	// Assumes 0 <= B < T
@@ -206,7 +206,7 @@ public abstract class WCV_tvar extends Detection3D {
 			TrafficState ownship, TrafficState intruder, double T) {
 		haz.clear();
 		Position po = ownship.getPosition();
-		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity());
+		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
 		if (Util.almost_equals(getTTHR()+T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			CDCylinder.circular_arc(haz,po,Velocity.mkVxyz(getDTHR(),0,0),2*Math.PI,false);
 		} else {

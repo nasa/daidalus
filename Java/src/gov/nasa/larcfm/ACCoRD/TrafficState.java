@@ -84,7 +84,7 @@ public class TrafficState {
 			sxyz_ = eprj.project(pos);
 			Velocity v = eprj.projectVelocity(pos,vel);
 			posxyz_ = Position.make(sxyz_);
-			velxyz_ = Velocity.make(v);
+			velxyz_ = v;
 		} else {
 			posxyz_ = pos;
 			sxyz_ = pos.vect3();
@@ -111,7 +111,7 @@ public class TrafficState {
 
 	// Set air velocity to airvel. This method sets ground speed appropriately based on current wind
 	public void setAirVelocity(Velocity airvel) {
-		Velocity wind = windVector();
+		Vect3 wind = windVector();
 		avel_ = airvel;
 		gvel_ = airvel.Add(wind);
 		applyEuclideanProjection();
@@ -141,7 +141,7 @@ public class TrafficState {
 			sxyz_ = eprj_.project(pos_);
 			Velocity v = eprj_.projectVelocity(pos_,avel_);
 			posxyz_ = Position.make(sxyz_);	
-			velxyz_ = Velocity.make(v);
+			velxyz_ = v;
 		} else {
 			posxyz_ = pos_;
 			sxyz_ = pos_.vect3();
@@ -216,7 +216,7 @@ public class TrafficState {
 	 * Set wind velocity 
 	 * @param wind_vector Wind velocity specified in the TO direction
 	 */
-	public void applyWindVector(Velocity wind_vector) {
+	public void applyWindVector(Vect3 wind_vector) {
 		avel_ = gvel_.Sub(wind_vector);
 		applyEuclideanProjection();
 	}
@@ -225,8 +225,8 @@ public class TrafficState {
 	 * Return wind velocity in the to direction
 	 * @return
 	 */
-	public Velocity windVector() {
-		return gvel_.Sub(avel_);
+	public Vect3 windVector() {
+		return gvel_.vect3().Sub(avel_.vect3());
 	}
 
 	/**

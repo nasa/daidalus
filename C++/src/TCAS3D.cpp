@@ -152,7 +152,7 @@ bool TCAS3D::TCASII_RA(const Vect3& so, const Vect3& vo, const Vect3& si, const 
 ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
 
   Vect3 s = so.Sub(si);
-  Velocity v = Velocity(vo.Sub(vi));
+  Velocity v = vo.Sub(vi.vect3());
   Vect2 so2 = so.vect2();
   Vect2 vo2 = vo.vect2();
   Vect2 si2 = si.vect2();
@@ -451,7 +451,7 @@ void TCAS3D::horizontalHazardZone(std::vector<Position>& haz, const TrafficState
   double DMOD = Util::max(table_.getDMOD(sl),table_.getHMD(sl));
   haz.clear();
   Position po = ownship.getPosition();
-  Velocity v = Velocity::make(ownship.getVelocity().Sub(intruder.getVelocity()));
+  Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
   if (Util::almost_equals(TAUMOD+T,0) || Util::almost_equals(v.vect3().norm2D(),0)) {
     CDCylinder::circular_arc(haz,po,Velocity::mkVxyz(DMOD,0,0),2*Pi,false);
   } else {
