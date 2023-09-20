@@ -79,10 +79,6 @@ double DaidalusRealBands::max_rel(const DaidalusParameters& parameters) const {
   }
 }
 
-bool DaidalusRealBands::saturate_corrective_bands(const DaidalusParameters& parameters, int dta_status) const {
-  return false;
-}
-
 double DaidalusRealBands::get_min_val_() const {
   return min_val_;
 }
@@ -106,10 +102,10 @@ void DaidalusRealBands::set_min_max_rel(double min_rel, double max_rel) {
   // This method doesn't stale data. Use with care.
 }
 
-bool DaidalusRealBands::set_input(const DaidalusParameters& parameters, const TrafficState& ownship, int dta_status) {
+bool DaidalusRealBands::set_input(const DaidalusParameters& parameters, const TrafficState& ownship, const SpecialBandFlags& special_flags) {
   if (checked_ < 0) {
     checked_ = 0;
-    set_special_configuration(parameters,dta_status);
+    set_special_configuration(parameters,special_flags);
     if (ownship.isValid() && get_step(parameters) > 0) {
       double val = own_val(ownship);
       // When mod_ == 0, min_val <= max_val. When mod_ > 0, min_val, max_val in [0,mod_].
@@ -162,8 +158,8 @@ bool DaidalusRealBands::set_input(const DaidalusParameters& parameters, const Tr
 }
 
 bool DaidalusRealBands::kinematic_conflict(const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
-    Detection3D* detector, int epsh, int epsv, double alerting_time, int dta_status) {
-  return set_input(parameters,ownship,dta_status) &&
+    Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags) {
+  return set_input(parameters,ownship,special_flags) &&
       any_red(detector,NULL,epsh,epsv,0.0,alerting_time,parameters,ownship,traffic);
 }
 
@@ -191,7 +187,7 @@ BandsRegion::Region DaidalusRealBands::region(DaidalusCore& core, int i) {
  * Return index in ranges_ where val is found, -1 if invalid input, >= length if not found
  */
 int DaidalusRealBands::indexOf(DaidalusCore& core, double val) {
-  if (set_input(core.parameters,core.ownship,core.DTAStatus())) {
+  if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags())) {
     refresh(core);
     return BandsRange::index_of(ranges_,val,mod_);
   } else {
@@ -245,7 +241,7 @@ bool DaidalusRealBands::isFresh() const {
  */
 void DaidalusRealBands::refresh(DaidalusCore& core) {
   if (outdated_) {
-    if (set_input(core.parameters,core.ownship,core.DTAStatus())) {
+    if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags())) {
       for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
         acs_bands_[conflict_region] = core.acs_conflict_bands(conflict_region);
         if (core.bands_for(conflict_region)) {
@@ -288,7 +284,7 @@ void DaidalusRealBands::peripheral_aircraft(DaidalusCore& core, int conflict_reg
         ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
         if (!det.conflictBefore(alerting_time) && kinematic_conflict(core.parameters,core.ownship,intruder,detector,
             core.epsilonH(false,intruder),core.epsilonV(false,intruder),alerting_time,
-            core.DTAStatus())) {
+            core.getSpecialBandFlags())) {
           acs_peripheral_bands_[conflict_region].push_back(IndexLevelT(ac,alert_level,alerting_time));
         }
       }
@@ -490,7 +486,7 @@ bool DaidalusRealBands::compute_recovery_bands(IntervalSet& none_set_region, con
  * Compute bands for one region. Return true iff recovery bands were computed.
  */
 bool DaidalusRealBands::compute_region(std::vector<IntervalSet>& none_sets, int conflict_region, int corrective_region, DaidalusCore& core) {
-  if (saturate_corrective_bands(core.parameters,core.DTAStatus()) && conflict_region <= corrective_region) {
+  if (saturate_corrective_bands(core.parameters,core.getSpecialBandFlags()) && conflict_region <= corrective_region) {
     none_sets[conflict_region].clear();
     return false;
   }
@@ -615,7 +611,7 @@ bool DaidalusRealBands::preferred_direction(DaidalusCore& core) {
 double DaidalusRealBands::last_time_to_maneuver(DaidalusCore& core, const TrafficState& intruder) {
   int alert_idx = core.parameters.isAlertingLogicOwnshipCentric() ? core.ownship.getAlerterIndex() : intruder.getAlerterIndex();
   int alert_level = core.parameters.correctiveAlertLevel(alert_idx);
-  if (set_input(core.parameters,core.ownship,core.DTAStatus()) && alert_level > 0) {
+  if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags()) && alert_level > 0) {
     const AlertThresholds& alertthr = core.parameters.getAlerterAt(alert_idx).getLevel(alert_level);
     Detection3D* detector = alertthr.getCoreDetectionPtr();
     ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());

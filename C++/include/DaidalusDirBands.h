@@ -38,7 +38,9 @@ public:
 
   virtual double get_max_rel(const DaidalusParameters& parameters) const;
 
-  virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, int dta_status) const;
+  virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) const;
+
+  virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {};
 
   virtual bool instantaneous_bands(const DaidalusParameters& parameters) const;
 

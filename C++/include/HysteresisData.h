@@ -24,10 +24,14 @@ public:
    */
   HysteresisData();
 
+  void init();
+
+  bool isValid() const;
+
   /*
-   * Creates an object for given values of hysteresis, persistence time, and M of N parameters
+   * Set given values of hysteresis, persistence time, and M of N parameters
    */
-  HysteresisData(double hysteresis_time, double persistence_time, int m, int n);
+  void setHysteresisData(double hysteresis_time, double persistence_time, int m, int n);
 
   void outdateIfCurrentTime(double current_time);
 
@@ -38,11 +42,6 @@ public:
   double getLastTime() const;
 
   int getLastValue() const;
-
-  /*
-   * Reset object with given M of N value
-   */
-  void reset(int val);
 
   std::string toString() const;
 
@@ -60,9 +59,13 @@ private:
   double init_time_;
   double last_time_;
   int    last_value_;
-  // When this flag is true, setting a value at current time
-  // resets hysteresis values
+  /* When this flag is true, setting a value at current time resets hysteresis values */
   bool outdated_;
+
+  /*
+   * Reset object with given M of N value
+   */
+  void reset(int val);
 
 };
 

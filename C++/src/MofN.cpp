@@ -27,20 +27,11 @@ void MofN::setMofN(int m, int n, int val) {
 }
 
 /*
- * Creates an M of N object, with a given initial value
- */
-MofN::MofN(int m, int n, int val) {
-  setMofN(m,n,val);
-}
-
-/*
  * Creates an empty M of N object, with no parameter initialization.
  * Without further use of setMofN on this object, it's considered invalid and
  * doesn't perform M of N logic.
  */
-MofN::MofN() {
-  setMofN(0,0,-1);
-}
+MofN::MofN() : m_(0), n_(0), max_(-1) {}
 
 /*
  * Creates a copy of M of N object

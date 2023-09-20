@@ -114,10 +114,9 @@ public:
 
   virtual double max_delta_resolution(const DaidalusParameters& parameters) const = 0;
 
-  virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, int dta_status) const;
+  virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) const = 0;
 
-  // If necessary to be defined by the subclasses
-  virtual void set_special_configuration(const DaidalusParameters& parameters, int dta_status) {}
+  virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) = 0;
 
   double get_min_val_() const;
 
@@ -137,11 +136,11 @@ private:
 
   double max_rel(const DaidalusParameters& parameters) const;
 
-  bool set_input(const DaidalusParameters& parameters, const TrafficState& ownship, int dta_status);
+  bool set_input(const DaidalusParameters& parameters, const TrafficState& ownship, const SpecialBandFlags& special_flags);
 
 public:
   bool kinematic_conflict(const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
-      Detection3D* detector, int epsh, int epsv, double alerting_time, int dta_status);
+      Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags);
 
   int length(DaidalusCore& core);
 

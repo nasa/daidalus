@@ -22,8 +22,7 @@ public class HysteresisData {
 	private double  init_time_; 
 	private double  last_time_; 
 	private int     last_value_;
-	// When this flag is true, setting a value at current time
-	// resets hysteresis values
+	/* When this flag is true, setting a value at current time resets hysteresis values */
 	private boolean outdated_; 
 
 	/* 
@@ -31,8 +30,8 @@ public class HysteresisData {
 	 */
 	public HysteresisData() {
 		mofn_ = new MofN();
-		hysteresis_time_  = 0;
-		persistence_time_ = 0;
+		hysteresis_time_  = 0.0;
+		persistence_time_ = 0.0;
 		init_time_  = Double.NaN;
 		last_time_  = Double.NaN;
 		last_value_ = -1;
@@ -40,10 +39,30 @@ public class HysteresisData {
 	}
 
 	/*
-	 * Creates an object for given values of hysteresis, persistence time, and M of N parameters
+	 * Clear Hysteresis Data
 	 */
-	public HysteresisData(double hysteresis_time, double persistence_time, int m, int n) {
-		mofn_ = new MofN(m,n);
+	public void init() {
+		mofn_.setMofN(0,0);
+		hysteresis_time_  = 0.0;
+		persistence_time_ = 0.0;
+		init_time_  = Double.NaN;
+		last_time_  = Double.NaN;
+		last_value_ = -1;
+		outdated_ = true;
+	}
+
+	/* 
+	 * Check validity of HysteresisData
+	 */
+	public boolean isValid() {
+		return mofn_.isValid();
+	}
+
+	/*
+	 * Set given values of hysteresis, persistence time, and M of N parameters
+	 */
+	public void setHysteresisData(double hysteresis_time, double persistence_time, int m, int n) {
+		mofn_.setMofN(m,n);
 		hysteresis_time_ = hysteresis_time;
 		persistence_time_ = persistence_time;
 		init_time_ = Double.NaN;
@@ -77,7 +96,7 @@ public class HysteresisData {
 	/*
 	 * Reset object with given value
 	 */
-	public void reset(int val) {
+	private void reset(int val) {
 		mofn_.reset(val);
 		init_time_  = Double.NaN;
 		last_time_  = Double.NaN;

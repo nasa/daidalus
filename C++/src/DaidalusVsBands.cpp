@@ -50,8 +50,8 @@ bool DaidalusVsBands::instantaneous_bands(const DaidalusParameters& parameters) 
   return parameters.getVerticalAcceleration() == 0;
 }
 
-void DaidalusVsBands::set_special_configuration(const DaidalusParameters& parameters, int dta_status) {
-  if (dta_status > 0) {
+void DaidalusVsBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
+  if (special_flags.get_dta_status() > 0) {
     set_min_max_rel(0,-1);
   }
 }

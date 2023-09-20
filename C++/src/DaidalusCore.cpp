@@ -152,6 +152,7 @@ bool DaidalusCore::set_alerter_traffic(int idx, int alerter_idx) {
 void DaidalusCore::clear_hysteresis() {
   alerting_hysteresis_acs_.clear();
   dta_hysteresis_acs_.clear();
+  below_min_as_hysteresis_.init();
   stale();
 }
 
@@ -166,6 +167,7 @@ void DaidalusCore::stale() {
     epsh_ = 0;
     epsv_ = 0;
     dta_status_ = 0;
+    below_min_as_ = false;
     for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
       acs_conflict_bands_[conflict_region].clear();
       tiov_[conflict_region] = Interval::EMPTY;
@@ -178,6 +180,7 @@ void DaidalusCore::stale() {
     for (hysteresis_ptr = dta_hysteresis_acs_.begin();hysteresis_ptr != dta_hysteresis_acs_.end();++hysteresis_ptr) {
       hysteresis_ptr->second.outdateIfCurrentTime(current_time);
     }
+    below_min_as_hysteresis_.outdateIfCurrentTime(current_time);
   }
 }
 
@@ -210,12 +213,12 @@ void DaidalusCore::refresh() {
     dta_status_ = 0; // Not active
     if (parameters.getDTALogic() != 0 && parameters.getDTAAlerter() != 0) {
       if (parameters.isAlertingLogicOwnshipCentric()) {
-        if (alerter_index_of(ownship) == parameters.getDTAAlerter()) {
+        if (alerter_index_of(ownship) == parameters.getDTAAlerter()) { // Hysteresis for dta is done here
           dta_status_ = -1; // Inside DTA
         }
       } else {
         for (int ac=0; ac < static_cast<int>(traffic.size()) && dta_status_ == 0; ++ac) {
-          if (alerter_index_of(traffic[ac]) == parameters.getDTAAlerter()) {
+          if (alerter_index_of(traffic[ac]) == parameters.getDTAAlerter()) { // Hysteresis for dta is done here
             dta_status_ = -1; // Inside DTA
           }
         }
@@ -224,6 +227,7 @@ void DaidalusCore::refresh() {
         dta_status_ = 1; //Inside DTA and special bands enabled
       }
     }
+    below_min_as_ = below_min_as_hysteresis_current_value();
     refresh_mua_eps();
     cache_ = 1;
   }
@@ -258,15 +262,38 @@ void DaidalusCore::refresh_mua_eps() {
   }
 }
 
+int DaidalusCore::below_min_as_hysteresis_current_value() {
+	int actual_bmas = 0;
+	if (!below_min_as_hysteresis_.isValid()) {
+		below_min_as_hysteresis_.setHysteresisData(
+		parameters.getHysteresisTime(),
+		parameters.getPersistenceTime(),
+		parameters.getAlertingParameterM(),
+		parameters.getAlertingParameterN());
+	}
+	if (below_min_as_hysteresis_.isUpdatedAtCurrentTime(current_time)) {
+		actual_bmas = below_min_as_hysteresis_.getLastValue();
+	} else {
+		int raw_bmas = ownship.getAirVelocity().gs() < parameters.getMinAirSpeed() ? 1 : 0;	
+		actual_bmas = below_min_as_hysteresis_.applyHysteresisLogic(raw_bmas,current_time);
+	}
+	return actual_bmas > 0;
+}
+  
 /**
  * Returns DTA status:
  *  0 : DTA is not active
  * -1 : DTA is active, but special bands are not enabled yet
  *  1 : DTA is active and special bands are enabled
  */
-int DaidalusCore::DTAStatus() {
+int DaidalusCore::getDTAStatus() {
   refresh();
   return dta_status_;
+}
+
+SpecialBandFlags DaidalusCore::getSpecialBandFlags() {
+	refresh();
+	return SpecialBandFlags(below_min_as_,dta_status_);
 }
 
 /**
@@ -603,17 +630,16 @@ int DaidalusCore::dta_hysteresis_current_value(const TrafficState& ac) {
       parameters.getDTARadius() > 0 && parameters.getDTAHeight() > 0) {
     std::map<std::string,HysteresisData>::iterator dta_hysteresis_ptr = dta_hysteresis_acs_.find(ac.getId());
     if (dta_hysteresis_ptr ==  dta_hysteresis_acs_.end()) {
-      HysteresisData dta_hysteresis = HysteresisData(
+      HysteresisData dta_hysteresis = HysteresisData();
+      dta_hysteresis.setHysteresisData(
           parameters.getHysteresisTime(),
           parameters.getPersistenceTime(),
           parameters.getAlertingParameterM(),
           parameters.getAlertingParameterN());
-      int raw_dta = Util::almost_leq(ac.getPosition().distanceH(parameters.getDTAPosition()),parameters.getDTARadius()) &&
-          Util::almost_leq(ac.getPosition().alt(),parameters.getDTAHeight()) ? 1 : 0;
-      int actual_dta = dta_hysteresis.applyHysteresisLogic(raw_dta,current_time);
       dta_hysteresis_acs_[ac.getId()] = dta_hysteresis;
-      return actual_dta;
-    } else if (dta_hysteresis_ptr->second.isUpdatedAtCurrentTime(current_time)) {
+      dta_hysteresis_ptr = dta_hysteresis_acs_.find(ac.getId());
+    }
+    if (dta_hysteresis_ptr->second.isUpdatedAtCurrentTime(current_time)) {
       return dta_hysteresis_ptr->second.getLastValue();
     } else {
       int raw_dta = Util::almost_leq(ac.getPosition().distanceH(parameters.getDTAPosition()),parameters.getDTARadius()) &&
@@ -704,7 +730,7 @@ bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_l
         DaidalusDirBands dir_band;
         dir_band.set_min_max_rel(turning <= 0 ? athr.getHorizontalDirectionSpread() : 0,
             turning >= 0 ? athr.getHorizontalDirectionSpread() : 0);
-        if (dir_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,DTAStatus())) {
+        if (dir_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,getSpecialBandFlags())) {
           return true;
         }
       }
@@ -712,7 +738,7 @@ bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_l
         DaidalusHsBands hs_band;
         hs_band.set_min_max_rel(accelerating <= 0 ? athr.getHorizontalSpeedSpread() : 0,
             accelerating >= 0 ? athr.getHorizontalSpeedSpread() : 0);
-        if (hs_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,DTAStatus())) {
+        if (hs_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,getSpecialBandFlags())) {
           return true;
         }
       }
@@ -720,7 +746,7 @@ bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_l
         DaidalusVsBands vs_band;
         vs_band.set_min_max_rel(climbing <= 0 ? athr.getVerticalSpeedSpread() : 0,
             climbing >= 0 ? athr.getVerticalSpeedSpread() : 0);
-        if (vs_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,DTAStatus())) {
+        if (vs_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,getSpecialBandFlags())) {
           return true;
         }
       }
@@ -728,7 +754,7 @@ bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_l
         DaidalusAltBands alt_band;
         alt_band.set_min_max_rel(climbing <= 0 ? athr.getAltitudeSpread() : 0,
             climbing >= 0 ? athr.getAltitudeSpread() : 0);
-        if (alt_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,DTAStatus())) {
+        if (alt_band.kinematic_conflict(parameters,ownship,intruder,detector,epsh,epsv,alerting_time,getSpecialBandFlags())) {
           return true;
         }
       }
@@ -742,17 +768,16 @@ int DaidalusCore::alerting_hysteresis_current_value(const TrafficState& intruder
   if (1 <= alerter_idx && alerter_idx <= parameters.numberOfAlerters()) {
     std::map<std::string,HysteresisData>::iterator alerting_hysteresis_ptr = alerting_hysteresis_acs_.find(intruder.getId());
     if (alerting_hysteresis_ptr == alerting_hysteresis_acs_.end()) {
-      HysteresisData alerting_hysteresis = HysteresisData(
+      HysteresisData alerting_hysteresis = HysteresisData();
+      alerting_hysteresis.setHysteresisData(
           parameters.getHysteresisTime(),
           parameters.getPersistenceTime(),
           parameters.getAlertingParameterM(),
           parameters.getAlertingParameterN());
-      const Alerter& alerter = parameters.getAlerterAt(alerter_idx);
-      int raw_alert = raw_alert_level(alerter,intruder,turning,accelerating,climbing);
-      int actual_alert = alerting_hysteresis.applyHysteresisLogic(raw_alert,current_time);
       alerting_hysteresis_acs_[intruder.getId()] = alerting_hysteresis;
-      return actual_alert;
-    } else if (alerting_hysteresis_ptr->second.isUpdatedAtCurrentTime(current_time)) {
+      alerting_hysteresis_ptr = alerting_hysteresis_acs_.find(intruder.getId());
+    }
+    if (alerting_hysteresis_ptr->second.isUpdatedAtCurrentTime(current_time)) {
       return alerting_hysteresis_ptr->second.getLastValue();
     } else {
       const Alerter& alerter = parameters.getAlerterAt(alerter_idx);

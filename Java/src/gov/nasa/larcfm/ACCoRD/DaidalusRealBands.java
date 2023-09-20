@@ -157,13 +157,9 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		}
 	}
 
-	public boolean saturate_corrective_bands(DaidalusParameters parameters, int dta_status) {
-		return false;
-	}
+	abstract public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags); 
 
-	public void set_special_configuration(DaidalusParameters parameters, int dta_status) {	
-		// If necessary to be defined by the subclasses
-	}
+	abstract public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags);
 
 	public double get_min_val_() {
 		return min_val_;
@@ -188,14 +184,14 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		// This method doesn't stale data. Use with care.
 	}
 
-	private boolean set_input(DaidalusParameters parameters, TrafficState ownship, int dta_status) {
+	private boolean set_input(DaidalusParameters parameters, TrafficState ownship, SpecialBandFlags special_flags) {
 		if (checked_ < 0) {
 			checked_ = 0;
-			set_special_configuration(parameters,dta_status);
+			set_special_configuration(parameters,special_flags);
 			if (ownship.isValid() && get_step(parameters) > 0) { 
 				double val = own_val(ownship);
 				// When mod_ == 0, min_val <= max_val. When mod_ > 0, min_val, max_val in [0,mod_]. 
-				// In the later case, min_val may be greater than max_val. Furthermore, min_val = max_val means 
+				// In the latter case, min_val may be greater than max_val. Furthermore, min_val = max_val means 
 				// a range of values from 0 to mod, i.e., a circular band.
 				if (min_rel(parameters) == 0 && max_rel(parameters) == 0) {
 					min_val_ = get_min(parameters);
@@ -245,8 +241,8 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 
 	public boolean kinematic_conflict(DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, 
 			Detection3D detector, int epsh, int epsv, double alerting_time,
-			int dta_status) {
-		return set_input(parameters,ownship,dta_status) && 
+			SpecialBandFlags special_flags) {
+		return set_input(parameters,ownship,special_flags) && 
 				any_red(detector,Detection3D.NoDetector,epsh,epsv,0.0,alerting_time,parameters,ownship,traffic);
 	}
 
@@ -274,7 +270,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 * Return index in ranges_ where val is found, -1 if invalid input or not found 
 	 */
 	public int indexOf(DaidalusCore core, double val) {
-		if (set_input(core.parameters,core.ownship,core.DTAStatus())) {
+		if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags())) {
 			refresh(core);
 			return BandsRange.index_of(ranges_,val,mod_);
 		} else {
@@ -328,7 +324,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 */
 	public void refresh(DaidalusCore core) {
 		if (outdated_) {
-			if (set_input(core.parameters,core.ownship,core.DTAStatus())) {
+			if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags())) {
 				for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 					acs_bands_.get(conflict_region).addAll(core.acs_conflict_bands(conflict_region));
 					if (core.bands_for(conflict_region)) {
@@ -371,7 +367,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 					ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
 					if (!det.conflictBefore(alerting_time) && kinematic_conflict(core.parameters,core.ownship,intruder,detector,
 							core.epsilonH(false,intruder),core.epsilonV(false,intruder),alerting_time,
-							core.DTAStatus())) {
+							core.getSpecialBandFlags())) {
 						acs_peripheral_bands_.get(conflict_region).add(new IndexLevelT(ac,alert_level,alerting_time));
 					}
 				}	
@@ -572,7 +568,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 */
 	private boolean compute_region(IntervalSet[] none_sets, int conflict_region, int corrective_region,
 			DaidalusCore core) {  
-		if (saturate_corrective_bands(core.parameters,core.DTAStatus()) && conflict_region <= corrective_region) {
+		if (saturate_corrective_bands(core.parameters,core.getSpecialBandFlags()) && conflict_region <= corrective_region) {
 			none_sets[conflict_region].clear();
 			return false;
 		}
@@ -696,7 +692,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	public double last_time_to_maneuver(DaidalusCore core, TrafficState intruder) {
 		int alert_idx = core.alerter_index_of(intruder);
 		int alert_level = core.parameters.correctiveAlertLevel(alert_idx);
-		if (set_input(core.parameters,core.ownship,core.DTAStatus()) && alert_level > 0) {
+		if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags()) && alert_level > 0) {
 			AlertThresholds alertthr = core.parameters.getAlerterAt(alert_idx).getLevel(alert_level);
 			Detection3D detector = alertthr.getCoreDetection();
 			ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());

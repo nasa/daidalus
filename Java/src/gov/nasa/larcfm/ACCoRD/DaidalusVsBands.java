@@ -45,8 +45,12 @@ public class DaidalusVsBands extends DaidalusRealBands {
 		return parameters.getAboveRelativeVerticalSpeed();
 	}
 
-	public void set_special_configuration(DaidalusParameters parameters, int dta_status) {	
-		if (dta_status > 0) { 
+	public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags) {
+		return false;
+	}
+	
+	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {	
+		if (special_flags.get_dta_status() > 0) { 
 			set_min_max_rel(0,-1);
 		}
 	}

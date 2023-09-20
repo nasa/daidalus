@@ -59,6 +59,12 @@ public class DaidalusHsBands extends DaidalusRealBands {
 		return get_step(parameters)/parameters.getHorizontalAcceleration();
 	}
 
+	public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags) {
+		return false;
+	}
+
+	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {}
+
 	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {    
 		Pair<Position,Velocity> posvel;
 		if (time == 0 && target_step == 0) {

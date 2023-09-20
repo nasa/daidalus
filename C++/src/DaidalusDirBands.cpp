@@ -46,8 +46,8 @@ double DaidalusDirBands::get_max_rel(const DaidalusParameters& parameters) const
   return parameters.getRightHorizontalDirection();
 }
 
-bool DaidalusDirBands::saturate_corrective_bands(const DaidalusParameters& parameters, int dta_status) const {
-  return dta_status > 0 && parameters.getDTALogic() < 0;
+bool DaidalusDirBands::saturate_corrective_bands(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) const {
+  return special_flags.get_dta_status() > 0 && parameters.getDTALogic() < 0;
 }
 
 bool DaidalusDirBands::instantaneous_bands(const DaidalusParameters& parameters) const {

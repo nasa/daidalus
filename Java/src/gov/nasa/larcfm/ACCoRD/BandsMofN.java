@@ -22,9 +22,11 @@ public class BandsMofN {
 	public BandsMofN(ColorValue cv, int m, int n) {
 		val = cv.val;
 		int code = BandsRegion.orderOfRegion(cv.color_left);
-		colors_left = new MofN(m,n,code);
+		colors_left = new MofN();
+		colors_left.setMofN(m,n,code);
 		code = BandsRegion.orderOfRegion(cv.color_right);
-		colors_right = new MofN(m,n,code);
+		colors_right = new MofN();
+		colors_right.setMofN(m,n,code);
 	}
 
 	public BandsMofN(double value, MofN mofn) {

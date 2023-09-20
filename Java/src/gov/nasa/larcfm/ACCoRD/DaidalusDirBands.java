@@ -48,8 +48,12 @@ public class DaidalusDirBands extends DaidalusRealBands {
 		return parameters.getRightHorizontalDirection();
 	}
 
-	public boolean saturate_corrective_bands(DaidalusParameters parameters, int dta_status) {
-		return dta_status > 0 && parameters.getDTALogic() < 0;
+	public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags) {
+		return special_flags.get_dta_status() > 0 && parameters.getDTALogic() < 0;
+	}
+
+	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {
+
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {

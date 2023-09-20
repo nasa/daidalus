@@ -12,11 +12,10 @@
 
 namespace larcfm {
 
-BandsMofN::BandsMofN(const ColorValue& cv, int m, int n) :
-                                    val(cv.val),
-                                    colors_left(m,n,BandsRegion::orderOfRegion(cv.color_left)),
-                                    colors_right(m,n,BandsRegion::orderOfRegion(cv.color_right))
-{}
+BandsMofN::BandsMofN(const ColorValue& cv, int m, int n) : val(cv.val) {
+  colors_left.setMofN(m,n,BandsRegion::orderOfRegion(cv.color_left));
+  colors_right.setMofN(m,n,BandsRegion::orderOfRegion(cv.color_right));
+}
 
 BandsMofN::BandsMofN(double value, const MofN& mofn) :
                 val(value),

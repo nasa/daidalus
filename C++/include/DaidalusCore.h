@@ -17,6 +17,7 @@
 #include "NoneUrgencyStrategy.h"
 #include "TrafficState.h"
 #include "DaidalusParameters.h"
+#include "SpecialBandFlags.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -59,6 +60,10 @@ private:
   int epsh_;
   /* Cached vertical epsilon for implicit coordination */
   int epsv_;
+  /* Cached value indicating that aircraft if flying below min_airspeed. This may happen when
+	 * aircraft is a rotor craft. In this case, heading bands are computed using min_airspeed value.
+	 */
+	bool below_min_as_;
   /* Cached value of DTA status given current aircraft states.
    *  0 : Not in DTA
    * -1 : In DTA, but special bands are not enabled yet
@@ -66,12 +71,14 @@ private:
    */
   int dta_status_;
   /* Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral)
-   * band listed per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR */
+   * band listed per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR 
+   */
   std::vector<std::vector<IndexLevelT> > acs_conflict_bands_;
   /* Cached list of time to violation per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR */
   Interval tiov_[BandsRegion::NUMBER_OF_CONFLICT_BANDS];
   /* Cached list of bool alues indicating which bands should be computed, where 0th:NEAR, 1th:MID, 2th:FAR.
-   * NaN means that bands are not computed for that region*/
+   * NaN means that bands are not computed for that region
+   */
   bool bands4region_[BandsRegion::NUMBER_OF_CONFLICT_BANDS];
 
   /**** HYSTERESIS VARIABLES ****/
@@ -79,9 +86,12 @@ private:
   // Alerting and DTA hysteresis per aircraft's ids
   std::map<std::string,HysteresisData> alerting_hysteresis_acs_;
   std::map<std::string,HysteresisData> dta_hysteresis_acs_;
+  HysteresisData below_min_as_hysteresis_; // Below min airspeed Hysteris
 
   void copyFrom(const DaidalusCore& core);
   void refresh_mua_eps();
+
+  int below_min_as_hysteresis_current_value();
 
 public:
   DaidalusCore();
@@ -136,7 +146,9 @@ public:
    * -1 : DTA is active, but special bands are not enabled yet
    *  1 : DTA is active and special bands are enabled
    */
-  int DTAStatus();
+  int getDTAStatus();
+
+  SpecialBandFlags getSpecialBandFlags();
 
   /**
    * @return most urgent aircraft for implicit coordination

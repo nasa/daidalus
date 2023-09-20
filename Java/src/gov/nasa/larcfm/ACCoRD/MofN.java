@@ -25,7 +25,7 @@ public class MofN {
 	private Queue<Integer> queue_;
 
 	/*
-	 * Set M of N with a given initial value
+	 * Set M of N, where the initial value is set to val
 	 */
 	public void setMofN(int m, int n, int val) {
 		m_ = m;
@@ -40,28 +40,16 @@ public class MofN {
 		setMofN(m,n,-1);
 	}
 	
-	/*
-	 * Creates an M of N object, with a given initial value
-	 */
-	public MofN(int m, int n, int val) {
-		queue_ = new LinkedList<Integer>();
-		setMofN(m,n,val);
-	}
-
-	/*
-	 * Creates an M of N object, where the initial value is set to -1 (undefined)
-	 */
-	public MofN(int m, int n) {
-		this(m,n,-1);
-	}
-
 	/* 
 	 * Creates an empty M of N object, with no parameter initialization. 
 	 * Without further use of setMofN on this object, it's considered invalid and
 	 * doesn't perform M of N logic. 
 	 */
 	public MofN() {
-		this(0,0,-1);
+		queue_ = new LinkedList<Integer>();
+		m_ = 0;
+		n_ = 0;
+		max_ = -1;
 	}
 
 	/*

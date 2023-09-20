@@ -26,11 +26,6 @@ public:
   void setMofN(int m, int n, int val=-1);
 
   /*
-   * Creates an M of N object, with a given initial value
-   */
-  MofN(int m, int n, int val=-1);
-
-  /*
    * Creates an empty M of N object, with no parameter initialization.
    * Without further use of setMofN on this object, it's considered invalid and
    * doesn't perform M of N logic.
