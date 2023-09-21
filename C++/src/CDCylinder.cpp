@@ -135,24 +135,24 @@ LossData CDCylinder::detection(const Vect3& s, const Vect3& vo, const Vect3& vi,
   return detection(s,vo,vi,D,H,0.0,PINFINITY);
 }
 
-ConflictData CDCylinder::conflict_detection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double D, double H, double B, double T) {
+ConflictData CDCylinder::conflict_detection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double D, double H, double B, double T) {
   Vect3 s = so.Sub(si);
-  Velocity v = vo.Sub(vi.vect3());
-  double t_tca = CD3D::tccpa(s, vo.vect3(), vi.vect3(), D, H, B, T);
-  double dist_tca = s.linear(v.vect3(),t_tca).cyl_norm(D, H);
-  LossData ld = CD3D::detection(s,vo.vect3(),vi.vect3(),D,H,B,T);
+  Vect3 v = vo.Sub(vi);
+  double t_tca = CD3D::tccpa(s, vo, vi, D, H, B, T);
+  double dist_tca = s.linear(v,t_tca).cyl_norm(D, H);
+  LossData ld = CD3D::detection(s,vo,vi,D,H,B,T);
   return ConflictData(ld,t_tca,dist_tca,s,v);
 }
 
-ConflictData CDCylinder::conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+ConflictData CDCylinder::conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   return conflict_detection(so,vo,si,vi,D_,H_,B,T);
 }
 
-double CDCylinder::time_of_closest_approach(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double D, double H, double B, double T) {
-  return CD3D::tccpa(so.Sub(si),vo.vect3(),vi.vect3(),D,H,B,T);
+double CDCylinder::time_of_closest_approach(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double D, double H, double B, double T) {
+  return CD3D::tccpa(so.Sub(si),vo,vi,D,H,B,T);
 }
 
-double CDCylinder::timeOfClosestApproach(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+double CDCylinder::timeOfClosestApproach(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   return time_of_closest_approach(so,vo,si,vi,D_,H_,B,T);
 }
 

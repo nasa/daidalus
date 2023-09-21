@@ -36,7 +36,7 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * @param vi  intruder velocity
 	 * @return    true if there is a violation
 	 */
-	final public boolean violation(Vect3 so, Velocity vo, Vect3 si, Velocity vi) {
+	final public boolean violation(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi) {
 		return conflict(so,vo,si,vi,0.0,0.0);
 	}
 
@@ -50,7 +50,7 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return true if there is a conflict within times B to T
 	 */
-	final public boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	final public boolean conflict(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 		if (Util.almost_equals(B,T)) {
 			LossData interval = conflictDetection(so,vo,si,vi,B,B+1);
 			return interval.conflict() && Util.almost_equals(interval.getTimeIn(),B);
@@ -71,7 +71,7 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 * @param T   end of detection time (if {@code T < 0} then use an "infinite" lookahead time)
 	 * @return a ConflictData object detailing the conflict
 	 */
-	public abstract ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T);
+	public abstract ConflictData conflictDetection(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T);
 
 	/**
 	 * This functional call returns true if there is a violation at time t.  
@@ -113,7 +113,7 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 */
 	public ConflictData conflictDetectionWithTrafficState(TrafficState ownship, TrafficState intruder, 
 			double B, double T) {
-		return conflictDetection(ownship.get_s(),ownship.velocityXYZ(),intruder.get_s(),intruder.velocityXYZ(),B,T);
+		return conflictDetection(ownship.get_s(),ownship.get_v(),intruder.get_s(),intruder.get_v(),B,T);
 	}
 
 	/**

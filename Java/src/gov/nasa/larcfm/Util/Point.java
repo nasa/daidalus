@@ -183,7 +183,7 @@ public final class Point extends Vect3 implements OutputList {
 	 * @return a string representing this point
 	 */
 	public String toString(int prec, String xUnits, String yUnits, String zUnits) {
-		return "("+f.FmPrecision(Units.to(xUnits, x()),prec)+", "+f.FmPrecision(Units.to(yUnits, y()),prec)+", "+f.FmPrecision(Units.to(zUnits, z()),prec)+")";
+		return "("+f.FmPrecision(Units.to(xUnits, x),prec)+", "+f.FmPrecision(Units.to(yUnits, y),prec)+", "+f.FmPrecision(Units.to(zUnits, z),prec)+")";
 	}
 
 	/** String representation with the given units 
@@ -193,7 +193,7 @@ public final class Point extends Vect3 implements OutputList {
 	 * @return a string representing this point
 	 */
 	public String toStringUnits(String xUnits, String yUnits, String zUnits) {
-		return "("+Units.str(xUnits, x())+", "+Units.str(yUnits, y())+", "+Units.str(zUnits, z())+")";
+		return "("+Units.str(xUnits, x)+", "+Units.str(yUnits, y)+", "+Units.str(zUnits, z)+")";
 	}
 
 	/**
@@ -202,9 +202,9 @@ public final class Point extends Vect3 implements OutputList {
 	 */
 	public List<String> toStringList() {
 		ArrayList<String> ret = new ArrayList<String>(3);
-		ret.add(Double.toString(Units.to("NM", x())));
-		ret.add(Double.toString(Units.to("NM", y())));
-		ret.add(Double.toString(Units.to("ft", z())));	
+		ret.add(Double.toString(Units.to("NM", x)));
+		ret.add(Double.toString(Units.to("NM", y)));
+		ret.add(Double.toString(Units.to("ft", z)));	
 		return ret;
 	}
 
@@ -214,9 +214,9 @@ public final class Point extends Vect3 implements OutputList {
 	 */
 	public List<String> toStringList(int precision) {
 		ArrayList<String> ret = new ArrayList<String>(3);
-		ret.add(f.FmPrecision(Units.to("NM", x()), precision));
-		ret.add(f.FmPrecision(Units.to("NM", y()), precision));
-		ret.add(f.FmPrecision(Units.to("ft", z()), precision));	
+		ret.add(f.FmPrecision(Units.to("NM", x), precision));
+		ret.add(f.FmPrecision(Units.to("NM", y), precision));
+		ret.add(f.FmPrecision(Units.to("ft", z), precision));	
 		return ret;
 	}
 
@@ -245,7 +245,7 @@ public final class Point extends Vect3 implements OutputList {
 	 * @return a string representing this point
 	 */
 	public String toStringNP(int precision, String xUnits, String yUnits, String zUnits) {
-		return f.FmPrecision(Units.to(xUnits, x()), precision)+", "+f.FmPrecision(Units.to(yUnits, y()), precision)+", "+f.FmPrecision(Units.to(zUnits, z()), precision);	
+		return f.FmPrecision(Units.to(xUnits, x), precision)+", "+f.FmPrecision(Units.to(yUnits, y), precision)+", "+f.FmPrecision(Units.to(zUnits, z), precision);	
 	}
 
 }

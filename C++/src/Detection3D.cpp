@@ -18,7 +18,7 @@ namespace larcfm {
  * @param vi  intruder velocity
  * @return    true if there is a violation
  */
-bool Detection3D::violation(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) const {
+bool Detection3D::violation(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) const {
   return conflict(so,vo,si,vi,0.0,0.0);
 }
 
@@ -32,7 +32,7 @@ bool Detection3D::violation(const Vect3& so, const Velocity& vo, const Vect3& si
  * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
  * @return true if there is a conflict within times B to T
  */
-bool Detection3D::conflict(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+bool Detection3D::conflict(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   if (Util::almost_equals(B,T)) {
     LossData interval = conflictDetection(so,vo,si,vi,B,B+1);
     return interval.conflict() && Util::almost_equals(interval.getTimeIn(),B);
@@ -84,7 +84,7 @@ bool Detection3D::conflictWithTrafficState(const TrafficState& ownship, const Tr
  * @return a ConflictData object detailing the conflict
  */
 ConflictData Detection3D::conflictDetectionWithTrafficState(const TrafficState& ownship, const TrafficState& intruder, double B, double T) const {
-  return conflictDetection(ownship.get_s(),ownship.velocityXYZ(),intruder.get_s(),intruder.velocityXYZ(),B,T);
+  return conflictDetection(ownship.get_s(),ownship.get_v(),intruder.get_s(),intruder.get_v(),B,T);
 }
 
 void Detection3D::add_blob(std::vector<std::vector<Position> >& blobs, std::vector<Position>& vin, std::vector<Position>& vout) {

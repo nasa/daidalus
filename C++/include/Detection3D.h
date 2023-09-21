@@ -15,7 +15,6 @@
 #define DETECTION3D_H_
 
 #include "Vect3.h"
-#include "Velocity.h"
 #include "ParameterData.h"
 #include "TrafficState.h"
 #include "ConflictData.h"
@@ -43,7 +42,7 @@ public:
    * @param vi  intruder velocity
    * @return    true if there is a violation
    */
-  bool violation(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi) const;
+  bool violation(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) const;
 
   /**
    * This functional call returns true if there will be a violation between times B and T from now (relative).
@@ -55,7 +54,7 @@ public:
    * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
    * @return true if there is a conflict within times B to T
    */
-  bool conflict(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
+  bool conflict(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
   /**
    * This functional call returns a ConflictData object detailing the conflict between times B and T from now (relative), if any.
@@ -69,7 +68,7 @@ public:
    * @param T   end of detection time (if T < 0 then use an "infinite" lookahead time)
    * @return a ConflictData object detailing the conflict
    */
-  virtual ConflictData conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const = 0;
+  virtual ConflictData conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const = 0;
 
   /**
    * This functional call returns true if there is a violation at time t.

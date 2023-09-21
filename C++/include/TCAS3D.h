@@ -72,12 +72,12 @@ public:
       const Vect2& si2, double siz, const Vect2& vi2, double viz, double B, double T) const;
 
   // if true, within lookahead time T, the ownship has a TCAS resolution advisory (at time time before T) (effectively conflict detection)
-  ConflictData RA3D(const Vect3& so, const Velocity& vo,  const Vect3& si, const Velocity& vi, double B, double T) const;
+  ConflictData RA3D(const Vect3& so, const Vect3& vo,  const Vect3& si, const Vect3& vi, double B, double T) const;
 
   // The methods violation and conflict are inherited from Detection3DSum. This enable a uniform
   // treatment of border cases in the generic bands algorithms
 
-  ConflictData conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
+  ConflictData conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
   TCAS3D* copy() const;
   TCAS3D* make() const;

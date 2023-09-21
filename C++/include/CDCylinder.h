@@ -170,16 +170,16 @@ public:
 
   virtual ~CDCylinder() {};
 
-  static ConflictData conflict_detection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double D, double H, double B, double T);
-  static double time_of_closest_approach(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double D, double H, double B, double T);
+  static ConflictData conflict_detection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double D, double H, double B, double T);
+  static double time_of_closest_approach(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double D, double H, double B, double T);
 
 
   // The non-static methods violation and conflict are
   // inherited from Detection3D. This enable a uniform
   // treatment of border cases in the generic bands algorithms
 
-  virtual ConflictData conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
-  double timeOfClosestApproach(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
+  virtual ConflictData conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
+  double timeOfClosestApproach(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
   /** This returns a pointer to a new instance of this type of Detector3D.  You are responsible for destroying this instance when it is no longer needed. */
   virtual CDCylinder* copy() const;

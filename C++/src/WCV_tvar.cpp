@@ -112,19 +112,19 @@ bool WCV_tvar::horizontal_WCV(const Vect2& s, const Vect2& v) const {
   return false;
 }
 
-ConflictData WCV_tvar::conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+ConflictData WCV_tvar::conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   LossData ret = WCV3D(so,vo,si,vi,B,T);
   double t_tca = (ret.getTimeIn() + ret.getTimeOut())/2;
-  double dist_tca = so.linear(vo.vect3(), t_tca).Sub(si.linear(vi.vect3(), t_tca)).cyl_norm(table.getDTHR(),table.getZTHR());
-  return ConflictData(ret, t_tca,dist_tca,so.Sub(si),vo.Sub(vi.vect3()));
+  double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table.getDTHR(),table.getZTHR());
+  return ConflictData(ret, t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
 }
 
-LossData WCV_tvar::WCV3D(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+LossData WCV_tvar::WCV3D(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   return WCV_interval(so,vo,si,vi,B,T);
 }
 
 // Assumes 0 <= B < T
-LossData WCV_tvar::WCV_interval(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+LossData WCV_tvar::WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   double time_in = T;
   double time_out = B;
 
@@ -135,7 +135,7 @@ LossData WCV_tvar::WCV_interval(const Vect3& so, const Velocity& vo, const Vect3
   Vect2 vi2 = vi.vect2();
   Vect2 v2 = vo2.Sub(vi2);
   double sz = so.z-si.z;
-  double vz = vo.z()-vi.z();
+  double vz = vo.z-vi.z;
 
   Interval ii = wcv_vertical->vertical_WCV_interval(table.getZTHR(),table.getTCOA(),B,T,sz,vz);
 

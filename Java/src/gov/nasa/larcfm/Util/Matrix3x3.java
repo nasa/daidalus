@@ -304,9 +304,9 @@ public class Matrix3x3 {
 		double c0;
 		double c1;
 		double c2;
-		c0 = a.d[0][0]*b.x() + a.d[0][1]*b.y() + a.d[0][2]*b.z();
-		c1 = a.d[1][0]*b.x() + a.d[1][1]*b.y() + a.d[1][2]*b.z();
-		c2 = a.d[2][0]*b.x() + a.d[2][1]*b.y() + a.d[2][2]*b.z();
+		c0 = a.d[0][0]*b.x + a.d[0][1]*b.y + a.d[0][2]*b.z;
+		c1 = a.d[1][0]*b.x + a.d[1][1]*b.y + a.d[1][2]*b.z;
+		c2 = a.d[2][0]*b.x + a.d[2][1]*b.y + a.d[2][2]*b.z;
 		return new Vect3(c0,c1,c2);
 	}
 

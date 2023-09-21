@@ -2478,7 +2478,7 @@ public final class Kinematics {
 			double targetAlt, double a1, double a2, double t1, double t2, double t3,  double t) {
 		Vect3 s0 = sv0.first;
 		Velocity v0 = sv0.second;
-		double soz = s0.z();
+		double soz = s0.z;
 		double voz = v0.z();
 		Pair<Double, Double> vsL = vsLevelOutCalc(soz,voz, targetAlt, a1, a2, t1, t2, t3, t);
 		double nz = vsL.first;
@@ -2551,7 +2551,7 @@ public final class Kinematics {
 	 * @return a StateVector
 	 */
 	public static StateVector vsLevelOutFinal(Pair<Vect3,Velocity> sv0, double climbRate, double targetAlt, double a) {
-		Tuple5<Double, Double,Double,Double,Double> qV = vsLevelOutTimes(sv0.first.z(), sv0.second.z(), climbRate,targetAlt,a,-a,true);
+		Tuple5<Double, Double,Double,Double,Double> qV = vsLevelOutTimes(sv0.first.z, sv0.second.z(), climbRate,targetAlt,a,-a,true);
 		double T1 = qV.first;
 		double T3 = qV.third;
 		if (T1 < 0) {         //  overshoot case

@@ -243,29 +243,29 @@ public class CDCylinder extends Detection3D {
 	}
 
 	@Deprecated
-	public static boolean violation(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H) {
+	public static boolean violation(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double D, double H) {
 		return CD3D.lossOfSep(so,si,D,H);
 	}
 
 	@Deprecated
-	public static boolean conflict(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
-		return CD3D.cd3d(so.Sub(si), vo.vect3(), vi.vect3(), D, H, B, T); 
+	public static boolean conflict(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double D, double H, double B, double T) {
+		return CD3D.cd3d(so.Sub(si), vo, vi, D, H, B, T); 
 	}
 
 	// The non-static methods violation and conflict are
 	// inherited from Detection3DSum. This enable a uniform
 	// treatment of border cases in the generic bands algorithms
 
-	public static ConflictData conflict_detection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double D, double H, double B, double T) {
+	public static ConflictData conflict_detection(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double D, double H, double B, double T) {
 		Vect3 s = so.Sub(si);
-		Velocity v = vo.Sub(vi.vect3());
-		double t_tca = CD3D.tccpa(s, vo.vect3(), vi.vect3(), D, H, B, T);
-		double dist_tca = s.linear(v.vect3(),t_tca).cyl_norm(D, H);
-		LossData ld = CD3D.detection(s,vo.vect3(),vi.vect3(),D,H,B,T);
+		Vect3 v = vo.Sub(vi);
+		double t_tca = CD3D.tccpa(s, vo, vi, D, H, B, T);
+		double dist_tca = s.linear(v,t_tca).cyl_norm(D, H);
+		LossData ld = CD3D.detection(s,vo,vi,D,H,B,T);
 		return new ConflictData(ld,t_tca,dist_tca,s,v);
 	}
 
-	public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	public ConflictData conflictDetection(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 		return conflict_detection(so,vo,si,vi,D_,H_,B,T); 
 	}
 

@@ -39,7 +39,7 @@ public class TargetUrgency {
    * @param T detection lookahead time, {@code t <= 0} is "no data"    [relative] 
    * @return true if intruder 1 is more urgent than intruder 2
    */
-  public static boolean mostUrgent(Detection3D cd, Vect3 so, Velocity vo, Vect3 si1, Velocity vi1, Vect3 si2, Velocity vi2, double B, double T) {
+  public static boolean mostUrgent(Detection3D cd, Vect3 so, Vect3 vo, Vect3 si1, Vect3 vi1, Vect3 si2, Vect3 vi2, double B, double T) {
     double cdist = so.distanceH(si1);
     ConflictData conflict = cd.conflictDetection(so, vo, si1, vi1, B, T);
     double tin = conflict.getTimeIn();

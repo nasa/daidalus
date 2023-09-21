@@ -328,7 +328,7 @@ public final class VectFuns {
 		}
 		double tt = ds.det(vi)/vo.det(vi);
 		Vect3 intersec = so3.AddScal(tt,vo3); 
-		double nZ = intersec.z();
+		double nZ = intersec.z;
 		double maxZ = Util.max(so3.z,si3.z);
 		double minZ = Util.min(so3.z,si3.z);			
 		if (nZ > maxZ) nZ = maxZ;
@@ -434,12 +434,12 @@ public final class VectFuns {
 		Vect3 interSec = iP.first;
 		double do1 = distanceH(so1,interSec);
 		double do2 = distanceH(so2,interSec);
-		double alt_o = so1.z();                   // chose z from end point of line 1 closest to interSec
-		if (do2 < do1) alt_o = so2.z();
+		double alt_o = so1.z;                   // chose z from end point of line 1 closest to interSec
+		if (do2 < do1) alt_o = so2.z;
 		double di1 = distanceH(si1,interSec);
 		double di2 = distanceH(si2,interSec);
-		double alt_i = si1.z();                   //  chose z from end point of line 2 closest to interSec
-		if (di2 < di1) alt_i = si2.z();
+		double alt_i = si1.z;                   //  chose z from end point of line 2 closest to interSec
+		if (di2 < di1) alt_i = si2.z;
 		double nZ = (alt_o + alt_i)/2.0;       
 		return new Pair<>(interSec.mkZ(nZ),iP.second); 
 	}

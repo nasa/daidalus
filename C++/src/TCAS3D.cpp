@@ -9,7 +9,6 @@
 #include "CD2D.h"
 #include "CD3D.h"
 #include "Vect3.h"
-#include "Velocity.h"
 #include "TCASTable.h"
 #include "Util.h"
 #include "Vertical.h"
@@ -88,7 +87,7 @@ void TCAS3D::setDefaultTCASIIThresholds(bool ra) {
   table_.setDefaultTCASIIThresholds(ra);
 }
 
-ConflictData TCAS3D::conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+ConflictData TCAS3D::conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   return RA3D(so,vo,si,vi,B,T);
 }
 
@@ -149,10 +148,10 @@ bool TCAS3D::TCASII_RA(const Vect3& so, const Vect3& vo, const Vect3& si, const 
 // if true, within lookahead time interval [B,T], the ownship has a TCAS resolution advisory (effectively conflict detection)
 // B must be non-negative and T > B
 
-ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const {
+ConflictData TCAS3D::RA3D(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
 
   Vect3 s = so.Sub(si);
-  Velocity v = vo.Sub(vi.vect3());
+  Vect3 v = vo.Sub(vi);
   Vect2 so2 = so.vect2();
   Vect2 vo2 = vo.vect2();
   Vect2 si2 = si.vect2();
@@ -165,10 +164,10 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, 
   double tin = INFINITY;
   double tout = -INFINITY;
   double tmin = INFINITY;
-  int sl_first = table_.getSensitivityLevel(so.z+B*vo.z());
-  int sl_last = table_.getSensitivityLevel(so.z+T*vo.z());
-  if (sl_first == sl_last || Util::almost_equals(vo.z(),0.0)) {
-    Triple<double,double,double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z(),si2,si.z,vi2,vi.z(),B,T);
+  int sl_first = table_.getSensitivityLevel(so.z+B*vo.z);
+  int sl_last = table_.getSensitivityLevel(so.z+T*vo.z);
+  if (sl_first == sl_last || Util::almost_equals(vo.z,0.0)) {
+    Triple<double,double,double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,B,T);
     tin = ra3dint.first;
     tout = ra3dint.second;
     tmin = ra3dint.third;
@@ -177,8 +176,8 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, 
     for (double t_B = B; t_B < T; sl = sl_first < sl_last ? sl+1 : sl-1) {
       if (table_.isValidSensitivityLevel(sl)) {
         double level = sl_first < sl_last ? table_.getLevelAltitudeUpperBound(sl) :table_.getLevelAltitudeLowerBound(sl);
-        double t_level = !ISFINITE(level) ? INFINITY :(level-so.z)/vo.z();
-        Triple<double,double,double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z(),si2,si.z,vi2,vi.z(),t_B,Util::min(t_level,T));
+        double t_level = !ISFINITE(level) ? INFINITY :(level-so.z)/vo.z;
+        Triple<double,double,double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,t_B,Util::min(t_level,T));
         if (Util::almost_less(ra3dint.first,ra3dint.second)) {
           tin = Util::min(tin,ra3dint.first);
           tout = Util::max(tout,ra3dint.second);
@@ -191,7 +190,7 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Velocity& vo, const Vect3& si, 
       }
     }
   }
-  double dmin = s.linear(v.vect3(), tmin).cyl_norm(DMOD_max, ZTHR_max);
+  double dmin = s.linear(v, tmin).cyl_norm(DMOD_max, ZTHR_max);
   return  ConflictData(tin,tout,tmin,dmin,s,v);}
 
 // Assumes 0 <= B < T

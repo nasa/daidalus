@@ -14,11 +14,10 @@
 #include "ConflictData.h"
 #include "format.h"
 #include "Units.h"
-#include "Velocity.h"
 
 namespace larcfm {
 
-ConflictData::ConflictData(double t_in, double t_out, double t_crit, double d_crit, const Vect3& s, const Velocity& v) : LossData(t_in, t_out) {
+ConflictData::ConflictData(double t_in, double t_out, double t_crit, double d_crit, const Vect3& s, const Vect3& v) : LossData(t_in, t_out) {
   time_crit = t_crit;
   dist_crit = d_crit;
   s_ = s;
@@ -29,7 +28,7 @@ ConflictData::ConflictData() {
   time_crit = PINFINITY;
   dist_crit = PINFINITY;
   s_ = Vect3::INVALID();
-  v_ = Velocity::INVALID();
+  v_ = Vect3::INVALID();
 }
 
 const ConflictData& ConflictData::EMPTY() {
@@ -37,7 +36,7 @@ const ConflictData& ConflictData::EMPTY() {
   return tmp;
 }
 
-ConflictData::ConflictData(const LossData& ld, double t_crit, double d_crit, const Vect3& s, const Velocity& v) : LossData(ld) {
+ConflictData::ConflictData(const LossData& ld, double t_crit, double d_crit, const Vect3& s, const Vect3& v) : LossData(ld) {
   time_crit = t_crit;
   dist_crit = d_crit;
   s_ = s;
@@ -54,7 +53,7 @@ Vect3 const & ConflictData::get_s() const {
 /**
  * Returns internal vector representation of relative aircraft velocity.
  */
-Velocity const & ConflictData::get_v() const {
+Vect3 const & ConflictData::get_v() const {
   return v_;
 }
 
@@ -76,7 +75,7 @@ double ConflictData::HMD(const std::string& u, double T) const {
  * Returns VMD, in internal units, within lookahead time t, in seconds, assuming straight line trajectory.
  */
 double ConflictData::VMD(double T) const {
-  return Vertical::vmd(s_.z,v_.z(),T);
+  return Vertical::vmd(s_.z,v_.z,T);
 }
 
 /**
@@ -109,7 +108,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Horizontal separation in internal units at given time
  */
  double ConflictData::horizontalSeparationAtTime(double time) const {
-    return s_.AddScal(time,v_.vect3()).norm2D();
+    return s_.AddScal(time,v_).norm2D();
 }
 
 /**
@@ -145,7 +144,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Vertical separation in internal units at given time
  */
  double ConflictData::verticalSeparationAtTime(double time) const {
-    return std::abs(s_.AddScal(time,v_.vect3()).z);
+    return std::abs(s_.AddScal(time,v_).z);
 }
 
 /**
@@ -171,7 +170,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * When aircraft are diverging, tcpa is defined as 0
  */
  double ConflictData::tcpa3D() const {
-    return Vect3::tcpa(s_,Vect3::ZERO(),v_.vect3(),Vect3::ZERO());
+    return Vect3::tcpa(s_,Vect3::ZERO(),v_,Vect3::ZERO());
 }
 
 /**
@@ -179,7 +178,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return time to co-altitude in seconds. Returns NaN is v_.z is zero.
  */
  double ConflictData::tcoa() const {
-    return Vertical::time_coalt(s_.z,v_.z());
+    return Vertical::time_coalt(s_.z,v_.z);
 }
 
 /**
@@ -187,7 +186,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Horizontal closure rate in internal units at current time
  */
  double ConflictData::horizontalClosureRate() const {
-    return v_.vect3().norm2D();
+    return v_.norm2D();
 }
 
 /**
@@ -204,7 +203,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Vertical closure rate in internal units at current time
  */
  double ConflictData::verticalClosureRate() const {
-    return std::abs(v_.z());
+    return std::abs(v_.z);
 }
 
 /**

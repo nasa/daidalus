@@ -112,19 +112,19 @@ public abstract class WCV_tvar extends Detection3D {
 	// The methods violation and conflict are inherited from Detection3DSum. This enable a uniform
 	// treatment of border cases in the generic bands algorithms
 
-	public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {    
+	public ConflictData conflictDetection(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {    
 		return WCV3D(so,vo,si,vi,B,T);
 	}
 
-	private ConflictData WCV3D(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	private ConflictData WCV3D(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 		LossData ld = WCV_interval(so,vo,si,vi,B,T);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-		double dist_tca = so.linear(vo.vect3(), t_tca).Sub(si.linear(vi.vect3(), t_tca)).cyl_norm(table.DTHR,table.ZTHR);
-		return new ConflictData(ld,t_tca,dist_tca,so.Sub(si),vo.Sub(vi.vect3()));
+		double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table.DTHR,table.ZTHR);
+		return new ConflictData(ld,t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
 	}
 
 	// Assumes 0 <= B < T
-	private LossData WCV_interval(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	private LossData WCV_interval(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 		double time_in = T;
 		double time_out = B;
 
@@ -135,7 +135,7 @@ public abstract class WCV_tvar extends Detection3D {
 		Vect2 vi2 = vi.vect2();
 		Vect2 v2 = vo2.Sub(vi2);
 		double sz = so.z-si.z;
-		double vz = vo.z()-vi.z();
+		double vz = vo.z-vi.z;
 
 		Interval ii = wcv_vertical.vertical_WCV_interval(table.ZTHR,table.TCOA,B,T,sz,vz);
 

@@ -116,24 +116,6 @@ public class Vect3 {
 		return mkXYZ(x, y , nz);
 	}
 
-	/** The x coordinate 
-	 * @return x coordinate */
-	public double x() {
-		return x;
-	}
-
-	/** The y coordinate 
-	 * @return y coordinate */
-	public double y() {
-		return y;
-	}
-
-	/** The z coordinate 
-	 * @return z coordinate */
-	public double z() {
-		return z;
-	}
-
 	/**
 	 * Zero constant.
 	 * @return a zero vector 
@@ -558,11 +540,11 @@ public class Vect3 {
 
 	
 	public String toUnitTest() {
-		return "Vect3.make("+(f.Fm8(Units.to("NM",x()))+", "+f.Fm8(Units.to("NM",y())) +", "	+f.Fm8(Units.to("ft",z()))+")");
+		return "Vect3.make("+(f.Fm8(Units.to("NM",x))+", "+f.Fm8(Units.to("NM",y)) +", "	+f.Fm8(Units.to("ft",z))+")");
 	}
 
 	public String toUnitTestSI() {
-		return "Vect3.mkXYZ("+(f.Fm8(x())+", "+f.Fm8(y()) +", "	+f.Fm8(z())+")");
+		return "Vect3.mkXYZ("+(f.Fm8(x)+", "+f.Fm8(y) +", "	+f.Fm8(z)+")");
 	}
 	
 	/*

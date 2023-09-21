@@ -73,7 +73,7 @@ public class TCAS3D extends Detection3D {
 	// The methods violation and conflict are inherited from Detection3DSum. This enable a uniform
 	// treatment of border cases in the generic bands algorithms
 
-	public ConflictData conflictDetection(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	public ConflictData conflictDetection(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 		return RA3D(so,vo,si,vi,B,T);
 	}
 
@@ -136,10 +136,10 @@ public class TCAS3D extends Detection3D {
 	// if true, within lookahead time interval [B,T], the ownship has a TCAS resolution advisory (effectively conflict detection)
 	// B must be non-negative and B < T.
 
-	public ConflictData RA3D(Vect3 so, Velocity vo, Vect3 si, Velocity vi, double B, double T) {
+	public ConflictData RA3D(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 
 		Vect3 s = so.Sub(si);
-		Velocity v = vo.Sub(vi.vect3());
+		Vect3 v = vo.Sub(vi);
 		Vect2 so2 = so.vect2();
 		Vect2 vo2 = vo.vect2();
 		Vect2 si2 = si.vect2();
@@ -152,10 +152,10 @@ public class TCAS3D extends Detection3D {
 		double tin = Double.POSITIVE_INFINITY;
 		double tout = Double.NEGATIVE_INFINITY;
 		double tmin = Double.POSITIVE_INFINITY;
-		int sl_first = table_.getSensitivityLevel(so.z+B*vo.z());
-		int sl_last = table_.getSensitivityLevel(so.z+T*vo.z());
-		if (sl_first == sl_last || Util.almost_equals(vo.z(),0.0)) {
-			Triple<Double,Double,Double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z(),si2,si.z,vi2,vi.z(),B,T);
+		int sl_first = table_.getSensitivityLevel(so.z+B*vo.z);
+		int sl_last = table_.getSensitivityLevel(so.z+T*vo.z);
+		if (sl_first == sl_last || Util.almost_equals(vo.z,0.0)) {
+			Triple<Double,Double,Double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,B,T);
 			tin = ra3dint.first;
 			tout = ra3dint.second;
 			tmin = ra3dint.third;
@@ -164,8 +164,8 @@ public class TCAS3D extends Detection3D {
 			for (double t_B = B; t_B < T; sl = sl_first < sl_last ? sl+1 : sl-1) {
 				if (table_.isValidSensitivityLevel(sl)) {
 					double level = sl_first < sl_last ? table_.getLevelAltitudeUpperBound(sl) :table_.getLevelAltitudeLowerBound(sl);
-					double t_level = Double.isInfinite(level) ? Double.POSITIVE_INFINITY :(level-so.z)/vo.z(); 
-					Triple<Double,Double,Double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z(),si2,si.z,vi2,vi.z(),t_B,Util.min(t_level,T));
+					double t_level = Double.isInfinite(level) ? Double.POSITIVE_INFINITY :(level-so.z)/vo.z; 
+					Triple<Double,Double,Double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,t_B,Util.min(t_level,T));
 					if (Util.almost_less(ra3dint.first,ra3dint.second)) {
 						tin = Util.min(tin,ra3dint.first);
 						tout = Util.max(tout,ra3dint.second);
@@ -178,7 +178,7 @@ public class TCAS3D extends Detection3D {
 				}
 			}
 		} 
-		double dmin = s.linear(v.vect3(), tmin).cyl_norm(DMOD_max, ZTHR_max);
+		double dmin = s.linear(v, tmin).cyl_norm(DMOD_max, ZTHR_max);
 		return new ConflictData(tin,tout,tmin,dmin,s,v);
 	}
 

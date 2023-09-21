@@ -14,7 +14,6 @@ import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
-import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
 /* Horizontal Well Clear Volume concept based on Modified TAU
@@ -388,10 +387,9 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		double vz_err = relativeVerticalSpeedError(ownship,intruder);
 
 		Vect3 so = ownship.get_s();
-		Velocity vo = ownship.velocityXYZ();
+		Vect3 vo = ownship.get_v();
 		Vect3 si = intruder.get_s();
-		Velocity vi = intruder.velocityXYZ();
-
+		Vect3 vi = intruder.get_v();
 
 		if (s_err == 0.0 && sz_err == 0.0 && v_err == 0.0 && vz_err == 0.0) {
 			return conflictDetection(so,vo,si,vi,B,T);
@@ -403,10 +401,10 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		vz_err = Util.max(vz_err, MinError);
 
 		Vect3 s = so.Sub(si);
-		Velocity v = vo.Sub(vi.vect3());
-		LossData ld = WCV_taumod_uncertain_interval(B,T,s,v.vect3(),s_err,sz_err,v_err,vz_err);
+		Vect3 v = vo.Sub(vi);
+		LossData ld = WCV_taumod_uncertain_interval(B,T,s,v,s_err,sz_err,v_err,vz_err);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-		double dist_tca = s.linear(v.vect3(), t_tca).cyl_norm(table.DTHR,table.ZTHR);
+		double dist_tca = s.linear(v, t_tca).cyl_norm(table.DTHR,table.ZTHR);
 		return new ConflictData(ld,t_tca,dist_tca,s,v);
 	}
 

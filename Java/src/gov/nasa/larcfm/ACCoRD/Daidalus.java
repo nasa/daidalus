@@ -4267,7 +4267,7 @@ public class Daidalus {
 	public double timeToCoAltitude(int ac_idx) {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			double sz = core_.ownship.get_s().z-core_.traffic.get(ac_idx-1).get_s().z;
-			double vz = core_.ownship.get_v().z()-core_.traffic.get(ac_idx-1).get_v().z();
+			double vz = core_.ownship.get_v().z-core_.traffic.get(ac_idx-1).get_v().z;
 			if (Util.almost_equals(vz,0.0)) {
 				return Double.NEGATIVE_INFINITY;
 			}

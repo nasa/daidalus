@@ -9,7 +9,6 @@
 
 #include "Detection3D.h"
 #include "Vect3.h"
-#include "Velocity.h"
 #include "WCVTable.h"
 #include "ConflictData.h"
 #include "LossData.h"
@@ -69,11 +68,11 @@ public:
   // The methods violation and conflict are inherited from Detection3DSum. This enable a uniform
   // treatment of border cases in the generic bands algorithms
 
-  virtual ConflictData conflictDetection(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
+  virtual ConflictData conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
-  LossData WCV3D(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
+  LossData WCV3D(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
-  LossData WCV_interval(const Vect3& so, const Velocity& vo, const Vect3& si, const Velocity& vi, double B, double T) const;
+  LossData WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
   bool containsTable(WCV_tvar* wcv) const;
 
