@@ -253,14 +253,14 @@ public class TrafficState {
 		return p.vect3();
 	}
 
-	public Velocity vel_to_v(Position p,Velocity v) {
+	public Vect3 vel_to_v(Position p,Velocity v) {
 		if (p.isLatLon()) {
 			if (!pos_.isLatLon()) {
-				return Velocity.INVALID;
+				return Vect3.INVALID;
 			}     
-			return eprj_.projectVelocity(p,v);
+			return eprj_.projectVelocity(p,v).vect3();
 		} 
-		return v;
+		return v.vect3();
 	}
 
 	public Velocity inverseVelocity(Velocity v) {

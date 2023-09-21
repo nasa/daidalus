@@ -65,10 +65,10 @@ public class DaidalusHsBands extends DaidalusRealBands {
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {}
 
-	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {    
+	public Pair<Vect3, Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {    
 		Pair<Position,Velocity> posvel;
 		if (time == 0.0 && target_step == 0.0) {
-			return Pair.make(ownship.get_s(),ownship.velocityXYZ());
+			return Pair.make(ownship.get_s(),ownship.get_v());
 		} else if (instantaneous) {
 			double gs = ownship.velocityXYZ().gs()+(dir?1:-1)*target_step*get_step(parameters); 
 			posvel = Pair.make(ownship.positionXYZ(),ownship.velocityXYZ().mkGs(gs));

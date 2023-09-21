@@ -51,7 +51,7 @@ public:
 
   virtual double time_step(const DaidalusParameters& parameters, const TrafficState& ownship) const;
 
-  virtual std::pair<Vect3, Velocity> trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const;
+  virtual std::pair<Vect3, Vect3> trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const;
 
   // In PVS: alt_bands@conflict_free_traj_step
 private:

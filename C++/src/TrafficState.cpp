@@ -172,14 +172,14 @@ Vect3 TrafficState::pos_to_s(const Position& p) const {
   return p.vect3();
 }
 
-Velocity TrafficState::vel_to_v(const Position& p, const Velocity& v) const {
+Vect3 TrafficState::vel_to_v(const Position& p, const Velocity& v) const {
   if (p.isLatLon()) {
     if (!pos_.isLatLon()) {
-      return Velocity::INVALID();
+      return Vect3::INVALID();
     }
-    return eprj_.projectVelocity(p,v);
+    return eprj_.projectVelocity(p,v).vect3();
   }
-  return v;
+  return v.vect3();
 }
 
 Velocity TrafficState::inverseVelocity(const Velocity& v) const {

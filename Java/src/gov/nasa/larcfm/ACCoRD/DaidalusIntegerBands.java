@@ -23,7 +23,7 @@ public abstract class DaidalusIntegerBands {
 
 	// trajdir == false is left/down
 	// target_step is used by instantaneous_bands and altitude_bands
-	public abstract Pair<Vect3,Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, 
+	public abstract Pair<Vect3,Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, 
 			double time, boolean dir, int target_step, boolean instantaneous);
 
 	/**
@@ -33,13 +33,13 @@ public abstract class DaidalusIntegerBands {
 			DaidalusParameters parameters, TrafficState ownship, TrafficState traffic, int target_step, boolean instantaneous) {
 		T = Util.min(parameters.getLookaheadTime(),T);
 		if (tsk > T || B > T) return false;
-		Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+		Pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 		Vect3 sot = sovot.first;
-		Velocity vot = sovot.second;
-		Vect3 sat = tsk == 0.0 ? sot : vot.vect3().ScalAdd(-tsk,sot);
+		Vect3 vot = sovot.second;
+		Vect3 sat = tsk == 0.0 ? sot : vot.ScalAdd(-tsk,sot);
 		TrafficState own = new TrafficState(ownship);
 		own.setPosition(Position.make(sat));
-		own.setAirVelocity(vot);
+		own.setAirVelocity(Velocity.make(vot));
 		return det.conflictWithTrafficState(own,traffic,Util.max(B,tsk),T);
 	}
 
@@ -65,13 +65,13 @@ public abstract class DaidalusIntegerBands {
 		if (tsk >= parameters.getLookaheadTime()) {
 			return false;
 		}
-		Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+		Pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 		Vect3 sot = sovot.first;
-		Velocity vot = sovot.second;
-		Vect3 sat = vot.vect3().ScalAdd(-tsk,sot);
+		Vect3 vot = sovot.second;
+		Vect3 sat = vot.ScalAdd(-tsk,sot);
 		TrafficState own = new TrafficState(ownship);
 		own.setPosition(Position.make(sat));
-		own.setAirVelocity(vot);
+		own.setAirVelocity(Velocity.make(vot));
 		return det.violationAtWithTrafficState(own,traffic,tsk); 
 	}
 
@@ -81,13 +81,13 @@ public abstract class DaidalusIntegerBands {
 		if (tsk >= parameters.getLookaheadTime()) {
 			return false;
 		}
-		Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+		Pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 		Vect3 sot = sovot.first;
-		Velocity vot = sovot.second;
-		Vect3 sat = vot.vect3().ScalAdd(-tsk,sot);
+		Vect3 vot = sovot.second;
+		Vect3 sat = vot.ScalAdd(-tsk,sot);
 		TrafficState own = new TrafficState(ownship);
 		own.setPosition(Position.make(sat));
-		own.setAirVelocity(vot);
+		own.setAirVelocity(Velocity.make(vot));
 		return det.conflictWithTrafficState(own,traffic,tsk,tsk+tcoast); 
 	}
 
@@ -206,7 +206,7 @@ public abstract class DaidalusIntegerBands {
 		if (k==0) {
 			return true;
 		}
-		Pair<Vect3,Velocity> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
+		Pair<Vect3,Vect3> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
 		Vect2 so = sovo.first.vect2();
 		Vect2 vo = sovo.second.vect2();
 		Vect2 si = traffic.get_s().vect2();
@@ -216,7 +216,7 @@ public abstract class DaidalusIntegerBands {
 			rep = CriteriaCore.horizontal_new_repulsive_criterion(so.Sub(si),vo,vi,kinematic_linvel(parameters,ownship,tstep,trajdir,0).vect2(),epsh);
 		}
 		if (rep) {
-			Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
+			Pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
 			Vect2 sot = sovot.first.vect2();
 			Vect2 vot = sovot.second.vect2();
 			Vect2 sit = vi.ScalAdd(k*tstep,si);
@@ -246,9 +246,9 @@ public abstract class DaidalusIntegerBands {
 		if (k==0) {
 			return true;
 		}
-		Pair<Vect3,Velocity> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
+		Pair<Vect3,Vect3> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
 		Vect3 so = sovo.first;
-		Vect3 vo = sovo.second.vect3();
+		Vect3 vo = sovo.second;
 		Vect3 si = traffic.get_s();
 		Vect3 vi = traffic.get_v();
 		boolean rep = true;
@@ -256,9 +256,9 @@ public abstract class DaidalusIntegerBands {
 			rep = CriteriaCore.vertical_new_repulsive_criterion(so.Sub(si),vo,vi,kinematic_linvel(parameters,ownship,tstep,trajdir,0),epsv);
 		}
 		if (rep) {
-			Pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
+			Pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
 			Vect3 sot = sovot.first;
-			Vect3 vot = sovot.second.vect3();
+			Vect3 vot = sovot.second;
 			Vect3 sit = vi.ScalAdd(k*tstep,si);
 			Vect3 st = sot.Sub(sit);
 			Vect3 vop = kinematic_linvel(parameters,ownship,tstep,trajdir,k-1);
@@ -325,12 +325,12 @@ public abstract class DaidalusIntegerBands {
 			int epsh, int epsv, int target_step) {
 		boolean usehcrit = epsh != 0;
 		boolean usevcrit = epsv != 0;    
-		Pair<Vect3,Velocity> nsovo = trajectory(parameters,ownship,0,trajdir,target_step,true);
+		Pair<Vect3,Vect3> nsovo = trajectory(parameters,ownship,0,trajdir,target_step,true);
 		Vect3 so = ownship.get_s();
 		Vect3 vo = ownship.get_v();
 		Vect3 si = traffic.get_s();
 		Vect3 vi = traffic.get_v();
-		Vect3 nvo = nsovo.second.vect3();
+		Vect3 nvo = nsovo.second;
 		Vect3 s = so.Sub(si);
 		return 
 				(!usehcrit || CriteriaCore.horizontal_new_repulsive_criterion(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),epsh)) &&

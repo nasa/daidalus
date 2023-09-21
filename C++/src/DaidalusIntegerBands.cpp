@@ -21,13 +21,13 @@ bool DaidalusIntegerBands::CD_future_traj(const Detection3D* det, double B, doub
     const DaidalusParameters& parameters,  const TrafficState& ownship, const TrafficState& traffic, int target_step, bool instantaneous) const {
   T = Util::min(parameters.getLookaheadTime(),T);
   if (tsk > T || B > T) return false;
-  std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+  std::pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
   Vect3 sot = sovot.first;
-  Velocity vot = sovot.second;
-  Vect3 sat = tsk == 0.0 ? sot : vot.vect3().ScalAdd(-tsk,sot);
+  Vect3 vot = sovot.second;
+  Vect3 sat = tsk == 0.0 ? sot : vot.ScalAdd(-tsk,sot);
   TrafficState own = ownship;
-  own.setPosition(Position(sat));
-  own.setAirVelocity(vot);
+  own.setPosition(Position::make(sat));
+  own.setAirVelocity(Velocity::make(vot));
   return det->conflictWithTrafficState(own,traffic,Util::max(B,tsk),T);
 }
 
@@ -53,13 +53,13 @@ bool DaidalusIntegerBands::LOS_at(const Detection3D* det, bool trajdir, double t
   if (tsk >= parameters.getLookaheadTime()) {
       return false;
   }
-  std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+  std::pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
   Vect3 sot = sovot.first;
-  Velocity vot = sovot.second;
-  Vect3 sat = vot.vect3().ScalAdd(-tsk,sot);
+  Vect3 vot = sovot.second;
+  Vect3 sat = vot.ScalAdd(-tsk,sot);
   TrafficState own = ownship;
-  own.setPosition(Position(sat));
-  own.setAirVelocity(vot);
+  own.setPosition(Position::make(sat));
+  own.setAirVelocity(Velocity::make(vot));
   return det->violationAtWithTrafficState(own,traffic,tsk);
 }
 
@@ -69,13 +69,13 @@ bool DaidalusIntegerBands::LOS_at_coast(const Detection3D* det, bool trajdir, do
   if (tsk >= parameters.getLookaheadTime()) {
 		return false;
 	}
-	std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
+	std::pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,tsk,trajdir,target_step,instantaneous);
 	Vect3 sot = sovot.first;
-	Velocity vot = sovot.second;
-	Vect3 sat = vot.vect3().ScalAdd(-tsk,sot);
+	Vect3 vot = sovot.second;
+	Vect3 sat = vot.ScalAdd(-tsk,sot);
 	TrafficState own = ownship;
-	own.setPosition(Position(sat));
-	own.setAirVelocity(vot);
+	own.setPosition(Position::make(sat));
+	own.setAirVelocity(Velocity::make(vot));
 	return det->conflictWithTrafficState(own,traffic,tsk,tsk+tcoast); 
 }
 
@@ -196,7 +196,7 @@ bool DaidalusIntegerBands::kinematic_repulsive_at(double tstep, bool trajdir, in
   if (k==0) {
     return true;
   }
-  std::pair<Vect3,Velocity> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
+  std::pair<Vect3,Vect3> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
   Vect2 so = sovo.first.vect2();
   Vect2 vo = sovo.second.vect2();
   Vect2 si = traffic.get_s().vect2();
@@ -206,7 +206,7 @@ bool DaidalusIntegerBands::kinematic_repulsive_at(double tstep, bool trajdir, in
     rep = CriteriaCore::horizontal_new_repulsive_criterion(so.Sub(si), vo, vi, kinematic_linvel(parameters,ownship,tstep,trajdir,0).vect2(), epsh);
   }
   if (rep) {
-    std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
+    std::pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
     Vect2 sot = sovot.first.vect2();
     Vect2 vot = sovot.second.vect2();
     Vect2 sit = vi.ScalAdd(k*tstep,si);
@@ -236,9 +236,9 @@ bool DaidalusIntegerBands::kinematic_vert_repul_at(double tstep, bool trajdir, i
   if (k==0) {
     return true;
   }
-  std::pair<Vect3,Velocity> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
+  std::pair<Vect3,Vect3> sovo = trajectory(parameters,ownship,0,trajdir,0,false);
   Vect3 so = sovo.first;
-  Vect3 vo = sovo.second.vect3();
+  Vect3 vo = sovo.second;
   Vect3 si = traffic.get_s();
   Vect3 vi = traffic.get_v();
   bool rep = true;
@@ -246,9 +246,9 @@ bool DaidalusIntegerBands::kinematic_vert_repul_at(double tstep, bool trajdir, i
     rep = CriteriaCore::vertical_new_repulsive_criterion(so.Sub(si),vo,vi,kinematic_linvel(parameters,ownship,tstep,trajdir,0),epsv);
   }
   if (rep) {
-    std::pair<Vect3,Velocity> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
+    std::pair<Vect3,Vect3> sovot = trajectory(parameters,ownship,k*tstep,trajdir,0,false);
     Vect3 sot = sovot.first;
-    Vect3 vot = sovot.second.vect3();
+    Vect3 vot = sovot.second;
     Vect3 sit = vi.ScalAdd(k*tstep,si);
     Vect3 st = sot.Sub(sit);
     Vect3 vop = kinematic_linvel(parameters,ownship,tstep,trajdir,k-1);
@@ -314,12 +314,12 @@ bool DaidalusIntegerBands::no_instantaneous_conflict(const Detection3D* conflict
     int epsh, int epsv, int target_step) const {
   bool usehcrit = epsh != 0;
   bool usevcrit = epsv != 0;
-  std::pair<Vect3,Velocity> nsovo = trajectory(parameters,ownship,0,trajdir,target_step,true);
+  std::pair<Vect3,Vect3> nsovo = trajectory(parameters,ownship,0,trajdir,target_step,true);
   Vect3 so = ownship.get_s();
   Vect3 vo = ownship.get_v();
   Vect3 si = traffic.get_s();
   Vect3 vi = traffic.get_v();
-  Vect3 nvo = nsovo.second.vect3();
+  Vect3 nvo = nsovo.second;
   Vect3 s = so.Sub(si);
   return
       (!usehcrit || CriteriaCore::horizontal_new_repulsive_criterion(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),epsh)) &&

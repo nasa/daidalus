@@ -65,7 +65,7 @@ double DaidalusAltBands::time_step(const DaidalusParameters& parameters, const T
   return 1;
 }
 
-std::pair<Vect3, Velocity> DaidalusAltBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
+std::pair<Vect3, Vect3> DaidalusAltBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   double target_alt = get_min_val_()+target_step*get_step(parameters);
   std::pair<Position,Velocity> posvel;
   if (instantaneous) {
@@ -80,7 +80,7 @@ std::pair<Vect3, Velocity> DaidalusAltBands::trajectory(const DaidalusParameters
       posvel = std::pair<Position, Velocity>(npo.mkZ(target_alt),ownship.velocityXYZ().mkVs(0));
     }
   }
-  return std::pair<Vect3, Velocity>(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
+  return std::pair<Vect3, Vect3>(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
 }
 
 // In PVS: alt_bands@conflict_free_traj_step

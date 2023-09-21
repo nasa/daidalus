@@ -77,7 +77,7 @@ public class DaidalusAltBands extends DaidalusRealBands {
 		return 1.0;
 	}
 
-	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {
+	public Pair<Vect3, Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {
 		double target_alt = get_min_val_()+target_step*get_step(parameters);
 		Pair<Position,Velocity> posvel;
 		if (instantaneous) {

@@ -31,7 +31,7 @@ class DaidalusIntegerBands {
 public:
   // trajdir == false is left/down
   // target_step is used by instantaneous_bands and altitude_bands
-  virtual std::pair<Vect3,Velocity> trajectory(const DaidalusParameters& parameters, const TrafficState& ownship,
+  virtual std::pair<Vect3,Vect3> trajectory(const DaidalusParameters& parameters, const TrafficState& ownship,
       double time, bool dir, int target_step, bool instantaneous) const = 0;
 
   virtual ~DaidalusIntegerBands() {}

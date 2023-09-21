@@ -58,10 +58,10 @@ double DaidalusHsBands::time_step(const DaidalusParameters& parameters, const Tr
   return get_step(parameters)/parameters.getHorizontalAcceleration();
 }
 
-std::pair<Vect3, Velocity> DaidalusHsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
+std::pair<Vect3, Vect3> DaidalusHsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   std::pair<Position,Velocity> posvel;
   if (time == 0.0 && target_step == 0.0) {
-    return std::pair<Vect3, Velocity>(ownship.get_s(),ownship.velocityXYZ());
+    return std::pair<Vect3, Vect3>(ownship.get_s(),ownship.get_v());
   } else if (instantaneous) {
     double gs = ownship.velocityXYZ().gs()+(dir?1:-1)*target_step*get_step(parameters);
     posvel = std::pair<Position, Velocity>(ownship.positionXYZ(),ownship.velocityXYZ().mkGs(gs));
@@ -69,7 +69,7 @@ std::pair<Vect3, Velocity> DaidalusHsBands::trajectory(const DaidalusParameters&
     posvel = ProjectedKinematics::gsAccel(ownship.positionXYZ(),ownship.velocityXYZ(),time,
         (dir?1:-1)*parameters.getHorizontalAcceleration());
   }
-  return std::pair<Vect3, Velocity>(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
+  return std::pair<Vect3, Vect3>(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
 }
 
 

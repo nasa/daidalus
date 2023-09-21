@@ -147,7 +147,7 @@ public:
 
   Vect3 pos_to_s(const Position& p) const;
 
-  Velocity vel_to_v(const Position& p,const Velocity& v) const;
+  Vect3 vel_to_v(const Position& p,const Velocity& v) const;
 
   Velocity inverseVelocity(const Velocity& v) const;
 
