@@ -592,14 +592,14 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/** 
-		 * @return minimum airspeed speed in internal units [m/s].
+		 * @return minimum airspeed speed in internal units [m/s]. 
 		 */
 		public double getMinAirSpeed() {
 			return min_airspeed_;
 		}
 
 		/** 
-		 * @return minimum air speed in specified units [u].
+		 * @return minimum air speed in specified units [u]. 
 		 */
 		public double getMinAirSpeed(String u) {
 			return Units.to(u,getMinAirSpeed());
@@ -1187,7 +1187,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		
 		/** 
 		 * Set minimum horizontal speed to value in internal units [m/s].
-		 * Minimum horizontal speed must be greater than horizontal speed step.
+		 * Minimum horizontal speed must be non-negative.
 		 */
 		public boolean setMinHorizontalSpeed(double val) {
 			if (error.isNonNegative("setMinHorizontalSpeed",val)) {
@@ -1199,7 +1199,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		
 		/** 
 		 * Set minimum horizontal speed to value in specified units [u].
-		 * Minimum horizontal speed must be greater than horizontal speed step.
+		 * Minimum horizontal speed must be non-negative.
 		 */
 		public boolean setMinHorizontalSpeed(double val, String u) {		
 			if (setMinHorizontalSpeed(Units.from(u,val))) {

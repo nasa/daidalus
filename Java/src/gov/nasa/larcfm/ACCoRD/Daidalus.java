@@ -1011,7 +1011,7 @@ public class Daidalus {
 	}
 
 	/** 
-	 * @return minimum airspeed speed in internal units [m/s].
+	 * @return minimum airspeed speed in internal units [m/s]. 
 	 */
 	public double getMinAirSpeed() {
 		return core_.parameters.getMinAirSpeed();
@@ -1024,14 +1024,14 @@ public class Daidalus {
 		return Units.to(u,getMinAirSpeed());
 	}
 
-	/** 
+  	/**
 	 * @return minimum horizontal speed for horizontal speed bands in internal units [m/s].
 	 */
 	public double getMinHorizontalSpeed() {
 		return core_.parameters.getMinHorizontalSpeed();
 	}
 
-	/** 
+  	/**
 	 * @return minimum horizontal speed for horizontal speed bands in specified units [u].
 	 */
 	public double getMinHorizontalSpeed(String u) {
@@ -1599,6 +1599,7 @@ public class Daidalus {
 
 	/** 
 	 * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
+	 * Minimum horizontal speed must be non-negative.
 	 */
 	public void setMinHorizontalSpeed(double val) {
 		core_.parameters.setMinHorizontalSpeed(val);
@@ -1607,6 +1608,7 @@ public class Daidalus {
 
 	/** 
 	 * Sets minimum horizontal speed for horizontal speed bands to value in specified units [u].
+	 * Minimum horizontal speed must be non-negative.
 	 */
 	public void setMinHorizontalSpeed(double val, String u) {
 		core_.parameters.setMinHorizontalSpeed(val,u);

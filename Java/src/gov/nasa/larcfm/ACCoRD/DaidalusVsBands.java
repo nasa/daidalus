@@ -64,7 +64,8 @@ public class DaidalusVsBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters,TrafficState ownship) {
-		return get_step(parameters)/parameters.getVerticalAcceleration();
+		// This function is never called when vertical acceleration is zero
+		return parameters.getVerticalAcceleration() == 0.0 ? 0.0 : get_step(parameters)/parameters.getVerticalAcceleration();
 	}
 
 	public Pair<Vect3, Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {    

@@ -914,14 +914,14 @@ double Daidalus::getRightHorizontalDirection(const std::string& u) const {
 }
 
 /** 
- * @return minimum airspeed speed in internal units [m/s].
+ * @return minimum airspeed speed in internal units [m/s]. 
  */
 double Daidalus::getMinAirSpeed() const {
 	return core_.parameters.getMinAirSpeed();
 }
 
-/**
- * @return minimum air speed in specified units [u].
+/** 
+ * @return minimum air speed in specified units [u]. 
  */
 double Daidalus::getMinAirSpeed(const std::string& u) const {
 		return Units::to(u,getMinAirSpeed());
@@ -1501,7 +1501,8 @@ void Daidalus::setMinAirSpeed(double val, const std::string& u) {
 }
 
 /**
- * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
+ * Set minimum horizontal speed to value in internal units [m/s].
+ * Minimum horizontal speed must be non-negative.
  */
 void Daidalus::setMinHorizontalSpeed(double val) {
   core_.parameters.setMinHorizontalSpeed(val);
@@ -1509,7 +1510,8 @@ void Daidalus::setMinHorizontalSpeed(double val) {
 }
 
 /**
- * Sets minimum horizontal speed for horizontal speed bands to value in specified units [u].
+ * Set minimum horizontal speed to value in specified units.
+ * Minimum horizontal speed must be non-negative.
  */
 void Daidalus::setMinHorizontalSpeed(double val, const std::string& u) {
   core_.parameters.setMinHorizontalSpeed(val,u);

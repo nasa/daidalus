@@ -15,8 +15,7 @@ import gov.nasa.larcfm.Util.Velocity;
 
 public class DaidalusDirBands extends DaidalusRealBands {
 
-	// Alternative gs for computation of horizontal direction bands when value is greater than 0. 
-	// This alternative gs is used when aircraft is flying below min horizontal airspeed 
+	// Alternative gs for computation of horizontal direction bands when aircraft is flying below min horizontal airspeed 
 	private double alt_gs_;
 
 	// min/max is left/right relative to ownship's direction

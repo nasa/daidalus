@@ -208,13 +208,13 @@ public:
   double getRightHorizontalDirection(const std::string& u) const;
 
   /** 
-		* @return minimum airspeed speed in internal units [m/s].
-		*/
+   * @return minimum airspeed speed in internal units [m/s].
+   */
   double getMinAirSpeed() const;
 
   /** 
-		* @return minimum air speed in specified units [u].
-		*/
+   * @return minimum air speed in specified units [u].    
+   */
   double getMinAirSpeed(const std::string& u) const;
 
   double getMinHorizontalSpeed() const;
@@ -393,8 +393,16 @@ public:
    */
 	bool setMinAirSpeed(double val, const std::string& u);
     
+  /**
+   * Set minimum horizontal speed to value in internal units [m/s].
+   * Minimum horizontal speed must be non-negative.
+  */  
   bool setMinHorizontalSpeed(double val);
 
+  /**
+   * Set minimum horizontal speed to value in specified units.
+   * Minimum horizontal speed must be non-negative.
+  */
   bool setMinHorizontalSpeed(double val, const std::string& u);
 
   bool setMaxHorizontalSpeed(double val);

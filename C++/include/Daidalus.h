@@ -588,13 +588,13 @@ public:
   double getRightHorizontalDirection(const std::string& u) const;
 
   /** 
-		* @return minimum airspeed speed in internal units [m/s].
-		*/
+   * @return minimum airspeed speed in internal units [m/s]. 
+   */
   double getMinAirSpeed() const;
 
   /** 
-	  * @return minimum air speed in specified units [u].
-		*/
+   * @return minimum air speed in specified units [u].    
+   */
   double getMinAirSpeed(const std::string& u) const;
   
   /**
@@ -1007,11 +1007,13 @@ public:
   
   /**
    * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
+   * Minimum horizontal speed must be non-negative.
    */
   void setMinHorizontalSpeed(double val);
 
   /**
    * Sets minimum horizontal speed for horizontal speed bands to value in specified units [u].
+   * Minimum horizontal speed must be non-negative.
    */
   void setMinHorizontalSpeed(double val, const std::string& u);
 

@@ -61,7 +61,8 @@ double DaidalusVsBands::own_val(const TrafficState& ownship) const {
 }
 
 double DaidalusVsBands::time_step(const DaidalusParameters& parameters, const TrafficState& ownship) const {
-  return get_step(parameters)/parameters.getVerticalAcceleration();
+  // This function is never called when vertical acceleration is zero
+  return parameters.getVerticalAcceleration() == 0.0 ? 0.0 : get_step(parameters)/parameters.getVerticalAcceleration();
 }
 
 std::pair<Vect3, Vect3> DaidalusVsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {

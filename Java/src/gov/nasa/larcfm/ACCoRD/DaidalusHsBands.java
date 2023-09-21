@@ -56,7 +56,8 @@ public class DaidalusHsBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		return get_step(parameters)/parameters.getHorizontalAcceleration();
+		// This function is never called when horizontal acceleration is zero
+		return parameters.getHorizontalAcceleration() == 0.0 ? 0.0 : get_step(parameters)/parameters.getHorizontalAcceleration();
 	}
 
 	public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags) {
