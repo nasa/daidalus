@@ -54,9 +54,8 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
                                     alerter_(alerter) {
   if (pos.isLatLon()) {
     sxyz_ = eprj.project(pos);
-    Velocity v = eprj.projectVelocity(pos,vel);
     posxyz_ = Position(sxyz_);
-    velxyz_ = v;
+    velxyz_ = eprj.projectVelocity(pos,vel);
   } else {
     posxyz_ = pos;
     sxyz_ = pos.vect3();
@@ -159,8 +158,8 @@ const Vect3& TrafficState::get_s() const {
   return sxyz_;
 }
 
-const Velocity& TrafficState::get_v() const {
-  return velxyz_;
+const Vect3& TrafficState::get_v() const {
+  return velxyz_.vect3();
 }
 
 Vect3 TrafficState::pos_to_s(const Position& p) const {
@@ -283,7 +282,7 @@ std::string TrafficState::formattedTraffic(const std::vector<TrafficState>& traf
 
 std::string TrafficState::toPVS() const {
   return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
-      ", v:= "+get_v().vect3().toPVS()+
+      ", v:= "+get_v().toPVS()+
       ", alerter:= "+Fmi(alerter_)+
       ", unc := (# s_EW_std:= "+FmPrecision(sum_.get_s_EW_std())+
       ", s_NS_std:= "+FmPrecision(sum_.get_s_NS_std())+

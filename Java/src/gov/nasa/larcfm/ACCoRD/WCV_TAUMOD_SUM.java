@@ -388,9 +388,9 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		double vz_err = relativeVerticalSpeedError(ownship,intruder);
 
 		Vect3 so = ownship.get_s();
-		Velocity vo = ownship.get_v();
+		Velocity vo = ownship.velocityXYZ();
 		Vect3 si = intruder.get_s();
-		Velocity vi = intruder.get_v();
+		Velocity vi = intruder.velocityXYZ();
 
 
 		if (s_err == 0.0 && sz_err == 0.0 && v_err == 0.0 && vz_err == 0.0) {

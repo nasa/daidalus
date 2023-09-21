@@ -688,8 +688,7 @@ int DaidalusCore::epsilonH(const TrafficState& ownship, const TrafficState& ac) 
 int DaidalusCore::epsilonV(const TrafficState& ownship, const TrafficState& ac) {
   if (ownship.isValid() && ac.isValid()) {
     Vect3 s = ownship.get_s().Sub(ac.get_s());
-    return CriteriaCore::verticalCoordinationLoS(s,ownship.get_v().vect3(),ac.get_v().vect3(),
-        ownship.getId(), ac.getId());
+    return CriteriaCore::verticalCoordinationLoS(s,ownship.get_v(),ac.get_v(),ownship.getId(),ac.getId());
   } else {
     return 0;
   }

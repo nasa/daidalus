@@ -250,7 +250,7 @@ public abstract class DaidalusIntegerBands {
 		Vect3 so = sovo.first;
 		Vect3 vo = sovo.second.vect3();
 		Vect3 si = traffic.get_s();
-		Vect3 vi = traffic.get_v().vect3();
+		Vect3 vi = traffic.get_v();
 		boolean rep = true;
 		if (k==1) { 
 			rep = CriteriaCore.vertical_new_repulsive_criterion(so.Sub(si),vo,vi,kinematic_linvel(parameters,ownship,tstep,trajdir,0),epsv);
@@ -327,14 +327,14 @@ public abstract class DaidalusIntegerBands {
 		boolean usevcrit = epsv != 0;    
 		Pair<Vect3,Velocity> nsovo = trajectory(parameters,ownship,0,trajdir,target_step,true);
 		Vect3 so = ownship.get_s();
-		Velocity vo = ownship.get_v();
+		Vect3 vo = ownship.get_v();
 		Vect3 si = traffic.get_s();
-		Velocity vi = traffic.get_v();
-		Velocity nvo = nsovo.second;
+		Vect3 vi = traffic.get_v();
+		Vect3 nvo = nsovo.second.vect3();
 		Vect3 s = so.Sub(si);
 		return 
 				(!usehcrit || CriteriaCore.horizontal_new_repulsive_criterion(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),epsh)) &&
-				(!usevcrit || CriteriaCore.vertical_new_repulsive_criterion(s,vo.vect3(),vi.vect3(),nvo.vect3(),epsv)) && 
+				(!usevcrit || CriteriaCore.vertical_new_repulsive_criterion(s,vo,vi,nvo,epsv)) && 
 				no_CD_future_traj(conflict_det,recovery_det,B,T,trajdir,0.0,parameters,ownship,traffic,target_step,true);
 	}
 

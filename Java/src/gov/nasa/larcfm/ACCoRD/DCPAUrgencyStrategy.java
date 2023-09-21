@@ -33,14 +33,14 @@ public class DCPAUrgencyStrategy implements UrgencyStrategy {
 		double D = ACCoRDConfig.NMAC_D;
 		double H = ACCoRDConfig.NMAC_H;
 		Vect3 so = ownship.get_s();
-		Velocity vo = ownship.get_v();
+		Vect3 vo = ownship.get_v();
 		for (int idx = 0; idx < traffic.size(); ++idx) {
 			TrafficState intruder = traffic.get(idx);
 			Vect3 si = intruder.get_s();
-			Velocity vi = intruder.get_v();
+			Vect3 vi = intruder.get_v();
 			Vect3 s = so.Sub(si);
-			Vect3 v = vo.vect3().Sub(vi.vect3());
-			double tcpa = CD3D.tccpa(s,vo.vect3(),vi.vect3(),D,H);
+			Vect3 v = vo.Sub(vi);
+			double tcpa = CD3D.tccpa(s,vo,vi,D,H);
 			double dcpa = v.ScalAdd(tcpa,s).cyl_norm(D,H); 
 			// If aircraft have almost same tcpa, select the one with smallest dcpa
 			// Otherwise,  select aircraft with smallest tcpa 

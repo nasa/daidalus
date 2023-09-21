@@ -82,9 +82,8 @@ public class TrafficState {
 		avel_ = vel;
 		if (pos.isLatLon()) {
 			sxyz_ = eprj.project(pos);
-			Velocity v = eprj.projectVelocity(pos,vel);
 			posxyz_ = Position.make(sxyz_);
-			velxyz_ = v;
+			velxyz_ = eprj.projectVelocity(pos,vel);
 		} else {
 			posxyz_ = pos;
 			sxyz_ = pos.vect3();
@@ -240,8 +239,8 @@ public class TrafficState {
 		return sxyz_;
 	}
 
-	public Velocity get_v() {
-		return velxyz_;
+	public Vect3 get_v() {
+		return velxyz_.vect3();
 	}
 
 	public Vect3 pos_to_s(Position p) {
@@ -370,7 +369,7 @@ public class TrafficState {
 
 	public String toPVS() {
 		return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
-				", v:= "+get_v().vect3().toPVS()+
+				", v:= "+get_v().toPVS()+
 				", alerter:= "+alerter_+
 				", unc := (# s_EW_std:= "+f.FmPrecision(sum_.get_s_EW_std())+
 				", s_NS_std:= "+f.FmPrecision(sum_.get_s_NS_std())+

@@ -4121,7 +4121,7 @@ public class Daidalus {
 	 */
 	public double verticalClosureRate(int ac_idx) {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-			double  vz = core_.ownship.get_v().z() - core_.traffic.get(ac_idx-1).get_v().z();
+			double  vz = core_.ownship.get_v().z - core_.traffic.get(ac_idx-1).get_v().z;
 			return Math.abs(vz);
 		} else {
 			return Double.NaN;
@@ -4173,7 +4173,7 @@ public class Daidalus {
 	public double predictedVerticalMissDistance(int ac_idx) {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			double sz = core_.ownship.get_s().z - core_.traffic.get(ac_idx-1).get_s().z;
-			double vz = core_.ownship.get_v().z()-core_.traffic.get(ac_idx-1).get_v().z();
+			double vz = core_.ownship.get_v().z-core_.traffic.get(ac_idx-1).get_v().z;
 			return Vertical.vmd(sz,vz,getLookaheadTime());
 		} else {
 			return Double.NaN;

@@ -4018,7 +4018,7 @@ double Daidalus::horizontalClosureRate(int ac_idx,const std::string& u) const {
  */
 double Daidalus::verticalClosureRate(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-    double  vz = core_.ownship.get_v().z() - core_.traffic[ac_idx-1].get_v().z();
+    double  vz = core_.ownship.get_v().z - core_.traffic[ac_idx-1].get_v().z;
     return std::abs(vz);
   } else {
     return NaN;
@@ -4069,7 +4069,7 @@ double Daidalus::predictedHorizontalMissDistance(int ac_idx, const std::string& 
 double Daidalus::predictedVerticalMissDistance(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 		double sz = core_.ownship.get_s().z - core_.traffic[ac_idx-1].get_s().z;
-		double vz = core_.ownship.get_v().z()-core_.traffic[ac_idx-1].get_v().z();
+		double vz = core_.ownship.get_v().z-core_.traffic[ac_idx-1].get_v().z;
 		return Vertical::vmd(sz,vz,getLookaheadTime());    
   } else {
     return NaN;
@@ -4164,7 +4164,7 @@ double Daidalus::distanceAtHorizontalClosestPointOfApproach(int ac_idx, const st
 double Daidalus::timeToCoAltitude(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
     double sz = core_.ownship.get_s().z-core_.traffic[ac_idx-1].get_s().z;
-    double vz = core_.ownship.get_v().z()-core_.traffic[ac_idx-1].get_v().z();
+    double vz = core_.ownship.get_v().z-core_.traffic[ac_idx-1].get_v().z;
     if (Util::almost_equals(vz,0.0)) {
       return NINFINITY;
     }

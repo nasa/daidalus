@@ -113,7 +113,7 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 */
 	public ConflictData conflictDetectionWithTrafficState(TrafficState ownship, TrafficState intruder, 
 			double B, double T) {
-		return conflictDetection(ownship.get_s(),ownship.get_v(),intruder.get_s(),intruder.get_v(),B,T);
+		return conflictDetection(ownship.get_s(),ownship.velocityXYZ(),intruder.get_s(),intruder.velocityXYZ(),B,T);
 	}
 
 	/**

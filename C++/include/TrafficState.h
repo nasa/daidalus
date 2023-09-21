@@ -143,7 +143,7 @@ public:
 
   const Vect3& get_s() const;
 
-  const Velocity& get_v() const;
+  const Vect3& get_v() const;
 
   Vect3 pos_to_s(const Position& p) const;
 

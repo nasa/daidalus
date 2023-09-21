@@ -21,6 +21,12 @@ namespace larcfm {
 
 class DaidalusDirBands : public DaidalusRealBands {
 
+private:
+
+	// Alternative gs for computation of horizontal direction bands when value is greater than 0. 
+	// This alternative gs is used when aircraft is flying below min horizontal airspeed 
+	double alt_gs_;
+
 public:
   DaidalusDirBands();
 
@@ -40,7 +46,7 @@ public:
 
   virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) const;
 
-  virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {};
+  virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags);
 
   virtual bool instantaneous_bands(const DaidalusParameters& parameters) const;
 

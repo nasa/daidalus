@@ -46,14 +46,14 @@ double DaidalusVsBands::get_max_rel(const DaidalusParameters& parameters) const 
   return parameters.getAboveRelativeVerticalSpeed();
 }
 
-bool DaidalusVsBands::instantaneous_bands(const DaidalusParameters& parameters) const {
-  return parameters.getVerticalAcceleration() == 0;
-}
-
 void DaidalusVsBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
-  if (special_flags.get_dta_status() > 0) {
+  if (special_flags.get_dta_status() > 0.0) {
     set_min_max_rel(0,-1);
   }
+}
+
+bool DaidalusVsBands::instantaneous_bands(const DaidalusParameters& parameters) const {
+  return parameters.getVerticalAcceleration() == 0.0;
 }
 
 double DaidalusVsBands::own_val(const TrafficState& ownship) const {
@@ -66,8 +66,8 @@ double DaidalusVsBands::time_step(const DaidalusParameters& parameters, const Tr
 
 std::pair<Vect3, Velocity> DaidalusVsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   std::pair<Position,Velocity> posvel;
-  if (time == 0 && target_step == 0) {
-    return std::pair<Vect3, Velocity>(ownship.get_s(),ownship.get_v());
+  if (time == 0.0 && target_step == 0.0) {
+    return std::pair<Vect3, Velocity>(ownship.get_s(),ownship.velocityXYZ());
   } else if (instantaneous_bands(parameters)) {
     double vs = ownship.velocityXYZ().vs()+(dir?1:-1)*target_step*get_step(parameters);
     posvel = std::pair<Position, Velocity>(ownship.positionXYZ(),ownship.velocityXYZ().mkVs(vs));

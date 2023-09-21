@@ -47,7 +47,7 @@ double DaidalusHsBands::get_max_rel(const DaidalusParameters& parameters) const{
 }
 
 bool DaidalusHsBands::instantaneous_bands(const DaidalusParameters& parameters) const {
-  return parameters.getHorizontalAcceleration() == 0;
+  return parameters.getHorizontalAcceleration() == 0.0;
 }
 
 double DaidalusHsBands::own_val(const TrafficState& ownship) const {
@@ -60,8 +60,8 @@ double DaidalusHsBands::time_step(const DaidalusParameters& parameters, const Tr
 
 std::pair<Vect3, Velocity> DaidalusHsBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   std::pair<Position,Velocity> posvel;
-  if (time == 0 && target_step == 0) {
-    return std::pair<Vect3, Velocity>(ownship.get_s(),ownship.get_v());
+  if (time == 0.0 && target_step == 0.0) {
+    return std::pair<Vect3, Velocity>(ownship.get_s(),ownship.velocityXYZ());
   } else if (instantaneous) {
     double gs = ownship.velocityXYZ().gs()+(dir?1:-1)*target_step*get_step(parameters);
     posvel = std::pair<Position, Velocity>(ownship.positionXYZ(),ownship.velocityXYZ().mkGs(gs));

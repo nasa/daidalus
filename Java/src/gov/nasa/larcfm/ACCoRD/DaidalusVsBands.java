@@ -48,15 +48,15 @@ public class DaidalusVsBands extends DaidalusRealBands {
 	public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags) {
 		return false;
 	}
-	
+
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {	
-		if (special_flags.get_dta_status() > 0) { 
+		if (special_flags.get_dta_status() > 0.0) { 
 			set_min_max_rel(0,-1);
 		}
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {
-		return parameters.getVerticalAcceleration() == 0;
+		return parameters.getVerticalAcceleration() == 0.0;
 	}
 
 	public double own_val(TrafficState ownship) {
@@ -69,8 +69,8 @@ public class DaidalusVsBands extends DaidalusRealBands {
 
 	public Pair<Vect3, Velocity> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {    
 		Pair<Position,Velocity> posvel;
-		if (time == 0 && target_step == 0) {
-			return Pair.make(ownship.get_s(),ownship.get_v());
+		if (time == 0.0 && target_step == 0.0) {
+			return Pair.make(ownship.get_s(),ownship.velocityXYZ());
 		} else if (instantaneous) {
 			double vs = ownship.velocityXYZ().vs()+(dir?1:-1)*target_step*get_step(parameters); 
 			posvel = Pair.make(ownship.positionXYZ(),ownship.velocityXYZ().mkVs(vs));
