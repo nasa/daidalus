@@ -63,17 +63,15 @@ double DaidalusDirBands::own_val(const TrafficState& ownship) const {
 }
 
 double DaidalusDirBands::time_step(const DaidalusParameters& parameters, const TrafficState& ownship) const {
-  double gso = std::max(ownship.velocityXYZ().gs(),parameters.getHorizontalSpeedStep());
+	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(alt_gs_,ownship.velocityXYZ().gs()));
   double omega = parameters.getTurnRate() == 0.0 ? Kinematics::turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
   return get_step(parameters)/omega;
 }
 
- Velocity DaidalusDirBands::ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const {
-  	if (ownship.velocityXYZ().gs() < parameters.getHorizontalSpeedStep()) {
-			return ownship.velocityXYZ().mkGs(parameters.getHorizontalSpeedStep());
-		}
-		return ownship.velocityXYZ();
- }
+Velocity DaidalusDirBands::ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const {
+ 	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(alt_gs_,ownship.velocityXYZ().gs()));
+	return ownship.velocityXYZ().mkGs(gso);
+}
 
 std::pair<Vect3, Vect3> DaidalusDirBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   std::pair<Position,Velocity> posvel;

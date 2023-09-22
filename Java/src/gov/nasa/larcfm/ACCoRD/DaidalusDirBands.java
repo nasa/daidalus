@@ -71,16 +71,14 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Math.max(ownship.velocityXYZ().gs(),parameters.getHorizontalSpeedStep());
+		double gso = Math.max(parameters.getHorizontalSpeedStep(),Math.max(alt_gs_,ownship.velocityXYZ().gs()));
 		double omega = parameters.getTurnRate() == 0.0 ? Kinematics.turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
 		return get_step(parameters)/omega;
 	}
 
 	private Velocity ownship_vel(DaidalusParameters parameters, TrafficState ownship) {
-		if (ownship.velocityXYZ().gs() < parameters.getHorizontalSpeedStep()) {
-			return ownship.velocityXYZ().mkGs(parameters.getHorizontalSpeedStep());
-		}
-		return ownship.velocityXYZ();
+		double gso = Math.max(parameters.getHorizontalSpeedStep(),Math.max(alt_gs_,ownship.velocityXYZ().gs()));
+		return ownship.velocityXYZ().mkGs(gso);
 	}
 
 	public Pair<Vect3, Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {  
