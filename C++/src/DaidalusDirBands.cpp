@@ -51,7 +51,7 @@ bool DaidalusDirBands::saturate_corrective_bands(const DaidalusParameters& param
 }
 
 void DaidalusDirBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
-  alt_gs_ = 0.0; //special_flags.get_below_min_as() ? parameters.getMinAirSpeed() : 0.0;
+  alt_gs_ = special_flags.get_below_min_as() ? parameters.getMinAirSpeed() : 0.0;
 }
 
 bool DaidalusDirBands::instantaneous_bands(const DaidalusParameters& parameters) const {
@@ -63,23 +63,31 @@ double DaidalusDirBands::own_val(const TrafficState& ownship) const {
 }
 
 double DaidalusDirBands::time_step(const DaidalusParameters& parameters, const TrafficState& ownship) const {
-  double gso = ownship.velocityXYZ().gs();
+  double gso = std::max(ownship.velocityXYZ().gs(),parameters.getHorizontalSpeedStep());
   double omega = parameters.getTurnRate() == 0.0 ? Kinematics::turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
   return get_step(parameters)/omega;
 }
 
+ Velocity DaidalusDirBands::ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const {
+  	if (ownship.velocityXYZ().gs() < parameters.getHorizontalSpeedStep()) {
+			return ownship.velocityXYZ().mkGs(parameters.getHorizontalSpeedStep());
+		}
+		return ownship.velocityXYZ();
+ }
+
 std::pair<Vect3, Vect3> DaidalusDirBands::trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const {
   std::pair<Position,Velocity> posvel;
+  Velocity ownship_velocityXYZ = ownship_vel(parameters,ownship);
   if (time == 0.0 && target_step == 0.0) {
-    return std::pair<Vect3, Vect3>(ownship.get_s(),ownship.get_v());
+    return std::pair<Vect3, Vect3>(ownship.get_s(),ownship_velocityXYZ.vect3());
   } else if (instantaneous) {
-    double trk = ownship.velocityXYZ().compassAngle()+(dir?1:-1)*target_step*get_step(parameters);
-    posvel = std::pair<Position, Velocity>(ownship.positionXYZ(),ownship.velocityXYZ().mkTrk(trk));
+    double trk = ownship_velocityXYZ.compassAngle()+(dir?1:-1)*target_step*get_step(parameters);
+    posvel = std::pair<Position, Velocity>(ownship.positionXYZ(),ownship_velocityXYZ.mkTrk(trk));
   } else {
-    double gso = ownship.velocityXYZ().gs();
+    double gso = ownship_velocityXYZ.gs();
     double bank = parameters.getTurnRate() == 0.0 ? parameters.getBankAngle() : std::abs(Kinematics::bankAngle(gso,parameters.getTurnRate()));
     double R = Kinematics::turnRadius(gso,bank);
-    posvel = ProjectedKinematics::turn(ownship.positionXYZ(),ownship.velocityXYZ(),time,R,dir);
+    posvel = ProjectedKinematics::turn(ownship.positionXYZ(),ownship_velocityXYZ,time,R,dir);
   }
   return std::pair<Vect3, Vect3>(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
 }

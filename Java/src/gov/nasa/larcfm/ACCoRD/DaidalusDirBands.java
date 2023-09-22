@@ -15,7 +15,10 @@ import gov.nasa.larcfm.Util.Velocity;
 
 public class DaidalusDirBands extends DaidalusRealBands {
 
-	// Alternative gs for computation of horizontal direction bands when aircraft is flying below min horizontal airspeed 
+	/** 
+	 * Alternative gs for computation of horizontal direction bands when aircraft is flying 
+	 * below min horizontal airspeed.
+	 */
 	private double alt_gs_;
 
 	// min/max is left/right relative to ownship's direction
@@ -56,7 +59,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {
-		alt_gs_ = 0.0; //special_flags.get_below_min_as() ? parameters.getMinAirSpeed() : 0.0;
+		alt_gs_ = special_flags.get_below_min_as() ? parameters.getMinAirSpeed() : 0.0;
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {
@@ -68,23 +71,31 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Math.max(alt_gs_,ownship.velocityXYZ().gs());
+		double gso = Math.max(ownship.velocityXYZ().gs(),parameters.getHorizontalSpeedStep());
 		double omega = parameters.getTurnRate() == 0.0 ? Kinematics.turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
 		return get_step(parameters)/omega;
 	}
 
+	private Velocity ownship_vel(DaidalusParameters parameters, TrafficState ownship) {
+		if (ownship.velocityXYZ().gs() < parameters.getHorizontalSpeedStep()) {
+			return ownship.velocityXYZ().mkGs(parameters.getHorizontalSpeedStep());
+		}
+		return ownship.velocityXYZ();
+	}
+
 	public Pair<Vect3, Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {  
 		Pair<Position,Velocity> posvel;
+		Velocity ownship_velocityXYZ = ownship_vel(parameters,ownship);
 		if (time == 0.0 && target_step == 0.0) {
-			return Pair.make(ownship.get_s(),ownship.get_v());
+			return Pair.make(ownship.get_s(),ownship_velocityXYZ.vect3());
 		} else if (instantaneous) {
-			double trk = ownship.velocityXYZ().compassAngle()+(dir?1:-1)*target_step*get_step(parameters); 
-			posvel = Pair.make(ownship.positionXYZ(),ownship.velocityXYZ().mkTrk(trk));
+			double trk = ownship_velocityXYZ.compassAngle()+(dir?1:-1)*target_step*get_step(parameters); 
+			posvel = Pair.make(ownship.positionXYZ(),ownship_velocityXYZ.mkTrk(trk));
 		} else {
-			double gso = Math.max(alt_gs_,ownship.velocityXYZ().gs());
+			double gso = ownship_velocityXYZ.gs();
 			double bank = parameters.getTurnRate() == 0.0 ? parameters.getBankAngle() : Math.abs(Kinematics.bankAngle(gso,parameters.getTurnRate()));
 			double R = Kinematics.turnRadius(gso,bank);
-			posvel = ProjectedKinematics.turn(ownship.positionXYZ(),ownship.velocityXYZ(),time,R,dir);
+			posvel = ProjectedKinematics.turn(ownship.positionXYZ(),ownship_velocityXYZ,time,R,dir);
 		}
 		return Pair.make(ownship.pos_to_s(posvel.first),ownship.vel_to_v(posvel.first,posvel.second));
 	}

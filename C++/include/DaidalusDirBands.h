@@ -27,6 +27,8 @@ private:
 	// This alternative gs is used when aircraft is flying below min horizontal airspeed 
 	double alt_gs_;
 
+  Velocity ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const;
+
 public:
   DaidalusDirBands();
 
