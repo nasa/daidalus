@@ -272,9 +272,9 @@ std::string TrafficState::formattedTrafficList(const std::vector<TrafficState>& 
 }
 
 std::string TrafficState::formattedTraffic(const std::vector<TrafficState>& traffic,
-    const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time, bool no_header) const {
+    const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time, bool header) const {
   std::string s = "";
-  if (!no_header) {
+  if (header) {
     s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
   }
   s += formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);

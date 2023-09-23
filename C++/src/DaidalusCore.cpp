@@ -822,7 +822,7 @@ int DaidalusCore::raw_alert_level(const Alerter& alerter, const TrafficState& in
   return 0;
 }
 
-std::string DaidalusCore::outputStringAircraftStates(bool internal, bool no_header) const {
+std::string DaidalusCore::outputStringAircraftStates(bool internal, bool header) const {
   std::string ualt = internal ? "m" : parameters.getUnitsOf("step_alt");
   std::string uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
   std::string uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
@@ -839,7 +839,7 @@ std::string DaidalusCore::outputStringAircraftStates(bool internal, bool no_head
   } else {
     utrk="rad";
   }
-  return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,no_header);
+  return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,header);
 }
 
 std::string DaidalusCore::rawString() const {

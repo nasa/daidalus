@@ -4331,11 +4331,11 @@ public class Daidalus {
 	/* Input/Output methods */
 
 	public String outputStringAircraftStates() {
-		return outputStringAircraftStates(false);
+		return outputStringAircraftStates(true);
 	}
 
-	public String outputStringAircraftStates(boolean no_header) {
-		return core_.outputStringAircraftStates(false,no_header);
+	public String outputStringAircraftStates(boolean header) {
+		return core_.outputStringAircraftStates(false,header);
 	}
 
 	public String rawString() {

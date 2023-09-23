@@ -361,9 +361,9 @@ public class TrafficState {
 
 	public String formattedTraffic(List<TrafficState> traffic,
 			String utrk, String uxy, String ualt, String ugs, String uvs, double time,
-			boolean no_header) {
+			boolean header) {
 		String s="";
-		if (!no_header) {
+		if (header) {
 			s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
 		}
 		s += formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);

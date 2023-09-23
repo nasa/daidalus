@@ -4229,8 +4229,8 @@ double Daidalus::modifiedTau(int ac_idx, double DMOD, const std::string& DMODu, 
 
 /* Input/Output methods */
 
-std::string Daidalus::outputStringAircraftStates(bool no_header) const {
-  return core_.outputStringAircraftStates(false,no_header);
+std::string Daidalus::outputStringAircraftStates(bool header) const {
+  return core_.outputStringAircraftStates(false,header);
 }
 
 std::string Daidalus::rawString() const {
