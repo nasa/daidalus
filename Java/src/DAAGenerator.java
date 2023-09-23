@@ -127,6 +127,7 @@ public class DAAGenerator {
 			}
 			String name = file.getName();
 			String base = name.substring(0,name.lastIndexOf('.'));
+			String ext = name.substring(name.lastIndexOf('.'),name.length());
 			String output_file = base;
 			DaidalusParameters.setDefaultOutputPrecision(precision);
 			DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
@@ -150,7 +151,7 @@ public class DAAGenerator {
 			double to = daa.getCurrentTime()+forward;
 			daa.linearProjection(-Util.min(backward,daa.getCurrentTime()));
 			try {
-				output_file = output_file+"_"+f.Fm0(from)+"_"+f.Fm0(to)+".daa";
+				output_file = output_file+"_"+f.Fm0(from)+"_"+f.Fm0(to)+ext;
 				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 			} catch (Exception e) {
 				System.err.println("** Warning: "+e);
