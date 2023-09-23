@@ -174,6 +174,17 @@ public class TrafficState {
 	}
 
 	/**
+	 * Make an ownship's aircraft
+	 * @param id Ownship's identifier
+	 * @param pos Ownship's position
+	 * @param vel Ownship's ground velocity (assumes ground and air velocity are the same)
+	 */
+
+	public static TrafficState makeOwnship(String id, Position pos, Velocity vel) {
+		return makeOwnship(id,pos,vel,vel);
+	}
+
+	/**
 	 * Set aircraft as intruder of ownship 
 	 */
 	public void setAsIntruderOf(TrafficState ownship) {

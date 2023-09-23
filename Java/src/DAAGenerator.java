@@ -48,10 +48,13 @@ import java.util.List;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
+import gov.nasa.larcfm.ACCoRD.TrafficState;
+import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
-import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.ProjectedKinematics;
 import gov.nasa.larcfm.Util.Util;
+import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
 public class DAAGenerator {
@@ -62,8 +65,8 @@ public class DAAGenerator {
 		Daidalus daa = new Daidalus();
 
 		List<String> input_files = new ArrayList<String>();
-		String ownship = "";
-		List<String> traffic = new ArrayList<String>();
+		String ownship_id = "";
+		List<String> traffic_ids = new ArrayList<String>();
 		
 		PrintWriter out = new PrintWriter(System.out);
 		ParameterData params = new ParameterData();
@@ -82,10 +85,10 @@ public class DAAGenerator {
 				params.set(keyval);
 			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
 				++a;
-				ownship = args[a];
+				ownship_id = args[a];
 			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
 				++a;
-				traffic.addAll(Arrays.asList(args[a].split(",")));
+				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
 			} else if (arga.startsWith("--t") || arga.startsWith("-t")) {
 				++a;
 				time = Double.parseDouble(args[a]);
@@ -132,14 +135,14 @@ public class DAAGenerator {
 			DaidalusParameters.setDefaultOutputPrecision(precision);
 			DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
 			if (walker.atEnd()) {
-				System.err.println("** Warning: File "+input_file+" doesn't appear to bea daa file");
+				System.err.println("** Warning: File "+input_file+" doesn't appear to be a daa file");
 				continue;
 			}
-			if (!ownship.isEmpty()) {
-				walker.setOwnship(ownship);
+			if (!ownship_id.isEmpty()) {
+				walker.setOwnship(ownship_id);
 			}
-			if (!traffic.isEmpty()) {
-				walker.selectTraffic(traffic);
+			if (!traffic_ids.isEmpty()) {
+				walker.selectTraffic(traffic_ids);
 			}
 			if (time == 0.0) {
 				walker.goToBeginning();
@@ -147,9 +150,12 @@ public class DAAGenerator {
 				walker.goToTime(time);
 			}
 			walker.readState(daa);
+			if (!daa.hasOwnship()) {
+				System.err.println("** Warning: Ownship not found in file "+input_file);
+				continue;
+			}
 			double from = Util.max(0,daa.getCurrentTime()-backward);
 			double to = daa.getCurrentTime()+forward;
-			daa.linearProjection(-Util.min(backward,daa.getCurrentTime()));
 			try {
 				output_file = output_file+"_"+f.Fm0(from)+"_"+f.Fm0(to)+ext;
 				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
@@ -158,12 +164,24 @@ public class DAAGenerator {
 				continue;
 			}
 			System.err.println("Writing "+output_file);
-			out.print(daa.outputStringAircraftStates());
-			double t = from;
-			while (++t <= to) {
-				daa.linearProjection(1);
-				out.print(daa.outputStringAircraftStates(false));
-			}
+			String uh = "nmi";
+			String uv = "ft";
+			String ugs = "knot";
+			String uvs = "fpm";
+			double horizontal_accel = params.getValue("horizontal_accel");
+			System.out.println("Horizontal Accel: "+horizontal_accel);
+			TrafficState ownship = daa.getOwnshipState();
+			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
+			for (double t = -Util.min(backward,daa.getCurrentTime()); t <= forward; t++) {
+				Pair<Position,Velocity> posvel = ProjectedKinematics.gsAccel(ownship.getPosition(),
+					ownship.getVelocity(),t, Util.sign(t)*horizontal_accel);
+				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posvel.first,posvel.second);
+				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()+t));
+				for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
+					TrafficState newtraffic = daa.getAircraftStateAt(ac_idx).linearProjection(t);
+					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()+t));
+				}
+			}  
 			out.close();
 		}
 	}

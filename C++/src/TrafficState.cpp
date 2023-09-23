@@ -4,13 +4,14 @@
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
+
+#include "TrafficState.h"
 #include "Position.h"
 #include "Velocity.h"
 #include "Projection.h"
 #include "Constants.h"
 #include "format.h"
 #include "string_util.h"
-#include "TrafficState.h"
 
 #include <string>
 
@@ -117,6 +118,10 @@ TrafficState TrafficState::makeOwnship(const std::string& id, const Position& po
   TrafficState ac = TrafficState(id,pos,vel,airvel);
   ac.setAsOwnship();
   return ac;
+}
+
+TrafficState TrafficState::makeOwnship(const std::string& id, const Position& pos, const Velocity& vel) {
+  return makeOwnship(id,pos,vel,vel);
 }
 
 void TrafficState::setAsIntruderOf(const TrafficState& ownship) {
