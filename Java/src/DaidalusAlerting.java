@@ -140,7 +140,7 @@ public class DaidalusAlerting {
 				System.err.println("  --echo\n\tEcho configuration and traffic list in standard outoput");
 				System.err.println("  --precision <n>\n\tOutput decimal precision");
 				System.err.println("  --ownship <id>\n\tSpecify a particular aircraft as ownship");
-				System.err.println("  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic");
+				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -149,7 +149,7 @@ public class DaidalusAlerting {
 			} else if (input_file.equals("")) {
 				input_file = arga;
 			} else {
-				System.err.println("** Error: Only one input file can be provided ("+a+")");
+				System.err.println("** Error: Only one input file can be provided ("+arga+")");
 				System.exit(1);
 			}				
 		}

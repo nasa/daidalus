@@ -2777,7 +2777,7 @@ public:
 
   /* Input/Output methods */
 
-  std::string outputStringAircraftStates() const;
+  std::string outputStringAircraftStates(bool no_header=false) const;
 
   std::string rawString() const;
 

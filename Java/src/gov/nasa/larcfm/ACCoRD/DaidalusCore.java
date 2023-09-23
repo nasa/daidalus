@@ -854,7 +854,7 @@ public class DaidalusCore {
 		return 0;
 	}
 
-	public String outputStringAircraftStates(boolean internal) {
+	public String outputStringAircraftStates(boolean internal, boolean no_header) {
 		String ualt = internal ? "m" : parameters.getUnitsOf("step_alt");
 		String uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
 		String uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
@@ -871,7 +871,7 @@ public class DaidalusCore {
 		} else {
 			utrk="rad";
 		}
-		return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time);
+		return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,no_header);
 	}
 
 	public String rawString() {
@@ -928,7 +928,7 @@ public class DaidalusCore {
 
 		s+="wind_vector = "+wind_vector.toString()+"\n";
 		s+="## Ownship and Traffic Relative to Wind\n";
-		s+=outputStringAircraftStates(true);
+		s+=outputStringAircraftStates(true,false);
 		s+="##\n";
 		return s;
 	}

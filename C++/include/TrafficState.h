@@ -177,7 +177,7 @@ public:
       const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time);
 
   std::string formattedTraffic(const std::vector<TrafficState>& traffic,
-      const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time) const;
+      const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time, bool no_header) const;
 
   std::string toPVS() const;
 

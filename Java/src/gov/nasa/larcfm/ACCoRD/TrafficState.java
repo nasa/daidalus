@@ -12,6 +12,7 @@ import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
@@ -201,7 +202,7 @@ public class TrafficState {
 	 * @param alerter
 	 */
 	public void setAlerterIndex(int alerter) {
-		alerter_ = Math.max(0,alerter);
+		alerter_ = Util.max(0,alerter);
 	}
 
 	/**
@@ -359,9 +360,12 @@ public class TrafficState {
 	}
 
 	public String formattedTraffic(List<TrafficState> traffic,
-			String utrk, String uxy, String ualt, String ugs, String uvs, double time) {
+			String utrk, String uxy, String ualt, String ugs, String uvs, double time,
+			boolean no_header) {
 		String s="";
-		s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
+		if (!no_header) {
+			s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
+		}
 		s += formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);
 		s += formattedTrafficList(traffic,utrk,uxy,ualt,ugs,uvs,time);
 		return s;

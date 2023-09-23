@@ -10,6 +10,7 @@ import gov.nasa.larcfm.Util.Kinematics;
 import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.ProjectedKinematics;
+import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 
@@ -71,13 +72,13 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Math.max(parameters.getHorizontalSpeedStep(),Math.max(alt_gs_,ownship.velocityXYZ().gs()));
+		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(alt_gs_,ownship.velocityXYZ().gs()));
 		double omega = parameters.getTurnRate() == 0.0 ? Kinematics.turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
 		return get_step(parameters)/omega;
 	}
 
 	private Velocity ownship_vel(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Math.max(parameters.getHorizontalSpeedStep(),Math.max(alt_gs_,ownship.velocityXYZ().gs()));
+		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(alt_gs_,ownship.velocityXYZ().gs()));
 		return ownship.velocityXYZ().mkGs(gso);
 	}
 

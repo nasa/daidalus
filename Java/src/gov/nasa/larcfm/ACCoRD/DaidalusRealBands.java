@@ -555,8 +555,8 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 					}
 				}
 				++recovery_nfactor_;
-				cd3d.setHorizontalSeparation(Math.max(core.parameters.getHorizontalNMAC(),cd3d.getHorizontalSeparation()*factor));
-				cd3d.setVerticalSeparation(Math.max(core.parameters.getVerticalNMAC(),cd3d.getVerticalSeparation()*factor));
+				cd3d.setHorizontalSeparation(Util.max(core.parameters.getHorizontalNMAC(),cd3d.getHorizontalSeparation()*factor));
+				cd3d.setVerticalSeparation(Util.max(core.parameters.getVerticalNMAC(),cd3d.getVerticalSeparation()*factor));
 			}
 		}
 		return false;

@@ -822,7 +822,7 @@ int DaidalusCore::raw_alert_level(const Alerter& alerter, const TrafficState& in
   return 0;
 }
 
-std::string DaidalusCore::outputStringAircraftStates(bool internal) const {
+std::string DaidalusCore::outputStringAircraftStates(bool internal, bool no_header) const {
   std::string ualt = internal ? "m" : parameters.getUnitsOf("step_alt");
   std::string uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
   std::string uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
@@ -839,7 +839,7 @@ std::string DaidalusCore::outputStringAircraftStates(bool internal) const {
   } else {
     utrk="rad";
   }
-  return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time);
+  return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,no_header);
 }
 
 std::string DaidalusCore::rawString() const {
@@ -899,7 +899,7 @@ std::string DaidalusCore::rawString() const {
   }
   s+="wind_vector = "+wind_vector.toString()+"\n";
   s+="## Ownship and Traffic Relative to Wind\n";
-  s+=outputStringAircraftStates(true);
+  s+=outputStringAircraftStates(true,false);
   s+="##\n";
   return s;
 }

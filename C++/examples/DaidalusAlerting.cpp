@@ -131,7 +131,7 @@ int main(int argc, char* argv[]) {
       std::cerr << "  --echo\n\tEcho configuration and traffic list in standard outoput" << std::endl;
       std::cerr << "  --precision <n>\n\tOutput decimal precision" << std::endl;
       std::cerr << "  --ownship <id>\n\tSpecify a particular aircraft as ownship" << std::endl;
-      std::cerr << "  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic" << std::endl;
+      std::cerr << "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic" << std::endl;
       std::cerr << "  --help\n\tPrint this message" << std::endl;
       exit(0);
     } else if (startsWith(arga,"-")){
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
     } else if (input_file == "") {
       input_file = arga;
     } else {
-      std::cerr << "** Error: Only one input file can be provided (" << a << ")" << std::endl;
+      std::cerr << "** Error: Only one input file can be provided (" << arga << ")" << std::endl;
       exit(1);
     }
   }

@@ -309,7 +309,7 @@ public:
 
   TrafficState recovery_ac();
 
-  std::string outputStringAircraftStates(bool internal) const;
+  std::string outputStringAircraftStates(bool internal, bool no_header) const;
 
   std::string rawString() const;
 
