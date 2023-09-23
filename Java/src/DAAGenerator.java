@@ -157,11 +157,11 @@ public class DAAGenerator {
 				continue;
 			}
 			System.err.println("Writing "+output_file);
-			out.println(daa.outputStringAircraftStates());
+			out.print(daa.outputStringAircraftStates());
 			double t = from;
 			while (++t <= to) {
 				daa.linearProjection(1);
-				out.println(daa.outputStringAircraftStates(false));
+				out.print(daa.outputStringAircraftStates(false));
 			}
 			out.close();
 		}
