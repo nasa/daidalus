@@ -336,7 +336,8 @@ public class TrafficState {
 			s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt);
 		}
 		s += ", "+gvel_.toStringNP(utrk,ugs,uvs);
-		s += ", "+avel_.toStringNP(utrk,ugs,uvs);
+		s += ", "+f.FmPrecision(avel_.compassAngle(utrk));
+		s += ", "+f.FmPrecision(avel_.groundSpeed(ugs));
 		s += ", "+f.FmPrecision(time);
 		s += ", "+alerter_;
 		s += ", "+f.FmPrecision(sum_.get_s_EW_std(uxy));

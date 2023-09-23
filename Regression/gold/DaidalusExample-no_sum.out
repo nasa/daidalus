@@ -199,8 +199,8 @@ DWC_Non_Coop_load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 ###
 NAME lat lon alt trk gs vs heading airspeed time alerter s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std
 [none] [deg] [deg] [ft] [deg] [knot] [fpm] [deg] [knot] [s] [none] [nmi] [nmi] [nmi] [ft] [knot] [knot] [knot] [fpm]
-ownship, 33.95, -96.7, 8700.0, 206.0, 151.0, 0.0, 207.1623882306, 160.4882117114, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-intruder, 33.86191658, -96.73272601, 9000.0, 0.0, 210.0, 0.0, 358.0043334101, 203.0520906541, 0.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+ownship, 33.95, -96.7, 8700.0, 206.0, 151.0, 0.0, 207.1623882306, 160.4882117114, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+intruder, 33.86191658, -96.73272601, 9000.0, 0.0, 210.0, 0.0, 358.0043334101, 203.0520906541, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 
 Number of Aircraft: 2
 Last Aircraft Index: 1

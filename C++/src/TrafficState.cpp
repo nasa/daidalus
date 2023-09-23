@@ -242,13 +242,14 @@ std::string TrafficState::formattedHeader(const std::string& utrk, const std::st
 std::string TrafficState::formattedTrafficState(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time) const {
   std::string s= getId();
   if (pos_.isLatLon()) {
-    s += ", "+pos_.lla().toString("deg","deg",ualt);//,Constants::get_output_precision());
+    s += ", "+pos_.lla().toString("deg","deg",ualt);
   } else {
-    s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt); //, Constants::get_output_precision(),uxy,uxy,ualt);
+    s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt);
   }
-  s += ", "+gvel_.toStringNP(utrk,ugs,uvs); // Constants::get_output_precision())+", "+
-  s += ", "+avel_.toStringNP(utrk,ugs,uvs);
-  s += ", "+FmPrecision(time); //Constants::get_output_precision());
+  s += ", "+gvel_.toStringNP(utrk,ugs,uvs); 
+		s += ", "+FmPrecision(avel_.compassAngle(utrk));
+		s += ", "+FmPrecision(avel_.groundSpeed(ugs));
+  s += ", "+FmPrecision(time); 
   s += ", "+Fmi(alerter_);
   s += ", "+FmPrecision(sum_.get_s_EW_std(uxy));
   s += ", "+FmPrecision(sum_.get_s_NS_std(uxy));
