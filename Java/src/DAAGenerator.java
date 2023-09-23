@@ -102,7 +102,7 @@ public class DAAGenerator {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<option>] <daa_file>");
 				System.err.println("  <option> can be");
-				System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --horizontal_accel=.25[G]");
+				System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --horizontal_accel=\".25[G]\"");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --precision <n>\n\tOutput decimal precision to <n>");
 				System.err.println("  --ownship <id>\n\tSpecify <id> as ownship");

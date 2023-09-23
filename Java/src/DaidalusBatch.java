@@ -32,7 +32,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 		System.err.println("  --verbose\n\tPrint extra information");
 		System.err.println("  --raw\n\tPrint raw information");
 		System.err.println("  --pvs\n\tProduce PVS output format");
-		System.err.println("  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]");
+		System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"");
 		System.err.println("  --precision <n>\n\tOutput decimal precision");
 		System.err.println(getHelpString());
 		System.exit(0);

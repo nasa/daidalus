@@ -42,7 +42,7 @@ public:
 		std::cout << "  --verbose\n\tPrint extra information" << std::endl;
 		std::cout << "  --raw\n\tPrint raw information" << std::endl;
 		std::cout << "  --pvs\n\tProduce PVS output format" << std::endl;
-		std::cout << "  --<var>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=5[min]" << std::endl;
+		std::cout << "  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"" << std::endl;
 		std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;
 		std::cout << getHelpString() << std::endl;
 		exit(0);
