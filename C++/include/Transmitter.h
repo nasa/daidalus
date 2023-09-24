@@ -18,7 +18,7 @@ class Transmitter {
 
 public:
 
-	virtual ~Transmitter() {};
+	virtual ~Transmitter() {}
 
 	/**
 	 * Publisher announces it has data of type keyword.

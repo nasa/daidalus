@@ -19,7 +19,7 @@ public:
 
   virtual bool vertical_WCV(double ZTHR, double T_star, double sz, double vz) const;
   virtual Interval vertical_WCV_interval(double ZTHR, double T_star, double B, double T, double sz, double vz) const;
-  virtual ~WCV_VMOD() {};
+  virtual ~WCV_VMOD() {}
 
   /**
    * Returns a deep copy of this WCV_VMOD object, including any results that have been calculated.

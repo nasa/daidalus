@@ -36,10 +36,6 @@ Velocity::Velocity(const double vx, const double vy, const double vz) :
 
 Velocity::Velocity() : trk_(0.0),gs_(0.0),v_(Vect3::ZERO()) {}
 
-const Vect3& Velocity::vect3() const {
-	return v_;
-}
-
 Vect2 Velocity::vect2() const {
 	return v_.vect2();
 }
@@ -50,18 +46,6 @@ bool Velocity::isZero() const {
 
 bool Velocity::isInvalid() const {
 	return v_.isInvalid();
-}
-
-double Velocity::x() const {
-	return v_.x;
-}
-
-double Velocity::y() const {
-	return v_.y;
-}
-
-double Velocity::z() const {
-	return v_.z;
 }
 
 Velocity Velocity::make(const Vect3& v) {
@@ -157,10 +141,6 @@ double Velocity::angle(const std::string& uangle) const {
 	return Units::to(uangle,angle());
 }
 
-double Velocity::trk() const {
-    return trk_;
-}
-
 double Velocity::track(const std::string& utrk) const {
 	return Units::to(utrk,trk_);
 }
@@ -185,10 +165,6 @@ double Velocity::compassAngle() const {
  */
 double Velocity::compassAngle(const std::string& u) const {
 	return Units::to(u,compassAngle());
-}
-
-double Velocity::gs() const {
-    return gs_;
 }
 
 double Velocity::groundSpeed(const std::string& ugs) const {

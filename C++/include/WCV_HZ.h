@@ -25,7 +25,7 @@ public:
   /** Constructor that specifies a particular instance of the WCV tables. */
   explicit WCV_HZ(const WCVTable& tab);
 
-  virtual ~WCV_HZ() {};
+  virtual ~WCV_HZ() {}
 
   /**
    * @return one static WCV_HZ

@@ -26,7 +26,7 @@ class ParameterReader {
   
   public:
   
-	virtual ~ParameterReader() {};
+	virtual ~ParameterReader() {}
 
     virtual ParameterData& getParametersRef() = 0;
 

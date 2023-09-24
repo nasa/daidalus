@@ -43,7 +43,7 @@ public:
   
   virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) const {
     return false;
-  };
+  }
 
   virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags);
 

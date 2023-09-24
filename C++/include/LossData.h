@@ -76,7 +76,7 @@ public:
 	 */
 	Interval getTimeInterval() const;
 
-	virtual ~LossData() {};
+	virtual ~LossData() {}
 
 };
 

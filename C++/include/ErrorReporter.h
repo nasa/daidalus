@@ -51,7 +51,7 @@ class ErrorReporter {
    */
   virtual std::string getMessageNoClear() const = 0;
 
-  virtual ~ErrorReporter() { /* empty */ };
+  virtual ~ErrorReporter() { /* empty */ }
 };
 
 }

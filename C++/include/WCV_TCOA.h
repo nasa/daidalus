@@ -17,7 +17,7 @@ public:
 
   virtual bool vertical_WCV(double ZTHR, double TCOA, double sz, double vz) const;
   virtual Interval vertical_WCV_interval(double ZTHR, double TCOA, double B, double T, double sz, double vz) const;
-  virtual ~WCV_TCOA() {};
+  virtual ~WCV_TCOA() {}
 
   /**
    * Returns a deep copy of this WCV_TCOA object, including any results that have been calculated.

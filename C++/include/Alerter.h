@@ -31,7 +31,7 @@ public:
 
   Alerter();
 
-  ~Alerter() {};
+  virtual ~Alerter() {}
 
   static const Alerter& INVALID();
 

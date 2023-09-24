@@ -168,7 +168,7 @@ public:
    */
   LossData detection(const Vect3& s, const Vect3& vo, const Vect3& vi, const double D, const double H) const;
 
-  virtual ~CDCylinder() {};
+  virtual ~CDCylinder() {}
 
   static ConflictData conflict_detection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double D, double H, double B, double T);
   static double time_of_closest_approach(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double D, double H, double B, double T);

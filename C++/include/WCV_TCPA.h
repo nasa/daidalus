@@ -27,7 +27,7 @@ public:
   /** Constructor that specifies a particular instance of the WCV tables. */
   explicit WCV_TCPA(const WCVTable& tab);
 
-  virtual ~WCV_TCPA() {};
+  virtual ~WCV_TCPA() {}
 
   /**
    * @return one static WCV_TCPA

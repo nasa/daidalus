@@ -80,7 +80,7 @@ public:
 
   std::string toString() const;
 
-  virtual ~BandsHysteresis() {};
+  virtual ~BandsHysteresis() {}
 
 private:
   double  mod_;

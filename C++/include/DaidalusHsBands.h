@@ -46,9 +46,9 @@ public:
 
   virtual bool saturate_corrective_bands(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) const {
     return false;
-  };
+  }
 
-  virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {};
+  virtual void set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {}
 
   virtual std::pair<Vect3, Vect3> trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const;
 

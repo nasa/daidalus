@@ -55,7 +55,7 @@ public:
    */
   int m_of_n(int value);
 
-  virtual ~MofN() {};
+  virtual ~MofN() {}
 
   bool sameAs(const MofN& mofn) const;
 

@@ -33,7 +33,7 @@ typedef long long INT64FM;
 #endif
 static const double Pi  = M_PI;
 
-const unsigned long lnan[2]={0xffffffff, 0x7fffffff};
+const unsigned long lnan[2]={0xffffffff, 0x7fffffff}
 #define NaN *( double* )lnan
 #define PINFINITY std::numeric_limits<double>::infinity()
 #define NINFINITY -std::numeric_limits<double>::infinity()

@@ -23,7 +23,7 @@ public:
   /** Constructor that specifies a particular instance of the WCV tables. */
   explicit WCV_TAUMOD_SUM(const WCVTable& tab);
 
-  virtual ~WCV_TAUMOD_SUM() {};
+  virtual ~WCV_TAUMOD_SUM() {}
 
   /**
    * @return one static WCV_TAUMOD_SUM

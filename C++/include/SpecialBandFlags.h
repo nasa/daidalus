@@ -33,13 +33,13 @@ private:
 	 */
 
 public:
-    SpecialBandFlags(bool below_min_as, int dta_status) : below_min_as_(below_min_as), dta_status_(dta_status) {};
+    SpecialBandFlags(bool below_min_as, int dta_status) : below_min_as_(below_min_as), dta_status_(dta_status) {}
 
-    virtual ~SpecialBandFlags() {};
+    virtual ~SpecialBandFlags() {}
 
-    bool get_below_min_as() const { return below_min_as_; };
+    bool get_below_min_as() const { return below_min_as_; }
 
-    int get_dta_status() const { return dta_status_; };
+    int get_dta_status() const { return dta_status_; }
 };
 
 } /* namespace larcfm */

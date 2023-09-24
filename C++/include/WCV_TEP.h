@@ -27,7 +27,7 @@ public:
   /** Constructor that specifies a particular instance of the WCV tables. */
   explicit WCV_TEP(const WCVTable& tab);
 
-  virtual ~WCV_TEP() {};
+  virtual ~WCV_TEP() {}
 
   /**
    * @return one static WCV_TEP

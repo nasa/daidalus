@@ -70,7 +70,8 @@ public:
 	 */
 	Velocity();
 
-	const Vect3& vect3() const;
+	/** Destructor */
+	virtual ~Velocity() { }
 
 	Vect2 vect2() const;
 
@@ -78,11 +79,13 @@ public:
 
 	bool isInvalid() const;
 
-	double x() const;
+	const Vect3& vect3() const { return v_; }
 
-	double y() const;
+	double x() const { return v_.x; }
 
-	double z() const;
+	double y() const { return v_.y; }
+
+	double z() const { return v_.z; }
 
 	/**
 	 * Angle in explicit units in corresponding range [-<code>Math.PI</code>, <code>Math.PI</code>].
@@ -108,7 +111,7 @@ public:
 	 *
 	 * @return the track angle [rad]
 	 */
-	double trk() const;
+	double trk() const { return trk_; }
 
 	/**
 	 * Track angle in explicit units in the corresponding range [-<code>Math.PI</code>, <code>Math.PI</code>].
@@ -143,7 +146,7 @@ public:
 	 * 
 	 * @return the ground speed
 	 */
-	double gs() const;
+	double gs() const {return gs_; }
 
 	/**
 	 * Ground speed in explicit units.
@@ -299,7 +302,7 @@ public:
 	Velocity Add(const Vect3& v) const;
 
 	Velocity Sub(const Vect3& v) const;
-	
+
     /**
      * Make a unit 2D vector from the velocity vector. 
   	 * @return the unit 2D vector

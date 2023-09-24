@@ -50,7 +50,7 @@ public:
    */
   int applyHysteresisLogic(int current_value, double current_time);
 
-  virtual ~HysteresisData() {};
+  virtual ~HysteresisData() {}
 
 private:
   MofN   mofn_;

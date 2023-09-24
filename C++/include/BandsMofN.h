@@ -31,7 +31,7 @@ public:
   std::string toString() const;
   static std::string listToString(const std::vector<BandsMofN>& l);
 
-  virtual ~BandsMofN() {};
+  virtual ~BandsMofN() {}
 
 private:
 

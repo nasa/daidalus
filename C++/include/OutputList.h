@@ -25,7 +25,7 @@ class OutputList {
   
   public:
   
-	virtual ~OutputList() {};
+	virtual ~OutputList() {}
 
     /**
      * Output key values from this object as a list of strings.
