@@ -126,6 +126,14 @@ private:
   double dta_height_;
   int dta_alerter_;
 
+	/**
+	 * Horizontal Direction Bands Logic When Below Min Airspeed: 
+	 * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 */
+	int hdir_bands_below_min_as_;
+
   // Alerting logic
   // When true, alerting logic is ownship-centric. Otherwise, it is intruder-centric.
   bool ownship_centric_alerting_; 
@@ -859,6 +867,22 @@ public:
    * Set DAA Terminal Area (DTA) alerter
    */
   void setDTAAlerter(int alerter);
+
+  /**
+   * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
+   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	*/
+  int getHorizontalDirBandsBelowMinAirspeed() const;
+
+  /**
+   * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
+   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	*/
+  void setHorizontalDirBandsBelowMinAirspeed(int val);
 
   /**
    * Set alerting logic to the value indicated by ownship_centric.

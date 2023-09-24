@@ -153,6 +153,14 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	private double dta_height_;
 	private int dta_alerter_;
 
+	/**
+	 * Horizontal Direction Bands Logic When Below Min Airspeed: 
+	 * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 */
+	private int hdir_bands_below_min_as_;
+
 	// Alerting logic
 	// When true, alerting logic is ownship-centric. Otherwise, it is intruder-centric.
 	private boolean ownship_centric_alerting_; 
@@ -356,6 +364,9 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			units_.put("dta_height","ft");
 			dta_alerter_  = 0;
 
+			// Horizontal Direction Bands Logic When Below Min Airspeed
+			hdir_bands_below_min_as_ = 0;
+
 			// Alerting logic
 			ownship_centric_alerting_ = true;
 
@@ -460,6 +471,9 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			dta_radius_ = parameters.dta_radius_;
 			dta_height_ = parameters.dta_height_;
 			dta_alerter_ = parameters.dta_alerter_;
+
+			// Horizontal Direction Bands Logic When Below Min Airspeed
+			hdir_bands_below_min_as_ = parameters.hdir_bands_below_min_as_;
 
 			// Alerting logic
 			ownship_centric_alerting_ = parameters.ownship_centric_alerting_;
@@ -2347,7 +2361,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/**
-		 * DTA Logic:
+		 * Get DTA Logic:
 		 * 0: Disabled
 		 * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
 		 * but vertical recovery blocks down resolutions when alert is higher than corrective.
@@ -2363,7 +2377,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/**
-		 * DTA Logic:
+		 * Set DTA Logic:
 		 * 0: Disabled
 		 * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
 		 * but vertical recovery blocks down resolutions when alert is higher than corrective.
@@ -2494,6 +2508,26 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 */ 
 		public void setDTAAlerter(int alerter) {
 			dta_alerter_ = alerter;
+		}
+
+		/**
+		 * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
+		 * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+		 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+		 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+		 */
+		public int getHorizontalDirBandsBelowMinAirspeed() {
+			return hdir_bands_below_min_as_;
+		}
+
+		/**
+		 * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
+		 * 0: Horizontal direction bands disabled 
+		 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+		 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+		 */
+		public void setHorizontalDirBandsBelowMinAirspeed(int val) {
+			hdir_bands_below_min_as_ = val;
 		}
 
 		/**
@@ -2772,6 +2806,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			s+="dta_radius := "+f.FmPrecision(dta_radius_)+", ";
 			s+="dta_height := "+f.FmPrecision(dta_height_)+", ";
 			s+="dta_alerter := "+f.Fmi(dta_alerter_)+", ";
+			s+="hdir_bands_below_min_as := "+f.Fmi(hdir_bands_below_min_as_)+", ";
 			s+="ownship_centric_alerting := "+ownship_centric_alerting_+", ";
 			s+="bands_add_time_to_maneuver := "+bands_add_time_to_maneuver_+", ";
 			s+="corrective_region := "+corrective_region_.toString()+", ";
@@ -2885,12 +2920,16 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 			// DAA Terminal Area (DTA)
 			p.setInt("dta_logic", dta_logic_);
-			p.updateComment("dta_logic","DAA Terminal Area (DTA)");
+			p.updateComment("dta_logic","DAA Terminal Area Logic (0:Disabled, 1:Horizontal Recovery Enabled, -1:Horizontal Recovery Disabled)");
 			p.setInternal("dta_latitude", dta_latitude_, getUnitsOf("dta_latitude"));
 			p.setInternal("dta_longitude", dta_longitude_, getUnitsOf("dta_longitude"));
 			p.setInternal("dta_radius", dta_radius_, getUnitsOf("dta_radius"));
 			p.setInternal("dta_height", dta_height_, getUnitsOf("dta_height"));
 			p.setInt("dta_alerter", dta_alerter_);
+
+			// Horizontal Direction Bands Logic When Below Min Airspeed
+			p.setInt("hdir_bands_below_min_as", hdir_bands_below_min_as_);
+			p.updateComment("hdir_bands_below_min_as", "Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantenous, -1:Kinematic)");
 
 			// Alerting logic
 			p.setBool("ownship_centric_alerting",ownship_centric_alerting_);
@@ -3261,6 +3300,11 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			}
 			if (contains(p,"dta_alerter")) {
 				setDTAAlerter(getInt(p,"dta_alerter"));
+				setit = true;				
+			}
+			// Horizontal Direction Bands Logic When Below Min Airspeed
+			if (contains(p,"hdir_bands_below_min_as")) {
+				setHorizontalDirBandsBelowMinAirspeed(getInt(p,"hdir_bands_below_min_as"));
 				setit = true;				
 			}
 			// Alerting logic

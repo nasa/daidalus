@@ -1775,6 +1775,22 @@ public:
   void setDTAAlerter(int alerter);
 
   /**
+   * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
+   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	*/
+  int getHorizontalDirBandsBelowMinAirspeed() const;
+
+  /**
+   * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
+   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	*/
+  void setHorizontalDirBandsBelowMinAirspeed(int val);
+  
+  /**
    * Set alerting logic to the value indicated by ownship_centric.
    * If ownship_centric is true, alerting and guidance logic will use the alerter in ownship. Alerter
    * in every intruder will be disregarded.

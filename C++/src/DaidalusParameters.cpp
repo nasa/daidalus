@@ -202,6 +202,9 @@ DaidalusParameters::DaidalusParameters() : error("DaidalusParameters") {
   units_["dta_height"] = "ft";
   dta_alerter_  = 0;
 
+  // Horizontal Direction Bands Logic When Below Min Airspeed
+  hdir_bands_below_min_as_ = 0;
+
   // Alerting logic
   ownship_centric_alerting_ = true;
 
@@ -1825,6 +1828,26 @@ void DaidalusParameters::setDTAAlerter(int alerter) {
   dta_alerter_ = alerter;
 }
 
+/**
+ * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
+ * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+ * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+ * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+*/
+int DaidalusParameters::getHorizontalDirBandsBelowMinAirspeed() const {
+  return hdir_bands_below_min_as_;
+}
+
+/**
+ * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
+ * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+ * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+ * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+*/
+void DaidalusParameters::setHorizontalDirBandsBelowMinAirspeed(int val) {
+  hdir_bands_below_min_as_ = val;
+}
+
 void DaidalusParameters::setAlertingLogic(bool ownship_centric) {
   ownship_centric_alerting_ = ownship_centric;
 }
@@ -2060,6 +2083,7 @@ std::string DaidalusParameters::toPVS() const {
   s+="dta_radius := "+FmPrecision(dta_radius_)+", ";
   s+="dta_height := "+FmPrecision(dta_height_)+", ";
   s+="dta_alerter := "+Fmi(dta_alerter_)+", ";
+  s+="hdir_bands_below_min_as := "+Fmi(hdir_bands_below_min_as_)+", ";
   s+="ownship_centric_alerting := "+Fmb(ownship_centric_alerting_)+", ";
   s+="bands_add_time_to_maneuver := "+Fmb(bands_add_time_to_maneuver_)+", ";
   s+="corrective_region := "+BandsRegion::to_string(corrective_region_)+", ";
@@ -2174,12 +2198,16 @@ void DaidalusParameters::updateParameterData(ParameterData& p) const {
 
   // DAA Terminal Area (DTA)
   p.setInt("dta_logic", dta_logic_);
-  p.updateComment("dta_logic","DAA Terminal Area (DTA)");
+ 	p.updateComment("dta_logic","DAA Terminal Area Logic (0:Disabled, 1:Horizontal Recovery Enabled, -1:Horizontal Recovery Disabled)");
   p.setInternal("dta_latitude", dta_latitude_, getUnitsOf("dta_latitude"));
   p.setInternal("dta_longitude", dta_longitude_, getUnitsOf("dta_longitude"));
   p.setInternal("dta_radius", dta_radius_, getUnitsOf("dta_radius"));
   p.setInternal("dta_height", dta_height_, getUnitsOf("dta_height"));
   p.setInt("dta_alerter", dta_alerter_);
+
+  // Horizontal Direction Bands Logic When Below Min Airspeed
+  p.setInt("hdir_bands_below_min_as", hdir_bands_below_min_as_);
+  p.updateComment("hdir_bands_below_min_as", "Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantenous, -1:Kinematic)");
 
   // Alerting logic
   p.setBool("ownship_centric_alerting",ownship_centric_alerting_);
@@ -2579,6 +2607,11 @@ bool DaidalusParameters::setParameterData(const ParameterData& p) {
   if (contains(p,"dta_alerter")) {
     setDTAAlerter(getInt(p,"dta_alerter"));
     setit = true;
+  }
+  // Horizontal Direction Bands Logic When Below Min Airspeed
+  if (contains(p,"hdir_bands_below_min_as")) {
+    setHorizontalDirBandsBelowMinAirspeed(getInt(p,"hdir_bands_below_min_as"));
+    setit = true;				
   }
   // Alerting logic
   if (contains(p,"ownship_centric_alerting")) {

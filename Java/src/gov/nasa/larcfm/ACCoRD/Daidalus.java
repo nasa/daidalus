@@ -2752,6 +2752,27 @@ public class Daidalus {
 	}
 
 	/**
+	 * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
+	 * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 */
+	public int getHorizontalDirBandsBelowMinAirspeed() {
+		return core_.parameters.getHorizontalDirBandsBelowMinAirspeed();
+	}
+
+	/**
+	 * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
+	 * 0: Horizontal direction bands disabled 
+	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 */
+	public void setHorizontalDirBandsBelowMinAirspeed(int val) {
+		core_.parameters.setHorizontalDirBandsBelowMinAirspeed(val);
+		reset();
+	}
+
+	/**
 	 * Set alerting logic to the value indicated by ownship_centric.
 	 * If ownship_centric is true, alerting and guidance logic will use the alerter in ownship. Alerter 
 	 * in every intruder will be disregarded.
