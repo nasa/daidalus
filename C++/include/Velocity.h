@@ -299,6 +299,12 @@ public:
 	Velocity Add(const Vect3& v) const;
 
 	Velocity Sub(const Vect3& v) const;
+	
+    /**
+     * Make a unit 2D vector from the velocity vector. 
+  	 * @return the unit 2D vector
+     */
+	Vect2 Hat2D() const;
 
 	/**
 	 * Return the velocity if moving from p1 to p2 over the given time

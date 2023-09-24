@@ -1842,9 +1842,7 @@ public final class Kinematics {
 	 */
 	public static Vect3 gsAccelPos(Vect3 so3, Velocity vo3,  double t, double a) {
 		Vect2 so = so3.vect2();
-		Vect2 vo = vo3.vect2();
-		Vect2 sK = so.Add(vo.Hat().Scal(vo.norm()*t+0.5*a*t*t));
-		//f.pln("gsAccelPosition: so = "+so+" vo = "+vo+" vo.norm = "+vo.norm()+" a = "+a+" t = "+t);
+		Vect2 sK = so.Add(vo3.Hat2D().Scal(vo3.gs()*t+0.5*a*t*t));
 		double nz = so3.z + vo3.z()*t;
 		return new Vect3(sK,nz);
 	}
@@ -1917,11 +1915,6 @@ public final class Kinematics {
 			return linear(nsv.first, nsv.second, t-accelTime);
 		}
 	}
-
-
-
-
-
 
 	/** Test for LoS(D,H) between two aircraft when only ownship accelerates (in ground speed), compute trajectories up to time stopTime
 	 * 

@@ -16,7 +16,7 @@
 
 #include "Velocity.h"
 #include "Units.h"
-#include "Util.h" // NaN def
+#include "Util.h" 
 #include "format.h"
 #include "Constants.h"
 #include "string_util.h"
@@ -117,6 +117,14 @@ Velocity Velocity::Sub(const Vect3& v) const {
 		return Velocity(trk_,0.0,0.0,0.0,v_.z-v.z);
     }
     return mkVxyz(v_.x-v.x,v_.y-v.y,v_.z-v.z);
+}
+
+/**
+ * Make a unit 2D vector from the velocity vector. 
+ * @return the unit 2D vector
+ */
+Vect2 Velocity::Hat2D() const {
+	return Vect2(std::sin(trk_),std::cos(trk_));
 }
 
 Velocity Velocity::genVel(const Vect3& p1, const Vect3& p2, double dt) {

@@ -426,23 +426,15 @@ bool Kinematics::testLoSTrk(const Vect3& so, const Velocity& vo, const Velocity&
 	return rtn;
 }
 
-
-
-
-
-
 // ****************************** Ground Speed KINEMATIC CALCULATIONS *******************************
 
 
 Vect3 Kinematics::gsAccelPos(const Vect3& so3, const Velocity& vo3, double tm, double a) {
 	Vect2 so = so3.vect2();
-	Vect2 vo = vo3.vect2();
-	Vect2 sK = so.Add(vo.Hat().Scal(vo.norm()*tm+0.5*a*tm*tm));
+	Vect2 sK = so.Add(vo3.Hat2D().Scal(vo3.gs()*tm+0.5*a*tm*tm));
 	double nz = so3.z + vo3.z()*tm;
 	return Vect3(sK,nz);
 }
-
-
 
 std::pair<Vect3,Velocity> Kinematics::gsAccel(const Vect3& so, const Velocity& vo,  double t, double a) {
 	double nvoGs = vo.gs() + a*t;

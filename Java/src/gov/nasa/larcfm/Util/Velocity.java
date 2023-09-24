@@ -229,6 +229,14 @@
     }
 
     /**
+     * Make a unit 2D vector from the velocity vector. 
+  	 * @return the unit 2D vector
+     */
+	  public Vect2 Hat2D() {
+      return new Vect2(Math.sin(trk_),Math.cos(trk_));
+    }
+
+    /**
      * Return the velocity if moving from p1 to p2 over the given time
      * @param p1 first point
      * @param p2 second point

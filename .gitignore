@@ -12,6 +12,12 @@
 tmp/
 mold/
 tests/
+Java/*.daa
+Java/*.xyz
+Java/*.conf
+C++/*.daa
+C++/*.xyz
+C++/*.conf
 C++/DaidalusExample
 C++/DaidalusAlerting
 C++/DaidalusBatch
