@@ -875,22 +875,22 @@ public class DaidalusCore {
 	}
 
 	public String rawString() {
-		String s="## Daidalus Core\n"; 
-		s+="current_time = "+f.FmPrecision(current_time)+"\n";
-		s+="## Daidalus Parameters\n";
-		s+=parameters.toString();
-		s+="## Cached variables\n";
-		s+="cache_ = "+f.Fmi(cache_)+"\n";		
-		s+="most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
-		s+="epsh_ = "+f.Fmi(epsh_)+"\n";
-		s+="epsv_ = "+f.Fmi(epsv_)+"\n";
-		s+="dta_status_ = "+dta_status_+"\n";
+		String s = "## Daidalus Core\n"; 
+		s += "current_time = "+f.FmPrecision(current_time)+"\n";
+		s += "## Daidalus Parameters\n";
+		s += parameters.toString();
+		s += "## Cached variables\n";
+		s += "cache_ = "+f.Fmi(cache_)+"\n";		
+		s += "most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
+		s += "epsh_ = "+f.Fmi(epsh_)+"\n";
+		s += "epsv_ = "+f.Fmi(epsv_)+"\n";
+		s += "dta_status_ = "+dta_status_+"\n";
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-			s+="acs_conflict_bands_["+conflict_region+"] = "+
+			s += "acs_conflict_bands_["+conflict_region+"] = "+
 					IndexLevelT.toString(acs_conflict_bands_.get(conflict_region))+"\n";
 		}
 		boolean comma=false;
-		s+="tiov_ = {";
+		s += "tiov_ = {";
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			if (comma) {
 				s += ", ";
@@ -901,7 +901,7 @@ public class DaidalusCore {
 		}
 		s += "}\n";
 		comma=false;
-		s+="bands4region_ = {";
+		s += "bands4region_ = {";
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			if (comma) {
 				s += ", ";
@@ -912,24 +912,25 @@ public class DaidalusCore {
 		}
 		s += "}\n";
 		for (Map.Entry<String,HysteresisData> entry : alerting_hysteresis_acs_.entrySet()) {
-			s+="alerting_hysteresis_acs_["+entry.getKey()+"] = "+
+			s += "alerting_hysteresis_acs_["+entry.getKey()+"] = "+
 					entry.getValue().toString();
 		}
 		if (!alerting_hysteresis_acs_.isEmpty()) {
-			s+="\n";
+			s += "\n";
 		}
 		for (Map.Entry<String,HysteresisData> entry : dta_hysteresis_acs_.entrySet()) {
-			s+="dta_hysteresis_acs_["+entry.getKey()+"] = "+
+			s += "dta_hysteresis_acs_["+entry.getKey()+"] = "+
 					entry.getValue().toString();
 		}
 		if (!dta_hysteresis_acs_.isEmpty()) {
-			s+="\n";
+			s += "\n";
 		}
-
-		s+="wind_vector = "+wind_vector.toString()+"\n";
-		s+="## Ownship and Traffic Relative to Wind\n";
-		s+=outputStringAircraftStates(true,false);
-		s+="##\n";
+		s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
+		s += "below_min_as_ = "+below_min_as_+"\n";
+		s += "wind_vector = "+wind_vector.toString()+"\n";
+		s += "## Ownship and Traffic Relative to Wind\n";
+		s += outputStringAircraftStates(true,false);
+		s += "##\n";
 		return s;
 	}
 

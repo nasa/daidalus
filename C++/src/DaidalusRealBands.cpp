@@ -772,8 +772,7 @@ bool DaidalusRealBands::any_green(const Detection3D* conflict_det, const Detecti
 }
 
 std::string DaidalusRealBands::rawString() const {
-  std::string s = "";
-  s+="# Private variables\n";
+  std::string s("# Private variables\n");
   s+="mod_ = "+FmPrecision(mod_)+"\n";
   s+="min_rel_ = "+FmPrecision(min_rel_)+"\n";
   s+="max_rel_ = "+FmPrecision(max_rel_)+"\n";
@@ -806,7 +805,7 @@ std::string DaidalusRealBands::rawString() const {
 }
 
 std::string DaidalusRealBands::toString() const {
-  std::string s = "";
+  std::string s("");
   for (int i = 0; i < static_cast<int>(ranges_.size()); ++i) {
     s+="ranges["+Fmi(i)+"] = ";
     s+=ranges_[i].toString()+"\n";

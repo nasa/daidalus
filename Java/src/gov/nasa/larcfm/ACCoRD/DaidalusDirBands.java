@@ -17,10 +17,9 @@ import gov.nasa.larcfm.Util.Velocity;
 public class DaidalusDirBands extends DaidalusRealBands {
 
 	/** 
-	 * Alternative gs for computation of horizontal direction bands when aircraft is flying 
-	 * below min horizontal airspeed.
+	 * Set to true if instantanous bands are used below min air speed 
 	 */
-	private double alt_gs_;
+	private boolean inst_below_min_as;
 
 	// min/max is left/right relative to ownship's direction
 	public DaidalusDirBands() {
@@ -60,7 +59,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {
-		alt_gs_ = special_flags.get_below_min_as() ? parameters.getMinAirSpeed() : 0.0;
+		inst_below_min_as = special_flags.get_below_min_as();
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {
@@ -72,13 +71,13 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(alt_gs_,ownship.velocityXYZ().gs()));
+		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
 		double omega = parameters.getTurnRate() == 0.0 ? Kinematics.turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
 		return get_step(parameters)/omega;
 	}
 
 	private Velocity ownship_vel(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(alt_gs_,ownship.velocityXYZ().gs()));
+		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
 		return ownship.velocityXYZ().mkGs(gso);
 	}
 
@@ -101,6 +100,12 @@ public class DaidalusDirBands extends DaidalusRealBands {
 
 	public double max_delta_resolution(DaidalusParameters parameters) {
 		return parameters.getPersistencePreferredHorizontalDirectionResolution();
+	}
+
+	public String rawString() {
+		String s = super.rawString();
+		s += "inst_below_min_as = "+inst_below_min_as+"\n";
+		return s;
 	}
 
 }

@@ -843,22 +843,22 @@ std::string DaidalusCore::outputStringAircraftStates(bool internal, bool header)
 }
 
 std::string DaidalusCore::rawString() const {
-  std::string s="## Daidalus Core\n";
-  s+="current_time = "+FmPrecision(current_time)+"\n";
-  s+="## Daidalus Parameters\n";
-  s+=parameters.toString();
-  s+="## Cached variables\n";
-  s+="cache_ = "+Fmi(cache_)+"\n";
-  s+="most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
-  s+="epsh_ = "+Fmi(epsh_)+"\n";
-  s+="epsv_ = "+Fmi(epsv_)+"\n";
-  s+="dta_status_ = "+Fmi(dta_status_)+"\n";
+  std::string s("## Daidalus Core\n");
+  s += "current_time = "+FmPrecision(current_time)+"\n";
+  s += "## Daidalus Parameters\n";
+  s += parameters.toString();
+  s += "## Cached variables\n";
+  s += "cache_ = "+Fmi(cache_)+"\n";
+  s += "most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
+  s += "epsh_ = "+Fmi(epsh_)+"\n";
+  s += "epsv_ = "+Fmi(epsv_)+"\n";
+  s += "dta_status_ = "+Fmi(dta_status_)+"\n";
   for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
-    s+="acs_conflict_bands_["+Fmi(conflict_region)+"] = "+
+    s += "acs_conflict_bands_["+Fmi(conflict_region)+"] = "+
         IndexLevelT::toString(acs_conflict_bands_[conflict_region])+"\n";
   }
   bool comma=false;
-  s+="tiov_ = {";
+  s += "tiov_ = {";
   for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
     if (comma) {
       s += ", ";
@@ -869,7 +869,7 @@ std::string DaidalusCore::rawString() const {
   }
   s += "}\n";
   comma=false;
-  s+="bands4region_ = {";
+  s += "bands4region_ = {";
   for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
     if (comma) {
       s += ", ";
@@ -881,26 +881,28 @@ std::string DaidalusCore::rawString() const {
   s += "}\n";
   std::map<std::string,HysteresisData>::const_iterator entry_ptr = alerting_hysteresis_acs_.begin();
   while (entry_ptr != alerting_hysteresis_acs_.end()) {
-    s+="alerting_hysteresis_acs_["+entry_ptr->first+"] = "+
+    s += "alerting_hysteresis_acs_["+entry_ptr->first+"] = "+
         entry_ptr->second.toString();
     ++entry_ptr;
   }
   if (!alerting_hysteresis_acs_.empty()) {
-    s+="\n";
+    s += "\n";
   }
   entry_ptr = dta_hysteresis_acs_.begin();
   while (entry_ptr != dta_hysteresis_acs_.end()) {
-    s+="dta_hysteresis_acs_["+entry_ptr->first+"] = "+
+    s += "dta_hysteresis_acs_["+entry_ptr->first+"] = "+
         entry_ptr->second.toString();
     ++entry_ptr;
   }
   if (!dta_hysteresis_acs_.empty()) {
-    s+="\n";
+    s += "\n";
   }
-  s+="wind_vector = "+wind_vector.toString()+"\n";
-  s+="## Ownship and Traffic Relative to Wind\n";
-  s+=outputStringAircraftStates(true,false);
-  s+="##\n";
+  s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
+	s += "below_min_as_ = "+Fmb(below_min_as_)+"\n";
+  s += "wind_vector = "+wind_vector.toString()+"\n";
+  s += "## Ownship and Traffic Relative to Wind\n";
+  s += outputStringAircraftStates(true,false);
+  s += "##\n";
   return s;
 }
 

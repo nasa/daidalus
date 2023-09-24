@@ -23,9 +23,10 @@ class DaidalusDirBands : public DaidalusRealBands {
 
 private:
 
-	// Alternative gs for computation of horizontal direction bands when value is greater than 0. 
-	// This alternative gs is used when aircraft is flying below min horizontal airspeed 
-	double alt_gs_;
+	/** 
+	 * Set to true if instantanous bands are used below min air speed 
+	 */
+	bool inst_below_min_as;
 
   Velocity ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const;
 
@@ -59,6 +60,8 @@ public:
   virtual std::pair<Vect3, Vect3> trajectory(const DaidalusParameters& parameters, const TrafficState& ownship, double time, bool dir, int target_step, bool instantaneous) const;
 
   virtual double max_delta_resolution(const DaidalusParameters& parameters) const;
+
+  virtual std::string rawString() const;
 
 };
 

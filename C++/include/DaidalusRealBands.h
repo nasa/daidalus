@@ -320,7 +320,7 @@ public:
   bool any_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
       int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const;
 
-  std::string rawString() const;
+  virtual std::string rawString() const;
 
   std::string toString() const;
 

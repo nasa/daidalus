@@ -116,7 +116,7 @@ int HysteresisData::applyHysteresisLogic(int current_value, double current_time)
 }
 
 std::string HysteresisData::toString() const {
-  std::string s = "<";
+  std::string s("<");
   s += "hysteresis_time: "+FmPrecision(hysteresis_time_);
   s += ", persistence_time: "+FmPrecision(persistence_time_);
   s += ", init_time: "+FmPrecision(init_time_);

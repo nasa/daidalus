@@ -853,8 +853,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	}
 
 	public String rawString() {
-		String s = "";
-		s+="# Private variables\n";
+		String s = "# Private variables\n";
 		s+="mod_ = "+f.FmPrecision(mod_)+"\n";
 		s+="min_rel_ = "+f.FmPrecision(min_rel_)+"\n";
 		s+="max_rel_ = "+f.FmPrecision(max_rel_)+"\n";

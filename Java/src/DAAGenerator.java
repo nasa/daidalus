@@ -169,7 +169,6 @@ public class DAAGenerator {
 			String ugs = "knot";
 			String uvs = "fpm";
 			double horizontal_accel = params.getValue("horizontal_accel");
-			System.out.println("Horizontal Accel: "+horizontal_accel);
 			TrafficState ownship = daa.getOwnshipState();
 			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
 			for (double t = -Util.min(backward,daa.getCurrentTime()); t <= forward; t++) {

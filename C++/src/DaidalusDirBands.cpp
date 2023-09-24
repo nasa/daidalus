@@ -51,7 +51,7 @@ bool DaidalusDirBands::saturate_corrective_bands(const DaidalusParameters& param
 }
 
 void DaidalusDirBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
-  alt_gs_ = special_flags.get_below_min_as() ? parameters.getMinAirSpeed() : 0.0;
+  inst_below_min_as = special_flags.get_below_min_as();
 }
 
 bool DaidalusDirBands::instantaneous_bands(const DaidalusParameters& parameters) const {
@@ -63,13 +63,13 @@ double DaidalusDirBands::own_val(const TrafficState& ownship) const {
 }
 
 double DaidalusDirBands::time_step(const DaidalusParameters& parameters, const TrafficState& ownship) const {
-	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(alt_gs_,ownship.velocityXYZ().gs()));
+	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
   double omega = parameters.getTurnRate() == 0.0 ? Kinematics::turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
   return get_step(parameters)/omega;
 }
 
 Velocity DaidalusDirBands::ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const {
- 	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(alt_gs_,ownship.velocityXYZ().gs()));
+ 	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
 	return ownship.velocityXYZ().mkGs(gso);
 }
 
@@ -92,6 +92,12 @@ std::pair<Vect3, Vect3> DaidalusDirBands::trajectory(const DaidalusParameters& p
 
 double DaidalusDirBands::max_delta_resolution(const DaidalusParameters& parameters) const {
   return parameters.getPersistencePreferredHorizontalDirectionResolution();
+}
+
+std::string DaidalusDirBands::rawString() const {
+  std::string s(DaidalusRealBands::rawString());
+	s += "inst_below_min_as = "+Fmb(inst_below_min_as)+"\n";
+	return s;
 }
 
 }
