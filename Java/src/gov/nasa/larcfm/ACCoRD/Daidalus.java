@@ -2577,7 +2577,7 @@ public class Daidalus {
 
 	/** 
 	 * Return true if DAA Terminal Area (DTA) logic is enabled with horizontal 
-	 * direction recovery guidance. If true, horizontal direction recovery is fully enabled, 
+	 * direction recovery guidance. If true, horizontal direction recovery is enabled, 
 	 * but vertical recovery blocks down resolutions when alert is higher than corrective.
 	 * NOTE:
 	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
@@ -2611,7 +2611,7 @@ public class Daidalus {
 
 	/** 
 	 * Enable DAA Terminal Area (DTA) logic with horizontal direction recovery guidance, i.e.,
-	 * horizontal direction recovery is fully enabled, but vertical recovery blocks down 
+	 * horizontal direction recovery is enabled, but vertical recovery blocks down 
 	 * resolutions when alert is higher than corrective.
 	 * NOTE:
 	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to

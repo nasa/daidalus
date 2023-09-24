@@ -1670,12 +1670,12 @@ bool DaidalusParameters::setHorizontalContourThreshold(double val, const std::st
 }
 
 /**
- * DTA Logic:
+ * Get DTA Logic:
  * 0: Disabled
- * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+ * 1: Enabled special DTA maneuver guidance. Horizontal recovery is enabled,
  * but vertical recovery blocks down resolutions when alert is higher than corrective.
  * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
- * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+ * vertical recovery blocks down resolutions when alert is higher than corrective.
  * NOTE:
  * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
  * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
@@ -1686,12 +1686,12 @@ int DaidalusParameters::getDTALogic() const {
 }
 
 /**
- * DTA Logic:
+ * Set DTA Logic:
  * 0: Disabled
- * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+ * 1: Enabled special DTA maneuver guidance. Horizontal recovery is enabled,
  * but vertical recovery blocks down resolutions when alert is higher than corrective.
  * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
- * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+ * vertical recovery blocks down resolutions when alert is higher than corrective.
  * NOTE:
  * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
  * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
@@ -2207,7 +2207,7 @@ void DaidalusParameters::updateParameterData(ParameterData& p) const {
 
   // Horizontal Direction Bands Logic When Below Min Airspeed
   p.setInt("hdir_bands_below_min_as", hdir_bands_below_min_as_);
-  p.updateComment("hdir_bands_below_min_as", "Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantenous, -1:Kinematic)");
+  p.updateComment("hdir_bands_below_min_as", "Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantaneous, -1:Kinematic)");
 
   // Alerting logic
   p.setBool("ownship_centric_alerting",ownship_centric_alerting_);

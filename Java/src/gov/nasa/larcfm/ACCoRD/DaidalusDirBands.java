@@ -59,7 +59,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {
-		inst_below_min_as = special_flags.get_below_min_as();
+		inst_below_min_as = special_flags.get_below_min_as() && parameters.getHorizontalDirBandsBelowMinAirspeed() > 0;
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {

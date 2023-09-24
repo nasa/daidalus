@@ -110,10 +110,10 @@ private:
   /**
    * DTA Logic:
    * 0: Disabled
-   * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+   * 1: Enabled special DTA maneuver guidance. Horizontal recovery is enabled,
    * but vertical recovery blocks down resolutions when alert is higher than corrective.
    * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
-   * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+   * vertical recovery blocks down resolutions when alert is higher than corrective.
    * NOTE:
    * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
    * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
@@ -766,12 +766,12 @@ public:
   bool setHorizontalContourThreshold(double val, const std::string& u);
 
   /**
-   * DTA Logic:
+   * Get DTA Logic:
    * 0: Disabled
-   * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+   * 1: Enabled special DTA maneuver guidance. Horizontal recovery is enabled,
    * but vertical recovery blocks down resolutions when alert is higher than corrective.
    * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
-   * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+   * vertical recovery blocks down resolutions when alert is higher than corrective.
    * NOTE:
    * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
    * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
@@ -780,12 +780,12 @@ public:
   int getDTALogic() const;
 
   /**
-   * DTA Logic:
+   * Set DTA Logic:
    * 0: Disabled
-   * 1: Enabled special DTA maneuver guidance. Horizontal recovery is fully enabled,
+   * 1: Enabled special DTA maneuver guidance. Horizontal recovery is enabled,
    * but vertical recovery blocks down resolutions when alert is higher than corrective.
    * -1: Enabled special DTA maneuver guidance. Horizontal recovery is disabled,
-   * vertical recovery blocks down resolutions when raw alert is higher than corrective.
+   * vertical recovery blocks down resolutions when alert is higher than corrective.
    * NOTE:
    * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
    * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs

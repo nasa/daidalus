@@ -51,7 +51,7 @@ bool DaidalusDirBands::saturate_corrective_bands(const DaidalusParameters& param
 }
 
 void DaidalusDirBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
-  inst_below_min_as = special_flags.get_below_min_as();
+  inst_below_min_as = special_flags.get_below_min_as() && parameters.getHorizontalDirBandsBelowMinAirspeed() > 0;
 }
 
 bool DaidalusDirBands::instantaneous_bands(const DaidalusParameters& parameters) const {
