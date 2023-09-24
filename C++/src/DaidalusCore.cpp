@@ -885,7 +885,9 @@ std::string DaidalusCore::rawString() const {
         entry_ptr->second.toString();
     ++entry_ptr;
   }
-  if (!alerting_hysteresis_acs_.empty()) {
+  if (alerting_hysteresis_acs_.empty()) {
+    s += "alerting_hysteresis_acs_ = []\n";
+  } else {
     s += "\n";
   }
   entry_ptr = dta_hysteresis_acs_.begin();
@@ -894,7 +896,9 @@ std::string DaidalusCore::rawString() const {
         entry_ptr->second.toString();
     ++entry_ptr;
   }
-  if (!dta_hysteresis_acs_.empty()) {
+  if (dta_hysteresis_acs_.empty()) {
+    s += "dta_hysteresis_acs_ = []\n";
+  } else {
     s += "\n";
   }
   s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";

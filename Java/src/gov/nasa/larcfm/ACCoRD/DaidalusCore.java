@@ -915,14 +915,18 @@ public class DaidalusCore {
 			s += "alerting_hysteresis_acs_["+entry.getKey()+"] = "+
 					entry.getValue().toString();
 		}
-		if (!alerting_hysteresis_acs_.isEmpty()) {
+		if (alerting_hysteresis_acs_.isEmpty()) {
+			s += "alerting_hysteresis_acs_ = []\n";
+		} else {
 			s += "\n";
 		}
 		for (Map.Entry<String,HysteresisData> entry : dta_hysteresis_acs_.entrySet()) {
 			s += "dta_hysteresis_acs_["+entry.getKey()+"] = "+
 					entry.getValue().toString();
 		}
-		if (!dta_hysteresis_acs_.isEmpty()) {
+		if (dta_hysteresis_acs_.isEmpty()) {
+			s += "dta_hysteresis_acs_ = []\n";
+		} else {
 			s += "\n";
 		}
 		s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";

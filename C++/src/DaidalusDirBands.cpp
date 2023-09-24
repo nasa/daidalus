@@ -55,7 +55,7 @@ void DaidalusDirBands::set_special_configuration(const DaidalusParameters& param
 }
 
 bool DaidalusDirBands::instantaneous_bands(const DaidalusParameters& parameters) const {
-  return parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0;
+  return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || inst_below_min_as;
 }
 
 double DaidalusDirBands::own_val(const TrafficState& ownship) const {

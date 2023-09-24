@@ -4,6 +4,7 @@
 *.class
 *~
 *.old
+*.log
 *.mold
 *.pyc
 *.bak

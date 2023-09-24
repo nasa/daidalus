@@ -63,7 +63,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {
-		return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0);
+		return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || inst_below_min_as;
 	}
 
 	public double own_val(TrafficState ownship) {
