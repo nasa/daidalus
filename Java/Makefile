@@ -10,7 +10,7 @@ OBJS  = $(SRCS:.java=.class)
 JAVAC = javac
 JAR   = jar
 
-all: clean lib examples
+all: lib examples
 
 lib: $(SRCS)
 	@echo "** Building library lib/$(RELEASE).jar"

@@ -11,7 +11,7 @@ OBJS   = $(SRC:.cpp=.o)
 INCLUDEFLAGS = -Iinclude 
 CXXFLAGS = $(INCLUDEFLAGS) -Wall -O 
 
-all: clean lib examples
+all: lib examples
 
 lib: $(OBJS)
 	@echo "** Building lib/$(RELEASE).a library"

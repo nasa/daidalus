@@ -65,7 +65,11 @@ double DaidalusDirBands::own_val(const TrafficState& ownship) const {
 double DaidalusDirBands::time_step(const DaidalusParameters& parameters, const TrafficState& ownship) const {
 	double gso = std::max(parameters.getHorizontalSpeedStep(),std::max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
   double omega = parameters.getTurnRate() == 0.0 ? Kinematics::turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
-  return get_step(parameters)/omega;
+  	if (omega == 0.0) {
+			return 0.0;
+		} else {
+      return get_step(parameters)/omega;
+    }
 }
 
 Velocity DaidalusDirBands::ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const {
