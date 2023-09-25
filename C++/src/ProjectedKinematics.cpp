@@ -194,17 +194,22 @@ std::pair<Position,Velocity> ProjectedKinematics::turnUntil(std::pair<Position,V
 
 
 std::pair<Position,Velocity> ProjectedKinematics::gsAccel(const Position& so, const Velocity& vo, double t, double a) {
-	Vect3 s3 = so.vect3();
-	if (so.isLatLon()) {
-		s3 = Projection::createProjection(so.lla().zeroAlt()).project(so);
-	}
-	Vect3 pres = Kinematics::gsAccelPos(s3,vo,t,a);
-	Velocity vres = Velocity::mkTrkGsVs(vo.trk(),vo.gs()+a*t,vo.vs());
-	if (so.isLatLon()) {
-		return Projection::createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
-	} else {
-		return std::pair<Position,Velocity>(Position(pres), vres);
-	}
+    if (so.isLatLon()) {
+		EuclideanProjection proj = Projection::createProjection(so.lla().zeroAlt());
+	  	Vect3 s3 = proj.project(so); 
+      	Vect3 pres = Kinematics::gsAccelPos(s3,vo,t,a);
+      	Velocity vres = vo.mkGs(vo.gs()+a*t);
+      	if (vres.gs() == 0.0) {
+        	return std::pair<Position,Velocity>(Position(proj.inverse(pres)),vres);
+      	} else {
+        	return proj.inverse(pres,vres,true);
+      	}
+    } else {
+		Vect3 s3 = so.vect3();
+      	Vect3 pres = Kinematics::gsAccelPos(s3,vo,t,a);
+      	Velocity vres = vo.mkGs(vo.gs()+a*t);
+      	return std::pair<Position,Velocity>(Position(pres),vres); 
+    }
 }
 
 std::pair<Position,Velocity> ProjectedKinematics::gsAccelUntil(const Position& so, const Velocity& vo, double t, double goalGs, double a) {

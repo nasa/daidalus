@@ -156,8 +156,14 @@ public class DAAGenerator {
 			}
 			double from = Util.max(0,daa.getCurrentTime()-backward);
 			double to = daa.getCurrentTime()+forward;
+			double horizontal_accel = params.getValue("horizontal_accel");
 			try {
-				output_file = output_file+"_"+f.Fm0(from)+"_"+f.Fm0(to)+ext;
+				System.out.println("Horizontal_accel: "+horizontal_accel+"[m/s^2]");
+				String postfix = "_"+f.Fm0(from)+"_"+f.Fm0(to);
+				if (horizontal_accel > 0) {
+					postfix += "_"+f.FmPrecision(horizontal_accel,2);
+				}
+				output_file += postfix+ext;
 				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 			} catch (Exception e) {
 				System.err.println("** Warning: "+e);
@@ -168,7 +174,6 @@ public class DAAGenerator {
 			String uv = "ft";
 			String ugs = "knot";
 			String uvs = "fpm";
-			double horizontal_accel = params.getValue("horizontal_accel");
 			TrafficState ownship = daa.getOwnshipState();
 			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
 			for (double t = -Util.min(backward,daa.getCurrentTime()); t <= forward; t++) {

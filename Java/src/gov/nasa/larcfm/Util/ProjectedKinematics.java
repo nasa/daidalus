@@ -474,23 +474,23 @@ public final class ProjectedKinematics {
    * @return Position and Velocity after t time
    */
   public static Pair<Position,Velocity> gsAccel(Position so, Velocity vo, double t, double a) {
-    Vect3 s3;
     if (so.isLatLon()) {
-    	s3 = Projection.createProjection(so.lla().zeroAlt()).project(so); 
+      EuclideanProjection proj = Projection.createProjection(so.lla().zeroAlt());
+    	Vect3 s3 = proj.project(so); 
+      Vect3 pres = Kinematics.gsAccelPos(s3,vo,t,a);
+      Velocity vres = vo.mkGs(vo.gs()+a*t);
+      if (vres.gs() == 0.0) {
+        return new Pair<Position,Velocity>(Position.make(proj.inverse(pres)),vres);
+      } else {
+        return proj.inverse(pres,vres,true);
+      }
     } else {
-    	s3 = so.vect3();
-    }
-    Vect3 pres = Kinematics.gsAccelPos(s3,vo,t, a);
-    Velocity vres = Velocity.mkTrkGsVs(vo.trk(),vo.gs()+a*t,vo.vs());
-    if (so.isLatLon()) {
-      return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
-    } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+    	Vect3 s3 = so.vect3();
+      Vect3 pres = Kinematics.gsAccelPos(s3,vo,t,a);
+      Velocity vres = vo.mkGs(vo.gs()+a*t);
+      return new Pair<Position,Velocity>(Position.make(pres),vres); 
     }
   }
-
-
-
 
   /**
    *  Position and velocity after t time units accelerating horizontally.  This is a wrapper around posAccelGS 

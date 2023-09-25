@@ -21,4 +21,8 @@ mold: moldj moldcpp
 
 diff: diffj diffcpp
 
+java: moldj diffj
+
+cpp: moldcpp diffcpp
+
 .PHONY: gold mold
