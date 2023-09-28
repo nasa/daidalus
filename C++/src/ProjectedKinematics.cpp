@@ -27,7 +27,7 @@
 
 namespace larcfm {
 
-std::pair<Position,Velocity> ProjectedKinematics::linear(std::pair<Position,Velocity> p, double t) {
+std::pair<Position,Velocity> ProjectedKinematics::linear(const std::pair<Position,Velocity>& p, double t) {
 	return linear(p.first, p.second, t);
 }
 
@@ -49,7 +49,7 @@ std::pair<Position,Velocity> ProjectedKinematics::linear(const Position& so, con
 /**
  * Calculate the angle of a constant-radius turn from two points and the radius
  */
-double ProjectedKinematics::turnAngle(Position s1, Position s2, double R) {
+double ProjectedKinematics::turnAngle(const Position& s1, const Position& s2, double R) {
 	double distAB = s1.distanceH(s2);
 	return 2*(Util::asin_safe(distAB/(2*R)));
 }
@@ -57,7 +57,7 @@ double ProjectedKinematics::turnAngle(Position s1, Position s2, double R) {
 /**
  * Horizontal distance covered in a turn
  */
-double ProjectedKinematics::turnDistance(Position s1, Position s2, double R) {
+double ProjectedKinematics::turnDistance(const Position& s1, const Position& s2, double R) {
 	return turnAngle(s1,s2,R)*R;
 }
 
@@ -66,7 +66,7 @@ double ProjectedKinematics::turnDistance(Position s1, Position s2, double R) {
  * Given two points on a turn and the velocity (direction) at the first point, determine the direction for the shortest turn going through the second point,
  * returning true if that relative direction is to the right
  */
-bool ProjectedKinematics::clockwise(Position s1, Velocity v1, Position s2) {
+bool ProjectedKinematics::clockwise(const Position& s1, const Velocity& v1, const Position& s2) {
 	double trk1 = v1.trk();
 	double trk2;
 	if (s1.isLatLon()) {
@@ -187,11 +187,9 @@ std::pair<Position,Velocity> ProjectedKinematics::turnUntil(const Position& so, 
 	}
 }
 
-std::pair<Position,Velocity> ProjectedKinematics::turnUntil(std::pair<Position,Velocity> sv, double t, double goalTrack, double bankAngle) {
+std::pair<Position,Velocity> ProjectedKinematics::turnUntil(const std::pair<Position,Velocity>& sv, double t, double goalTrack, double bankAngle) {
 	return turnUntil(sv.first, sv.second,t, goalTrack, bankAngle);
 }
-
-
 
 std::pair<Position,Velocity> ProjectedKinematics::gsAccel(const Position& so, const Velocity& vo, double t, double a) {
     if (so.isLatLon()) {
@@ -257,8 +255,6 @@ std::pair<Position,Velocity> ProjectedKinematics::vsAccelUntil(const Position& s
 	}
 }
 
-
-
 // if this fails, it returns a NaN time
 std::pair<Position,double> ProjectedKinematics::intersection(const Position& so, const Velocity& vo, const Position& si, const Velocity& vi) {
 	Vect3 so3 = so.vect3();
@@ -276,7 +272,6 @@ std::pair<Position,double> ProjectedKinematics::intersection(const Position& so,
 	}
 }
 
-
 double ProjectedKinematics::timeOfintersection(const Position& so, const Velocity& vo, const Position& si, const Velocity& vi) {
 	Vect3 so3 = so.vect3();
 	Vect3 si3 = si.vect3();
@@ -288,15 +283,6 @@ double ProjectedKinematics::timeOfintersection(const Position& so, const Velocit
 	double  intersectTime = VectFuns::timeOfIntersection(so3, vo, si3, vi);
 	return intersectTime;
 }
-
-
-
-
-
-
-
-
-
 
 /** Wrapper around Kinematic.turnTimeDirecTo()
  * Returns a triple: end of turn point, velocity at that point, time at that point

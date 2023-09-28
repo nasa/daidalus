@@ -34,7 +34,7 @@ public:
 	 * @param R
 	 * @return the turn angle
 	 */
-	static double turnAngle(Position s1, Position s2, double R);
+	static double turnAngle(const Position& s1, const Position& s2, double R);
 
   /**
    * Horizontal distance covered in a turn
@@ -44,7 +44,7 @@ public:
    * @param R
    * @return the turn distance
    */
-	static double turnDistance(Position s1, Position s2, double R);
+	static double turnDistance(const Position& s1, const Position& s2, double R);
 
 	/**
 	 * Given two points on a turn and the velocity (direction) at the first point, determine the direction for the shortest turn going through the second point,
@@ -55,7 +55,7 @@ public:
 	 * @param s2
 	 * @return true if clockwise turn
 	 */
-	static bool clockwise(Position s1, Velocity v1, Position s2);
+	static bool clockwise(const Position& s1, const Velocity& v1, const Position& s2);
 
 	//static double closestTimeOnTurn(const Position& turnstart, const Velocity& v1, double omega, const Position& x, double endTime);
 
@@ -109,10 +109,9 @@ public:
 	 */
 	static std::pair<Position,Velocity> turnUntil(const Position& so, const Velocity& vo, double t, double goalTrack, double bankAngle);
 
-	static std::pair<Position,Velocity> turnUntil(std::pair<Position,Velocity> sv, double t, double goalTrack, double bankAngle);
+	static std::pair<Position,Velocity> turnUntil(const std::pair<Position,Velocity>& sv, double t, double goalTrack, double bankAngle);
 
-
-	static std::pair<Position,Velocity> linear(std::pair<Position,Velocity> p, double t);
+	static std::pair<Position,Velocity> linear(const std::pair<Position,Velocity>& p, double t);
 
 	static std::pair<Position,Velocity> linear(const Position& so, const Velocity& p, double t);
 

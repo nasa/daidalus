@@ -46,7 +46,7 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
                                     sxyz_(pos.vect3()),
                                     velxyz_(airvel) {}
 
-TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel, EuclideanProjection eprj, int alerter) :
+TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel, const EuclideanProjection& eprj, int alerter) :
                                     id_(id),
                                     pos_(pos),
                                     gvel_(vel),

@@ -74,7 +74,7 @@ private:
    * @param eprj Euclidean projection
    */
   TrafficState(const std::string& id, const Position& pos, const Velocity& vel,
-      EuclideanProjection eprj,int alerter);
+      const EuclideanProjection& eprj,int alerter);
 
   /**
    * Apply Euclidean projection. Requires aircraft's position in lat/lon

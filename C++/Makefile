@@ -1,7 +1,7 @@
 # Simple Makefile to build DAIDALUS library and example applications
 NAME=DAIDALUS
 MAJOR=2
-MINOR=.0.3
+MINOR=.0.4
 VERSION=$(NAME)$(MAJOR)
 RELEASE=$(NAME)v$(MAJOR)$(MINOR)
 
@@ -50,6 +50,9 @@ configs: examples
 
 clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a
+
+check:
+	cppcheck --enable=all $(INCLUDEFLAGS) -q $(SRC)
 
 mold: examples
 	./DaidalusExample --config no_sum --verbose > ../Regression/C++/DaidalusExample-no_sum.out
