@@ -1,2 +1,4 @@
 stlFindInsert:src/Detection3DParameterReader.cpp
 stlFindInsert:src/SequenceReader.cpp
+missingIncludeSystem
+uninitMemberVar:src/AircraftState.cpp

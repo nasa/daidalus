@@ -608,15 +608,14 @@ public class TCASTable implements ParameterTable {
 	public String toString() {
 		String s = "HMDFilter: "+HMDFilter_;
 		if (isRAStandard()) {
-			s = s+"; (RA vals) ";
+			s += "; (RA vals) ";
 		} else if (isTAStandard()) {
-			s = s+"; (TA vals) ";
+			s += "; (TA vals) ";
 		}
-		//TODO: made this next bit optional?
-		s= s+"; levels: "+list_units(units_.get("TCAS_level"),levels_)+
-				"; TAU: "+list_units(units_.get("TCAS_TAU"),TAU_)+"; TCOA: "+list_units(units_.get("TCAS_TCOA"),TCOA_)+
-				"; DMOD: "+list_units(units_.get("TCAS_DMOD"),DMOD_)+"; ZTHR: "+list_units(units_.get("TCAS_ZTHR"),ZTHR_)+
-				"; HMD: "+list_units(units_.get("TCAS_HMD"),HMD_);
+		s += "; levels: "+list_units(units_.get("TCAS_level"),levels_)+
+			"; TAU: "+list_units(units_.get("TCAS_TAU"),TAU_)+"; TCOA: "+list_units(units_.get("TCAS_TCOA"),TCOA_)+
+			"; DMOD: "+list_units(units_.get("TCAS_DMOD"),DMOD_)+"; ZTHR: "+list_units(units_.get("TCAS_ZTHR"),ZTHR_)+
+			"; HMD: "+list_units(units_.get("TCAS_HMD"),HMD_);
 		return s;
 	}
 

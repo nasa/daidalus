@@ -614,19 +614,18 @@ std::string TCASTable::list_units(const std::string& units, const std::vector<do
 }
 
 std::string TCASTable::toString() const {
-  std::string s = "HMDFilter: "+Fmb(HMDFilter_);
+  std::string s("HMDFilter: "+Fmb(HMDFilter_));
   if (isRAStandard()) {
-    s = s+"; (RA vals) ";
+    s += "; (RA vals) ";
   } else if (isTAStandard()) {
-    s= s+"; (TA vals) ";
+    s += "; (TA vals) ";
   }
-  std::string unit1 =
-      s= s+"; levels: "+list_units(units_.at("TCAS_level"),levels_)+
-      "; TAU: "+list_units(units_.at("TCAS_TAU"),TAU_)+"; TCOA: "+
-      list_units(units_.at("TCAS_TCOA"),TCOA_)+
-      "; DMOD: "+list_units(units_.at("TCAS_DMOD"),DMOD_)+"; ZTHR: "+
-      list_units(units_.at("TCAS_ZTHR"),ZTHR_)+
-      "; HMD: "+list_units(units_.at("TCAS_HMD"),HMD_);
+  s += "; levels: "+list_units(units_.at("TCAS_level"),levels_)+
+    "; TAU: "+list_units(units_.at("TCAS_TAU"),TAU_)+"; TCOA: "+
+    list_units(units_.at("TCAS_TCOA"),TCOA_)+
+    "; DMOD: "+list_units(units_.at("TCAS_DMOD"),DMOD_)+"; ZTHR: "+
+    list_units(units_.at("TCAS_ZTHR"),ZTHR_)+
+    "; HMD: "+list_units(units_.at("TCAS_HMD"),HMD_);
   return s;
 }
 
