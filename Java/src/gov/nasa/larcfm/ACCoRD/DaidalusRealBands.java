@@ -476,7 +476,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 					} else {
 						saturateNoneIntervalSet(noneset2);
 					}
-				} else if (B <= T) {
+				} else {
 					none_bands(noneset2,detector,recovery,
 							core.epsilonH(recovery_case,intruder),core.epsilonV(recovery_case,intruder),B,T,
 							core.parameters,core.ownship,intruder);

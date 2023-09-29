@@ -71,7 +71,7 @@ public:
 
   /** Copy a Quad object */
   template<typename U1, typename U2, typename U3, typename U4>
-  Quad(const Quad<U1,U2,U3,U4>& q): first(q.first), second(q.second), third(q.third), fourth(q.fourth) {}
+  explicit Quad(const Quad<U1,U2,U3,U4>& q): first(q.first), second(q.second), third(q.third), fourth(q.fourth) {}
  
   /** Make a new Quad object */
   static Quad<T1,T2,T3,T4> make(const T1& e1, const T2& e2, const T3& e3, const T4& e4) {

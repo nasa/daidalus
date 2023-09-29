@@ -116,7 +116,7 @@ public:
   /**
    * Construct a Daidalus object with initial alerter.
    */
-  Daidalus(const Alerter& alerter);
+  explicit Daidalus(const Alerter& alerter);
 
   /**
    * Construct a Daidalus object with the default parameters and one alerter with the

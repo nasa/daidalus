@@ -15,7 +15,6 @@
 #define NAVPOINT_H_
 
 #include "Position.h"
-#include "Point.h"
 #include "Velocity.h"
 
 namespace larcfm {

@@ -102,7 +102,7 @@ public:
 
   DaidalusCore(const DaidalusCore& core);
 
-  DaidalusCore(const Alerter& alerter);
+  explicit DaidalusCore(const Alerter& alerter);
 
   DaidalusCore(const Detection3D* det, double T);
 

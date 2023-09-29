@@ -484,7 +484,7 @@ void Alerter::updateParameterData(ParameterData& p) const {
     //make sure each instance has a unique, ordered name
     std::string prefix = "alert_"+Fmi(i+1)+"_";
     pdmain.copy(pd.copyWithPrefix(prefix),true);
-    Detection3D* det = levels_[i].getCoreDetectionPtr();
+    const Detection3D* det = levels_[i].getCoreDetectionPtr();
     pdmain.copy(det->getParameters().copyWithPrefix(det->getIdentifier()+"_"),true);
     pdmain.set("load_core_detection_"+det->getIdentifier()+" = "+det->getCanonicalClassName());
     pdmain.remove(det->getIdentifier()+"_id");

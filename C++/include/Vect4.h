@@ -43,7 +43,7 @@ public:
   double  t;
 
   /** Construct a Vect4 */
-  Vect4(const double xx=0, const double yy=0, const double zz=0, const double tt=0);
+  explicit Vect4(const double xx=0, const double yy=0, const double zz=0, const double tt=0);
   /** Construct a Vect4 
    * 
    * @param v vector

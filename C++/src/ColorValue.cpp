@@ -168,7 +168,6 @@ void ColorValue::insert(std::vector<ColorValue>& l, double lb, double ub, BandsR
     BandsRegion::Region ext_color = l.at(i).color_right;
     l[i].color_right = int_color;
     l.insert(l.begin()+i+1,ColorValue(int_color,ub,ext_color));
-    ++i;
   }
   // Take care of circular bands, e.g., those that do not have UNKNOWN in
   // the extremes.

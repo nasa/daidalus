@@ -166,7 +166,6 @@ public class ColorValue {
 			BandsRegion ext_color = l.get(i).color_right;
 			l.get(i).color_right = int_color;
 			l.add(i+1,new ColorValue(int_color,ub,ext_color));
-			++i;
 		}
 		// Take care of circular bands, e.g., those that do not have UNKNOWN in 
 		// the extremes.

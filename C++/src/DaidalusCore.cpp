@@ -508,7 +508,7 @@ int DaidalusCore::horizontal_contours(std::vector<std::vector<Position> >& blobs
       alert_level = parameters.correctiveAlertLevel(alerter_idx);
     }
     if (alert_level > 0) {
-      Detection3D* detector = alerter.getDetectorPtr(alert_level);
+      const Detection3D* detector = alerter.getDetectorPtr(alert_level);
       if (detector != NULL) {
         detector->horizontalContours(blobs,ownship,intruder,
             parameters.getHorizontalContourThreshold(),
@@ -541,7 +541,7 @@ int DaidalusCore::horizontal_hazard_zone(std::vector<Position>& haz, int idx, in
       alert_level = parameters.correctiveAlertLevel(alerter_idx);
     }
     if (alert_level > 0) {
-      Detection3D* detector = alerter.getDetectorPtr(alert_level);
+      const Detection3D* detector = alerter.getDetectorPtr(alert_level);
       if (detector != NULL) {
         detector->horizontalHazardZone(haz,
             (from_ownship ? ownship : intruder),
@@ -578,7 +578,7 @@ void DaidalusCore::conflict_aircraft(int conflict_region) {
       BandsRegion::Region region = BandsRegion::regionFromOrder(BandsRegion::NUMBER_OF_CONFLICT_BANDS-conflict_region);
       int alert_level = alerter.alertLevelForRegion(region);
       if (alert_level > 0) {
-        Detection3D* detector =  alerter.getLevel(alert_level).getCoreDetectionPtr();
+        const Detection3D* detector =  alerter.getLevel(alert_level).getCoreDetectionPtr();
         if (detector != NULL) {
           std::map<std::string,HysteresisData>::iterator alerting_hysteresis_ptr = alerting_hysteresis_acs_.find(intruder.getId());
           double alerting_time = alerter.getLevel(alert_level).getAlertingTime();

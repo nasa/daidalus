@@ -7,3 +7,4 @@ invalidPointerCast
 missingOverride
 cstyleCast
 shadowFunction
+useStlAlgorithm:DaidalusParameters.h

@@ -2222,7 +2222,7 @@ bool DaidalusParameters::contains(const ParameterData& p, const std::string& key
   private:
     const ParameterData& p_;
   public:
-    Contains(const ParameterData& p) : p_(p) {}
+    explicit Contains(const ParameterData& p) : p_(p) {}
     bool apply(const std::string& key) { return p_.contains(key); }
   };
   Contains f(p);
@@ -2234,7 +2234,7 @@ std::string DaidalusParameters::getUnit(const ParameterData& p,const std::string
   private:
     const ParameterData& p_;
   public:
-    GetUnit(const ParameterData& p) : p_(p) {}
+    explicit GetUnit(const ParameterData& p) : p_(p) {}
     std::string apply(const std::string& key) { return p_.getUnit(key); }
   };
   GetUnit f(p);
@@ -2246,7 +2246,7 @@ double DaidalusParameters::getValue(const ParameterData& p,const std::string& ke
   private:
     const ParameterData& p_;
   public:
-    GetValue(const ParameterData& p) : p_(p) {}
+    explicit GetValue(const ParameterData& p) : p_(p) {}
     double apply(const std::string& key) { return p_.getValue(key); }
   };
   GetValue f(p);
@@ -2258,7 +2258,7 @@ bool DaidalusParameters::getBool(const ParameterData& p,const std::string& key) 
   private:
     const ParameterData& p_;
   public:
-    GetBool(const ParameterData& p) : p_(p) {}
+    explicit GetBool(const ParameterData& p) : p_(p) {}
     bool apply(const std::string& key) { return p_.getBool(key); }
   };
   GetBool f(p);
@@ -2270,7 +2270,7 @@ int DaidalusParameters::getInt(const ParameterData& p,const std::string& key) {
   private:
     const ParameterData& p_;
   public:
-    GetInt(const ParameterData& p) : p_(p) {}
+    explicit GetInt(const ParameterData& p) : p_(p) {}
     int apply(const std::string& key) { return p_.getInt(key); }
   };
   GetInt f(p);
@@ -2282,7 +2282,7 @@ std::string DaidalusParameters::getString(const ParameterData& p,const std::stri
   private:
     const ParameterData& p_;
   public:
-    GetString(const ParameterData& p) : p_(p) {}
+    explicit GetString(const ParameterData& p) : p_(p) {}
     std::string apply(const std::string& key) { return p_.getString(key); }
   };
   GetString f(p);
@@ -2294,7 +2294,7 @@ std::vector<std::string> DaidalusParameters::getListString(const ParameterData& 
   private:
     const ParameterData& p_;
   public:
-    GetListString(const ParameterData& p) : p_(p) {}
+    explicit GetListString(const ParameterData& p) : p_(p) {}
     std::vector<std::string> apply(const std::string& key) { return p_.getListString(key); }
   };
   GetListString f(p);

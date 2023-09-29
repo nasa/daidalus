@@ -3838,7 +3838,7 @@ ConflictData Daidalus::violationOfAlertThresholds(int ac_idx, int alert_level) {
         alert_level = core_.parameters.correctiveAlertLevel(alerter_idx);
       }
       if (alert_level > 0) {
-        Detection3D* detector = alerter.getDetectorPtr(alert_level);
+        const Detection3D* detector = alerter.getDetectorPtr(alert_level);
         if (detector != NULL) {
           return detector->conflictDetectionWithTrafficState(core_.ownship,intruder,0.0,core_.parameters.getLookaheadTime());
         } else {

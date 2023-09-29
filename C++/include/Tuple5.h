@@ -76,7 +76,7 @@ public:
 
 	/** Copy a Tuple5 object */
 	template<typename U1, typename U2, typename U3, typename U4, typename U5>
-	Tuple5(const Tuple5<U1,U2,U3,U4,U5>& q): first(q.first), second(q.second), third(q.third), fourth(q.fourth), fifth(q.fifth) {}
+	explicit Tuple5(const Tuple5<U1,U2,U3,U4,U5>& q): first(q.first), second(q.second), third(q.third), fourth(q.fourth), fifth(q.fifth) {}
 
 	/** Make a new Tuple5 object */
 	static Tuple5<T1,T2,T3,T4,T5> make(const T1& e1, const T2& e2, const T3& e3, const T4& e4, const T5& e5) {

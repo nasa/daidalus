@@ -18,7 +18,6 @@
 #include "Vect2.h"
 #include "Velocity.h"
 #include "Position.h"
-#include "Point.h"
 #include "Util.h"
 
 namespace larcfm {

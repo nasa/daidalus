@@ -214,7 +214,7 @@ void CDCylinder::setIdentifier(const std::string& s) {
 bool CDCylinder::equals(Detection3D* det) const {
   if (!larcfm::equals(getCanonicalClassName(), det->getCanonicalClassName())) return false;
   if (!larcfm::equals(id,det->getIdentifier())) return false;
-  CDCylinder* cd = (CDCylinder*)det;
+  const CDCylinder* cd = (CDCylinder*)det;
   if (D_ != cd->D_) return false;
   if (H_ != cd->H_) return false;
   return true;
@@ -222,7 +222,7 @@ bool CDCylinder::equals(Detection3D* det) const {
 
 bool CDCylinder::contains(const Detection3D* det) const {
   if (larcfm::equals(getCanonicalClassName(), det->getCanonicalClassName())) {
-    CDCylinder* cd = (CDCylinder*)det;
+    const CDCylinder* cd = (CDCylinder*)det;
     return D_ >= cd->D_ && H_ >= cd->H_;
   }
   return false;

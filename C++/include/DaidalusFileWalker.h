@@ -30,7 +30,7 @@ private:
   std::vector<std::string> traffic_; // Only consider the traffic aircraft
 
 public:
-  DaidalusFileWalker(const std::string& filename);
+  explicit DaidalusFileWalker(const std::string& filename);
 
   void resetInputFile(const std::string& filename);
 
