@@ -278,7 +278,7 @@ void DaidalusRealBands::peripheral_aircraft(DaidalusCore& core, int conflict_reg
       BandsRegion::Region region = BandsRegion::regionFromOrder(BandsRegion::NUMBER_OF_CONFLICT_BANDS-conflict_region);
       int alert_level = alerter.alertLevelForRegion(region);
       if (alert_level > 0) {
-        Detection3D* detector = alerter.getLevel(alert_level).getCoreDetectionPtr();
+        const Detection3D* detector = alerter.getLevel(alert_level).getCoreDetectionPtr();
         double alerting_time = Util::min(core.parameters.getLookaheadTime(),
             alerter.getLevel(alert_level).getAlertingTime());
         ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());

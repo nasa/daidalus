@@ -2914,10 +2914,10 @@ public final class Kinematics {
 			Vect3 s = soAtTm.Sub(siAtTm);
 			//f.pln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 			double dist = s.norm();
-			double distH = s.vect2().norm();
-			double distV = Math.abs(s.z);
 			//f.pln(" $$$$ minDistBetweenTrk: dist = "+Units.str("nm",dist));
 			if (dist < minDist) {               // compute distances at TCA in 3D
+				double distH = s.vect2().norm();
+				double distV = Math.abs(s.z);		
 				minDist = dist;
 				minDistH = distH;
 				minDistV = distV;

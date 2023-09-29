@@ -1254,10 +1254,10 @@ Vect4 Kinematics::minDistBetweenGs(const Vect3& so, const Velocity& vo, const Ve
 		Vect3 siAtTm = Kinematics::gsAccelUntil(si, vi, t, nvi.gs(), gsAccelTraf).first;
 		//fpln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 		double dist = soAtTm.Sub(siAtTm).norm();
-		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
 		//fpln(" $$$$ minDistBetweenTrk: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
+			double distH = soAtTm.Sub(siAtTm).vect2().norm();
+			double distV = std::abs(soAtTm.Sub(siAtTm).z);
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
