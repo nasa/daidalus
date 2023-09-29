@@ -18,9 +18,9 @@
 
 namespace larcfm {
 
-DaidalusDirBands::DaidalusDirBands() : DaidalusRealBands(2*Pi) {}
+DaidalusDirBands::DaidalusDirBands() : DaidalusRealBands(2*Pi), inst_below_min_as(false) {}
 
-DaidalusDirBands::DaidalusDirBands(const DaidalusDirBands& b) : DaidalusRealBands(b) {}
+DaidalusDirBands::DaidalusDirBands(const DaidalusDirBands& b) : DaidalusRealBands(b), inst_below_min_as(false) {}
 
 bool DaidalusDirBands::get_recovery(const DaidalusParameters& parameters) const {
   return parameters.isEnabledRecoveryHorizontalDirectionBands();

@@ -17,15 +17,27 @@ namespace larcfm {
 /*
  * Creates an empty object
  */
-BandsHysteresis::BandsHysteresis() {
-  mod_ = 0.0;
-  mod2_ = 0.0;
-  hysteresis_time_ = 0;
-  persistence_time_ = 0;
-  m_ = 0;
-  n_ = 0;
-  reset();
-}
+BandsHysteresis::BandsHysteresis():
+    mod_(0.0),
+    mod2_(0.0),
+    hysteresis_time_(0.0),
+    persistence_time_(0.0),
+    bands_persistence_(false),
+    last_time_(NAN),
+    m_(0),
+    n_(0),
+    preferred_dir_(false),
+    time_of_dir_(NAN),
+    conflict_region_(BandsRegion::UNKNOWN),
+    conflict_region_low_(NAN),
+    conflict_region_up_(NAN),
+    time_of_conflict_region_(NAN),
+    resolution_up_(NAN),
+    resolution_low_(NAN),
+    raw_up_(NAN),
+    raw_low_(NAN),
+    nfactor_up_(0),
+    nfactor_low_(0) {}
 
 void BandsHysteresis::setMod(double mod) {
   mod_ = mod;

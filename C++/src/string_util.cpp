@@ -210,7 +210,7 @@ bool matches(const string& s, const string& rgx_str) {
 	string substring(const string& s, int begin, int end){
 		int len = static_cast<int>(s.length());
 		end = (end < len) ? end : s.length();
-		if (begin < end || begin < 0) {
+		if (begin < end && begin >= 0) {
 			return s.substr(begin,end-begin);
 		} else {
 			return "";

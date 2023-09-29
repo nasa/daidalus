@@ -114,7 +114,7 @@ public:
    * @param  R     radius
    * @return       bank angle (positive)
    */
-	static double bankAngleByRadius(double R, double speed);
+	static double bankAngleByRadius(double speed,double R);
 
   /** 
    * Calculates the bank angle used for a given turn radius and ground speed.   Assumes 
