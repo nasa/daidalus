@@ -11,7 +11,6 @@
  */
 
 #include "Position.h"
-#include "Point.h"
 #include "LatLonAlt.h"
 #include "GreatCircle.h"
 #include "Projection.h"

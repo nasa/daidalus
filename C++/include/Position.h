@@ -18,7 +18,6 @@
 #include "Vect3.h"
 #include "Velocity.h"
 #include "LatLonAlt.h"
-#include "Point.h"
 #include <string>
 
 namespace larcfm {
