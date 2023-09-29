@@ -37,7 +37,7 @@ public:
 
   Alerter();
 
-  Alerter(const std::string& id);
+  explicit Alerter(const std::string& id);
 
   /**
    * Set alerter identifier.

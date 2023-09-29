@@ -104,7 +104,7 @@ class AircraftState : public ErrorReporter {
 
   // assumes that all arrays are the same length and have at least "length" elements
   // assumes the arrays are sorted in increasing time order.
-  void calc(Vect2* vel2, double* velZ, double* timevar, int length);
+  void calc(const Vect2* vel2, const double* velZ, const double* timevar, int length);
 	
   Vect3 predS(double t) const;
   

@@ -262,9 +262,8 @@ int AircraftState::size() const {
 
 
 void AircraftState::add(const Position& ss, const Velocity& vv, double tm) {
-	int i;
 	if (sz >= 1 && tm <= timeLast()) {
-		i = find(tm);
+		int i = find(tm);
 		if (i >= 0 ) {
 			s_list[ext2int(i)] = ss;
 			v_list[ext2int(i)] = vv;
@@ -467,7 +466,7 @@ const EuclideanProjection& AircraftState::getProjection() const {
 
 // assumes that all arrays are the same length and have at least "length" elements
 // assumes the arrays are sorted in increasing time order.
-void AircraftState::calc(Vect2 vel2[], double velZ[], double timevar[], int length) {
+void AircraftState::calc(const Vect2 vel2[], const double velZ[], const double timevar[], int length) {
 	if (regression_done) {
 		return;
 	}
@@ -487,9 +486,6 @@ void AircraftState::calc(Vect2 vel2[], double velZ[], double timevar[], int leng
 	double sumvt = 0;
 	double hsumv = 0;
 	double hsumvt = 0;
-	double timediff = 0;
-	double vnorm = 0;
-	double vertvelz = 0;
 	double regdenom = 0;
 
 	recentInd = length - 1;
@@ -501,9 +497,9 @@ void AircraftState::calc(Vect2 vel2[], double velZ[], double timevar[], int leng
 	//		}
 
 	for (int point = 0; point < length; point++) {
-		timediff = timevar[point] - timevar[recentInd];
-		vnorm = vel2[point].norm();
-		vertvelz = velZ[point];
+		double timediff = timevar[point] - timevar[recentInd];
+		double vnorm = vel2[point].norm();
+		double vertvelz = velZ[point];
 
 		sumv = sumv + vnorm;
 		sumt = sumt + timediff;
@@ -737,7 +733,7 @@ double AircraftState::avgVsRate(int numPtsVsRateCalc) {
 
 void AircraftState::prune() {
 	//dump();
-	Velocity lastV = Velocity();
+	Velocity lastV;
 	double lastT = 0.0;
 	//f.pln("prune: initially, start = "+oldest+" size = " + sz);
 	if (sz < 2)

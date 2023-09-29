@@ -65,7 +65,7 @@ namespace larcfm {
      * 
      * @param lla reference point
      */
-    OrthographicProjection(const LatLonAlt& lla);
+    explicit OrthographicProjection(const LatLonAlt& lla);
     
     /** Create a projection around the given reference point. 
      * 

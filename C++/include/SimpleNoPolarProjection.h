@@ -48,7 +48,7 @@ namespace larcfm {
      * 
      * @param lla reference point
      */
-    SimpleNoPolarProjection(const LatLonAlt& lla);
+    explicit SimpleNoPolarProjection(const LatLonAlt& lla);
 
     /** Create a projection around the given reference point.
      * 

@@ -249,10 +249,8 @@ public final class AircraftState {
      * @param tm the time of the position and velocity
      */
 	public void add(Position ss, Velocity vv, double tm) {
-//if (id.equals("own")) f.pln("AircraftSate.add "+ss+" "+vv+" "+tm+" "+Arrays.toString(Thread.currentThread().getStackTrace()));
-		int i;
 		if (size >= 1 && tm <= timeLast()) {
-			i = find(tm);
+			int i = find(tm);
 			if (i >= 0 ) {
 				s_list[ext2int(i)] = ss;
 				v_list[ext2int(i)] = vv;
@@ -594,9 +592,6 @@ public final class AircraftState {
 		double sumvt = 0;
 		double hsumv = 0;
 		double hsumvt = 0;
-		double timediff = 0;
-		double vnorm = 0;
-		double vertvelz = 0;
 		double regdenom = 0;
 
 		recentInd = length - 1;
@@ -608,9 +603,9 @@ public final class AircraftState {
 //		}
 
 		for (int point = 0; point < length; point++) {
-			timediff = timevar[point] - timevar[recentInd];
-			vnorm = vel2[point].norm();
-			vertvelz = velZ[point];
+			double timediff = timevar[point] - timevar[recentInd];
+			double vnorm = vel2[point].norm();
+			double vertvelz = velZ[point];
 
 			sumv = sumv + vnorm;
 			sumt = sumt + timediff;
@@ -1076,7 +1071,7 @@ public final class AircraftState {
 	 */
 	public void prune() {
 		//dump();
-		Velocity lastV = Velocity.ZERO;
+		Velocity lastV;
 		double lastT = 0.0;
 		//f.pln("prune: initially, start = "+oldest+" size = " + size);
 		if (size < 2)

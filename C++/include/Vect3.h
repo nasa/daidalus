@@ -56,7 +56,7 @@ public:
 	 * @param yy Real value
 	 * @param zz Real value
 	 */
-	Vect3(const double xx=0, const double yy=0, const double zz=0);
+	explicit Vect3(const double xx=0, const double yy=0, const double zz=0);
 
 	/**
 	 * Creates a new vector whose x and y components are v, and whose z component is vz.

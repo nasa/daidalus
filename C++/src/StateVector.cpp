@@ -5,8 +5,6 @@
  * Rights Reserved.
  */
 
-#include "Vect3.h"
-#include "Velocity.h"
 #include "StateVector.h"
 
 namespace larcfm {

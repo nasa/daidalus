@@ -72,13 +72,13 @@ public:
   /**
    * Instantiates a new CD3D object.
    */
-  CDCylinder(const std::string& s="");
+  explicit CDCylinder(const std::string& s="");
 
   /**
    * This specifies the internal table is a copy of the provided table
    * @param tab
    */
-  CDCylinder(const CDCylinder& cdc);
+  explicit CDCylinder(const CDCylinder& cdc);
 
   CDCylinder(double d, double h);
   CDCylinder(double d, const std::string& dunit, double h, const std::string& hunit);

@@ -54,7 +54,7 @@ namespace larcfm {
 	 * 
 	 * @param lla reference point
 	 */
-    SimpleProjection(const LatLonAlt& lla);
+    explicit SimpleProjection(const LatLonAlt& lla);
     
     /** Create a projection around the given reference point.
 	 * 

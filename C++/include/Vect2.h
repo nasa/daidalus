@@ -50,7 +50,7 @@ public:
 	 * @param xx Real value
 	 * @param yy Real value
 	 */
-	Vect2(const double xx=0.0, const double yy=0.0);
+	explicit Vect2(const double xx=0.0, const double yy=0.0);
 
 	/** Destructor */
 	virtual ~Vect2() { }

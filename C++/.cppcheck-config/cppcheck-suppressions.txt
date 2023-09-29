@@ -4,3 +4,6 @@ uninitMemberVar:src/AircraftState.cpp
 missingIncludeSystem
 duplInheritedMember
 invalidPointerCast
+missingOverride
+cstyleCast
+shadowFunction

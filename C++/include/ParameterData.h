@@ -588,7 +588,7 @@ private:
 	class comp_order {
 	public:
 		const paramtype *params;
-		comp_order(const paramtype *p) {
+		explicit comp_order(const paramtype *p) {
 			params = p;
 		}
 		bool operator() (const std::string& lhs, const std::string& rhs) const

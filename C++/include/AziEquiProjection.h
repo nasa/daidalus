@@ -52,7 +52,7 @@ namespace larcfm {
  	 * 
  	 * @param lla reference point
  	 */
-    AziEquiProjection(const LatLonAlt& lla);
+    explicit AziEquiProjection(const LatLonAlt& lla);
     
     /** Create a projection around the given reference point.
      * 

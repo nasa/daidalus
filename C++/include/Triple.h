@@ -37,7 +37,7 @@ class Triple {
     Triple(): first(L()), second(C()), third(R()) {}
  
     /** Construct a Triple */
- Triple(const L& left, const C& center, const R& right) : first(left), second(center), third(right) {
+    Triple(const L& left, const C& center, const R& right) : first(left), second(center), third(right) {
     }
 
     /** The left-most element 
@@ -85,7 +85,7 @@ class Triple {
 
     /** Copy a Triple */
     template <typename L1, typename C1, typename R1> 
-    Triple(const Triple<L1,C1, R1>& t): first(t.left), second(t.center), third(t.right) {}
+    explicit Triple(const Triple<L1,C1, R1>& t): first(t.left), second(t.center), third(t.right) {}
  };
 
     /** Make a Triple 
