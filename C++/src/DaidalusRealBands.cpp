@@ -493,7 +493,7 @@ bool DaidalusRealBands::compute_region(std::vector<IntervalSet>& none_sets, int 
   compute_none_bands(none_sets[conflict_region], acs_bands_[conflict_region],
       NULL,NULL,false,0.0,core);
   if (get_recovery(core.parameters)) {
-    if  (none_sets[conflict_region].isEmpty() && conflict_region <= corrective_region) {
+    if  (conflict_region <= corrective_region && none_sets[conflict_region].isEmpty()) {
       // Compute recovery bands
       compute_recovery_bands(none_sets[corrective_region],acs_bands_[corrective_region],core);
       return true;

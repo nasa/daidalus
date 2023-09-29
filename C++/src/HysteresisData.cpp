@@ -22,7 +22,7 @@ namespace larcfm {
  * Creates an empty object
  */
 HysteresisData::HysteresisData():hysteresis_time_(0.0),persistence_time_(0.0),
-                                 init_time_(NAN),last_time_(NAN),last_value_(-1),outdated_(true) {}
+                                 init_time_(NaN),last_time_(NaN),last_value_(-1),outdated_(true) {}
 
 void HysteresisData::init() {
   hysteresis_time_ = 0.0;

@@ -23,19 +23,19 @@ BandsHysteresis::BandsHysteresis():
     hysteresis_time_(0.0),
     persistence_time_(0.0),
     bands_persistence_(false),
-    last_time_(NAN),
+    last_time_(NaN),
     m_(0),
     n_(0),
     preferred_dir_(false),
-    time_of_dir_(NAN),
+    time_of_dir_(NaN),
     conflict_region_(BandsRegion::UNKNOWN),
-    conflict_region_low_(NAN),
-    conflict_region_up_(NAN),
-    time_of_conflict_region_(NAN),
-    resolution_up_(NAN),
-    resolution_low_(NAN),
-    raw_up_(NAN),
-    raw_low_(NAN),
+    conflict_region_low_(NaN),
+    conflict_region_up_(NaN),
+    time_of_conflict_region_(NaN),
+    resolution_up_(NaN),
+    resolution_low_(NaN),
+    raw_up_(NaN),
+    raw_low_(NaN),
     nfactor_up_(0),
     nfactor_low_(0) {}
 
@@ -98,21 +98,21 @@ const std::vector<BandsMofN>& BandsHysteresis::bands_mofn() const {
  */
 void BandsHysteresis::reset() {
   bands_mofn_.clear();
-  last_time_ = NAN;
+  last_time_ = NaN;
 
   preferred_dir_ = false;
-  time_of_dir_ = NAN;
+  time_of_dir_ = NaN;
 
   conflict_region_ = BandsRegion::UNKNOWN;
-  conflict_region_low_ = NAN;
-  conflict_region_up_ = NAN;
-  time_of_conflict_region_ = NAN;
+  conflict_region_low_ = NaN;
+  conflict_region_up_ = NaN;
+  time_of_conflict_region_ = NaN;
 
-  resolution_up_ = NAN;
-  resolution_low_ = NAN;
+  resolution_up_ = NaN;
+  resolution_low_ = NaN;
 
-  raw_up_ = NAN;
-  raw_low_ = NAN;
+  raw_up_ = NaN;
+  raw_low_ = NaN;
 
   nfactor_up_ = 0;
   nfactor_low_ = 0;

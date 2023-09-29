@@ -52,7 +52,7 @@ clean:
 	rm -f DaidalusExample DaidalusAlerting DaidalusBatch src/*.o examples/*.o lib/*.a
 
 check:
-	cppcheck --enable=warning,performance --cppcheck-build-dir=.cppcheck-config --suppressions-list=.cppcheck-config/cppcheck-suppressions.txt $(INCLUDEFLAGS) -q $(SRC)
+	cppcheck --enable=warning,performance,portability --cppcheck-build-dir=.cppcheck-config --suppressions-list=.cppcheck-config/cppcheck-suppressions.txt $(INCLUDEFLAGS) -q $(SRC)
 
 mold: examples
 	./DaidalusExample --config no_sum --verbose > ../Regression/C++/DaidalusExample-no_sum.out

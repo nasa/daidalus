@@ -3,4 +3,4 @@ stlFindInsert:src/SequenceReader.cpp
 uninitMemberVar:src/AircraftState.cpp
 missingIncludeSystem
 duplInheritedMember
-
+invalidPointerCast

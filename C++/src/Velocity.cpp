@@ -196,7 +196,7 @@ const Velocity& Velocity::ZERO() {
 }
 
 const Velocity& Velocity::INVALID() {
-	static Velocity* v = new Velocity(NAN,NAN,NAN,NAN,NAN);
+	static Velocity* v = new Velocity(NaN,NaN,NaN,NaN,NaN);
 	return *v;
 }
 
