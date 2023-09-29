@@ -22,17 +22,13 @@
 
 namespace larcfm {
 
-Alerter::Alerter() {
-  id_ = "default";
-}
-
 bool Alerter::isValid() const {
   return !levels_.empty();
 }
 
-Alerter::Alerter(const std::string& id) {
-  id_ = equals(id, "") ? "default" : id;
-}
+Alerter::Alerter() : id_("default") {}
+
+Alerter::Alerter(const std::string& id) : id_(id) {}
 
 const Alerter& Alerter::INVALID() {
   static Alerter a;
@@ -369,7 +365,7 @@ const Alerter& Alerter::Buffered_DWC_Phase_I() {
  * alerting time, and lookahead time. The single bands region is NEAR
  */
 Alerter Alerter::SingleBands(const Detection3D* detector, double alerting_time, double lookahead_time,
-    const std::string name) {
+    const std::string& name) {
   Alerter alerter(name);
   alerter.addLevel(AlertThresholds(detector,alerting_time,lookahead_time,BandsRegion::NEAR));
   return alerter;

@@ -11,10 +11,7 @@
 
 namespace larcfm {
 
-BandsRange::BandsRange(const Interval& i, BandsRegion::Region r) {
-  interval = i;
-  region = r;
-}
+BandsRange::BandsRange(const Interval& i, BandsRegion::Region r) : interval(i), region(r) {}
 
 // NONE's when in recovery, become RECOVERY
 BandsRegion::Region BandsRange::resolution_region(BandsRegion::Region region, bool recovery) {

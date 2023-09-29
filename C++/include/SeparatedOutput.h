@@ -246,7 +246,7 @@ public:
     * The value to be displayed if a column is &quot;skipped&quot;.  Empty values are only added inside a line, not at the end.
     * @param e value to indicate empty
     */
-   void setEmptyValue(std::string e);
+   void setEmptyValue(const std::string& e);
    
    /** 
     * Set the code indicating the start of a comment.
@@ -282,10 +282,10 @@ public:
 	void flush();
 
 private:
-    void print_line(std::vector<std::string> vals); // throws IOException;
+    void print_line(const std::vector<std::string>& vals); // throws IOException;
 
 public:
-    std::string toString();
+    std::string toString() const;
 
 	
     // ErrorReporter Interface Methods

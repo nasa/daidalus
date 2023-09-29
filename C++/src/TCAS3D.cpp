@@ -22,15 +22,9 @@
 
 namespace larcfm {
 
-TCAS3D::TCAS3D() {
-  table_ = TCASTable::make_TCASII_Table(true);
-  id = "";
-}
+TCAS3D::TCAS3D() : table_(TCASTable::make_TCASII_Table(true)), id("") {}
 
-TCAS3D::TCAS3D(const TCASTable& tab) {
-  table_ = tab;
-  id = "";
-}
+TCAS3D::TCAS3D(const TCASTable& tab) : table_(tab), id("") {}
 
 /**
  * @return one static TCAS3D

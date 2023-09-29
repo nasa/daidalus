@@ -45,7 +45,7 @@ bool gt(double a,double b,double e) {
       e < 0 && sq(a)*b < sq(e);
 }
 
-int CriteriaCore::verticalCoordination(const Vect3& s, const Vect3& vo, const Vect3& vi, double D, double H, std::string ownship, std::string traffic) {
+int CriteriaCore::verticalCoordination(const Vect3& s, const Vect3& vo, const Vect3& vi, double D, double H, const std::string& ownship, const std::string& traffic) {
   if (CD3D::LoS(s,D,H)) {
     return verticalCoordinationLoS(s,vo,vi,ownship,traffic);
   } else {
@@ -54,7 +54,7 @@ int CriteriaCore::verticalCoordination(const Vect3& s, const Vect3& vo, const Ve
   }
 }
 
-int CriteriaCore::verticalCoordinationConflict(const Vect3& s, const Vect3& v, double D, std::string ownship, std::string traffic) {
+int CriteriaCore::verticalCoordinationConflict(const Vect3& s, const Vect3& v, double D, const std::string& ownship, const std::string& traffic) {
   Vect2 s2 = s.vect2();
   Vect2 v2 = v.vect2();
   double a = v2.sqv();
@@ -71,7 +71,7 @@ int CriteriaCore::verticalCoordinationConflict(const Vect3& s, const Vect3& v, d
   return 1;
 }
 
-int CriteriaCore::verticalCoordinationLoS(const Vect3& s, const Vect3& vo, const Vect3& vi, std::string ownship, std::string traffic) {
+int CriteriaCore::verticalCoordinationLoS(const Vect3& s, const Vect3& vo, const Vect3& vi, const std::string& ownship, const std::string& traffic) {
   int epsv;
   epsv = losr_vs_dir(s,vo,vi,ACCoRDConfig::NMAC_D, ACCoRDConfig::NMAC_H,ownship,traffic);
   return epsv;
@@ -152,7 +152,7 @@ Vect3 CriteriaCore::vertical_decision_vect(const Vect3& s, const Vect3& vo, cons
 
 // Compute an absolute repulsive vertical direction
 int CriteriaCore::losr_vs_dir(const Vect3& s, const Vect3& vo, const Vect3& vi,
-    double caD, double caH, std::string ownship, std::string traffic) {
+    double caD, double caH, const std::string& ownship, const std::string& traffic) {
   int rtn = breakSymmetry(vertical_decision_vect(s,vo,vi,caD,caH),ownship,traffic);
   return rtn;
 }
@@ -225,10 +225,8 @@ bool CriteriaCore::verticalRepulsiveCriterion(const Vect3& s, const Vect3& vo, c
 }
 
 /** Perform a symmetry calculation */
-int CriteriaCore::breakSymmetry(const Vect3& s, std::string ownship, std::string traffic) {
-  if (Util::almost_equals(s.z,0)) {
-    reverse(ownship.begin(), ownship.end());
-    reverse(traffic.begin(), traffic.end());
+int CriteriaCore::breakSymmetry(const Vect3& s, const std::string& ownship, const std::string& traffic) {
+ if (Util::almost_equals(s.z,0)) {
     return Util::less_or_equal(ownship, traffic) ? 1 : -1;
   } else if (s.z > 0) {
     return 1;
@@ -237,15 +235,15 @@ int CriteriaCore::breakSymmetry(const Vect3& s, std::string ownship, std::string
   }
 }
 
-static bool trkChanged(Velocity vo, Velocity nvo) {
+static bool trkChanged(const Velocity& vo, const Velocity& nvo) {
   return std::abs(vo.trk() - nvo.trk()) > Units::from("deg",0.001);
 }
 
-static bool gsChanged(Velocity vo, Velocity nvo) {
+static bool gsChanged(const Velocity& vo, const Velocity& nvo) {
   return std::abs(vo.gs() - nvo.gs()) > Units::from("kn",0.001);
 }
 
-static bool vsChanged(Velocity vo, Velocity nvo) {
+static bool vsChanged(const Velocity& vo, const Velocity& nvo) {
   return std::abs(vo.vs() - nvo.vs()) > Units::from("fpm",0.001);
 }
 

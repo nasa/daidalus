@@ -81,7 +81,7 @@ AircraftState::~AircraftState() {
 	if (projT) delete [] projT;
 }
 
-void AircraftState::init(string name, int buffer_size) {
+void AircraftState::init(const string& name, int buffer_size) {
 	sz = 0;
 	bufferSize = buffer_size < 1 ? DEFAULT_BUFFER_SIZE : buffer_size;
 	s_list = new Position[bufferSize];
@@ -460,7 +460,7 @@ void AircraftState::updateProjection() {
 	regression_done = false;
 }
 
-EuclideanProjection AircraftState::getProjection() const {
+const EuclideanProjection& AircraftState::getProjection() const {
 	return sp;
 }
 
@@ -613,7 +613,7 @@ bool AircraftState::inLevelFlight() {
 	return std::abs(vol.z()) < minClimbVelocity && std::abs(vonl.z()) < minClimbVelocity;
 }
 
-bool AircraftState::closeEnough(Velocity v1, Velocity v2) {
+bool AircraftState::closeEnough(const Velocity& v1, const Velocity& v2) {
 	double delTrk = std::abs(v1.trk() - v2.trk());
 	double delGs = std::abs(v1.gs() - v2.gs()) ;
 	double delVs = std::abs(v1.vs() - v2.vs()) ;

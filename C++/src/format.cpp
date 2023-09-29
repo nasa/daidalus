@@ -364,33 +364,32 @@ string Farray(std::string const v[], int sz) {
 }
 
 
-string FmVec(Vect2 v) {
+string FmVec(const Vect2& v) {
 	return "("+Fm16(v.x)+","+Fm16(v.y)+")";
 }
 
-string FmVec(Vect3 v) {
+string FmVec(const Vect3& v) {
 	return "("+Fm16(v.x)+","+Fm16(v.y)+","+Fm16(v.z)+")";
 }
 
 
-string padLeft(string s, int n) {
+string padLeft(const string& s, int n) {
 	string pad = "";
-	for (int i = 0; i < n-(int)s.size(); i++) {
-	  pad = pad + " ";
+	for (size_t i = 0; i < n-s.size(); i++) {
+	  pad += " ";
 	}
 
 	return pad+s;
 }
 
 
-string padRight(string s, int n) {
-	//return string.format("%1$-" + n + "s", s);
-	while ((int)s.length() < n) {
-		s = s + " ";
+string padRight(const string& s, int n) {
+	string pad = "";
+	for (size_t i = 0; i < n-s.size(); i++) {
+	  pad += " ";
 	}
-	return s;
+	return pad+s;
 }
-
 
 void fpln(const string& str) {
 	cout << str << endl;

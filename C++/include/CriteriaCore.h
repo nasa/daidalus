@@ -72,7 +72,7 @@ public:
    *  -1 corresponds to reducing current vertical speed,
    *  +1 corresponds to increasing current vertical speed
    */
-  static int verticalCoordination(const Vect3& s, const Vect3& vo, const Vect3& vi,double D, double H, std::string ownship, std::string traffic);
+  static int verticalCoordination(const Vect3& s, const Vect3& vo, const Vect3& vi,double D, double H, const std::string& ownship, const std::string& traffic);
 
   /** The fundamental horizontal criterion (Conflict Case)
    * @param sp  relative position           assumed to be horizontally separated    (Sp_vect2  : TYPE = (horizontal_sep?))
@@ -242,15 +242,13 @@ public:
    */
   static bool vertical_new_repulsive_criterion(const Vect3& s, const Vect3& vo, const Vect3& vi, const Vect3& nvo, int eps);
 
-  static int verticalCoordinationLoS(const Vect3& s, const Vect3& vo, const Vect3& vi, std::string ownship, std::string traffic);
+  static int verticalCoordinationLoS(const Vect3& s, const Vect3& vo, const Vect3& vi, const std::string& ownship, const std::string& traffic);
 
 private:
 
   static bool horizontal_criterion_0(const Vect2& sp, int eps, const Vect2& v, double D);
 
-  static int verticalCoordinationConflict(const Vect3& s, const Vect3& v, double D, std::string ownship, std::string traffic);
-
-  //	static int sign_vz(const Vect3& s, const double voz, const double viz, std::string ownship, std::string traffic);
+  static int verticalCoordinationConflict(const Vect3& s, const Vect3& v, double D, const std::string& ownship, const std::string& traffic);
 
   static bool criterion_3D(const Vect3& sp, const Velocity&  v, int epsH, int epsV, const Velocity&  nv, double D, double H);
 
@@ -258,7 +256,7 @@ private:
   static Vect3 vertical_decision_vect(const Vect3& s, const Vect3& vo, const Vect3& vi, double caD, double caH);
 
   // Compute an absolute repulsive vertical direction
-  static int losr_vs_dir(const Vect3& s, const Vect3& vo, const Vect3& vi, double caD, double caH,  std::string ownship, std::string traffic);
+  static int losr_vs_dir(const Vect3& s, const Vect3& vo, const Vect3& vi, double caD, double caH,  const std::string& ownship, const std::string& traffic);
 
   static bool vs_bound_crit(const Vect3& v, const Vect3& nv, int eps);
 
@@ -267,7 +265,7 @@ private:
   static bool vertical_los_criterion(const Vect3& s, const Vect3& v, const Vect3& nv, int eps, double H, double minrelvs);
 
   /** Perform a symmetry calculation */
-  static int breakSymmetry(const Vect3& s, std::string ownship, std::string traffic);
+  static int breakSymmetry(const Vect3& s, const std::string& ownship, const std::string& traffic);
 
 };
 

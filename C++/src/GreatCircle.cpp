@@ -368,7 +368,7 @@ LatLonAlt GreatCircle::linear_gcgs(const LatLonAlt& p1, const LatLonAlt& p2, con
 	return interpolate_impl(p1, p2, d, f, p1.alt() + v.z()*t);
 }
 
-LatLonAlt GreatCircle::linear_gc(LatLonAlt p1, LatLonAlt p2, double d) {
+LatLonAlt GreatCircle::linear_gc(const LatLonAlt& p1, const LatLonAlt& p2, double d) {
 	//return GreatCircle.linear_initial(p1, initial_course(p1,p2), d);
 	double dist = angular_distance(p1,p2);
 	double f = angle_from_distance(d)/dist;

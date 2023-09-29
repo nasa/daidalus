@@ -56,7 +56,7 @@ namespace larcfm {
   void Projection::setProjectionType(ProjectionType t) {  }
 
 
-  ProjectionType Projection::getProjectionTypeFromString(std::string s) {
+  ProjectionType Projection::getProjectionTypeFromString(const std::string& s) {
 	  ProjectionType p = UNKNOWN_PROJECTION;
 	  if (toLowerCase(s).compare("simple") == 0) {
 		  p = SIMPLE;

@@ -17,31 +17,31 @@
 
 namespace larcfm {
 
-ConflictData::ConflictData(double t_in, double t_out, double t_crit, double d_crit, const Vect3& s, const Vect3& v) : LossData(t_in, t_out) {
-  time_crit = t_crit;
-  dist_crit = d_crit;
-  s_ = s;
-  v_ = v;
-}
+ConflictData::ConflictData(double t_in, double t_out, double t_crit, double d_crit, const Vect3& s, const Vect3& v) : 
+              LossData(t_in, t_out),
+              time_crit(t_crit), 
+              dist_crit(d_crit), 
+              s_(s), 
+              v_(v) {}
 
-ConflictData::ConflictData() {
-  time_crit = PINFINITY;
-  dist_crit = PINFINITY;
-  s_ = Vect3::INVALID();
-  v_ = Vect3::INVALID();
-}
+ConflictData::ConflictData() : 
+              time_crit(PINFINITY), 
+              dist_crit(PINFINITY), 
+              s_(Vect3::INVALID()), 
+              v_(Vect3::INVALID()) {}
+
 
 const ConflictData& ConflictData::EMPTY() {
   static ConflictData tmp;
   return tmp;
 }
 
-ConflictData::ConflictData(const LossData& ld, double t_crit, double d_crit, const Vect3& s, const Vect3& v) : LossData(ld) {
-  time_crit = t_crit;
-  dist_crit = d_crit;
-  s_ = s;
-  v_ = v;
-}
+ConflictData::ConflictData(const LossData& ld, double t_crit, double d_crit, const Vect3& s, const Vect3& v) : 
+              LossData(ld), 
+              time_crit(t_crit), 
+              dist_crit(d_crit), 
+              s_(s), 
+              v_(v) {}
 
 /**
  * Returns internal vector representation of relative aircraft position.

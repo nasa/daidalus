@@ -14,8 +14,7 @@
 
 namespace larcfm {
 
-DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) {
-  sr_ = SequenceReader(filename);
+DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) : sr_(SequenceReader(filename)) {
   init();
 }
 

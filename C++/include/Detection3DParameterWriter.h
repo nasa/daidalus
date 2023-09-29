@@ -26,7 +26,7 @@ class Detection3DParameterWriter {
 	 * @param res resolution instance -- this may be null
 	 * Note: this may modify the instance identifiers if they are not already unique.
 	 */
-    static ParameterData writeCoreDetection(std::vector<Detection3D*> dlist, Detection3D* det, Detection3D* res);
+    static ParameterData writeCoreDetection(std::vector<Detection3D*>& dlist, Detection3D* det, Detection3D* res);
 	/**
 	 * Return a ParameterData suitable to be read by readCoreDetection() based on the supplied Detection3D instances. 
 	 * @param dlist list of Detection3D instances -- this may be empty.  det and res instances will be automatically added to the list (if they are not already in it)
@@ -34,7 +34,7 @@ class Detection3DParameterWriter {
 	 * @param res resolution instance -- this may be null
 	 * @param ordered true to modify detection identifiers to ensure they retain the input list's ordering when decoded, false will only modify identifiers if they are not unique
 	 */
-    static ParameterData writeCoreDetection(std::vector<Detection3D*> dlist, Detection3D* det, Detection3D* res, bool ordered);
+    static ParameterData writeCoreDetection(std::vector<Detection3D*>& dlist, Detection3D* det, Detection3D* res, bool ordered);
 
     /**
      * This removes all standard core detection parameters from a ParameterData object

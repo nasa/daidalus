@@ -15,15 +15,11 @@
 
 namespace larcfm {
 
-FixedAircraftUrgencyStrategy::FixedAircraftUrgencyStrategy() {
-  ac_ = TrafficState::INVALID().getId();
-}
+FixedAircraftUrgencyStrategy::FixedAircraftUrgencyStrategy() : ac_(TrafficState::INVALID().getId()) {}
 
-FixedAircraftUrgencyStrategy::FixedAircraftUrgencyStrategy(const std::string& id) {
-  ac_ = id;
-}
+FixedAircraftUrgencyStrategy::FixedAircraftUrgencyStrategy(const std::string& id) : ac_(id) {}
 
-std::string FixedAircraftUrgencyStrategy::getFixedAircraftId() const {
+const std::string& FixedAircraftUrgencyStrategy::getFixedAircraftId() const {
   return ac_;
 }
 

@@ -115,7 +115,7 @@ public class ParameterData {
 		p.unitCompatibility = unitCompatibility;
 		for (Map.Entry<String,ParameterEntry> entry : parameters.entrySet()) {
 			String keylc = entry.getKey().toLowerCase();
-			if (keylc.indexOf(prefixlc) == 0) {
+			if (keylc.startsWith(prefixlc)) {
 				p.parameters.put(entry.getKey().substring(prefix.length()), ParameterEntry.make(entry.getValue())); // make sure this is a copy
 			}
 		}

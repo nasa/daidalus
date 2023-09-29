@@ -850,7 +850,7 @@ const Alerter& Daidalus::getAlerterAt(int i) const {
 /**
  * Return index of alerter with a given name. Return 0 if it doesn't exist
  */
-int Daidalus::getAlerterIndex(std::string id) const {
+int Daidalus::getAlerterIndex(const std::string& id) const {
   return core_.parameters.getAlerterIndex(id);
 }
 
@@ -1231,7 +1231,7 @@ double Daidalus::getVerticalRate() const {
 /**
  * @return the vertical climb/descend rate for altitude bands in specified units [u].
  */
-double Daidalus::getVerticalRate(std::string u) const {
+double Daidalus::getVerticalRate(const std::string& u) const {
   return core_.parameters.getVerticalRate(u);
 }
 
@@ -1611,7 +1611,7 @@ void Daidalus::setBelowRelativeHorizontalSpeed(double val) {
  * Set horizontal speed in given units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeHorizontalSpeed(double val,std::string u) {
+void Daidalus::setBelowRelativeHorizontalSpeed(double val,const std::string& u) {
   core_.parameters.setBelowRelativeHorizontalSpeed(val,u);
   reset();
 }
@@ -2371,7 +2371,7 @@ double Daidalus::getHorizontalVelocityZDistance() const {
 /**
  * @return Distance (in given units) at which h_vel_z_score scales from min to max as range decreases
  */
-double Daidalus::getHorizontalVelocityZDistance(std::string u) const {
+double Daidalus::getHorizontalVelocityZDistance(const std::string& u) const {
   return core_.parameters.getHorizontalVelocityZDistance(u);
 }
 
@@ -2435,7 +2435,7 @@ double Daidalus::getHorizontalContourThreshold() const {
  * the left/right of current aircraft direction. A value of 0 means only conflict contours.
  * A value of pi means all contours.
  */
-double Daidalus::getHorizontalContourThreshold(std::string u) const {
+double Daidalus::getHorizontalContourThreshold(const std::string& u) const {
   return core_.parameters.getHorizontalContourThreshold(u);
 }
 

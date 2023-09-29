@@ -495,7 +495,7 @@ bool Position::LoS(const Position& p2, double D, double H) {
 	return (distH < D && distV < H);
 }
 
-bool Position::collinear(Position p1, Position p2) const {
+bool Position::collinear(const Position& p1, const Position& p2) const {
 	if (latlon)
 		return GreatCircle::collinear(lla(),p1.lla(),p2.lla());
 	else

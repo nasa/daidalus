@@ -26,7 +26,7 @@ private:
 public:
   FixedAircraftUrgencyStrategy();
   explicit FixedAircraftUrgencyStrategy(const std::string& id);
-  std::string getFixedAircraftId() const;
+  const std::string& getFixedAircraftId() const;
   void setFixedAircraftId(const std::string& id);
   /**
    * @return index of aircraft id

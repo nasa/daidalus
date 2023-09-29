@@ -404,7 +404,7 @@ double Util::to_180(double deg) {
 }
 
 
-bool Util::less_or_equal(std::string s1, std::string s2) {
+bool Util::less_or_equal(const std::string& s1, const std::string& s2) {
 	if (s1.compare(s2) >= 0) return true;
 	return false;
 }

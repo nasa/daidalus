@@ -544,7 +544,7 @@ public:
   /**
    * Return index of alerter with a given name. Return 0 if it doesn't exist
    */
-  int getAlerterIndex(std::string id) const;
+  int getAlerterIndex(const std::string& id) const;
 
   /**
    * Clear all alert thresholds
@@ -819,7 +819,7 @@ public:
   /**
    * @return the vertical climb/descend rate for altitude bands in specified units [u].
    */
-  double getVerticalRate(std::string u) const;
+  double getVerticalRate(const std::string& u) const;
 
   /**
    * @return horizontal NMAC distance in internal units [m].
@@ -1077,7 +1077,7 @@ public:
    * Set horizontal speed in given units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeHorizontalSpeed(double val,std::string u);
+  void setBelowRelativeHorizontalSpeed(double val,const std::string& u);
 
   /**
    * Set horizontal speed in internal units (above current value) for the
@@ -1575,7 +1575,7 @@ public:
   /**
    * @return Distance (in given units) at which h_vel_z_score scales from min to max as range decreases
    */
-  double getHorizontalVelocityZDistance(std::string u) const;
+  double getHorizontalVelocityZDistance(const std::string& u) const;
 
   /**
    * @return Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
@@ -1619,7 +1619,7 @@ public:
    * the left/right of current aircraft direction. A value of 0 means only conflict contours.
    * A value of pi means all contours.
    */
-  double getHorizontalContourThreshold(std::string u) const;
+  double getHorizontalContourThreshold(const std::string& u) const;
 
   /**
    * Set horizontal contour threshold, specified in internal units [rad] [0 - pi] as an angle to

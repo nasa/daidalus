@@ -91,7 +91,7 @@ class AircraftState : public ErrorReporter {
 	double lastZeroTrackRateThreshold;
 
 
-    void init(std::string name, int buffer_size);
+    void init(const std::string& name, int buffer_size);
 
   // This inserts the given data at point i--no questions asked.  Everything
   // from index 0..i is shifted down one place. i is an external index
@@ -319,7 +319,7 @@ class AircraftState : public ErrorReporter {
 	 * Be sure to note if the returned projection point has a zero altitude or not.
 	 * @return the current projection object
 	 */
-    EuclideanProjection getProjection() const;
+    const EuclideanProjection& getProjection() const;
     
 
 
@@ -384,7 +384,7 @@ class AircraftState : public ErrorReporter {
 	 * @param v2 velocity of another aircraft
 	 * @return true, if close
 	 */
-	static bool closeEnough(Velocity v1, Velocity v2);
+	static bool closeEnough(const Velocity& v1, const Velocity& v2);
 
 	/** Last time when track rate was near zero
 	 * 

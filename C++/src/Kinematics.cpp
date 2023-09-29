@@ -139,7 +139,7 @@ std::pair<Vect3,Velocity> Kinematics::linear(const std::pair<Vect3,Velocity>& sv
 	return linear(sv0.first, sv0.second, t);
 }
 
-std::pair<Vect3,Velocity> Kinematics::linear(Vect3 so, Velocity vo, double t) {
+std::pair<Vect3,Velocity> Kinematics::linear(const Vect3& so, const Velocity& vo, double t) {
 	return std::pair<Vect3,Velocity>(so.linear(vo.vect3(),t),vo);
 }
 
@@ -634,7 +634,7 @@ bool Kinematics::testLoSGs(const Vect3& so, const Velocity& vo, const Velocity& 
  * Return the elevation angle (alternatively the negative glide-slope angle) for a climb (descent)
  * @return elevation angle [radians]
  */
-double Kinematics::elevationAngle(Velocity v) {
+double Kinematics::elevationAngle(const Velocity& v) {
 	return Util::atan2_safe(v.vs(), v.gs());
 }
 
@@ -1185,7 +1185,7 @@ std::pair<Vect3, Velocity> Kinematics::vsLevelOut(const std::pair<Vect3, Velocit
 //	return vsLevelOut(sv0, t, climbRate, targetAlt, a, -a, true);
 //}
 
-double Kinematics::trackFrom(Vect3 p1, Vect3 p2) {
+double Kinematics::trackFrom(const Vect3& p1, const Vect3& p2) {
 	return p2.Sub(p1).vect2().trk();
 }
 

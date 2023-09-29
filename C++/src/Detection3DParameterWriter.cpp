@@ -20,11 +20,11 @@ namespace larcfm {
 
 
 
-ParameterData Detection3DParameterWriter::writeCoreDetection(std::vector<Detection3D*> dlist, Detection3D* det, Detection3D* res) {
+ParameterData Detection3DParameterWriter::writeCoreDetection(std::vector<Detection3D*>& dlist, Detection3D* det, Detection3D* res) {
   return writeCoreDetection(dlist, det, res, false);
 }
 
-ParameterData Detection3DParameterWriter::writeCoreDetection(std::vector<Detection3D*> dlist, Detection3D* det, Detection3D* res, bool ordered) {
+ParameterData Detection3DParameterWriter::writeCoreDetection(std::vector<Detection3D*>& dlist, Detection3D* det, Detection3D* res, bool ordered) {
   // make sure det and res are in the list, if necessary
   if (det != NULL && std::find(dlist.begin(), dlist.end(),det) == dlist.end()) {
     dlist.push_back(det);

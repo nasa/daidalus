@@ -378,10 +378,6 @@ public class CriteriaCore {
 	/** Perform a symmetry calculation */
 	private static int breakSymmetry(Vect3 s, String ownship, String traffic) {
 		if (Util.almost_equals(s.z,0)) {
-			StringBuffer own = new StringBuffer(ownship);
-			ownship = own.reverse().toString();
-			StringBuffer traf = new StringBuffer(traffic);
-			traffic = traf.reverse().toString();
 			return Util.less_or_equal(ownship,traffic) ? 1 : -1;
 		} else if (s.z > 0) {
 			return 1;

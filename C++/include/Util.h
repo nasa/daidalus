@@ -468,7 +468,7 @@ public:
 	 * @param s2 another string
 	 * @return true, if s1 is less or equals to s2
 	 */
-	static bool less_or_equal(std::string s1, std::string s2);
+	static bool less_or_equal(const std::string& s1, const std::string& s2);
 
 	/**
 	 * Returns true if a turn from track angle alpha to track angle beta is

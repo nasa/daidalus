@@ -130,7 +130,7 @@ class Projection {
 	   * @param s name of projection type
 	   * @return projection type
 	   */
-	   static ProjectionType getProjectionTypeFromString(std::string s);
+	   static ProjectionType getProjectionTypeFromString(const std::string& s);
 
 	  /**
 	   * Return the current ProjectionType

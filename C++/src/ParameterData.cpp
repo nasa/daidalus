@@ -26,12 +26,11 @@ namespace larcfm {
 const std::string ParameterData::parenPattern = "[()]+";
 const std::string ParameterData::defaultEntrySeparator = "?";
 
-ParameterData::ParameterData() {
-	preserveUnits = false;
-	unitCompatibility = true;
-	parameters = paramtype();
-	listPatternStr = Constants::wsPatternBaseNoRegex;
-}
+ParameterData::ParameterData() : 
+				preserveUnits(false), 
+				unitCompatibility(true), 
+				listPatternStr(Constants::wsPatternBaseNoRegex), 
+				parameters(paramtype()) {}
 
 ParameterData ParameterData::make() {
 	return ParameterData();
@@ -59,7 +58,7 @@ ParameterData ParameterData::extractPrefix(const std::string& prefix) const {
 	for (paramtype::const_iterator pos = parameters.begin(); pos != parameters.end(); ++pos) {
 		std::string key = pos->first;
 		std::string keylc = toLowerCase(key);
-		if (keylc.find(prefixlc) == 0) {
+		if (startsWith(keylc,prefixlc)) {
 			p.parameters[key.substr(prefix.length())] = pos->second;
 		}
 	}
@@ -75,7 +74,7 @@ ParameterData ParameterData::removeKeysWithPrefix(const std::string& prefix) con
 	for (paramtype::const_iterator pos = parameters.begin(); pos != parameters.end(); ++pos) {
 		std::string key = pos->first;
 		std::string keylc = toLowerCase(key);
-		if (keylc.find(prefixlc) != 0) {
+		if (startsWith(keylc,prefixlc)) {
 			p.parameters[key] = pos->second;
 		}
 	}

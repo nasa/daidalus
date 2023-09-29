@@ -127,7 +127,7 @@ namespace larcfm {
 	 * Return the regular expression used to divide each line into columns.
 	 * @return pattern
 	 */
-    std::string getColumnDelimiters() const;
+    const std::string& getColumnDelimiters() const;
 
     void setFixedColumn(const std::string& widths, const std::string& nameList, const std::string& unitList);
       
@@ -308,39 +308,30 @@ namespace larcfm {
     
 
   private:
-    std::istream* reader;
-    
     mutable ErrorLog error;
-    bool header;         // header line read in
-    std::vector<std::string> header_str;    // header line raw string
-    bool bunits;          // units line read in
-    bool first_bunits;          // units line read in
-    std::vector<std::string> units_str;     // Units type
-    std::vector<double> units_factor;  // Units conversion value
-    std::vector<std::string> line_str;      // raw line
+	std::istream* reader;
 
+    bool header;          // header line read in
+	bool bunits;          // units line read in
+	bool first_bunits;    // units line read in
+    bool caseSensitive;
+	int linenum;
+    std::string patternStr;
     bool fixed_width;    // Instead of using a delimiter, use fixed width columns
-    std::vector<int> width_int;        // The width of columns
-
 	char quoteCharacter; 	// If a non-empty value, use that character to delimit complex string tokens
 	bool quoteCharDefined;	// because we don't have null
-
-    int linenum;
-    
-    bool caseSensitive;
-    
-    std::string patternStr;
-    
+	ParameterData parameters;
     std::string preambleImage;
 
-//    typedef std::map<std::string, Quad<std::string,double,std::string,bool> > paramtype;
-//    paramtype parameters;
+    std::vector<std::string> header_str;    // header line raw string
+    std::vector<std::string> units_str;     // Units type
+    std::vector<double> units_factor;       // Units conversion value
+    std::vector<std::string> line_str;      // raw line
+    std::vector<int> width_int;        // The width of columns
 
-    ParameterData parameters;
-    
     double getUnitFactor(int i) const;
     bool process_units(const std::string& str);
-    bool process_preamble(std::string str);
+    bool process_preamble(const std::string& str);
     void process_line(const std::string& str);
 	
     std::vector<std::string> processQuotes(const std::string& str) const; 

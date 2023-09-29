@@ -27,35 +27,34 @@ namespace larcfm {
 /**
  * Instantiates a new CD3D object.
  */
-CDCylinder::CDCylinder(const std::string& s) {
-  D_ = Units::from("nmi", 5.0);
-  H_ = Units::from("ft", 1000.0);
+CDCylinder::CDCylinder(const std::string& s) : 
+            D_(Units::from("nmi", 5.0)),
+            H_(Units::from("ft", 1000.0)),
+            id(s) {
   units_["D"] = "nmi";
   units_["H"] = "ft";
-  id = s;
 }
 
-CDCylinder::CDCylinder(const CDCylinder& cdc) {
-  D_ = cdc.D_;
-  H_ = cdc.H_;
-  units_ = cdc.units_;
-  id = cdc.id;
-}
+CDCylinder::CDCylinder(const CDCylinder& cdc) : 
+            D_(cdc.D_), 
+            H_(cdc.H_), 
+            units_(cdc.units_), 
+            id(cdc.id) {}
 
-CDCylinder::CDCylinder(double d, double h) {
-  D_ = std::abs(d);
-  H_ = std::abs(h);
+CDCylinder::CDCylinder(double d, double h) : 
+            D_(std::abs(d)), 
+            H_(std::abs(h)),
+            id("") {
   units_["D"] = "m";
   units_["H"] = "m";
-  id = "";
 }
 
-CDCylinder::CDCylinder(double d, const std::string& dunit, double h, const std::string& hunit) {
-  D_ = Units::from(dunit,std::abs(d));
-  H_ = Units::from(hunit,std::abs(h));
+CDCylinder::CDCylinder(double d, const std::string& dunit, double h, const std::string& hunit) :   
+            D_(Units::from(dunit,std::abs(d))),
+            H_(Units::from(hunit,std::abs(h))),
+            id("") {
   units_["D"] = dunit;
   units_["H"] = hunit;
-  id = "";
 }
 
 CDCylinder CDCylinder::make(double distance, const std::string& dUnits, double height, const std::string& hUnits) {

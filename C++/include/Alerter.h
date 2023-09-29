@@ -29,13 +29,13 @@ private:
 
 public:
 
-  Alerter();
-
   virtual ~Alerter() {}
 
   static const Alerter& INVALID();
 
   bool isValid() const;
+
+  Alerter();
 
   Alerter(const std::string& id);
 
@@ -258,7 +258,7 @@ public:
    * alerting time, and lookahead time. The single bands region is NEAR
    */
   static Alerter SingleBands(const Detection3D* detector, double alerting_time, double lookahead_time,
-      const std::string name="default");
+      const std::string& name="default");
 
   /**
    * @return alerting thresholds for ACCoRD's CD3D, i.e.,

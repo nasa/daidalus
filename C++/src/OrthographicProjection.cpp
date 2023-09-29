@@ -53,20 +53,11 @@ LatLonAlt OrthographicProjection::xy2spherical(double x, double y, double alt) c
 
 // OrthographicProjection
 
-OrthographicProjection::OrthographicProjection() {
-	projAlt = 0;
-	llaRef = LatLonAlt::ZERO();
-}
+OrthographicProjection::OrthographicProjection() : projAlt(0), llaRef(LatLonAlt::ZERO()) {}
 
-OrthographicProjection::OrthographicProjection(const LatLonAlt& lla) {
-	projAlt = lla.alt();
-	llaRef = lla;
-}
+OrthographicProjection::OrthographicProjection(const LatLonAlt& lla) : projAlt(lla.alt()), llaRef(lla) {}
 
-OrthographicProjection::OrthographicProjection(double lat, double lon, double alt) {
-	projAlt = alt;
-	llaRef = LatLonAlt::mk(lat, lon, alt);
-}
+OrthographicProjection::OrthographicProjection(double lat, double lon, double alt) : projAlt(alt), llaRef(LatLonAlt::mk(lat, lon, alt)) {}
 
 OrthographicProjection OrthographicProjection::makeNew(const LatLonAlt& lla) const {
 	return OrthographicProjection(lla);

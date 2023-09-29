@@ -429,7 +429,7 @@ public:
 	 */
 	bool LoS(const Position& p2, double D, double H);
 
-	bool collinear(Position p1, Position p2) const;
+	bool collinear(const Position& p1, const Position& p2) const;
 
 	std::string toUnitTest() const;
 

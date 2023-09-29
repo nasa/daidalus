@@ -391,7 +391,7 @@ namespace larcfm {
 	 * @param d    distance from point #1 [m]
      * @return a new position that is distance d from point #1
 	 */
-  static LatLonAlt linear_gc(LatLonAlt p1, LatLonAlt p2, double d);
+  static LatLonAlt linear_gc(const LatLonAlt& p1, const LatLonAlt& p2, double d);
 
 
 	/**

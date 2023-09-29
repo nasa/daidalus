@@ -26,14 +26,16 @@ namespace larcfm {
 
 class ConflictData : public LossData {
 
+public:
+
+  double  time_crit;   // relative time to critical point
+  double  dist_crit;   // distance or severity at critical point (0 is most critical, +inf is least severe)
+
 private:
   Vect3 s_; // Relative position
   Vect3 v_; // Relative velocity
 
 public:
-
-  double  time_crit;   // relative time to critical point
-  double  dist_crit;   // distance or severity at critical point (0 is most critical, +inf is least severe)
 
   std::string toString() const;
 

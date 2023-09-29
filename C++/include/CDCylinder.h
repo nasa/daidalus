@@ -61,10 +61,11 @@ namespace larcfm {
 class CDCylinder : public Detection3D {
 
 private:
-  std::string id;
-  std::map<std::string,std::string> units_;
+
   double D_;
   double H_;
+  std::map<std::string,std::string> units_;
+  std::string id;
 
 public:
 

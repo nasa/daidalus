@@ -55,14 +55,14 @@ namespace larcfm {
   std::string Fmb(bool b);
 
   /** Format a vector */
-  std::string FmVec(Vect2 v);
+  std::string FmVec(const Vect2& v);
   /** Format a vector */
-  std::string FmVec(Vect3 v);
+  std::string FmVec(const Vect3& v);
 
     /** Return a string 'n' long with 's' left-justified */
-  std::string padLeft(std::string s, int n);
+  std::string padLeft(const std::string& s, int n);
   /** Return a string 'n' long with 's' right-justified */
-  std::string padRight(std::string s, int n);
+  std::string padRight(const std::string& s, int n);
 
   /** Returns true/false string */
   std::string bool2str(bool b);
