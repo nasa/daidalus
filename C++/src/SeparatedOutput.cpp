@@ -79,15 +79,7 @@ namespace larcfm {
 	}
 
 	void SeparatedOutput::close() {
-		if (writer != NULL) {
-//			try {
-//				std::ofstream* fwriter = dynamic_cast<std::ofstream*>(writer);
-//				fwriter->close();
-//			} catch (std::bad_cast e) {
-//				// not an ofstream, so do nothing
-//			}
-			writer = NULL;
-		}
+		writer = NULL;
 	}
 
 	/** Return the heading for the given column */ 

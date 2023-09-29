@@ -430,7 +430,7 @@ bool TCAS3D::equals(Detection3D* d) const {
 
 bool TCAS3D::contains(const Detection3D* cd) const {
   if (larcfm::equals(getCanonicalClassName(), cd->getCanonicalClassName())) {
-    TCAS3D* d = (TCAS3D*)cd;
+    const TCAS3D* d = (TCAS3D*)cd;
     return table_.contains(d->table_);
   }
   return false;

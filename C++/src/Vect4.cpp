@@ -118,7 +118,7 @@ namespace larcfm {
 }
 
   const Vect4& Vect4::ZERO() {
-		static Vect4* v = new Vect4(0,0,0,0);
+		const static Vect4* v = new Vect4(0,0,0,0);
 		return *v;
   }
 

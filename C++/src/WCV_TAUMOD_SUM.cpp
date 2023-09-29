@@ -411,7 +411,7 @@ std::string WCV_TAUMOD_SUM::getSimpleClassName() const {
   return "WCV_TAUMOD_SUM";
 }
 
-bool WCV_TAUMOD_SUM::containsSUM(WCV_TAUMOD_SUM* wcv) const {
+bool WCV_TAUMOD_SUM::containsSUM(const WCV_TAUMOD_SUM* wcv) const {
   return h_pos_z_score_ == wcv->h_pos_z_score_ &&
       h_vel_z_score_min_ == wcv->h_vel_z_score_min_ &&
       h_vel_z_score_max_ == wcv->h_vel_z_score_max_ &&

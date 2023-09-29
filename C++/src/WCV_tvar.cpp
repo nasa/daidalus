@@ -156,7 +156,7 @@ LossData WCV_tvar::WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& s
   return LossData(time_in,time_out);
 }
 
-bool WCV_tvar::containsTable(WCV_tvar* wcv) const {
+bool WCV_tvar::containsTable(const WCV_tvar* wcv) const {
   return table.contains(wcv->table);
 }
 

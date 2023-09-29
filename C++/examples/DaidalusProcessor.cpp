@@ -9,13 +9,12 @@
 
 using namespace larcfm;
 
-DaidalusProcessor::DaidalusProcessor() {
-	from_ = -1;
-	to_ = -1;
-	relative_ = 0;
-	options_ = "";
-	ownship_ = "";
-}
+DaidalusProcessor::DaidalusProcessor() :
+	from_(-1),
+	to_(-1),
+	relative_(0),
+	options_(""),
+	ownship_("") {}
 
 double DaidalusProcessor::getFrom() const {
 	return from_;

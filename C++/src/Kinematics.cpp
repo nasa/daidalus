@@ -333,7 +333,6 @@ int isRightTurn(const Vect2& from, const Vect2& to) {
 	double detv = to.det(from);
 	if (detv < 0) return -1;
 	return 1;
-	return (detv < 0);
 }
 
 
@@ -1208,19 +1207,19 @@ Vect4 Kinematics::minDistBetweenTrk(const Vect3& so, const Velocity& vo, const V
 		Vect3 siAtTm = psvi.first;
 		Vect3 vtraf = psvi.second.vect3();
 		//fpln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
-		double dist = soAtTm.Sub(siAtTm).norm();
-		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		Vect3 s = soAtTm.Sub(siAtTm);
+		double dist = s.norm();
 		//fpln(" $$$$ minDistBetweenTrk: t = "+t+"  dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
+			double distH = s.vect2().norm();
+			double distV = std::abs(s.z);		
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
 			minT = t;
 		}
-		Vect3 s = soAtTm.Sub(siAtTm);
         bool divg = s.dot(vown.Sub(vtraf)) > 0;
-       if (divg) break;
+      	if (divg) break;
 
 	}
 	return Vect4(minDistH,minDist,minDistV,minT);
@@ -1252,12 +1251,13 @@ Vect4 Kinematics::minDistBetweenGs(const Vect3& so, const Velocity& vo, const Ve
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = Kinematics::gsAccelUntil(so, vo, t, nvo.gs(), gsAccelOwn).first;
 		Vect3 siAtTm = Kinematics::gsAccelUntil(si, vi, t, nvi.gs(), gsAccelTraf).first;
+		Vect3 s = soAtTm.Sub(siAtTm);
 		//fpln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
-		double dist = soAtTm.Sub(siAtTm).norm();
+		double dist = s.norm();
 		//fpln(" $$$$ minDistBetweenTrk: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
-			double distH = soAtTm.Sub(siAtTm).vect2().norm();
-			double distV = std::abs(soAtTm.Sub(siAtTm).z);
+			double distH = s.vect2().norm();
+			double distV = std::abs(s.z);
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1279,12 +1279,13 @@ Vect4 Kinematics::minDistBetweenGs(const Vect3& so, const Velocity& vo, const Ve
 	for (double t = 0; t < stopTime; t = t + step) {
 		Vect3 soAtTm = Kinematics::gsAccelUntil(so, vo, t, nvo.gs(), gsAccelOwn).first;
 		Vect3 siAtTm = si.linear(vi.vect3(),t);
+		Vect3 s = soAtTm.Sub(siAtTm);
 		//fpln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
-		double dist = soAtTm.Sub(siAtTm).norm();
-		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		double dist = s.norm();
 		//fpln(" $$$$ minDistBetweenTrk: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
+			double distH = s.vect2().norm();
+			double distV = std::abs(s.z);			
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1307,11 +1308,12 @@ Vect4 Kinematics::minDistBetweenVs(const Vect3& so, const Velocity& vo, const Ve
 		Vect3 soAtTm = Kinematics::vsAccelUntil(so, vo, t, nvo.vs(), vsAccelOwn).first;
 		Vect3 siAtTm = Kinematics::vsAccelUntil(si, vi, t, nvi.vs(), vsAccelTraf).first;
 		//fpln(" $$$$ minDistBetweenVs: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
-		double dist = soAtTm.Sub(siAtTm).norm();
-		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		Vect3 s = soAtTm.Sub(siAtTm);
+		double dist = s.norm();
 		//fpln(" $$$$ minDistBetweenVs: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
+			double distH = s.vect2().norm();
+			double distV = std::abs(s.z);			
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1332,11 +1334,12 @@ Vect4 Kinematics::minDistBetweenVs(const Vect3& so, const Velocity& vo, const Ve
 		Vect3 soAtTm = Kinematics::vsAccelUntil(so, vo, t, nvo.vs(), vsAccelOwn).first;
 		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		//fpln(" $$$$ minDistBetweenVs: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
-		double dist = soAtTm.Sub(siAtTm).norm();
-		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		Vect3 s = soAtTm.Sub(siAtTm);
+		double dist = s.norm();
 		//fpln(" $$$$ minDistBetweenVs: distV = "+Units.str("ft",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
+			double distH = s.vect2().norm();
+			double distV = std::abs(s.z);			
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;

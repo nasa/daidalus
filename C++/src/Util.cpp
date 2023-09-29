@@ -523,8 +523,8 @@ double Util::decimalDegrees(const std::string& degMinSec) {
  * Accepts hh:mm:ss, mm:ss, and ss.
  */
 double Util::parse_time(const string& s) {
-	double tm = -1;
 	try {
+		double tm = -1.0;
 		string patternStr = "[:]";
 		vector<std::string> fields2 = split(s, patternStr);
 		if (fields2.size() >= 3) {

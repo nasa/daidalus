@@ -509,10 +509,10 @@ void SeparatedInput::process_line(const string& str) {
 			idx = idx + width_int[i];
 		}
 	} else {
-		std::string str2 = str;
 		if (quoteCharDefined) {
 			fields = processQuotes(str);
 		} else {
+			std::string str2(str);
 			fields = split_regex(str2, patternStr);
 		}
 	}

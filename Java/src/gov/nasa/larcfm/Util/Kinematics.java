@@ -2871,10 +2871,10 @@ public final class Kinematics {
 			//f.pln(" $$$$ minDistBetweenTrk: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 			Vect3 s = soAtTm.Sub(siAtTm);
 			double dist = s.norm();
-			double distH = s.vect2().norm();
-			double distV = Math.abs(s.z);
 			//f.pln(" $$$$ minDistBetweenTrk: t = "+t+"  dist = "+Units.str("nm",dist));
 			if (dist < minDist) {               // compute distances at TCA in 3D
+				double distH = s.vect2().norm();
+				double distV = Math.abs(s.z);
 				minDist = dist;
 				minDistH = distH;
 				minDistV = distV;
@@ -2958,9 +2958,9 @@ public final class Kinematics {
 			//f.pln(" $$$$ minDistBetweenVs: soAtTm = "+f.sStr(soAtTm)+" siAtTm = "+f.sStr(siAtTm));
 			Vect3 s = soAtTm.Sub(siAtTm);
 			double dist = s.norm();
-			double distH = s.vect2().norm();
-			double distV = Math.abs(s.z);
 			if (dist < minDist) {               // compute distances at TCA in 3D
+				double distH = s.vect2().norm();
+				double distV = Math.abs(s.z);
 				minDist = dist;
 				minDistH = distH;
 				minDistV = distV;

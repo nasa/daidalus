@@ -74,7 +74,7 @@ public:
 
   LossData WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const;
 
-  bool containsTable(WCV_tvar* wcv) const;
+  bool containsTable(const WCV_tvar* wcv) const;
 
   virtual std::string toString() const;
   virtual std::string toPVS() const;

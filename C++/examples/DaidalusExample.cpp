@@ -287,7 +287,7 @@ void printHorizontalHazardZones(Daidalus& daa) {
   }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
   std::cout << "##" << std::endl;
   std::cout << "## " << Daidalus::release() << std::endl;
   std::cout << "##\n" << std::endl;

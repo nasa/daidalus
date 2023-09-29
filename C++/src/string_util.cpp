@@ -150,7 +150,7 @@ bool matches(const string& s, const string& rgx_str) {
 		//fpln("regex str="+rgx_str);
 		//fpln("split_regex s.size()="+Fm2(length));
 		while (count < length) {
-			string m2(cstr+count);
+			//string m2(cstr+count);
 			//fpln("str = "+m2);
 			//fpln("count = "+Fm2(count));
 			reti = regexec(&rgx, cstr+count, 1, matchptr, 0);

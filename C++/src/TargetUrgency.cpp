@@ -17,7 +17,7 @@
 
 namespace larcfm {
 
-bool TargetUrgency::mostUrgent(Detection3D* cd, const Vect3& so, const Vect3& vo, const Vect3& si1, const Vect3& vi1, const Vect3& si2, const Vect3& vi2, double B, double T) {
+bool TargetUrgency::mostUrgent(const Detection3D* cd, const Vect3& so, const Vect3& vo, const Vect3& si1, const Vect3& vi1, const Vect3& si2, const Vect3& vi2, double B, double T) {
   double cdist = so.distanceH(si1);
   ConflictData conflict = cd->conflictDetection(so, vo, si1, vi1, B, T);
   double tin = conflict.getTimeIn();

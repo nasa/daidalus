@@ -117,7 +117,7 @@ private:
 
   LossData vertical_WCV_uncertain_interval(double B, double T, double sz, double vz, double sz_err, double vz_err) const;
 
-  bool containsSUM(WCV_TAUMOD_SUM* wcv) const;
+  bool containsSUM(const WCV_TAUMOD_SUM* wcv) const;
 
   double relativeHorizontalPositionError(const TrafficState& own, const TrafficState& ac) const;
 

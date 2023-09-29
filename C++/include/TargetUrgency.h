@@ -34,7 +34,7 @@ class TargetUrgency  {
 
 public:
 
-static bool mostUrgent(Detection3D* cd, const Vect3& so, const Vect3& vo, const Vect3& si1, const Vect3& vi1, const Vect3& si2, const Vect3& vi2, double B, double T);
+static bool mostUrgent(const Detection3D* cd, const Vect3& so, const Vect3& vo, const Vect3& si1, const Vect3& vi1, const Vect3& si2, const Vect3& vi2, double B, double T);
 
   /**
    * Return a priority ranking value far an aircraft s.t. if two ranking values are compared, the lower (possibly negative)

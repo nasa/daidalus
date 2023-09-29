@@ -30,15 +30,15 @@ using std::runtime_error;
 static const bool NavPoint_DEBUG = false;
 
 const NavPoint& NavPoint::ZERO_LL() {
-	static NavPoint* v = new NavPoint(Position::ZERO_LL(), 0.0);
+	const static NavPoint* v = new NavPoint(Position::ZERO_LL(), 0.0);
 	return *v;
 }
 const NavPoint& NavPoint::ZERO_XYZ() {
-	static NavPoint* v = new NavPoint(Position::ZERO_XYZ(), 0.0);
+	const static NavPoint* v = new NavPoint(Position::ZERO_XYZ(), 0.0);
 	return *v;
 }
 const NavPoint& NavPoint::INVALID() {
-	static NavPoint* v = new NavPoint(Position::INVALID(), NaN);
+	const static NavPoint* v = new NavPoint(Position::INVALID(), NaN);
 	return *v;
 }
 

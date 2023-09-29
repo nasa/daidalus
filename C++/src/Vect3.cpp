@@ -263,12 +263,12 @@ bool Vect3::isInvalid() const {
 }
 
 const Vect3& Vect3::ZERO() {
-	static Vect3* v = new Vect3(0,0,0);
+	const static Vect3* v = new Vect3(0,0,0);
 	return *v;
 }
 
 const Vect3& Vect3::INVALID() {
-	static Vect3* v = new Vect3(NaN, NaN, NaN);
+	const static Vect3* v = new Vect3(NaN, NaN, NaN);
 	return *v;
 }
 

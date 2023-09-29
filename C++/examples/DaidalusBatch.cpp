@@ -125,7 +125,6 @@ int main(int argc, const char* argv[]) {
 			options += arga + " ";
 		} else if (startsWith(arga,"--out") || startsWith(arga,"-out") || arga == "-o") {
 			output = argv[++a];
-			arga = argv[a];
 		} else if (arga == "--verbose" || arga == "-verbose" || arga == "-v") {
 			walker.verbose = true;
 		} else if (arga == "--raw" || arga == "-raw" || arga == "-r") {

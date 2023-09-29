@@ -64,7 +64,7 @@ public:
 	/** Create a new SeparatedOutput from the given writer 
 	 * @param w writer object 
 	 * */
-	SeparatedOutput(std::ostream* w);
+	explicit SeparatedOutput(std::ostream* w);
 
 
 //    /** Copy Constructor.  This should not be used. */

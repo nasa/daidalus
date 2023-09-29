@@ -38,7 +38,7 @@ bool Vertical::operator != (const Vertical& v) const {  // strict disequality
 }
 
 const Vertical& Vertical::NoVerticalSolution() {
-  static Vertical* tmp = new Vertical();
+  const static Vertical* tmp = new Vertical();
   return *tmp;
 }
 

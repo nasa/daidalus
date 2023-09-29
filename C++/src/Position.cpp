@@ -32,15 +32,15 @@ const double minDist = 1E-9;
 // the follow is to avoid the static initialization fiasco
 
 const Position& Position::INVALID() {
-	static Position* pos = new Position(NaN, NaN, NaN);
+	const static Position* pos = new Position(NaN, NaN, NaN);
 	return *pos;
 }
 const Position& Position::ZERO_LL() {
-	static Position* pos = new Position(LatLonAlt::ZERO());
+	const static Position* pos = new Position(LatLonAlt::ZERO());
 	return *pos;
 }
 const Position& Position::ZERO_XYZ() {
-	static Position* pos = new Position(Vect3::ZERO());
+	const static Position* pos = new Position(Vect3::ZERO());
 	return *pos;
 }
 
