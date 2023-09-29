@@ -76,13 +76,13 @@ double Kinematics::turnRateByRadius(double speed, double R) {
 }
 
 
-double Kinematics::bankAngleByRadius(double speed, double R) {
+double Kinematics::bankAngleFromRadius(double speed, double R) {
 	if (R <= 0.0) return 0.0;
 	return Util::atan2_safe(speed*speed,(R*Units::gn));
 }
 
-double Kinematics::bankAngleByRadius(double speed, double R, bool turnRight) {
-	return Util::sign(turnRight)*bankAngleByRadius(speed, R);
+double Kinematics::bankAngleFromRadius(double speed, double R, bool turnRight) {
+	return Util::sign(turnRight)*bankAngleFromRadius(speed, R);
 }
 
 double Kinematics::bankAngleGoal(double track, double goalTrack, double signedBank) {

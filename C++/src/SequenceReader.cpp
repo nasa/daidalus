@@ -439,9 +439,7 @@ void SequenceReader::removeAircraft(const vector<string>& alist) {
 				sequenceTable[key].erase(a);
 			}
 		}
-		if (names.find(a) != names.end()) {
-			names.erase(a);
-		}
+		names.erase(a);
 		for (vector<string>::iterator pos = nameIndex.begin(); pos < nameIndex.end(); ++pos) {
 			if (equals(*pos,a)) {
 				nameIndex.erase(pos);

@@ -114,7 +114,7 @@ public:
    * @param  R     radius
    * @return       bank angle (positive)
    */
-	static double bankAngleByRadius(double speed,double R);
+	static double bankAngleFromRadius(double speed,double R);
 
   /** 
    * Calculates the bank angle used for a given turn radius and ground speed.   Assumes 
@@ -124,7 +124,7 @@ public:
    * @param turnRight true, if a right turn is desired
    * @return       bank angle (positive = turn right, negative = turn left)
    */
-	  static double bankAngleByRadius(double speed, double R, bool turnRight);
+	  static double bankAngleFromRadius(double speed, double R, bool turnRight);
 
   /**
    * Returns the calculated bank angle for a turn that has specified turnRate. Assumes 

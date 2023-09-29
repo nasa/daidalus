@@ -162,7 +162,7 @@ public final class Kinematics {
 	 * @param  R     radius (R &gt; 0.0)
 	 * @return       bank angle (positive)
 	 */
-	public static double bankAngleByRadius(double speed, double R) {
+	public static double bankAngleFromRadius(double speed, double R) {
 		if (R <= 0.0) return 0.0;
 		return Util.atan2_safe(speed*speed, (R*Units.gn));
 	}
@@ -175,8 +175,8 @@ public final class Kinematics {
 	 * @param turnRight true, if a right turn is desired
 	 * @return       bank angle (positive = turn right, negative = turn left)
 	 */
-	public static double bankAngleByRadius(double speed, double R, boolean turnRight) {
-		return Util.sign(turnRight)*bankAngleByRadius(speed, R);
+	public static double bankAngleFromRadius(double speed, double R, boolean turnRight) {
+		return Util.sign(turnRight)*bankAngleFromRadius(speed, R);
 	}
 
 	/**

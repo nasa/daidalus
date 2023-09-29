@@ -541,9 +541,7 @@ public class SequenceReader extends StateReader {
 					sequenceTable.get(key).remove(a);
 				}
 			}
-			if (names.contains(a)) {
-				names.remove(a);
-			}
+			names.remove(a);
 			nameIndex.remove(a);
 		}
 		setLastActive();

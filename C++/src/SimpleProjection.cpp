@@ -13,7 +13,6 @@
 #include "SimpleProjection.h"
 #include "LatLonAlt.h"
 #include "GreatCircle.h"
-//#include "UnitSymbols.h"
 #include "Util.h"
 #include "Constants.h"
 #include "format.h"
@@ -30,23 +29,23 @@ namespace larcfm {
     static const double tranLat = Units::from("deg", 85.0);
     
     
-    SimpleProjection::SimpleProjection() {
-      projLat = projLon = projAlt = projNorth = 0.0;
-    }
+    SimpleProjection::SimpleProjection() :
+      projLat(0.0),
+      projLon(0.0),
+      projAlt(0.0),
+      projNorth(false) {}
     
-    SimpleProjection::SimpleProjection(const LatLonAlt& lla) {
-        projLat = lla.lat();
-        projLon = lla.lon();
-        projAlt = lla.alt();
-        projNorth = projLat >= 0.0;
-    }
+    SimpleProjection::SimpleProjection(const LatLonAlt& lla) :
+        projLat(lla.lat()),
+        projLon(lla.lon()),
+        projAlt(lla.alt()),
+        projNorth(projLat >= 0.0) {}
     
-    SimpleProjection::SimpleProjection(double lat, double lon, double alt) {
-        projLat = lat;
-        projLon = lon;
-        projAlt = alt;
-        projNorth = projLat >= 0.0;
-    }
+    SimpleProjection::SimpleProjection(double lat, double lon, double alt) :
+        projLat(lat),
+        projLon(lon),
+        projAlt(alt),
+        projNorth(projLat >= 0.0) {}
     
     SimpleProjection SimpleProjection::makeNew(const LatLonAlt& lla) const {
       return SimpleProjection(lla);
