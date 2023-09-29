@@ -63,11 +63,11 @@ void Detection3DParameterReader::registerDefaults() {
   }
 }
 
-void Detection3DParameterReader::registerDetection3D(Detection3D* cd) {
+void Detection3DParameterReader::registerDetection3D(const Detection3D* cd) {
   registerDetection3D(cd,cd->getCanonicalClassName());
 }
 
-void Detection3DParameterReader::registerDetection3D(Detection3D* cd, const string& name) {
+void Detection3DParameterReader::registerDetection3D(const Detection3D* cd, const string& name) {
   if (registeredDetection3DClasses.find(name) == registeredDetection3DClasses.end()) {
     registeredDetection3DClasses[name] = cd->make();
   }

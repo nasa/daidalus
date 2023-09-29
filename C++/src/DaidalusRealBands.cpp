@@ -158,7 +158,7 @@ bool DaidalusRealBands::set_input(const DaidalusParameters& parameters, const Tr
 }
 
 bool DaidalusRealBands::kinematic_conflict(const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
-    Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags) {
+    const Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags) {
   return set_input(parameters,ownship,special_flags) &&
       any_red(detector,NULL,epsh,epsv,0.0,alerting_time,parameters,ownship,traffic);
 }
@@ -371,7 +371,7 @@ void DaidalusRealBands::saturateNoneIntervalSet(IntervalSet& noneset) const {
  * The epsilon parameters for coordinations are handled according to the recovery_case flag.
  */
 void DaidalusRealBands::compute_none_bands(IntervalSet& none_set_region, const std::vector<IndexLevelT>& ilts,
-    Detection3D* det, Detection3D* recovery,
+    const Detection3D* det, const Detection3D* recovery,
     bool recovery_case, double B, DaidalusCore& core) {
   saturateNoneIntervalSet(none_set_region);
   // Compute bands for given region
@@ -381,7 +381,7 @@ void DaidalusRealBands::compute_none_bands(IntervalSet& none_set_region, const s
     int alerter_idx = core.alerter_index_of(intruder);
     if (1 <= alerter_idx && alerter_idx <= core.parameters.numberOfAlerters()) {
       const Alerter& alerter = core.parameters.getAlerterAt(alerter_idx);
-      Detection3D* detector = (det == NULL ? alerter.getLevel(ilt_ptr->level).getCoreDetectionPtr() : det);
+      const Detection3D* detector = (det == NULL ? alerter.getLevel(ilt_ptr->level).getCoreDetectionPtr() : det);
       IntervalSet noneset2 = IntervalSet();
       double T = ilt_ptr->time_horizon;
       if (B > T) {
@@ -613,7 +613,7 @@ double DaidalusRealBands::last_time_to_maneuver(DaidalusCore& core, const Traffi
   int alert_level = core.parameters.correctiveAlertLevel(alert_idx);
   if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags()) && alert_level > 0) {
     const AlertThresholds& alertthr = core.parameters.getAlerterAt(alert_idx).getLevel(alert_level);
-    Detection3D* detector = alertthr.getCoreDetectionPtr();
+    const Detection3D* detector = alertthr.getCoreDetectionPtr();
     ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
     if (det.conflict()) {
       double pivot_red = det.getTimeIn();

@@ -140,7 +140,7 @@ private:
 
 public:
   bool kinematic_conflict(const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
-      Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags);
+      const Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags);
 
   int length(DaidalusCore& core);
 
@@ -225,7 +225,7 @@ private:
    * The epsilon parameters for coordinations are handled according to the recovery_case flag.
    */
   void compute_none_bands(IntervalSet& none_set_region, const std::vector<IndexLevelT>& ilts,
-      Detection3D* det, Detection3D* recovery,
+      const Detection3D* det, const Detection3D* recovery,
       bool recovery_case, double B, DaidalusCore& core);
 
   /**

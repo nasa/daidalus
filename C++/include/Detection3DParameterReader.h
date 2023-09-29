@@ -33,8 +33,8 @@ public:
   /**
    * Register a new Detection3D class with this reader.
    */
-  static void registerDetection3D(Detection3D* cd);
-  static void registerDetection3D(Detection3D* cd, const std::string& aternate_name);
+  static void registerDetection3D(const Detection3D* cd);
+  static void registerDetection3D(const Detection3D* cd, const std::string& aternate_name);
 
 
   /**

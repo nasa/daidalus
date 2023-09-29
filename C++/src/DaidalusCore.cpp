@@ -708,7 +708,7 @@ TrafficState DaidalusCore::recovery_ac() {
 bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_level, const TrafficState& intruder, int turning, int accelerating, int climbing) {
   const AlertThresholds& athr = alerter.getLevel(alert_level);
   if (athr.isValid()) {
-    Detection3D* detector = athr.getCoreDetectionPtr();
+    const Detection3D* detector = athr.getCoreDetectionPtr();
     std::map<std::string,HysteresisData>::iterator alerting_hysteresis_ptr = alerting_hysteresis_acs_.find(intruder.getId());
     double alerting_time = alerter.getLevel(alert_level).getAlertingTime();
     if (alerting_hysteresis_ptr != alerting_hysteresis_acs_.end() &&
