@@ -39,17 +39,12 @@ public:
   double current_time;
   /* Wind vector in TO direction */
   Vect3 wind_vector;
+  /* Kinematic bands parameters */
   DaidalusParameters parameters;
-
   /* Strategy for most urgent aircraft */
-  const UrgencyStrategy* get_urgency_strategy() const;
-  bool set_urgency_strategy(const UrgencyStrategy* strat);
+  std::unique_ptr<UrgencyStrategy> urgency_strategy;
 
-private:
-
-  /* Strategy for most urgent aircraft */
-  const UrgencyStrategy* urgency_strategy_;
-
+  private:
   /**** CACHED VARIABLES ****/
 
   /* Variable to control re-computation of cached values */
@@ -95,9 +90,9 @@ private:
 
 public:
   DaidalusCore();
-  virtual ~DaidalusCore() {
-    delete urgency_strategy_;
-  }
+
+  virtual ~DaidalusCore() {}
+
   DaidalusCore& operator=(const DaidalusCore& core);
 
   DaidalusCore(const DaidalusCore& core);

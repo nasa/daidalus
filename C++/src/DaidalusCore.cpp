@@ -30,7 +30,7 @@ DaidalusCore::DaidalusCore()
 , current_time(0)
 , wind_vector()
 , parameters()
-, urgency_strategy_(new NoneUrgencyStrategy())
+, urgency_strategy(new NoneUrgencyStrategy())
 , cache_(0) // Cached_ variables are cleared
 , acs_conflict_bands_(std::vector<std::vector<IndexLevelT> >(BandsRegion::NUMBER_OF_CONFLICT_BANDS)) {
   stale();
@@ -42,7 +42,7 @@ DaidalusCore::DaidalusCore(const Alerter& alerter)
 , current_time(0)
 , wind_vector()
 , parameters()
-, urgency_strategy_(new NoneUrgencyStrategy())
+, urgency_strategy(new NoneUrgencyStrategy())
 , cache_(0) // Cached_ variables are cleared
 , acs_conflict_bands_(std::vector<std::vector<IndexLevelT> >(BandsRegion::NUMBER_OF_CONFLICT_BANDS)) {
   parameters.addAlerter(alerter);
@@ -55,7 +55,7 @@ DaidalusCore::DaidalusCore(const Detection3D* det, double T)
 , current_time(0)
 , wind_vector()
 , parameters()
-, urgency_strategy_(new NoneUrgencyStrategy())
+, urgency_strategy(new NoneUrgencyStrategy())
 , cache_(0) // Cached_ variables are cleared
 , acs_conflict_bands_(std::vector<std::vector<IndexLevelT> >(BandsRegion::NUMBER_OF_CONFLICT_BANDS)) {
   parameters.addAlerter(Alerter::SingleBands(det,T,T));
@@ -69,7 +69,7 @@ DaidalusCore::DaidalusCore(const DaidalusCore& core)
 , current_time(core.current_time)
 , wind_vector(core.wind_vector)
 , parameters(core.parameters)
-, urgency_strategy_(core.urgency_strategy_->copy())
+, urgency_strategy(core.urgency_strategy->copy())
 , cache_(0) // Cached_ variables are cleared
 , acs_conflict_bands_(std::vector<std::vector<IndexLevelT> >(BandsRegion::NUMBER_OF_CONFLICT_BANDS)) {
   stale();
@@ -82,8 +82,7 @@ void DaidalusCore::copyFrom(const DaidalusCore& core) {
     current_time = core.current_time;
     wind_vector = core.wind_vector;
     parameters = core.parameters;
-    delete urgency_strategy_;
-    urgency_strategy_ = core.urgency_strategy_->copy();
+    urgency_strategy.reset(core.urgency_strategy->copy());
     // Cached_ variables are cleared
     cache_ = 0;
     stale();
@@ -94,21 +93,6 @@ DaidalusCore& DaidalusCore::operator=(const DaidalusCore& core) {
   copyFrom(core);
   return *this;
 }
-
-const UrgencyStrategy* DaidalusCore::get_urgency_strategy() const {
-  return urgency_strategy_;
-}
-
-bool DaidalusCore::set_urgency_strategy(const UrgencyStrategy* strat) {
-  if (strat != NULL) {
-    delete urgency_strategy_;
-    urgency_strategy_ = strat->copy();
-    stale();
-    return true;
-  }
-  return false;
-}
-
 
 /**
  *  Clear ownship and traffic data from this object.
@@ -249,7 +233,7 @@ void DaidalusCore::refresh_mua_eps() {
   if (cache_ < 0) {
     int muac = -1;
     if (!traffic.empty()) {
-      muac = urgency_strategy_->mostUrgentAircraft(ownship, traffic, parameters.getLookaheadTime());
+      muac = urgency_strategy->mostUrgentAircraft(ownship, traffic, parameters.getLookaheadTime());
     }
     if (muac >= 0) {
       most_urgent_ac_ = traffic[muac];

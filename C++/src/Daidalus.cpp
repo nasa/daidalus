@@ -708,17 +708,16 @@ void Daidalus::resetUncertainty(int ac_idx) {
 /**
  * @return strategy for computing most urgent aircraft.
  */
-const UrgencyStrategy* Daidalus::getUrgencyStrategy() const {
-  return core_.get_urgency_strategy();
+const UrgencyStrategy& Daidalus::getUrgencyStrategy() const {
+  return *core_.urgency_strategy;
 }
 
 /**
  * Set strategy for computing most urgent aircraft.
  */
-void Daidalus::setUrgencyStrategy(const UrgencyStrategy* strat) {
-  if (core_.set_urgency_strategy(strat)) {
-    stale_bands();
-  }
+void Daidalus::setUrgencyStrategy(const UrgencyStrategy& strat) {
+  core_.urgency_strategy.reset(strat.copy());
+  reset();
 }
 
 /**

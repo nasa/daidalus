@@ -454,12 +454,12 @@ public:
   /**
    * @return strategy for computing most urgent aircraft.
    */
-  const UrgencyStrategy* getUrgencyStrategy() const;
+  const UrgencyStrategy& getUrgencyStrategy() const;
 
   /**
    * Set strategy for computing most urgent aircraft.
    */
-  void setUrgencyStrategy(const UrgencyStrategy* strat);
+  void setUrgencyStrategy(const UrgencyStrategy& strat);
 
   /**
    * @return most urgent aircraft.
