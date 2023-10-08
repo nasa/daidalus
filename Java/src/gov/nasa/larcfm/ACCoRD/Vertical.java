@@ -10,8 +10,6 @@ package gov.nasa.larcfm.ACCoRD;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
-//import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
 import static gov.nasa.larcfm.ACCoRD.Consts.*;

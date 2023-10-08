@@ -10,7 +10,6 @@ import java.util.List;
 
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
-import gov.nasa.larcfm.Util.Velocity;
 
 /* 
  * Most urgent strategy based on distance at closest point of approach. When this distance is less than the minimum 
