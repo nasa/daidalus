@@ -48,7 +48,7 @@ public:
    * Beware of this constructor. From this point on, AlertThresholds owns
    * this Detection3D pointer.
    */
-  AlertThresholds(Detection3D* det);
+  explicit AlertThresholds(Detection3D* det);
 
   /**
    * Creates an alert threholds object. Parameter det is a detector,

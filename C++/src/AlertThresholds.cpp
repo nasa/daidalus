@@ -12,8 +12,6 @@
 #include "ConflictData.h"
 #include "format.h"
 
-#include <memory>
-
 namespace larcfm {
 
 /**
@@ -48,9 +46,8 @@ AlertThresholds::AlertThresholds(const AlertThresholds& athr) :
                             spread_hdir_(athr.spread_hdir_),
                             spread_hs_(athr.spread_hs_),
                             spread_vs_(athr.spread_vs_),
-                            spread_alt_(athr.spread_alt_) {
-  units_ = athr.units_;
-}
+                            spread_alt_(athr.spread_alt_),
+                            units_(athr.units_) {}
 
 AlertThresholds::AlertThresholds() :
                       alerting_time_(0.0),
