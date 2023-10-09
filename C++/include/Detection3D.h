@@ -28,6 +28,10 @@ class Detection3D : public ParameterAcceptor {
 public:
   virtual ~Detection3D() = 0;
 
+  bool isValid() const {
+    return getSimpleClassName() != "";  
+  }
+
   /* Note: this interface might be better (i.e. more efficient and internally consistent) if all parameters are Euclidean Vect3s.
    * Internally, doing things like taking the dot product of positions and velocities is somewhat iffy from a type-consistency point
    * of view, and also potentially less efficient in C++, due to various type conversions (needs testing).

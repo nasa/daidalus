@@ -20,8 +20,9 @@ namespace larcfm {
  * early_alerting_time is a early alerting time >= at (for maneuver guidance),
  * region is the type of guidance
  */
-AlertThresholds::AlertThresholds(const Detection3D* detector,
+AlertThresholds::AlertThresholds(const Detection3D& detector,
     double alerting_time, double early_alerting_time, BandsRegion::Region region) :
+                                detector_(detector.copy()),
                                 alerting_time_(std::abs(alerting_time)),
                                 early_alerting_time_(Util::max(alerting_time_,early_alerting_time)),
                                 region_(region),
@@ -29,7 +30,6 @@ AlertThresholds::AlertThresholds(const Detection3D* detector,
                                 spread_hs_(0.0),
                                 spread_vs_(0.0),
                                 spread_alt_(0.0) {
-  detector_ = detector != NULL ? detector->copy() : NULL;
   units_["alerting_time"] = "s";
   units_["early_alerting_time"] = "s";
   units_["spread_hdir"] = "deg";
@@ -39,6 +39,7 @@ AlertThresholds::AlertThresholds(const Detection3D* detector,
 }
 
 AlertThresholds::AlertThresholds(const AlertThresholds& athr) :
+                            detector_(athr.detector_ ? athr.detector_->copy() : nullptr),
                             alerting_time_(athr.alerting_time_),
                             early_alerting_time_(athr.early_alerting_time_),
                             region_(athr.region_),
@@ -46,12 +47,31 @@ AlertThresholds::AlertThresholds(const AlertThresholds& athr) :
                             spread_hs_(athr.spread_hs_),
                             spread_vs_(athr.spread_vs_),
                             spread_alt_(athr.spread_alt_) {
-  detector_ = athr.isValid() ? athr.detector_->copy() : NULL;
   units_ = athr.units_;
 }
 
 AlertThresholds::AlertThresholds() :
-                      detector_(NULL),
+                      alerting_time_(0.0),
+                      early_alerting_time_(0.0),
+                      region_(BandsRegion::UNKNOWN),
+                      spread_hdir_(0.0),
+                      spread_hs_(0.0),
+                      spread_vs_(0.0),
+                      spread_alt_(0.0) {
+  units_["alerting_time"] = "s";
+  units_["early_alerting_time"] = "s";
+  units_["spread_hdir"] = "deg";
+  units_["spread_hs"] = "m/s";
+  units_["spread_vs"] = "m/s";
+  units_["spread_alt"] = "m";
+}
+
+/** 
+ * Beware of this constructor. From this point on, AlertThresholds owns
+ * this Detection3D pointer.
+ */
+AlertThresholds::AlertThresholds(Detection3D* det) :
+                      detector_(det),
                       alerting_time_(0.0),
                       early_alerting_time_(0.0),
                       region_(BandsRegion::UNKNOWN),
@@ -68,24 +88,17 @@ AlertThresholds::AlertThresholds() :
 }
 
 const AlertThresholds& AlertThresholds::INVALID() {
-  static AlertThresholds athr;
+  const static AlertThresholds athr;
   return athr;
 }
 
-bool AlertThresholds::isValid() const {
-  return detector_ != NULL && region_ != BandsRegion::UNKNOWN;
-}
-
-AlertThresholds::~AlertThresholds() {
-  delete detector_;
-}
+AlertThresholds::~AlertThresholds() {}
 
 void AlertThresholds::copyFrom(const AlertThresholds& athr) {
   if (&athr != this) {
-    if (detector_ != NULL) {
-      delete detector_;
+    if (athr.detector_) {
+      detector_.reset(athr.detector_->copy());
     }
-    detector_ = athr.isValid() ? athr.detector_->copy() : NULL;
     alerting_time_ = athr.alerting_time_;
     early_alerting_time_ = athr.early_alerting_time_;
     region_ = athr.region_;
@@ -102,32 +115,22 @@ AlertThresholds& AlertThresholds::operator=(const AlertThresholds& athr) {
   return *this;
 }
 
+bool AlertThresholds::isValid() const {
+  return detector_ && region_ != BandsRegion::UNKNOWN;
+}
+
 /**
  * Return detector.
  */
-Detection3D* AlertThresholds::getCoreDetectionPtr() const {
-  return detector_;
-}
-
-Detection3D& AlertThresholds::getCoreDetectionRef() const {
+const Detection3D& AlertThresholds::getCoreDetection() const {
   return *detector_;
 }
 
 /**
  * Set detector.
  */
-void AlertThresholds::setCoreDetectionRef(const Detection3D& det) {
-  setCoreDetectionPtr(&det);
-}
-
-/**
- * Set detector.
- */
-void AlertThresholds::setCoreDetectionPtr(const Detection3D* det) {
-  if (detector_ != NULL) {
-    delete detector_;
-  }
-  detector_ = det != NULL ? det->copy() : NULL;
+void AlertThresholds::setCoreDetection(const Detection3D& det) {
+  detector_.reset(det.copy());
 }
 
 /**

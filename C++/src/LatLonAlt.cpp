@@ -178,15 +178,14 @@ std::string LatLonAlt::toString(const std::string& latunit, const std::string& l
 }
 
 const LatLonAlt& LatLonAlt::ZERO() {
-	const static LatLonAlt* v = new LatLonAlt(0,0,0);
-	return *v;
+	const static LatLonAlt v(0.0,0.0,0.0);
+	return v;
 }
 
 const LatLonAlt& LatLonAlt::INVALID(){
-	const static LatLonAlt* v = new LatLonAlt(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
-	return *v;
+	const static LatLonAlt v(NaN,NaN,NaN);
+	return v;
 }
-
 
 const LatLonAlt LatLonAlt::parse(const std::string& str) {
 	std::vector<std::string> fields = split(str, Constants::wsPatternParens);

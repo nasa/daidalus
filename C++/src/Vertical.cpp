@@ -19,15 +19,9 @@
 
 namespace larcfm {
 
-Vertical::Vertical() {
-  z = NaN;
-  udef = true;
-}
+Vertical::Vertical() : z(NaN), udef(true) {}
 
-Vertical::Vertical(const double vz) {
-  z = vz;
-  udef = false;
-}
+Vertical::Vertical(const double vz) : z(vz), udef(false) {}
 
 bool Vertical::operator == (const Vertical& v) const {  // strict equality
   return ! udef && ! v.udef && z==v.z;
@@ -38,8 +32,8 @@ bool Vertical::operator != (const Vertical& v) const {  // strict disequality
 }
 
 const Vertical& Vertical::NoVerticalSolution() {
-  const static Vertical* tmp = new Vertical();
-  return *tmp;
+  const static Vertical v;
+  return v;
 }
 
 Vertical Vertical::add_this(const double vz) {

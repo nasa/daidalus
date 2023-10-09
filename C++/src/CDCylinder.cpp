@@ -69,7 +69,7 @@ CDCylinder CDCylinder::mk(double distance, double height) {
  * @return one static CDCylinder
  */
 const CDCylinder& CDCylinder::A_CDCylinder() {
-  static CDCylinder cd3d;
+  const static CDCylinder cd3d;
   return cd3d;
 }
 

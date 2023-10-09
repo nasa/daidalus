@@ -122,7 +122,7 @@ public:
    * Construct a Daidalus object with the default parameters and one alerter with the
    * given detector and T (in seconds) as the alerting time, early alerting time, and lookahead time.
    */
-  Daidalus(const Detection3D* det, double T);
+  Daidalus(const Detection3D& det, double T);
 
   /* Destructor */
   virtual ~Daidalus() {}

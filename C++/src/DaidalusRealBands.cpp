@@ -19,6 +19,7 @@
 #include "DaidalusCore.h"
 #include "DaidalusParameters.h"
 #include "RecoveryInformation.h"
+#include "NoDetector.h"
 
 #include <cmath>
 #include <vector>
@@ -158,9 +159,9 @@ bool DaidalusRealBands::set_input(const DaidalusParameters& parameters, const Tr
 }
 
 bool DaidalusRealBands::kinematic_conflict(const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic,
-    const Detection3D* detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags) {
+    const Detection3D& detector, int epsh, int epsv, double alerting_time, const SpecialBandFlags& special_flags) {
   return set_input(parameters,ownship,special_flags) &&
-      any_red(detector,NULL,epsh,epsv,0.0,alerting_time,parameters,ownship,traffic);
+      any_red(detector,NoDetector::A_NoDetector(),epsh,epsv,0.0,alerting_time,parameters,ownship,traffic);
 }
 
 int DaidalusRealBands::length(DaidalusCore& core) {
@@ -278,10 +279,10 @@ void DaidalusRealBands::peripheral_aircraft(DaidalusCore& core, int conflict_reg
       BandsRegion::Region region = BandsRegion::regionFromOrder(BandsRegion::NUMBER_OF_CONFLICT_BANDS-conflict_region);
       int alert_level = alerter.alertLevelForRegion(region);
       if (alert_level > 0) {
-        const Detection3D* detector = alerter.getLevel(alert_level).getCoreDetectionPtr();
+        const Detection3D& detector = alerter.getLevel(alert_level).getCoreDetection();
         double alerting_time = Util::min(core.parameters.getLookaheadTime(),
             alerter.getLevel(alert_level).getAlertingTime());
-        ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
+        ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
         if (!det.conflictBefore(alerting_time) && kinematic_conflict(core.parameters,core.ownship,intruder,detector,
             core.epsilonH(false,intruder),core.epsilonV(false,intruder),alerting_time,
             core.getSpecialBandFlags())) {
@@ -371,7 +372,7 @@ void DaidalusRealBands::saturateNoneIntervalSet(IntervalSet& noneset) const {
  * The epsilon parameters for coordinations are handled according to the recovery_case flag.
  */
 void DaidalusRealBands::compute_none_bands(IntervalSet& none_set_region, const std::vector<IndexLevelT>& ilts,
-    const Detection3D* det, const Detection3D* recovery,
+    const Detection3D& det, const Detection3D& recovery,
     bool recovery_case, double B, DaidalusCore& core) {
   saturateNoneIntervalSet(none_set_region);
   // Compute bands for given region
@@ -381,15 +382,15 @@ void DaidalusRealBands::compute_none_bands(IntervalSet& none_set_region, const s
     int alerter_idx = core.alerter_index_of(intruder);
     if (1 <= alerter_idx && alerter_idx <= core.parameters.numberOfAlerters()) {
       const Alerter& alerter = core.parameters.getAlerterAt(alerter_idx);
-      const Detection3D* detector = (det == NULL ? alerter.getLevel(ilt_ptr->level).getCoreDetectionPtr() : det);
+      const Detection3D& detector = (!det.isValid() ? alerter.getLevel(ilt_ptr->level).getCoreDetection() : det);
       IntervalSet noneset2 = IntervalSet();
       double T = ilt_ptr->time_horizon;
       if (B > T) {
         // This case corresponds to recovery bands, where B is a recovery time.
         // If recovery time is greater than lookahead time for aircraft, then only
         // the internal cylinder is checked until this time.
-        if (recovery != NULL) {
-          none_bands(noneset2,recovery,NULL,
+        if (recovery.isValid()) {
+          none_bands(noneset2,recovery,NoDetector::A_NoDetector(),
               core.epsilonH(recovery_case,intruder),core.epsilonV(recovery_case,intruder),0,T,
               core.parameters,core.ownship,intruder);
         } else {
@@ -421,19 +422,17 @@ bool DaidalusRealBands::compute_recovery_bands(IntervalSet& none_set_region, con
   recovery_vertical_distance_ = NINFINITY;
   double T = core.parameters.getLookaheadTime();
   CDCylinder cd3d = CDCylinder::mk(core.parameters.getHorizontalNMAC(),core.parameters.getVerticalNMAC());
-  Detection3D* ocd3d = &cd3d;
-  compute_none_bands(none_set_region,ilts,ocd3d,NULL,true,0.0,core);
+  compute_none_bands(none_set_region,ilts,cd3d,NoDetector::A_NoDetector(),true,0.0,core);
   if (none_set_region.isEmpty()) {
     // If solid red, nothing to do. No way to kinematically escape using vertical speed without intersecting the
     // NMAC cylinder
     return false;
   } else {
     cd3d = CDCylinder::mk(core.minHorizontalRecovery(),core.minVerticalRecovery());
-    ocd3d = &cd3d;
     double factor = 1-core.parameters.getCollisionAvoidanceBandsFactor();
     while (cd3d.getHorizontalSeparation()  > core.parameters.getHorizontalNMAC() ||
         cd3d.getVerticalSeparation() > core.parameters.getVerticalNMAC()) {
-      compute_none_bands(none_set_region,ilts,ocd3d,NULL,true,0.0,core);
+      compute_none_bands(none_set_region,ilts,cd3d,NoDetector::A_NoDetector(),true,0.0,core);
       bool solidred = none_set_region.isEmpty();
       if (solidred && !core.parameters.isEnabledCollisionAvoidanceBands()) {
         // Saturated band and collision avoidance is not enabled. Nothing to do here.
@@ -444,7 +443,7 @@ bool DaidalusRealBands::compute_recovery_bands(IntervalSet& none_set_region, con
         double pivot_green = T+1;
         double pivot = pivot_green-1;
         while ((pivot_green-pivot_red) > 0.5) {
-          compute_none_bands(none_set_region,ilts,NULL,ocd3d,true,pivot,core);
+          compute_none_bands(none_set_region,ilts,NoDetector::A_NoDetector(),cd3d,true,pivot,core);
           solidred = none_set_region.isEmpty();
           if (solidred) {
             pivot_red = pivot;
@@ -460,7 +459,7 @@ bool DaidalusRealBands::compute_recovery_bands(IntervalSet& none_set_region, con
         } else {
           recovery_time = pivot_red;
         }
-        compute_none_bands(none_set_region,ilts,NULL,ocd3d,true,
+        compute_none_bands(none_set_region,ilts,NoDetector::A_NoDetector(),cd3d,true,
             recovery_time,core);
         solidred = none_set_region.isEmpty();
         if (!solidred) {
@@ -491,7 +490,7 @@ bool DaidalusRealBands::compute_region(std::vector<IntervalSet>& none_sets, int 
     return false;
   }
   compute_none_bands(none_sets[conflict_region], acs_bands_[conflict_region],
-      NULL,NULL,false,0.0,core);
+      NoDetector::A_NoDetector(),NoDetector::A_NoDetector(),false,0.0,core);
   if (get_recovery(core.parameters)) {
     if  (conflict_region <= corrective_region && none_sets[conflict_region].isEmpty()) {
       // Compute recovery bands
@@ -613,8 +612,8 @@ double DaidalusRealBands::last_time_to_maneuver(DaidalusCore& core, const Traffi
   int alert_level = core.parameters.correctiveAlertLevel(alert_idx);
   if (set_input(core.parameters,core.ownship,core.getSpecialBandFlags()) && alert_level > 0) {
     const AlertThresholds& alertthr = core.parameters.getAlerterAt(alert_idx).getLevel(alert_level);
-    const Detection3D* detector = alertthr.getCoreDetectionPtr();
-    ConflictData det = detector->conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
+    const Detection3D& detector = alertthr.getCoreDetection();
+    ConflictData det = detector.conflictDetectionWithTrafficState(core.ownship,intruder,0.0,core.parameters.getLookaheadTime());
     if (det.conflict()) {
       double pivot_red = det.getTimeIn();
       if (pivot_red == 0) {
@@ -625,8 +624,8 @@ double DaidalusRealBands::last_time_to_maneuver(DaidalusCore& core, const Traffi
       while ((pivot_red-pivot_green) > 0.5) {
         TrafficState ownship_at_pivot  = core.ownship.linearProjection(pivot);
         TrafficState intruder_at_pivot = intruder.linearProjection(pivot);
-        if (detector->violationAtWithTrafficState(ownship_at_pivot,intruder_at_pivot,0.0) ||
-            all_red(detector,NULL,0,0,0.0,core.parameters.getLookaheadTime(),
+        if (detector.violationAtWithTrafficState(ownship_at_pivot,intruder_at_pivot,0.0) ||
+            all_red(detector,NoDetector::A_NoDetector(),0,0,0.0,core.parameters.getLookaheadTime(),
                 core.parameters,ownship_at_pivot,intruder_at_pivot)) {
           pivot_red = pivot;
         } else {
@@ -732,7 +731,7 @@ void DaidalusRealBands::toIntervalSet(IntervalSet& noneset, const std::vector<In
  * The output parameter noneset has a list of non-conflict ranges orderd within [min,max]
  * values (or [0,mod] in the case of circular bands, i.e., when mod == 0).
  */
-void DaidalusRealBands::none_bands(IntervalSet& noneset, const Detection3D* conflict_det, const Detection3D* recovery_det,
+void DaidalusRealBands::none_bands(IntervalSet& noneset, const Detection3D& conflict_det, const Detection3D& recovery_det,
     int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   std::vector<Integerval> bands_int;
   int mino = maxdown(parameters,ownship);
@@ -743,7 +742,7 @@ void DaidalusRealBands::none_bands(IntervalSet& noneset, const Detection3D* conf
   toIntervalSet(noneset,bands_int,get_step(parameters),own_val(ownship));
 }
 
-bool DaidalusRealBands::any_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
+bool DaidalusRealBands::any_red(const Detection3D& conflict_det, const Detection3D& recovery_det,
     int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   int mino = maxdown(parameters,ownship);
   int maxo = maxup(parameters,ownship);
@@ -752,7 +751,7 @@ bool DaidalusRealBands::any_red(const Detection3D* conflict_det, const Detection
       B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 }
 
-bool DaidalusRealBands::all_red(const Detection3D* conflict_det, const Detection3D* recovery_det,
+bool DaidalusRealBands::all_red(const Detection3D& conflict_det, const Detection3D& recovery_det,
     int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   int mino = maxdown(parameters,ownship);
   int maxo = maxup(parameters,ownship);
@@ -761,12 +760,12 @@ bool DaidalusRealBands::all_red(const Detection3D* conflict_det, const Detection
       B,T,mino,maxo,parameters,ownship,traffic,epsh,epsv,0);
 }
 
-bool DaidalusRealBands::all_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
+bool DaidalusRealBands::all_green(const Detection3D& conflict_det, const Detection3D& recovery_det,
     int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   return !any_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
 }
 
-bool DaidalusRealBands::any_green(const Detection3D* conflict_det, const Detection3D* recovery_det,
+bool DaidalusRealBands::any_green(const Detection3D& conflict_det, const Detection3D& recovery_det,
     int epsh, int epsv, double B, double T, const DaidalusParameters& parameters, const TrafficState& ownship, const TrafficState& traffic) const {
   return !all_red(conflict_det,recovery_det,epsh,epsv,B,T,parameters,ownship,traffic);
 }

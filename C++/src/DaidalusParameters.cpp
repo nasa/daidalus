@@ -287,9 +287,9 @@ int DaidalusParameters::addAlerter(const Alerter& alerter) {
  */
 void DaidalusParameters::set_alerter_with_SUM_parameters(Alerter& alerter) {
   for (int level=1; level <= alerter.mostSevereAlertLevel(); ++level) {
-    Detection3D* det = alerter.getDetectorPtr(level);
-    if (det != NULL && larcfm::equals(det->getSimpleClassName(),"WCV_TAUMOD_SUM")) {
-      ((WCV_TAUMOD_SUM*)det)->set_global_SUM_parameters(*this);
+    const Detection3D& det = alerter.getDetector(level);
+    if (det.isValid() && larcfm::equals(det.getSimpleClassName(),"WCV_TAUMOD_SUM")) {
+      ((WCV_TAUMOD_SUM&)det).set_global_SUM_parameters(*this);
     }
   }
 }

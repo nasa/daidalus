@@ -15,15 +15,14 @@
 #include "BandsRegion.h"
 #include "ParameterData.h"
 #include "ParameterTable.h"
-#include "Detection3DAcceptor.h"
 #include <map>
 
 namespace larcfm {
 
-class AlertThresholds : public ParameterTable, Detection3DAcceptor {
+class AlertThresholds : public ParameterTable {
 
 private:
-  Detection3D* detector_; // State-based detector
+  std::unique_ptr<Detection3D> detector_; // State-based detector
   double  alerting_time_; // Alerting_time
   // If alerting_time > 0, alert is based on detection
   // If alerting_time = 0, alert is based on violation
@@ -41,9 +40,13 @@ public:
 
   static const AlertThresholds& INVALID();
 
-  bool isValid() const;
-
   AlertThresholds();
+
+  /** 
+   * Beware of this constructor. From this point on, AlertThresholds owns
+   * this Detection3D pointer.
+   */
+  AlertThresholds(Detection3D* det);
 
   /**
    * Creates an alert threholds object. Parameter det is a detector,
@@ -51,7 +54,7 @@ public:
    * early_alerting_time is a early alerting time >= at (for maneuver guidance),
    * region is the type of guidance
    */
-  AlertThresholds(const Detection3D* det,
+  AlertThresholds(const Detection3D& det,
       double alerting_time, double early_alerting_time,
       BandsRegion::Region region);
 
@@ -62,25 +65,17 @@ public:
   // needed because of pointer
   AlertThresholds& operator=(const AlertThresholds& athr);
 
-  /**
-   * Return detector reference.
-   */
-  Detection3D& getCoreDetectionRef() const;
+  bool isValid() const;
 
   /**
-   * Return detector pointer.
+   * Get detector
    */
-  Detection3D* getCoreDetectionPtr() const;
+  const Detection3D& getCoreDetection() const;
 
   /**
-   * Set detector as a reference.
+   * Set detector
    */
-  void setCoreDetectionRef(const Detection3D& det);
-
-  /**
-   * Set detector as a pointer.
-   */
-  void setCoreDetectionPtr(const Detection3D* det);
+  void setCoreDetection(const Detection3D& det);
 
   /**
    * Return alerting time in seconds.

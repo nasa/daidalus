@@ -99,7 +99,7 @@ public:
 
   explicit DaidalusCore(const Alerter& alerter);
 
-  DaidalusCore(const Detection3D* det, double T);
+  DaidalusCore(const Detection3D& det, double T);
 
   /**
    *  Clear ownship and traffic data from this object.

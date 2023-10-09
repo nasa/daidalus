@@ -49,7 +49,7 @@ DaidalusCore::DaidalusCore(const Alerter& alerter)
   stale();
 }
 
-DaidalusCore::DaidalusCore(const Detection3D* det, double T)
+DaidalusCore::DaidalusCore(const Detection3D& det, double T)
 : ownship()
 , traffic()
 , current_time(0)
@@ -492,9 +492,9 @@ int DaidalusCore::horizontal_contours(std::vector<std::vector<Position> >& blobs
       alert_level = parameters.correctiveAlertLevel(alerter_idx);
     }
     if (alert_level > 0) {
-      const Detection3D* detector = alerter.getDetectorPtr(alert_level);
-      if (detector != NULL) {
-        detector->horizontalContours(blobs,ownship,intruder,
+      const Detection3D& detector = alerter.getDetector(alert_level);
+      if (detector.isValid()) {
+        detector.horizontalContours(blobs,ownship,intruder,
             parameters.getHorizontalContourThreshold(),
             parameters.getLookaheadTime());
       } else {
@@ -525,9 +525,9 @@ int DaidalusCore::horizontal_hazard_zone(std::vector<Position>& haz, int idx, in
       alert_level = parameters.correctiveAlertLevel(alerter_idx);
     }
     if (alert_level > 0) {
-      const Detection3D* detector = alerter.getDetectorPtr(alert_level);
-      if (detector != NULL) {
-        detector->horizontalHazardZone(haz,
+      const Detection3D& detector = alerter.getDetector(alert_level);
+      if (detector.isValid()) {
+        detector.horizontalHazardZone(haz,
             (from_ownship ? ownship : intruder),
             (from_ownship ? intruder : ownship),
             (loss ? 0 : alerter.getLevel(alert_level).getAlertingTime()));
@@ -562,8 +562,8 @@ void DaidalusCore::conflict_aircraft(int conflict_region) {
       BandsRegion::Region region = BandsRegion::regionFromOrder(BandsRegion::NUMBER_OF_CONFLICT_BANDS-conflict_region);
       int alert_level = alerter.alertLevelForRegion(region);
       if (alert_level > 0) {
-        const Detection3D* detector =  alerter.getLevel(alert_level).getCoreDetectionPtr();
-        if (detector != NULL) {
+        const Detection3D& detector =  alerter.getLevel(alert_level).getCoreDetection();
+        if (detector.isValid()) {
           std::map<std::string,HysteresisData>::iterator alerting_hysteresis_ptr = alerting_hysteresis_acs_.find(intruder.getId());
           double alerting_time = alerter.getLevel(alert_level).getAlertingTime();
           if (alerting_hysteresis_ptr != alerting_hysteresis_acs_.end() &&
@@ -572,7 +572,7 @@ void DaidalusCore::conflict_aircraft(int conflict_region) {
               alerting_hysteresis_ptr->second.getLastValue() == alert_level) {
             alerting_time = alerter.getLevel(alert_level).getEarlyAlertingTime();
           }
-          ConflictData det = detector->conflictDetectionWithTrafficState(ownship,intruder,0.0,parameters.getLookaheadTime());
+          ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0.0,parameters.getLookaheadTime());
           if (det.conflict()) {
             if (det.conflictBefore(alerting_time)) {
               acs_conflict_bands_[conflict_region].push_back(IndexLevelT(ac,alert_level,parameters.getLookaheadTime()));
@@ -692,7 +692,7 @@ TrafficState DaidalusCore::recovery_ac() {
 bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_level, const TrafficState& intruder, int turning, int accelerating, int climbing) {
   const AlertThresholds& athr = alerter.getLevel(alert_level);
   if (athr.isValid()) {
-    const Detection3D* detector = athr.getCoreDetectionPtr();
+    const Detection3D& detector = athr.getCoreDetection();
     std::map<std::string,HysteresisData>::iterator alerting_hysteresis_ptr = alerting_hysteresis_acs_.find(intruder.getId());
     double alerting_time = alerter.getLevel(alert_level).getAlertingTime();
     if (alerting_hysteresis_ptr != alerting_hysteresis_acs_.end() &&
@@ -703,7 +703,7 @@ bool DaidalusCore::check_alerting_thresholds(const Alerter& alerter, int alert_l
     }
     int epsh = epsilonH(false,intruder);
     int epsv = epsilonV(false,intruder);
-    ConflictData det = detector->conflictDetectionWithTrafficState(ownship,intruder,0.0,parameters.getLookaheadTime());
+    ConflictData det = detector.conflictDetectionWithTrafficState(ownship,intruder,0.0,parameters.getLookaheadTime());
     if (det.conflictBefore(alerting_time)) {
       return true;
     }

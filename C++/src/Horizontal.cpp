@@ -29,8 +29,8 @@ Horizontal::Horizontal(const Vect2& v) : Vect2(v), k(1.0) {}
 Horizontal::Horizontal(double kk, const Vect2& v) : Vect2(v), k(kk) {}
 
 const Horizontal& Horizontal::NoHorizontalSolution() {
-  const static Horizontal* tmp = new Horizontal();
-  return *tmp;
+  const static Horizontal tmp;
+  return tmp;
 }
 
 bool Horizontal::undef() const {

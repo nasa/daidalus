@@ -263,13 +263,13 @@ bool Vect3::isInvalid() const {
 }
 
 const Vect3& Vect3::ZERO() {
-	const static Vect3* v = new Vect3(0,0,0);
-	return *v;
+	const static Vect3 v(0.0,0.0,0.0);
+	return v;
 }
 
 const Vect3& Vect3::INVALID() {
-	const static Vect3* v = new Vect3(NaN, NaN, NaN);
-	return *v;
+	const static Vect3 v(NaN, NaN, NaN);
+	return v;
 }
 
 Vect3 Vect3::parse(const std::string& s) {

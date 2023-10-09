@@ -15,7 +15,7 @@ import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
 
-public class AlertThresholds implements ParameterAcceptor, Detection3DAcceptor {
+public class AlertThresholds implements ParameterAcceptor {
 
 	private Detection3D detector_; // State-based detector  
 	private double alerting_time_; // Alerting_time

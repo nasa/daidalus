@@ -517,7 +517,9 @@ public class Alerter implements ParameterAcceptor {
 	 */
 	public void setLevel(int level, AlertThresholds thresholds) {
 		if (1 <= level && level <= levels_.size()) {
-			levels_.set(level-1,new AlertThresholds(thresholds));
+			AlertThresholds th = new AlertThresholds(thresholds);
+			th.getCoreDetection().setIdentifier("det_"+f.Fmi(level));
+			levels_.set(level-1,th);
 		} 
 	}
 
@@ -527,9 +529,9 @@ public class Alerter implements ParameterAcceptor {
 	public int addLevel(AlertThresholds thresholds) {
 		AlertThresholds th = new AlertThresholds(thresholds);
 		levels_.add(th);
-		int size = levels_.size();
-		th.getCoreDetection().setIdentifier("det_"+f.Fmi(size));
-		return size;
+		int sz = levels_.size();
+		th.getCoreDetection().setIdentifier("det_"+f.Fmi(sz));
+		return sz;
 	}
 
 	/** 

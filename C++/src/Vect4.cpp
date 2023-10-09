@@ -13,11 +13,9 @@
 
 namespace larcfm {
 
-  Vect4::Vect4(const double xx, const double yy, const double zz, const double tt) : x(xx), y(yy), z(zz), t(tt) {
-  }
+  Vect4::Vect4(const double xx, const double yy, const double zz, const double tt) : x(xx), y(yy), z(zz), t(tt) {}
 
-  Vect4::Vect4(const Vect3& v, double vt) : x(v.x), y(v.y), z(v.z), t(vt) {
-  }
+  Vect4::Vect4(const Vect3& v, double vt) : x(v.x), y(v.y), z(v.z), t(vt) {}
 
   bool Vect4::isZero() const {
     return x == 0.0 && y == 0.0 && z == 0.0 && t == 0.0;
@@ -118,8 +116,8 @@ namespace larcfm {
 }
 
   const Vect4& Vect4::ZERO() {
-		const static Vect4* v = new Vect4(0,0,0,0);
-		return *v;
+		const static Vect4 v(0.0,0.0,0.0,0.0);
+		return v;
   }
 
 

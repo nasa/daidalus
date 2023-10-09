@@ -257,7 +257,7 @@ public:
    * @return alerting thresholds for single bands given by detector,
    * alerting time, and lookahead time. The single bands region is NEAR
    */
-  static Alerter SingleBands(const Detection3D* detector, double alerting_time, double lookahead_time,
+  static Alerter SingleBands(const Detection3D& detector, double alerting_time, double lookahead_time,
       const std::string& name="default");
 
   /**
@@ -308,7 +308,7 @@ public:
   /**
    * @return detector for given alert level starting from 1.
    */
-  Detection3D* getDetectorPtr(int alert_level) const;
+  const Detection3D& getDetector(int alert_level) const;
 
   /**
    * Set the threshold values of a given alert level.

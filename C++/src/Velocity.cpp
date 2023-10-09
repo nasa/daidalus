@@ -191,13 +191,13 @@ bool Velocity::compare(const Velocity& v, double horizDelta, double vertDelta) c
 }
 
 const Velocity& Velocity::ZERO() {
-	const static Velocity* v = new Velocity();
-	return *v;
+	const static Velocity v;
+	return v;
 }
 
 const Velocity& Velocity::INVALID() {
-	const static Velocity* v = new Velocity(NaN,NaN,NaN,NaN,NaN);
-	return *v;
+	const static Velocity v(NaN,NaN,NaN,NaN,NaN);
+	return v;
 }
 
 /**

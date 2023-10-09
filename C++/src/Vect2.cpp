@@ -341,15 +341,13 @@ bool Vect2::within_epsilon(const Vect2& v2, double epsilon) const {
 
 
 const Vect2& Vect2::ZERO() {
-	const static Vect2 *v = new Vect2(0, 0);
-	return *v;
+	const static Vect2 v(0.0,0.0);
+	return v;
 }
 
 const Vect2& Vect2::INVALID() {
-	const static Vect2 *v = new Vect2(NaN, NaN);
-	return *v;
+	const static Vect2 v(NaN,NaN);
+	return v;
 }
-
-
 
 }

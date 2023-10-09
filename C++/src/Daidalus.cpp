@@ -101,7 +101,7 @@ Daidalus::Daidalus(const Alerter& alerter) : error("Daidalus"), core_(alerter) {
  * Construct a Daidalus object with the default parameters and one alerter with the
  * given detector and T (in seconds) as the alerting time, early alerting time, and lookahead time.
  */
-Daidalus::Daidalus(const Detection3D* det, double T) : error("Daidalus"), core_(det,T) {}
+Daidalus::Daidalus(const Detection3D& det, double T) : error("Daidalus"), core_(det,T) {}
 
 /* Setting for WC Definitions RTCA DO-365 */
 
@@ -3837,9 +3837,9 @@ ConflictData Daidalus::violationOfAlertThresholds(int ac_idx, int alert_level) {
         alert_level = core_.parameters.correctiveAlertLevel(alerter_idx);
       }
       if (alert_level > 0) {
-        const Detection3D* detector = alerter.getDetectorPtr(alert_level);
-        if (detector != NULL) {
-          return detector->conflictDetectionWithTrafficState(core_.ownship,intruder,0.0,core_.parameters.getLookaheadTime());
+        const Detection3D& detector = alerter.getDetector(alert_level);
+        if (detector.isValid()) {
+          return detector.conflictDetectionWithTrafficState(core_.ownship,intruder,0.0,core_.parameters.getLookaheadTime());
         } else {
           error.addError("violationOfAlertThresholds: detector of traffic aircraft "+Fmi(ac_idx)+" is not set");
         }

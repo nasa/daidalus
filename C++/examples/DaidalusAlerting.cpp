@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
     return 0;
   }
   int corrective_level = daa.correctiveAlertLevel(1);
-  Detection3D* detector = daa.getAlerterAt(1).getDetectorPtr(corrective_level);
+  const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
   std::string uhor = daa.getUnitsOf("min_horizontal_recovery");
   std::string uver = daa.getUnitsOf("min_vertical_recovery");
   std::string uhs = daa.getUnitsOf("step_hs");
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
   }
   out << ", Horizontal Separation, Vertical Separation, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
   line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
-  if (detector != NULL && detector->getSimpleSuperClassName() == "WCV_tvar") {
+  if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
     out << ", Projected TAUMOD (WCV*)";
     line_units += ", [s]";
   }
@@ -275,8 +275,8 @@ int main(int argc, char* argv[]) {
         out << FmPrecision(tcoa);
       }
       out << ", ";
-      if (detector != NULL && detector->getSimpleSuperClassName() == "WCV_tvar") {
-        double tau_mod  = daa.modifiedTau(ac,((WCV_tvar*)detector)->getDTHR());
+      if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
+        double tau_mod  = daa.modifiedTau(ac,((WCV_tvar&)detector).getDTHR());
         if (tau_mod >= 0) {
           out << FmPrecision(tau_mod);
         }
