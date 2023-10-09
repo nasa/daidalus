@@ -15,7 +15,9 @@
 #include "BandsRegion.h"
 #include "ParameterData.h"
 #include "ParameterTable.h"
+
 #include <map>
+#include <memory>
 
 namespace larcfm {
 
