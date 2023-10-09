@@ -12,6 +12,8 @@
 #include "ConflictData.h"
 #include "format.h"
 
+#include <memory>
+
 namespace larcfm {
 
 /**
