@@ -272,30 +272,6 @@ public class CriteriaCore {
 			return horizontal_old_repulsive_criterion(s,vo,vi,nvo,eps);
 	}
 
-	// for debugging 
-	public static void print_horizontal_los_terms_SI(Vect2 s,  Vect2 vo, Vect2 vi, Vect2 nvo, int eps) {
-		Vect2 v = vo.Sub(vi);
-		Vect2 nv = nvo.Sub(vi);
-		boolean rtn1 = !s.isZero() && !nv.isZero()  &&
-				eps*s.det(v) <= 0 && eps*s.det(nv) < 0;
-		boolean rtn2 = (s.dot(v) < 0 &&  eps*nv.det(v) < 0);
-		boolean rtn3 =  (s.dot(v) >= 0 
-				&& (!v.isZero() || s.dot(nv) >= 0) 
-				&& (v.isZero() || s.dot(nv) > s.dot(v))
-				&& eps*nv.det(v) <= 0);   
-		f.pln("#### repulsiveCriteria, nvo = "+nvo+" vo = "+vo+" vi = "+vi);
-		f.pln("#### repulsiveCriteria: s = "+s+" eps*s.det(v) <= 0 = "+(eps*s.det(v) <= 0)+" eps*s.det(nv) <= 0 = "+(eps*s.det(nv) <= 0));
-		f.pln("#### repulsiveCriteria: s.dot(v) < 0 = "+(s.dot(v) < 0)+ "  eps*nv.det(v) < 0 = "+(eps*nv.det(v) < 0));
-		f.pln("#### repulsiveCriteria: eps = "+eps+ " s.dot(nv) >= 0 = "+(s.dot(nv) >=0));
-		f.pln("#### repulsiveCriteria: (s.dot(v) >=0 && s.dot(nv) >s.dot(v)) = "+((s.dot(v) >=0 && s.dot(nv) >s.dot(v))));
-		f.pln("#### repulsiveCriteria: s.det(v) = "+s.det(v)+"s.dot(v) = "+s.dot(v)+"  nv.det(v) = " +nv.det(v)+"  s.dot(nv) = " +s.dot(nv));
-		f.pln("#### rtn1 = "+rtn1+" rtn2 = "+rtn2+" rtn3 = "+rtn3);
-	}
-
-	public static void print_horizontal_los_terms_SI(Vect3 s,  Vect3 vo, Vect3 vi, Vect3 nvo, int eps) {
-		print_horizontal_los_terms_SI(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),eps);
-	}
-
 	/**
 	 * Checks whether a horizontal solution is repulsive or divergent in the turn direction indicated by nvo3
 	 *    @param s3      relative position of the ownship

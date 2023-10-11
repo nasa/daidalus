@@ -106,7 +106,7 @@ LatLonAlt OrthographicProjection::inverse(const Vect2& xy, double alt) const {
 }
 
 LatLonAlt OrthographicProjection::inverse(const Vect3& xyz) const {
-	return inverse(xyz.vect2(), xyz.z);
+	return inverse(xyz.vect2(), xyz.z());
 }
 
 Velocity OrthographicProjection::projectVelocity(const LatLonAlt& lla, const Velocity& v) const {

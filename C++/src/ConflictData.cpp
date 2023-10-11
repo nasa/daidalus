@@ -75,7 +75,7 @@ double ConflictData::HMD(const std::string& u, double T) const {
  * Returns VMD, in internal units, within lookahead time t, in seconds, assuming straight line trajectory.
  */
 double ConflictData::VMD(double T) const {
-  return Vertical::vmd(s_.z,v_.z,T);
+  return Vertical::vmd(s_.z(),v_.z(),T);
 }
 
 /**
@@ -126,7 +126,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Vertical separation in internal units at current time
  */
  double ConflictData::verticalSeparation() const {
-    return std::abs(s_.z);
+    return std::abs(s_.z());
 }
 
 /**
@@ -144,7 +144,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Vertical separation in internal units at given time
  */
  double ConflictData::verticalSeparationAtTime(double time) const {
-    return std::abs(s_.AddScal(time,v_).z);
+    return std::abs(s_.AddScal(time,v_).z());
 }
 
 /**
@@ -178,7 +178,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return time to co-altitude in seconds. Returns NaN is v_.z is zero.
  */
  double ConflictData::tcoa() const {
-    return Vertical::time_coalt(s_.z,v_.z);
+    return Vertical::time_coalt(s_.z(),v_.z());
 }
 
 /**
@@ -203,7 +203,7 @@ double ConflictData::VMD(const std::string& u, double T) const {
  * @return Vertical closure rate in internal units at current time
  */
  double ConflictData::verticalClosureRate() const {
-    return std::abs(v_.z);
+    return std::abs(v_.z());
 }
 
 /**

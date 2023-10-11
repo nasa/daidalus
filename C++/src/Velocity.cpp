@@ -36,10 +36,6 @@ Velocity::Velocity(const double vx, const double vy, const double vz) :
 
 Velocity::Velocity() : trk_(0.0),gs_(0.0),v_(Vect3::ZERO()) {}
 
-Vect2 Velocity::vect2() const {
-	return v_.vect2();
-}
-
 bool Velocity::isZero() const {
 	return v_.isZero();
 }
@@ -49,7 +45,7 @@ bool Velocity::isInvalid() const {
 }
 
 Velocity Velocity::make(const Vect3& v) {
-	return Velocity(v.x,v.y,v.z);
+	return Velocity(v.x(),v.y(),v.z());
 }
 
 Velocity Velocity::make(const Vect2& v) {
@@ -80,27 +76,27 @@ Velocity Velocity::mkVel(const Vect3& p1,const Vect3& p2, double speed) {
 }
 
 double Velocity::track(const Vect3& p1,const Vect3& p2) {
-	return Util::atan2_safe(p2.x-p1.x,p2.y-p1.y);
+	return Util::atan2_safe(p2.x()-p1.x(),p2.y()-p1.y());
 }
 
 Velocity Velocity::Neg() const {
-	return Velocity(to_pi(trk_+M_PI),gs_,-v_.x,-v_.y,-v_.z);
+	return Velocity(to_pi(trk_+M_PI),gs_,-v_.x(),-v_.y(),-v_.z());
 }
 
 Velocity Velocity::Add(const Vect3& v) const {
-    if (Util::almost_equals(v_.x,-v.x) && Util::almost_equals(v_.y,-v.y)) {
+    if (Util::almost_equals(v_.x(),-v.x()) && Util::almost_equals(v_.y(),-v.y())) {
         // Set to zero but maintain the original track
-		return Velocity(trk_,0.0,0.0,0.0,v_.z+v.z);
+		return Velocity(trk_,0.0,0.0,0.0,v_.z()+v.z());
     }
-    return mkVxyz(v_.x+v.x,v_.y+v.y,v_.z+v.z);
+    return mkVxyz(v_.x()+v.x(),v_.y()+v.y(),v_.z()+v.z());
 }
 
 Velocity Velocity::Sub(const Vect3& v) const {
-    if (Util::almost_equals(v_.x,v.x) && Util::almost_equals(v_.y,v.y)) {
+    if (Util::almost_equals(v_.x(),v.x()) && Util::almost_equals(v_.y(),v.y())) {
         // Set to zero but maintain the original track
-		return Velocity(trk_,0.0,0.0,0.0,v_.z-v.z);
+		return Velocity(trk_,0.0,0.0,0.0,v_.z()-v.z());
     }
-    return mkVxyz(v_.x-v.x,v_.y-v.y,v_.z-v.z);
+    return mkVxyz(v_.x()-v.x(),v_.y()-v.y(),v_.z()-v.z());
 }
 
 /**
@@ -118,7 +114,7 @@ Velocity Velocity::genVel(const Vect3& p1, const Vect3& p2, double dt) {
 Velocity Velocity::mkAddTrk(double atrk) const {
 	double s = sin(atrk);
 	double c = cos(atrk);
-    return Velocity(to_pi(trk_+atrk),gs_,v_.x*c+v_.y*s,-v_.x*s+v_.y*c,v_.z);
+    return Velocity(to_pi(trk_+atrk),gs_,v_.x()*c+v_.y()*s,-v_.x()*s+v_.y()*c,v_.z());
 }
 
 double Velocity::trkgs2vx(double trk, double gs) {
@@ -172,11 +168,11 @@ double Velocity::groundSpeed(const std::string& ugs) const {
 }
 
 double Velocity::vs() const {
-	return v_.z;
+	return v_.z();
 }
 
 double Velocity::verticalSpeed(const std::string& uvs) const {
-	return Units::to(uvs,v_.z);
+	return Units::to(uvs,v_.z());
 }
 
 bool Velocity::compare(const Velocity& v, double maxTrk, double maxGs, double maxVs) const {
@@ -187,7 +183,7 @@ bool Velocity::compare(const Velocity& v, double maxTrk, double maxGs, double ma
 }
 
 bool Velocity::compare(const Velocity& v, double horizDelta, double vertDelta) const {
-	return std::abs(v_.z-v.z()) <= vertDelta && vect2().Sub(v.vect2()).norm() <= horizDelta;
+	return std::abs(v_.z()-v.z()) <= vertDelta && vect2().Sub(v.vect2()).norm() <= horizDelta;
 }
 
 const Velocity& Velocity::ZERO() {
@@ -206,7 +202,7 @@ const Velocity& Velocity::INVALID() {
  * @return new velocity
  */
 Velocity Velocity::mkTrk(double trk) const {
-	return mkTrkGsVs(trk, gs_,v_.z);
+	return mkTrkGsVs(trk, gs_,v_.z());
 }
 
 /**
@@ -230,9 +226,9 @@ Velocity Velocity::mkGs(double ags) const {
 	}
    	if (gs_ > 0.0) {
     	double scal = ags/gs_;
-    	return Velocity(trk_,ags,v_.x*scal,v_.y*scal,v_.z);
+    	return Velocity(trk_,ags,v_.x()*scal,v_.y()*scal,v_.z());
     }
-    return mkTrkGsVs(trk_,ags,v_.z);  
+    return mkTrkGsVs(trk_,ags,v_.z());  
 }
 
 /**
@@ -252,7 +248,7 @@ Velocity Velocity::mkGs(double ags, std::string u) const {
  * @return
  */
 Velocity Velocity::mkVs(double vs) const {
-	return Velocity(trk_,gs_,v_.x, v_.y,vs);
+	return Velocity(trk_,gs_,v_.x(), v_.y(),vs);
 }
 
 /**
@@ -266,18 +262,14 @@ Velocity Velocity::mkVs(double vs, std::string u) const {
 }
 
 Velocity Velocity::zeroSmallVs(double threshold) const {
-	if (std::abs(v_.z) < threshold) {
+	if (std::abs(v_.z()) < threshold) {
 		return mkVs(0.0);
 	}
-	return Velocity(trk_,gs_,v_.x,v_.y,v_.z);
+	return Velocity(trk_,gs_,v_.x(),v_.y(),v_.z());
 }
 
 Velocity Velocity::parseXYZ(const std::string& str) {
 	return Velocity::make(Vect3::parse(str));
-}
-
-std::string Velocity::toUnitTest() const {
-	return "Velocity::mkTrkGsVs("  +Fm6(trk_)+", "+Fm6(gs_)+", "+Fm6(v_.z)+"); ";
 }
 
 std::string Velocity::toString() const {
@@ -285,7 +277,7 @@ std::string Velocity::toString() const {
 }
 
 std::string Velocity::toString(int prec) const {
-	 return"("+Units::str("deg",compassAngle(),prec)+", "+Units::str("knot",gs_,prec)+", "+Units::str("fpm",v_.z,prec)+")";
+	 return"("+Units::str("deg",compassAngle(),prec)+", "+Units::str("knot",gs_,prec)+", "+Units::str("fpm",v_.z(),prec)+")";
 }
 
 std::string Velocity::toStringUnits() const {
@@ -293,7 +285,7 @@ std::string Velocity::toStringUnits() const {
 }
 
 std::string Velocity::toStringUnits(const std::string& trkUnits, const std::string& gsUnits, const std::string& vsUnits) const {
-	return  "("+Units::str(trkUnits,compassAngle())+", "+ Units::str(gsUnits,gs_)+", "+ Units::str(vsUnits,v_.z)+")";
+	return  "("+Units::str(trkUnits,compassAngle())+", "+ Units::str(gsUnits,gs_)+", "+ Units::str(vsUnits,v_.z())+")";
 }
 
 std::string Velocity::toStringXYZ() const {
@@ -301,7 +293,7 @@ std::string Velocity::toStringXYZ() const {
 }
 
 std::string Velocity::toStringXYZ(int prec) const {
-	return "("+FmPrecision(Units::to("knot", v_.x),prec)+", "+FmPrecision(Units::to("knot", v_.y),prec)+", "+FmPrecision(Units::to("fpm", v_.z),prec)+")";
+	return "("+FmPrecision(Units::to("knot", v_.x()),prec)+", "+FmPrecision(Units::to("knot", v_.y()),prec)+", "+FmPrecision(Units::to("fpm", v_.z()),prec)+")";
 }
 
 std::vector<std::string> Velocity::toStringList() const {
@@ -313,7 +305,7 @@ std::vector<std::string> Velocity::toStringList() const {
 	} else {
 		ret.push_back(Fm12(Units::to("deg", compassAngle())));
 		ret.push_back(Fm12(Units::to("knot", gs_)));
-		ret.push_back(Fm12(Units::to("fpm", v_.z)));
+		ret.push_back(Fm12(Units::to("fpm", v_.z())));
 	}
 	return ret;
 }
@@ -327,7 +319,7 @@ std::vector<std::string> Velocity::toStringList(int precision) const {
 	} else {
 		ret.push_back(FmPrecision(Units::to("deg", compassAngle()),precision));
 		ret.push_back(FmPrecision(Units::to("knot", gs_),precision));
-		ret.push_back(FmPrecision(Units::to("fpm", v_.z),precision));
+		ret.push_back(FmPrecision(Units::to("fpm", v_.z()),precision));
 	}
 	return ret;
 }
@@ -339,9 +331,9 @@ std::vector<std::string> Velocity::toStringXYZList() const {
 		ret.push_back("-");
 		ret.push_back("-");
 	} else {
-		ret.push_back(Fm12(Units::to("knot", v_.x)));
-		ret.push_back(Fm12(Units::to("knot", v_.y)));
-		ret.push_back(Fm12(Units::to("fpm", v_.z)));
+		ret.push_back(Fm12(Units::to("knot", v_.x())));
+		ret.push_back(Fm12(Units::to("knot", v_.y())));
+		ret.push_back(Fm12(Units::to("fpm", v_.z())));
 	}
 	return ret;
 }
@@ -353,9 +345,9 @@ std::vector<std::string> Velocity::toStringXYZList(int precision) const {
 		ret.push_back("-");
 		ret.push_back("-");
 	} else {
-		ret.push_back(FmPrecision(Units::to("knot", v_.x),precision));
-		ret.push_back(FmPrecision(Units::to("knot", v_.y),precision));
-		ret.push_back(FmPrecision(Units::to("fpm", v_.z),precision));
+		ret.push_back(FmPrecision(Units::to("knot", v_.x()),precision));
+		ret.push_back(FmPrecision(Units::to("knot", v_.y()),precision));
+		ret.push_back(FmPrecision(Units::to("fpm", v_.z()),precision));
 	}
 	return ret;
 }
@@ -365,11 +357,11 @@ std::string Velocity::toStringNP() const {
 }
 
 std::string Velocity::toStringNP(int precision) const {
-	return FmPrecision(Units::to("deg", compassAngle()), precision)+", "+FmPrecision(Units::to("knot", gs_),precision)+", "+FmPrecision(Units::to("fpm", v_.z),precision);
+	return FmPrecision(Units::to("deg", compassAngle()), precision)+", "+FmPrecision(Units::to("knot", gs_),precision)+", "+FmPrecision(Units::to("fpm", v_.z()),precision);
 }
 
 std::string Velocity::toStringNP(const std::string& utrk, const std::string& ugs, const std::string& uvs, int precision) const {
-    return FmPrecision(Units::to(utrk, compassAngle()), precision)+", "+FmPrecision(Units::to(ugs,gs_),precision)+", "+FmPrecision(Units::to(uvs, v_.z), precision);
+    return FmPrecision(Units::to(utrk, compassAngle()), precision)+", "+FmPrecision(Units::to(ugs,gs_),precision)+", "+FmPrecision(Units::to(uvs, v_.z()), precision);
 }
 
 std::string Velocity::toStringNP(const std::string& utrk, const std::string& ugs, const std::string& uvs) const {

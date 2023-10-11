@@ -89,12 +89,12 @@ Vertical vs_at(const double sz, const double t,
 Vertical vs_only(const Vect3& s, const Vect2& v, const double t,
     const int eps, const double D, const double H) {
 
-  Vect2 s2 = s.vect2();
+  const Vect2& s2 = s.vect2();
 
-  if (eps*s.z < H && s2.sqv() > sq(D) && Horizontal::Delta(s2,v,D) > 0)
-    return vs_at(s.z,Horizontal::Theta_D(s2,v,larcfm::Entry,D),eps,H);
-  else if (eps*s.z >= H && t > 0)
-    return vs_at(s.z,t,eps,H);
+  if (eps*s.z() < H && s2.sqv() > sq(D) && Horizontal::Delta(s2,v,D) > 0)
+    return vs_at(s.z(),Horizontal::Theta_D(s2,v,larcfm::Entry,D),eps,H);
+  else if (eps*s.z() >= H && t > 0)
+    return vs_at(s.z(),t,eps,H);
   return Vertical::NoVerticalSolution();
 }
 
@@ -107,15 +107,15 @@ Vertical vs_only(const Vect3& s, const Vect2& v, const double t,
 Vertical Vertical::vs_circle(const Vect3& s, const Vect3& vo, const Vect3& vi,
     const int eps, const double D, const double H) {
 
-  Vect2 s2 = s.vect2();
-  Vect2 vo2 = vo.vect2();
-  Vect2 vi2 = vi.vect2();
+  const Vect2& s2 = s.vect2();
+  const Vect2& vo2 = vo.vect2();
+  const Vect2& vi2 = vi.vect2();
   Vect2 v2 = vo2-vi2;
 
-  if (vo2.almostEquals(vi2) && eps == sign(s.z))
-    return Vertical(vi.z);
+  if (vo2.almostEquals(vi2) && eps == sign(s.z()))
+    return Vertical(vi.z());
   else if (Horizontal::Delta(s2,v2,D) > 0)
-    return vs_only(s,v2,Horizontal::Theta_D(s2,v2,larcfm::Exit,D),eps,D,H).add_this(vi.z);
+    return vs_only(s,v2,Horizontal::Theta_D(s2,v2,larcfm::Exit,D),eps,D,H).add_this(vi.z());
   return NoVerticalSolution();
 }
 
@@ -131,11 +131,11 @@ Vertical Vertical::vs_los_recovery(const Vect3& s, const Vect3& vo, const Vect3&
   if (t <= 0)
     return NoVerticalSolution();
   Vect3 v = vo-vi;
-  double nvz = (epsv*H - s.z)/t;
-  if (s.z*v.z >= 0 && std::abs(v.z) >= std::abs(nvz))
-    return Vertical(vo.z);
+  double nvz = (epsv*H - s.z())/t;
+  if (s.z()*v.z() >= 0 && std::abs(v.z()) >= std::abs(nvz))
+    return Vertical(vo.z());
   else
-    return Vertical(nvz+vi.z);
+    return Vertical(nvz+vi.z());
 }
 
 std::string Vertical::toString() {

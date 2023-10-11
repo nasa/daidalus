@@ -143,7 +143,7 @@ public final class Position implements OutputList {
 	 * @return new position
 	 */
 	public static Position mkXYZ(double x, double y, double z) {
-		return make(Vect3.mk(x,y,z));
+		return make(Vect3.mkXYZ(x,y,z));
 	}
 
 	/**
@@ -324,7 +324,7 @@ public final class Position implements OutputList {
 //			Debug.error("Position.vect3",true);
 //		}
 		if (latlon) {
-			return Vect3.mk(ll.lon(), ll.lat(), ll.alt());			
+			return Vect3.mkXYZ(ll.lon(), ll.lat(), ll.alt());			
 		} else {
 			return s3;
 		}
@@ -1037,25 +1037,6 @@ public final class Position implements OutputList {
 		return (distH < D && distV < H);
 	}
 	
-	
-	public String toUnitTest() {
-		if (latlon) {
-			return "Position.makeLatLonAlt("+ f.Fm16(Units.to("deg",lat()))
-			       +", "+f.Fm16(Units.to("deg",lon()))+", "+f.Fm16(Units.to("ft",alt()))+")";
-		} else {
-			return "Position.makeXYZ("+(f.Fm16(Units.to("NM",x()))+", "+f.Fm16(Units.to("NM",y()))
-			       +", "	+f.Fm16(Units.to("ft",z()))+")");
-		}
-	}
-
-	public String toUnitTestSI() {
-		if (latlon) {
-			return "Position.mkLatLonAlt("+ f.Fm16(lat())+", "+f.Fm16(lon())+", "+f.Fm16(alt())+")";
-		} else {
-			return "Position.mkXYZ("+(f.Fm16(x())+", "+f.Fm16(y())+", "+f.Fm16(z())+")");
-		}
-	}
-
 	/** Return a string representation */
 	public String toString() {
 		return toString(Constants.get_output_precision());

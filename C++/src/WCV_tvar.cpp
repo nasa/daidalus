@@ -128,14 +128,14 @@ LossData WCV_tvar::WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& s
   double time_in = T;
   double time_out = B;
 
-  Vect2 so2 = so.vect2();
-  Vect2 si2 = si.vect2();
+  const Vect2& so2 = so.vect2();
+  const Vect2& si2 = si.vect2();
   Vect2 s2 = so2.Sub(si2);
-  Vect2 vo2 = vo.vect2();
-  Vect2 vi2 = vi.vect2();
+  const Vect2& vo2 = vo.vect2();
+  const Vect2& vi2 = vi.vect2();
   Vect2 v2 = vo2.Sub(vi2);
-  double sz = so.z-si.z;
-  double vz = vo.z-vi.z;
+  double sz = so.z()-si.z();
+  double vz = vo.z()-vi.z();
 
   Interval ii = wcv_vertical->vertical_WCV_interval(table.getZTHR(),table.getTCOA(),B,T,sz,vz);
 

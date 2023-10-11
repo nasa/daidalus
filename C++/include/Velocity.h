@@ -73,7 +73,7 @@ public:
 	/** Destructor */
 	virtual ~Velocity() { }
 
-	Vect2 vect2() const;
+	const Vect2& vect2() const { return v_.vect2(); }
 
 	bool isZero() const;
 
@@ -81,11 +81,11 @@ public:
 
 	const Vect3& vect3() const { return v_; }
 
-	double x() const { return v_.x; }
+	double x() const { return v_.x(); }
 
-	double y() const { return v_.y; }
+	double y() const { return v_.y(); }
 
-	double z() const { return v_.z; }
+	double z() const { return v_.z(); }
 
 	/**
 	 * Angle in explicit units in corresponding range [-<code>Math.PI</code>, <code>Math.PI</code>].
@@ -427,8 +427,6 @@ public:
 	 * @return Velocity object
 	 */
 	static Velocity parseXYZ(const std::string& str);
-
-	std::string toUnitTest() const;
 
 	/** String representation of the velocity in polar coordinates (compass angle and groundspeed)
 	 * @return a string representation

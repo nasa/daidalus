@@ -191,9 +191,9 @@ std::pair<Vect3,Velocity> Kinematics::turnOmega(const Vect3& s0, const Velocity&
 	// New implementation avoids calculating track and groundspeed,
 	// reduces trig functions to one sine and one cosine.
 	Velocity nv = v0.mkAddTrk(omega*t);
-	double xT = s0.x + (v0.y()-nv.y())/omega;
-	double yT = s0.y + (-v0.x()+nv.x())/omega;
-	double zT = s0.z + v0.z()*t;
+	double xT = s0.x() + (v0.y()-nv.y())/omega;
+	double yT = s0.y() + (-v0.x()+nv.x())/omega;
+	double zT = s0.z() + v0.z()*t;
 	Vect3 ns = Vect3(xT,yT,zT);
 	return std::pair<Vect3,Velocity>(ns,nv);
 }
@@ -403,7 +403,7 @@ Vect2 Kinematics::centerOfTurn(const Vect3& so, const Velocity& vo, double omega
 	double v = vo.gs();
 	double theta = vo.trk();
 	double R = v/omega;
-	return Vect2(so.x + R*std::cos(theta),so.y - R*std::sin(theta));
+	return Vect2(so.x() + R*std::cos(theta),so.y() - R*std::sin(theta));
 }
 
 
@@ -416,7 +416,7 @@ bool Kinematics::testLoSTrk(const Vect3& so, const Velocity& vo, const Velocity&
 		Vect3 soAtTm = turnUntilTrack(so, vo, t, nvo.trk(), bankAngOwn).first;
 		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		double distV = std::abs(soAtTm.Sub(siAtTm).z());
 		if (distH < D && distV< H) {
 			rtn =true;
 			break;
@@ -431,7 +431,7 @@ bool Kinematics::testLoSTrk(const Vect3& so, const Velocity& vo, const Velocity&
 Vect3 Kinematics::gsAccelPos(const Vect3& so3, const Velocity& vo3, double tm, double a) {
 	Vect2 so = so3.vect2();
 	Vect2 sK = so.Add(vo3.Hat2D().Scal(vo3.gs()*tm+0.5*a*tm*tm));
-	double nz = so3.z + vo3.z()*tm;
+	double nz = so3.z() + vo3.z()*tm;
 	return Vect3(sK,nz);
 }
 
@@ -619,7 +619,7 @@ bool Kinematics::testLoSGs(const Vect3& so, const Velocity& vo, const Velocity& 
 		Vect3 soAtTm = gsAccelUntil(so, vo, t, nvo.gs(), gsAccelOwn).first;
 		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		double distV = std::abs(soAtTm.Sub(siAtTm).z());
 		if (distH < D && distV < H) rtn =true;
 	}
 	return rtn;
@@ -639,7 +639,7 @@ double Kinematics::elevationAngle(const Velocity& v) {
 
 
 Vect3 Kinematics::vsAccelPos(const Vect3& so3, const Velocity& vo3, double t, double a) {
-	return Vect3(so3.x + t*vo3.x(), so3.y + t*vo3.y(), so3.z + vo3.z()*t + 0.5*a*t*t);
+	return Vect3(so3.x() + t*vo3.x(), so3.y() + t*vo3.y(), so3.z() + vo3.z()*t + 0.5*a*t*t);
 }
 
 std::pair<Vect3,Velocity> Kinematics::vsAccel(const Vect3& so3, const Velocity& vo3,  double t, double a) {
@@ -710,7 +710,7 @@ bool Kinematics::testLoSVs(const Vect3& so, const Velocity& vo, const Velocity& 
 		Vect3 soAtTm = vsAccelUntil(so, vo, t, nvo.vs(), vsAccelOwn).first;
 		Vect3 siAtTm = si.linear(vi.vect3(),t);
 		double distH = soAtTm.Sub(siAtTm).vect2().norm();
-		double distV = std::abs(soAtTm.Sub(siAtTm).z);
+		double distV = std::abs(soAtTm.Sub(siAtTm).z());
 		if (distH < D && distV < H) rtn =true;
 	}
 	return rtn;
@@ -962,7 +962,7 @@ StateVector Kinematics::vsLevelOutFinal(const std::pair<Vect3,Velocity>& sv0, do
 }
 
 StateVector Kinematics::vsLevelOutFinal(const std::pair<Vect3,Velocity>& sv0, double climbRate, double targetAlt, double a) {
-	Tuple5<double,double,double,double,double> qV = vsLevelOutTimesBase(sv0.first.z,sv0.second.z(),climbRate,targetAlt,a,-a,true);
+	Tuple5<double,double,double,double,double> qV = vsLevelOutTimesBase(sv0.first.z(),sv0.second.z(),climbRate,targetAlt,a,-a,true);
 	double T1 = qV.first;
 	double T3 = qV.third;
 	if (T1 < 0) {         //  overshoot case
@@ -1079,14 +1079,14 @@ Tuple5<double,double,double,double,double> Kinematics::vsLevelOutTimes(double s0
 
 Tuple5<double,double,double,double,double> Kinematics::vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt,
 		double accelup, double acceldown, bool allowClimbRateChange) {
-	double s0z = svo.first.z;
+	double s0z = svo.first.z();
 	double v0z = svo.second.z();
 	return vsLevelOutTimes(s0z, v0z, climbRate, targetAlt, accelup, acceldown, allowClimbRateChange);
 }
 
 Tuple5<double,double,double,double,double> Kinematics::vsLevelOutTimes(const std::pair<Vect3, Velocity>& svo, double climbRate, double targetAlt,
 		double a, bool allowClimbRateChange) {
-	double s0z = svo.first.z;
+	double s0z = svo.first.z();
 	double v0z = svo.second.z();
 	return vsLevelOutTimes(s0z, v0z, climbRate, targetAlt, a, -a, allowClimbRateChange);
 }
@@ -1158,7 +1158,7 @@ std::pair<Vect3, Velocity> Kinematics::vsLevelOutCalculation(const std::pair<Vec
 		double targetAlt, double a1, double a2, double t1, double t2, double t3,  double t) {
 	Vect3 s0 = sv0.first;
 	Velocity v0 = sv0.second;
-	double soz = s0.z;
+	double soz = s0.z();
 	double voz = v0.z();
 	std::pair<double, double> vsL = vsLevelOutCalc(soz,voz, targetAlt, a1, a2, t1, t2, t3, t);
 	double nz = vsL.first;
@@ -1212,7 +1212,7 @@ Vect4 Kinematics::minDistBetweenTrk(const Vect3& so, const Velocity& vo, const V
 		//fpln(" $$$$ minDistBetweenTrk: t = "+t+"  dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
 			double distH = s.vect2().norm();
-			double distV = std::abs(s.z);		
+			double distV = std::abs(s.z());		
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1257,7 +1257,7 @@ Vect4 Kinematics::minDistBetweenGs(const Vect3& so, const Velocity& vo, const Ve
 		//fpln(" $$$$ minDistBetweenTrk: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
 			double distH = s.vect2().norm();
-			double distV = std::abs(s.z);
+			double distV = std::abs(s.z());
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1285,7 +1285,7 @@ Vect4 Kinematics::minDistBetweenGs(const Vect3& so, const Velocity& vo, const Ve
 		//fpln(" $$$$ minDistBetweenTrk: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
 			double distH = s.vect2().norm();
-			double distV = std::abs(s.z);			
+			double distV = std::abs(s.z());			
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1313,7 +1313,7 @@ Vect4 Kinematics::minDistBetweenVs(const Vect3& so, const Velocity& vo, const Ve
 		//fpln(" $$$$ minDistBetweenVs: dist = "+Units.str("nm",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
 			double distH = s.vect2().norm();
-			double distV = std::abs(s.z);			
+			double distV = std::abs(s.z());			
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;
@@ -1339,7 +1339,7 @@ Vect4 Kinematics::minDistBetweenVs(const Vect3& so, const Velocity& vo, const Ve
 		//fpln(" $$$$ minDistBetweenVs: distV = "+Units.str("ft",dist));
 		if (dist < minDist) {               // compute distances at TCA in 3D
 			double distH = s.vect2().norm();
-			double distV = std::abs(s.z);			
+			double distV = std::abs(s.z());			
 			minDist = dist;
 			minDistH = distH;
 			minDistV = distV;

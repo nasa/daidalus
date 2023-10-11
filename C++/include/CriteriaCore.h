@@ -103,10 +103,6 @@ public:
    */
   static bool horizontal_los_criterion(const Vect2& s, const Vect2& vo, const Vect2& vi,const Vect2& nvo, int eps);
 
-  static void printRepulsiveCriteria2DTerms(const Vect2& s, const Vect2& vo, const Vect2& vi,const Vect2& nvo, int eps);
-  static void printRepulsiveCriteriaTerms(const Vect3& s, const Vect3& vo, const Vect3& vi,const Vect3& nvo, int eps);
-
-
   /**
    * Checks whether a horizontal solution is repulsive or divergent in the turn direction indicated by nvo3
    *    @param s3      relative position of the ownship

@@ -430,11 +430,6 @@ public:
 
 	bool collinear(const Position& p1, const Position& p2) const;
 
-	std::string toUnitTest() const;
-
-	std::string toUnitTestSI() const;
-
-
 	//	/** Return the average velocity between the current position and the given position, with the given speed [internal units]. */
 	//    Velocity averageVelocity(const Position& p2, double speed);
 

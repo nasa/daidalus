@@ -130,7 +130,7 @@ namespace larcfm {
     }
 
     LatLonAlt SimpleNoPolarProjection::inverse(const Vect3& xyz) const {  
-    	return inverse(xyz.vect2(), xyz.z);
+    	return inverse(xyz.vect2(), xyz.z());
     }
     
   Velocity SimpleNoPolarProjection::projectVelocity(const LatLonAlt& lla, const Velocity& v) const {

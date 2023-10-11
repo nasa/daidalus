@@ -97,13 +97,5 @@ public final class StateVector implements OutputList {
 		ret.add(f.FmPrecision(Units.to("s", t),precision));
 		return ret;
 	}
-	
-	public String toUnitTest(String postStr) {
-		String rtn = "";
-		rtn += "Vect3 s"+postStr+" = "+s.toUnitTest()+";\n";
-		rtn += "Velocity v"+postStr+" = "+v.toUnitTest()+";\n";
-		rtn += "double   t"+postStr+" = "+f.Fm4(t)+";\n";
-       return rtn;
-	}
 
 }

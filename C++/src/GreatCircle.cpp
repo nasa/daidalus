@@ -974,8 +974,8 @@ Vect3 GreatCircle::spherical2xyz(const LatLonAlt& lla) {
 
 LatLonAlt GreatCircle::xyz2spherical(const Vect3& v) {
 	double r = GreatCircle::spherical_earth_radius;
-	double theta = Util::acos_safe(v.z/r);
-	double phi = Util::atan2_safe(v.y, v.x);
+	double theta = Util::acos_safe(v.z()/r);
+	double phi = Util::atan2_safe(v.y(), v.x());
 	double lat = M_PI/2 - theta;
 	double lon = Util::to_pi(phi); //M_PI - phi);
 	return LatLonAlt::mk(lat, lon, 0);

@@ -61,11 +61,11 @@ int CriteriaCore::verticalCoordinationConflict(const Vect3& s, const Vect3& v, d
   double b = s2*v2;
   double c = s2.sqv()-sq(D);
   double d = sq(b)-a*c;
-  if (Util::almost_equals(v.z,0) || v2.isZero() ||
-      d < 0 || eq(v.z,Util::sq(b)-a*c,s.z*a-v.z*b)) {
+  if (Util::almost_equals(v.z(),0) || v2.isZero() ||
+      d < 0 || eq(v.z(),Util::sq(b)-a*c,s.z()*a-v.z()*b)) {
     return breakSymmetry(s, ownship, traffic);
   }
-  if (gt(v.z,Util::sq(b)-a*c,s.z*a-v.z*b)) {
+  if (gt(v.z(),Util::sq(b)-a*c,s.z()*a-v.z()*b)) {
     return -1;
   }
   return 1;
@@ -90,21 +90,20 @@ bool  closed_region_3D(const Vect3& s,const Vect3& p, int eps, int dir, const Ve
   Vect2 v2 = v.vect2();
   Vect2 p2 = p.vect2();
   double t = (sq(D)-s2.dot(p2))/(v2.dot(p2));
-  return v2.dot(p2) != 0 && sign(v2.dot(p2)) == dir && t >= 0 &&  eps*(s.z + t*v.z) >= H &&
-      ((std::abs(s.z) >= H && dir == eps*sign(s.z)) || (std::abs(s.z) < H && dir == -1));
+  return v2.dot(p2) != 0 && sign(v2.dot(p2)) == dir && t >= 0 &&  eps*(s.z() + t*v.z()) >= H &&
+      ((std::abs(s.z()) >= H && dir == eps*sign(s.z())) || (std::abs(s.z()) < H && dir == -1));
 }
 
 bool  CriteriaCore::vertical_criterion(int eps, const Vect3& s, const Vect3& v, const Vect3& nv, double D, double H) {
   int Entry = -1;
   int dir = Entry;
-  if (std::abs(s.z) >= H) dir = eps*sign(s.z);
+  if (std::abs(s.z()) >= H) dir = eps*sign(s.z());
   Vect2 s2 = s.vect2();
   Vect2 v2 = v.vect2();
   Vect3 p = Vect3(s2.Add(v2.Scal(Horizontal::Theta_D(s2,v2,dir,D))), eps*H);
-  return ((v.x == 0 && v.y == 0) && eps*nv.z >= 0 && eps*s.z >= H)
+  return ((v.x() == 0 && v.y() == 0) && eps*nv.z() >= 0 && eps*s.z() >= H)
       || (Horizontal::Delta(s2,v2,D) > 0 && Horizontal::Theta_D(s2,v2,dir,D) > 0
           && closed_region_3D(s,p,eps,dir,nv,D,H));
-
 }
 
 bool horizontal_los(const Vect2& s, double D) {
@@ -139,7 +138,7 @@ Vect3 CriteriaCore::vertical_decision_vect(const Vect3& s, const Vect3& vo, cons
   Vect2 vo2 = vo.vect2();
   Vect2 vi2 = vi.vect2();
   Vect3 v = vo.Sub(vi);
-  if ((!s.isZero() && CD3D::cd3d(s,vo,vi,caD,caH)) || Util::almost_equals(vo.z,vi.z)) {
+  if ((!s.isZero() && CD3D::cd3d(s,vo,vi,caD,caH)) || Util::almost_equals(vo.z(),vi.z())) {
     return s;
   } else if (vo2.almostEquals(vi2) || s.isZero())  {
     return v;
@@ -168,25 +167,6 @@ bool CriteriaCore::horizontal_los_criterion(const Vect2& s, const Vect2& vo, con
   return rtn;
 }
 
-void CriteriaCore::printRepulsiveCriteria2DTerms(const Vect2& s, const Vect2& vo, const Vect2& vi,const Vect2& nvo, int eps) {
-  Vect2 v = vo.Sub(vi);
-  Vect2 nv = nvo.Sub(vi);
-  bool rtn = eps*s.det(v) <= 0 && eps*s.det(nv) <= 0
-      && (((s.dot(v) < 0 &&  eps*nv.det(v) < 0))
-          || (s.dot(v) >= 0 && s.dot(nv) > s.dot(v)));
-  fpln("#### repulsiveCriteria, nvo = "+fvStr2(nvo)+" vo = "+fvStr2(vo)+" vi = "+fvStr2(vi));
-  fpln("#### repulsiveCriteria: s = "+fsStr(s)+" eps*s.det(v) <= 0 = "+bool2str(eps*s.det(v) <= 0)+" eps*s.det(nv) <= 0 = "+bool2str(eps*s.det(nv) <= 0));
-  fpln("#### repulsiveCriteria: s.dot(v) < 0 = "+bool2str(s.dot(v) < 0)+ "  eps*nv.det(v) < 0 = "+bool2str(eps*nv.det(v) < 0));
-  fpln("#### repulsiveCriteria: eps = "+Fmi(eps)+ " s.dot(nv) >= 0 = "+bool2str(s.dot(nv) >=0));
-  fpln("#### repulsiveCriteria: (s.dot(v) >=0 && s.dot(nv) >s.dot(v)) = "+bool2str((s.dot(v) >=0 && s.dot(nv) >s.dot(v))));
-  fpln("#### repulsiveCriteria: s.det(v) = "+Fm4(s.det(v))+"s.dot(v) = "+Fm4(s.dot(v))+"  nv.det(v) =" +Fm4(nv.det(v))+"  s.dot(nv) ="+Fm4(s.dot(nv)));
-  fpln("#### rtn = "+Fmi(rtn));
-}
-
-void CriteriaCore::printRepulsiveCriteriaTerms(const Vect3& s, const Vect3& vo, const Vect3& vi,const Vect3& nvo, int eps) {
-  printRepulsiveCriteria2DTerms(s.vect2(),vo.vect2(),vi.vect2(),nvo.vect2(),eps);
-}
-
 bool CriteriaCore::horizontalRepulsiveCriteria(const Vect3& s3, const Velocity& vo3, const Velocity& vi3, const Velocity& nvo3, int eps) {
   return horizontal_los_criterion(s3.vect2(),vo3.vect2(), vi3.vect2(),nvo3.vect2(),eps);
 }
@@ -194,10 +174,10 @@ bool CriteriaCore::horizontalRepulsiveCriteria(const Vect3& s3, const Velocity& 
 bool CriteriaCore::vs_bound_crit(const Vect3& v, const Vect3& nv, int eps) {
   Vect2 v2 = v.vect2();
   bool rtn;
-  if (eps*v.z > 0)
-    rtn = eps*nv.z > eps*v.z && -eps*v.z*nv.vect2().dot(v2) + eps*nv.z*v2.sqv() >= 0;
+  if (eps*v.z() > 0)
+    rtn = eps*nv.z() > eps*v.z() && -eps*v.z()*nv.vect2().dot(v2) + eps*nv.z()*v2.sqv() >= 0;
   else
-    rtn = eps*nv.z >= 0;
+    rtn = eps*nv.z() >= 0;
   return rtn;
 }
 
@@ -211,9 +191,9 @@ double CriteriaCore::min_rel_vert_speed(double vz, int eps, double minrelvs) {
 }
 
 bool CriteriaCore:: vertical_los_criterion(const Vect3& s, const Vect3& v, const Vect3& nv, int eps, double H, double minrelvs) {
-  return std::abs(s.z) < H &&
+  return std::abs(s.z()) < H &&
       vs_bound_crit(v,nv,eps) &&
-      eps*nv.z >= min_rel_vert_speed(v.z,eps,minrelvs);
+      eps*nv.z() >= min_rel_vert_speed(v.z(),eps,minrelvs);
 }
 
 // caD and caH are the dimater and height of a collision avoidance zone, e.g., 350ft x 100 ft
@@ -226,9 +206,9 @@ bool CriteriaCore::verticalRepulsiveCriterion(const Vect3& s, const Vect3& vo, c
 
 /** Perform a symmetry calculation */
 int CriteriaCore::breakSymmetry(const Vect3& s, const std::string& ownship, const std::string& traffic) {
- if (Util::almost_equals(s.z,0)) {
+ if (Util::almost_equals(s.z(),0)) {
     return Util::less_or_equal(ownship, traffic) ? 1 : -1;
-  } else if (s.z > 0) {
+  } else if (s.z() > 0) {
     return 1;
   } else {
     return -1;
@@ -249,7 +229,7 @@ static bool vsChanged(const Velocity& vo, const Velocity& nvo) {
 
 bool CriteriaCore::criteria(const Vect3& s, const Velocity&  vo, const Velocity&  vi, const Velocity& nvo,
     double minRelVs, double D, double H, int epsh, int epsv) {
-  if (horizontal_los(s.vect2(),D) && vertical_los(s.z,H)) {
+  if (horizontal_los(s.vect2(),D) && vertical_los(s.z(),H)) {
     bool horizChange = trkChanged(vo,nvo) || gsChanged(vo,nvo);
     bool vertChange = vsChanged(vo,nvo);
     bool vlc, hlc;
@@ -357,7 +337,7 @@ bool CriteriaCore::vertical_new_repulsive_criterion(const Vect3& s, const Vect3&
   Vect3 v = vo.Sub(vi);
   Vect3 nv = nvo.Sub(vi);
   Vect2 v2 = v.vect2();
-  return eps*nv.z > eps*v.z && -eps*v.z*nv.vect2().dot(v2) + eps*nv.z*v2.sqv() >= 0;
+  return eps*nv.z() > eps*v.z() && -eps*v.z()*nv.vect2().dot(v2) + eps*nv.z()*v2.sqv() >= 0;
 }
 
 }

@@ -165,7 +165,7 @@ namespace larcfm {
     }
 
     LatLonAlt SimpleProjection::inverse(const Vect3& xyz) const {  
-    	return inverse(xyz.vect2(), xyz.z);
+    	return inverse(xyz.vect2(), xyz.z());
     }
     
   Velocity SimpleProjection::projectVelocity(const LatLonAlt& lla, const Velocity& v) const {

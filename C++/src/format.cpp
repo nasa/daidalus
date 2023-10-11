@@ -369,7 +369,7 @@ string FmVec(const Vect2& v) {
 }
 
 string FmVec(const Vect3& v) {
-	return "("+Fm16(v.x)+","+Fm16(v.y)+","+Fm16(v.z)+")";
+	return "("+Fm16(v.x())+","+Fm16(v.y())+","+Fm16(v.z())+")";
 }
 
 
@@ -419,57 +419,22 @@ string fsStr(const Vect2& s) {
 }
 
 string fsStr(const Vect3& s) {
-	return "(" + Units::str("nmi", s.x) + " ," + Units::str("nmi", s.y) + " ,"+ Units::str("ft", s.z) + ")";
+	return "(" + Units::str("nmi", s.x()) + " ," + Units::str("nmi", s.y()) + " ,"+ Units::str("ft", s.z()) + ")";
 }
 
 std::vector<std::string> toStringList(const Vect3& v, const string& unitx, const string& unity, const string& unitz, int precision, bool units) {
 	std::vector<std::string> ret; // = new ArrayList<String>(3);
 	if (units) {
-		ret.push_back(Units::str(unitx, v.x, precision));
-		ret.push_back(Units::str(unity, v.y, precision));
-		ret.push_back(Units::str(unitz, v.z, precision));
+		ret.push_back(Units::str(unitx, v.x(), precision));
+		ret.push_back(Units::str(unity, v.y(), precision));
+		ret.push_back(Units::str(unitz, v.z(), precision));
 	}
 	else {
-		ret.push_back(FmPrecision(Units::to(unitx, v.x), precision));
-		ret.push_back(FmPrecision(Units::to(unity, v.y), precision));
-		ret.push_back(FmPrecision(Units::to(unitz, v.z), precision));
+		ret.push_back(FmPrecision(Units::to(unitx, v.x()), precision));
+		ret.push_back(FmPrecision(Units::to(unity, v.y()), precision));
+		ret.push_back(FmPrecision(Units::to(unitz, v.z()), precision));
 	}
 	return ret;
-}
-
-string fsStrNP(const Vect3& v, int prec, const string& xunits, const string& yunits, const string& zunits) {
-	return list2str(toStringList(v, xunits, yunits, zunits, prec, false), ", ");
-}
-
-
-string fsStrNP(const Vect3& v, int prec) {
-	return fsStrNP(v, prec, "NM", "NM", "ft");
-}
-
-string fsStr8NP(const Vect3& s) {
-	return fsStrNP(s, 8);
-	//return Fm8(Units.to("NM", s.x)) + " " + Fm8(Units.to("NM", s.y)) + " " 	+ Fm8(Units.to("ft", s.z));
-}
-
-string fsStr15NP(const Vect3& s) {
-	return fsStrNP(s, 15);
-	//return Fm16(Units.to("NM", s.x)) + " " + Fm16(Units.to("NM", s.y)) + " " 	+ Fm16(Units.to("ft", s.z));
-}
-
-string fvStr(const Vect2& s) {
-	return "(" + Units::str("knot", s.x) + " ," + Units::str("knot", s.y) + ")";
-}
-
-string fvStr(const Vect3& s) {
-	return "(" + Units::str("knot", s.x) + " ," + Units::str("knot", s.y) + " ,"  + Units::str("fpm", s.z) + ")";
-}
-
-string fvStr2(const Vect2& v) {
-	return "("+Units::str("deg",v.compassAngle())+", "+Units::str("knot",v.norm())+")";
-}
-
-string fvStr2(const Vect3& v) {
-	return "("+Units::str("deg",v.vect2().compassAngle())+", "+Units::str("knot",v.norm())+", "+Units::str("fpm",v.z)+")";
 }
 
 string double2PVS(double val) {

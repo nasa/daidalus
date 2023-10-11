@@ -44,26 +44,15 @@ const Position& Position::ZERO_XYZ() {
 	return pos;
 }
 
-Position::Position() : ll(LatLonAlt::ZERO()) , s3(Vect3::ZERO()) {
-	latlon = true;
-}
+Position::Position() : latlon(true), ll(LatLonAlt::ZERO()) , s3(Vect3::ZERO()) {}
 
-Position::Position(const LatLonAlt& lla) : ll(lla) , s3(lla.lon(), lla.lat(), lla.alt()) {
-	latlon = true;
-}
+Position::Position(const LatLonAlt& lla) : latlon(true), ll(lla) , s3(lla.lon(), lla.lat(), lla.alt()) {}
 
-Position::Position(double x, double y, double z) : ll(LatLonAlt::mk(y, x, z)) , s3(x, y, z) {
-	latlon = false;
-}
+Position::Position(double x, double y, double z) : latlon(false), ll(LatLonAlt::mk(y, x, z)) , s3(x, y, z) {}
 
-Position::Position(const Vect3& v) : ll(LatLonAlt::mk(v.y, v.x, v.z)) , s3(v.x, v.y, v.z) {
-	latlon = false;
-}
+Position::Position(const Vect3& v) : latlon(false), ll(LatLonAlt::mk(v.y(), v.x(), v.z())) , s3(v.x(), v.y(), v.z()) {}
 
-Position::Position(const Position& p) : ll(LatLonAlt::mk(p.lat(), p.lon(), p.alt())) , s3(p.x(), p.y(), p.z()) {
-	latlon = p.latlon;
-}
-
+Position::Position(const Position& p) : latlon(p.latlon), ll(LatLonAlt::mk(p.lat(), p.lon(), p.alt())) , s3(p.x(), p.y(), p.z()) {}
 
 Position Position::makeLatLonAlt(double lat, double lon, double alt) {
 	return Position(LatLonAlt::make(lat,lon,alt));
@@ -99,9 +88,10 @@ Position Position::make(const Vect3& p)
 bool Position::almostEquals(const Position& v) const {
 	if (latlon) {
 	  return GreatCircle::almostEquals(lla(),v.lla());
-	} else
-		return Constants::almost_equals_xy(s3.x,s3.y,v.s3.x,v.s3.y)
-	&& Constants::almost_equals_alt(s3.z,v.s3.z);
+	} else {
+		return Constants::almost_equals_xy(s3.x(),s3.y(),v.s3.x(),v.s3.y())
+			&& Constants::almost_equals_alt(s3.z(),v.s3.z());
+	}
 }
 
 
@@ -122,12 +112,16 @@ bool Position::almostEquals2D(const Position& pp, double epsilon_horiz) const {
 }
 
 bool Position::operator == (const Position& v) const {  // strict equality
-	return s3.x==v.s3.x && s3.y==v.s3.y && s3.z==v.s3.z && latlon == v.latlon && ll.lat()==v.ll.lat() && ll.lon()==v.ll.lon() && ll.alt()==v.ll.alt();
+	return s3.x() == v.s3.x() && s3.y() == v.s3.y() && s3.z() == v.s3.z() && 
+			latlon == v.latlon && ll.lat() == v.ll.lat() && ll.lon() == v.ll.lon() && 
+			ll.alt() == v.ll.alt();
 }
 
 
 bool Position::operator != (const Position& v) const {  // strict disequality
-	return s3.x!=v.s3.x || s3.y!=v.s3.y || s3.z!=v.s3.z || latlon != v.latlon;
+	return s3.x() != v.s3.x() || s3.y() != v.s3.y() || s3.z() != v.s3.z() || 
+		   	latlon != v.latlon || ll.lat() != v.ll.lat() || ll.lon() != v.ll.lon() || 
+			ll.alt() != v.ll.alt();
 }
 
 bool Position::isInvalid() const {
@@ -135,7 +129,7 @@ bool Position::isInvalid() const {
 }
 
 Vect2 Position::vect2() const {
-	return Vect2(s3.x,s3.y);
+	return Vect2(s3.x(),s3.y());
 }
 
 const Vect3& Position::vect3() const {
@@ -147,15 +141,15 @@ const LatLonAlt& Position::lla() const {
 }
 
 double Position::x() const {
-	return s3.x;
+	return s3.x();
 }
 
 double Position::y() const {
-	return s3.y;
+	return s3.y();
 }
 
 double Position::z() const {
-	return s3.z;
+	return s3.z();
 }
 
 double Position::lat() const {
@@ -183,15 +177,15 @@ double Position::altitude() const {
 }
 
 double Position::xCoordinate() const {
-	return Units::to("nm", s3.x);
+	return Units::to("nm", s3.x());
 }
 
 double Position::yCoordinate() const {
-	return Units::to("nm", s3.y);
+	return Units::to("nm", s3.y());
 }
 
 double Position::zCoordinate() const {
-	return Units::to("ft", s3.z);
+	return Units::to("ft", s3.z());
 }
 
 
@@ -203,7 +197,7 @@ const Position Position::mkX(double x) const {
 	if (latlon) {
 		return Position(LatLonAlt::mk(ll.lat(), x, ll.alt()));
 	} else {
-		return Position(x, s3.y, s3.z);
+		return Position(x, s3.y(), s3.z());
 	}
 }
 
@@ -215,7 +209,7 @@ const Position Position::mkY(double y) const {
 	if (latlon) {
 		return Position(LatLonAlt::mk(y, ll.lon(), ll.alt()));
 	} else {
-		return Position(s3.x, y, s3.z);
+		return Position(s3.x(), y, s3.z());
 	}
 }
 
@@ -227,7 +221,7 @@ const Position Position::mkZ(double z) const {
 	if (latlon) {
 		return Position(LatLonAlt::mk(ll.lat(), ll.lon(), z));
 	} else {
-		return Position(s3.x, s3.y, z);
+		return Position(s3.x(), s3.y(), z);
 	}
 }
 
@@ -250,7 +244,7 @@ double Position::distanceH(const Position& p) const {
 }
 
 double Position::distanceV(const Position& p) const {
-	return std::abs(s3.z - p.s3.z);
+	return std::abs(s3.z() - p.s3.z());
 }
 
 double Position::distanceChordH(const Position& p) const {
@@ -279,7 +273,7 @@ const Position Position::linearEst(double dn, double de) const {
 	if (latlon) {
 		newNP = Position(lla().linearEst(dn,de));
 	} else {
-		return Position::mkXYZ(s3.x + de, s3.y + dn, s3.z);
+		return Position::mkXYZ(s3.x() + de, s3.y() + dn, s3.z());
 	}
 	return newNP;
 }
@@ -501,24 +495,6 @@ bool Position::collinear(const Position& p1, const Position& p2) const {
 		return VectFuns::collinear(vect3(),p1.vect3(),p2.vect3());
 }
 
-std::string Position::toUnitTest() const{
-	if (latlon) {
-		return "Position.makeLatLonAlt("+ Fm12(Units::to("deg",lat()))
-		       +", "+Fm16(Units::to("deg",lon()))+", "+Fm12(Units::to("ft",alt()))+")";
-	} else {
-		return "Position.makeXYZ("+(Fm8(Units::to("NM",x()))+", "+Fm8(Units::to("NM",y()))
-		       +", "	+Fm8(Units::to("ft",z()))+")");
-	}
-}
-
-std::string Position::toUnitTestSI() const {
-	if (latlon) {
-		return "Position.mkLatLonAlt("+ Fm12(lat())+", "+Fm12(lon())+", "+Fm12(alt())+")";
-	} else {
-		return "Position.mkXYZ("+(Fm8(x())+", "+Fm8(y())+", "+Fm8(z())+")");
-	}
-}
-
 std::string Position::toString() const {
 	return toString(Constants::get_output_precision());
 }
@@ -527,14 +503,14 @@ std::string Position::toString(int prec) const {
 	if (latlon)
 		return "("+Units::str("deg",ll.lat(),prec)+", "+Units::str("deg",ll.lon(),prec)+", "+Units::str("ft",ll.alt(),prec)+")";
 	else
-		return "("+Units::str("NM",s3.x,prec)+", "+Units::str("NM",s3.y,prec)+", "+Units::str("ft",s3.z,prec)+")";
+		return "("+Units::str("NM",s3.x(),prec)+", "+Units::str("NM",s3.y(),prec)+", "+Units::str("ft",s3.z(),prec)+")";
 }
 
 std::string Position::toString2D(int prec) const {
 	if (latlon)
 		return "("+Units::str("deg",ll.lat(),prec)+", "+Units::str("deg",ll.lon(),prec)+")";
 	else
-		return "("+Units::str("NM",s3.x,prec)+", "+Units::str("NM",s3.y,prec)+")";
+		return "("+Units::str("NM",s3.x(),prec)+", "+Units::str("NM",s3.y(),prec)+")";
 }
 
 /**
@@ -546,7 +522,7 @@ std::string Position::toStringUnits(const string& xUnits, const string& yUnits, 
 	if (latlon)
 		return "("+Units::str("deg",ll.lat())+", "+Units::str("deg",ll.lon())+", "+Units::str(zUnits,ll.alt())+")";
 	else
-		return "("+Units::str(xUnits,s3.x)+", "+Units::str(yUnits,s3.y)+", "+Units::str(zUnits,s3.z)+")";
+		return "("+Units::str(xUnits,s3.x())+", "+Units::str(yUnits,s3.y())+", "+Units::str(zUnits,s3.z())+")";
 }
 
 std::string Position::toStringNP() const {
@@ -557,7 +533,7 @@ std::string Position::toStringNP(int precision) const {
 	if (latlon)
 		return ll.toString(precision);
 	else
-		return fsStrNP(s3, precision); // .toStringNP(precision, "NM", "NM", "ft");
+		return s3.toStringNP("NM","NM","ft",precision); 
 }
 
 std::vector<std::string> Position::toStringList() const {
@@ -571,9 +547,9 @@ std::vector<std::string> Position::toStringList() const {
 		ret.push_back(Fm12(ll.longitude()));
 		ret.push_back(Fm12(ll.altitude()));
 	} else {
-		ret.push_back(Fm12(Units::to("NM",s3.x)));
-		ret.push_back(Fm12(Units::to("NM",s3.y)));
-		ret.push_back(Fm12(Units::to("ft",s3.z)));
+		ret.push_back(Fm12(Units::to("NM",s3.x())));
+		ret.push_back(Fm12(Units::to("NM",s3.y())));
+		ret.push_back(Fm12(Units::to("ft",s3.z())));
 	}
 	return ret;
 }
@@ -601,13 +577,13 @@ std::vector<std::string> Position::toStringList(int precision, int latLonExtraPr
 		}
 	} else {
 		if (internalUnits) {
-			ret.push_back(FmPrecision(s3.x,precision));
-			ret.push_back(FmPrecision(s3.y,precision));
-			ret.push_back(FmPrecision(s3.z,precision));
+			ret.push_back(FmPrecision(s3.x(),precision));
+			ret.push_back(FmPrecision(s3.y(),precision));
+			ret.push_back(FmPrecision(s3.z(),precision));
 		} else {
-			ret.push_back(FmPrecision(Units::to("NM",s3.x),precision));
-			ret.push_back(FmPrecision(Units::to("NM",s3.y),precision));
-			ret.push_back(FmPrecision(Units::to("ft",s3.z),precision));
+			ret.push_back(FmPrecision(Units::to("NM",s3.x()),precision));
+			ret.push_back(FmPrecision(Units::to("NM",s3.y()),precision));
+			ret.push_back(FmPrecision(Units::to("ft",s3.z()),precision));
 		}
 	}
 	return ret;

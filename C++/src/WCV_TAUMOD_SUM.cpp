@@ -208,7 +208,7 @@ bool WCV_TAUMOD_SUM::vertical_WCV_uncertain(double sz, double vz, double sz_err,
 
 bool WCV_TAUMOD_SUM::WCV_taumod_uncertain(const Vect3& s, const Vect3& v, double s_err, double sz_err, double v_err, double vz_err) const {
   return horizontal_wcv_taumod_uncertain(s.vect2(),v.vect2(),s_err,v_err) &&
-      vertical_WCV_uncertain(s.z,v.z,sz_err,vz_err);
+      vertical_WCV_uncertain(s.z(),v.z(),sz_err,vz_err);
 }
 
 double WCV_TAUMOD_SUM::horizontal_wcv_taumod_uncertain_entry(const Vect2& s, const Vect2& v, double s_err, double v_err, double T) const {
@@ -328,7 +328,7 @@ LossData WCV_TAUMOD_SUM::vertical_WCV_uncertain_interval(double B, double T, dou
 
 LossData WCV_TAUMOD_SUM::WCV_taumod_uncertain_interval(double B, double T, const Vect3& s, const Vect3& v,
     double s_err, double sz_err, double v_err, double vz_err) const {
-  LossData vint = vertical_WCV_uncertain_interval(B,T,s.z,v.z,sz_err,vz_err);
+  LossData vint = vertical_WCV_uncertain_interval(B,T,s.z(),v.z(),sz_err,vz_err);
   if (vint.getTimeIn() > vint.getTimeOut()) {
     return vint; // Empty interval
   }

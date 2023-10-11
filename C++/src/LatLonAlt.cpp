@@ -128,16 +128,6 @@ bool LatLonAlt::isInvalid() const {
 	return lati != lati || longi != longi || alti != alti;
 }
 
-//const LatLonAlt LatLonAlt::linear(const Velocity& v, double time) {
-//	LatLonAlt current = LatLonAlt(lati, longi, alti);
-//	if (time == 0 || v.isZero()) {
-//		return current;
-//	} else {
-//		return GreatCircle::linear_initial(current,v,time);
-//	}
-//}
-
-
 const LatLonAlt LatLonAlt::linearEst(double dn, double de) const {
 	//f.pln(" lat = "+Units.str("deg",lati)+" lon = "+Units.str("deg",longi));
 	double R = GreatCircle::spherical_earth_radius; //6378137;                   // diameter earth in meters
@@ -148,12 +138,11 @@ const LatLonAlt LatLonAlt::linearEst(double dn, double de) const {
 }
 
 const LatLonAlt LatLonAlt::linearEst(const Velocity& vo, double tm)  const{
-	double dn = vo.vect3().Scal(tm).y;
-	double de = vo.vect3().Scal(tm).x;
+	double dn = vo.vect3().Scal(tm).y();
+	double de = vo.vect3().Scal(tm).x();
 	double nAlt = alti + vo.z()*tm;
 	return linearEst(dn,de).mkAlt(nAlt);
 }
-
 
 std::string LatLonAlt::toString() const {
 	std::stringstream temp;

@@ -519,16 +519,6 @@
     public static Vect2 trkgs2v(double trk, double gs) {
       return new Vect2(trkgs2vx(trk,gs), trkgs2vy(trk,gs));
     }
-
-    public String toUnitTest() {
-      return "Velocity.makeTrkGsVs("  +f.Fm6(Units.to("deg",trk_))+", "+f.Fm6(Units.to("kn",gs_))+", "+f.Fm6(Units.to("fpm",v_.z))+"); ";
-    }
-
-
-    public String toUnitTestSI() {
-      return "Velocity.mkTrkGsVs("  +f.Fm6(trk_)+", "+f.Fm6(gs_)+", "+f.Fm6(v_.z)+"); ";
-    }
-
     
     /** String representation of the velocity in polar coordinates (compass angle and groundspeed)
      * @return a string representation

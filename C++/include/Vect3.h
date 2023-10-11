@@ -30,25 +30,27 @@ class Vect3 {
 
 private:
 
-	static Vect3 makeInvalid3();
+	Vect2 v2_;
+	double z_;
 
-public:
-
-	// This class should be immutable and therefore
-	// data members should be "const."/ However, if
-	// they were const, the there cannot be an
-	// assignment operator interfers with the default
-	// assignment operator.  Hopefully, no one
-	// will take advantage of the non-constness of
-	// these members.
+public:	
 
 	/** x coordinate */
-	double x;
-	/** y coordinate */
-	double y;
-	/** z coordinate */
-	double z;
+	double x() const { return v2_.x; }
 
+	/** y coordinate */
+	double y() const { return v2_.y; }
+
+	/** z coordinate */
+	double z() const { return z_; }
+
+	/**
+	 * 2-Dimensional projection.
+	 *
+	 * @return the 2-dimensional projection of <code>this</code>.
+	 */
+	const Vect2& vect2() const { return v2_; }
+	
 	/**
 	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>).
 	 *
@@ -56,7 +58,7 @@ public:
 	 * @param yy Real value
 	 * @param zz Real value
 	 */
-	explicit Vect3(const double xx=0, const double yy=0, const double zz=0);
+	explicit Vect3(double xx=0, double yy=0, double zz=0);
 
 	/**
 	 * Creates a new vector whose x and y components are v, and whose z component is vz.
@@ -64,17 +66,7 @@ public:
 	 * @param v a 2-D Vector
 	 * @param vz the z component of the new vector
 	 */
-	Vect3(const Vect2& v, const double vz);
-
-	/**
-	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in internal units.
-	 * 
-	 * @param x Real value [internal units]
-	 * @param y Real value [internal units]
-	 * @param z Real value [internal units]
-	 * @return a new vector 
-	 */
-	static Vect3 mk(double x, double y, double z);
+	Vect3(const Vect2& v, double vz);
 
 	/** Destructor */
 	virtual ~Vect3() { }
@@ -101,8 +93,6 @@ public:
 	 * @return a new vector
 	 */
 	static Vect3 mkXYZ(double x, double y, double z);
-
-	static Vect3 make(double x, const std::string& xunits, double y, const std::string& yunits, double z, const std::string& zunits);
 
 	Vect3 mkX(double nx);
 
@@ -240,17 +230,10 @@ public:
 	Vect3 linearByDist2D(double track, double d) const;
 
 	/**
-	 * 2-Dimensional projection.
-	 *
-	 * @return the 2-dimensional projection of <code>this</code>.
-	 */
-	Vect2 vect2() const;
-
-	/**
 	 * Make a unit vector from the current vector.  If it is a zero vector, then a copy is returned.
 	 * @return the unit vector
 	 */
-	Vect3 Hat() const ;
+	Vect3 Hat() const;
 
 	/**
 	 * Cross product.
@@ -259,9 +242,9 @@ public:
 	 *
 	 * @return the cross product of <code>this</code> vector and <code>v</code>.
 	 */
-	Vect3 cross(const Vect3& v) const ;
+	Vect3 cross(const Vect3& v) const;
 
-	bool parallel(const Vect3& v) const ;
+	bool parallel(const Vect3& v) const;
 
 	/**
 	 * Vector addition.

@@ -126,7 +126,7 @@ bool TCAS3D::TCASII_RA(const Vect3& so, const Vect3& vo, const Vect3& si, const 
   Vect2 vo2 = vo.vect2();
   Vect2 vi2 = vi.vect2();
   Vect2 v2 = vo2.Sub(vi2);
-  int sl = table_.getSensitivityLevel(so.z);
+  int sl = table_.getSensitivityLevel(so.z());
   bool usehmdf = table_.getHMDFilter();
   double TAU  = table_.getTAU(sl);
   double TCOA = table_.getTCOA(sl);
@@ -136,7 +136,7 @@ bool TCAS3D::TCASII_RA(const Vect3& so, const Vect3& vo, const Vect3& si, const 
 
   return (!usehmdf || cd2d_TCAS(HMD,s2,vo2,vi2)) &&
       TCAS2D::horizontal_RA(DMOD,TAU,s2,v2) &&
-      vertical_RA(so.z-si.z,vo.z-vi.z,ZTHR,TCOA);
+      vertical_RA(so.z()-si.z(),vo.z()-vi.z(),ZTHR,TCOA);
 }
 
 // if true, within lookahead time interval [B,T], the ownship has a TCAS resolution advisory (effectively conflict detection)
@@ -158,10 +158,10 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Vect3& vo, const Vect3& si, con
   double tin = INFINITY;
   double tout = -INFINITY;
   double tmin = INFINITY;
-  int sl_first = table_.getSensitivityLevel(so.z+B*vo.z);
-  int sl_last = table_.getSensitivityLevel(so.z+T*vo.z);
-  if (sl_first == sl_last || Util::almost_equals(vo.z,0.0)) {
-    Triple<double,double,double> ra3dint = RA3D_interval(sl_first,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,B,T);
+  int sl_first = table_.getSensitivityLevel(so.z()+B*vo.z());
+  int sl_last = table_.getSensitivityLevel(so.z()+T*vo.z());
+  if (sl_first == sl_last || Util::almost_equals(vo.z(),0.0)) {
+    Triple<double,double,double> ra3dint = RA3D_interval(sl_first,so2,so.z(),vo2,vo.z(),si2,si.z(),vi2,vi.z(),B,T);
     tin = ra3dint.first;
     tout = ra3dint.second;
     tmin = ra3dint.third;
@@ -170,8 +170,8 @@ ConflictData TCAS3D::RA3D(const Vect3& so, const Vect3& vo, const Vect3& si, con
     for (double t_B = B; t_B < T; sl = sl_first < sl_last ? sl+1 : sl-1) {
       if (table_.isValidSensitivityLevel(sl)) {
         double level = sl_first < sl_last ? table_.getLevelAltitudeUpperBound(sl) :table_.getLevelAltitudeLowerBound(sl);
-        double t_level = !ISFINITE(level) ? INFINITY :(level-so.z)/vo.z;
-        Triple<double,double,double> ra3dint = RA3D_interval(sl,so2,so.z,vo2,vo.z,si2,si.z,vi2,vi.z,t_B,Util::min(t_level,T));
+        double t_level = !ISFINITE(level) ? INFINITY :(level-so.z())/vo.z();
+        Triple<double,double,double> ra3dint = RA3D_interval(sl,so2,so.z(),vo2,vo.z(),si2,si.z(),vi2,vi.z(),t_B,Util::min(t_level,T));
         if (Util::almost_less(ra3dint.first,ra3dint.second)) {
           tin = Util::min(tin,ra3dint.first);
           tout = Util::max(tout,ra3dint.second);

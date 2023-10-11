@@ -78,32 +78,6 @@ namespace larcfm {
   /** send string to the error console with a "carriage return" */
   void fdln(const std::string& str);
 
-  /** Format a position vector */
-  std::string fsStr(const Vect2& s);
-
-  /** Format a position vector */
-  std::string fsStr(const Vect3& s);
-
-  std::string fsStrNP(const Vect3& v, int prec, const std::string& xunits, const std::string& yunits, const std::string& zunits);
-
-  std::string fsStrNP(const Vect3& s, int prec);
-
-  std::string fsStr8NP(const Vect3& s);
-
-  std::string fsStr15NP(const Vect3& s);
-
-  /** Format a velocity vector as a Euclidean velocity */
-  std::string fvStr(const Vect2& s);
-  
-  /** Format a velocity vector as a Euclidean velocity */
-  std::string fvStr(const Vect3& s);
-
-  /** Format a velocity vector as a polar velocity */
-  std::string fvStr2(const Vect2& v);
-  
-  /** Format a velocity vector as a polar velocity */
-  std::string fvStr2(const Vect3& v);
-  
   std::string FmPair(const std::pair<int,int>& p);
   std::string FmPair(const std::pair<double,double>& p);
   std::string FmTriple(const Triple<int,int,int>& p);

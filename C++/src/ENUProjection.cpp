@@ -50,16 +50,16 @@ namespace larcfm {
   
   static LatLonAlt xyz2spherical(const Vect3& v, double alt) {
     double r = GreatCircle::spherical_earth_radius;
-    double theta = acos_safe(v.z/r);
-    double phi = atan2_safe(v.y, v.x);
+    double theta = acos_safe(v.z()/r);
+    double phi = atan2_safe(v.y(), v.x());
     double lat = Pi/2 - theta;
     double lon = to_pi(Pi - phi);
     return LatLonAlt::mk(lat, lon, alt);
   }
   
   static Vect3 vect3_orthog_toy(const Vect3& v) {
-    if (!Util::within_epsilon(v.x, Constants::GPS_LIMIT_HORIZONTAL) || !Util::within_epsilon(v.y, Constants::GPS_LIMIT_HORIZONTAL)) {
-      return Vect3(v.y, -v.x, 0);
+    if (!Util::within_epsilon(v.x(), Constants::GPS_LIMIT_HORIZONTAL) || !Util::within_epsilon(v.y(), Constants::GPS_LIMIT_HORIZONTAL)) {
+      return Vect3(v.y(), -v.x(), 0);
     } else {
       return Vect3(1,0,0);
     }
@@ -76,15 +76,15 @@ namespace larcfm {
     Vect3 xmult = ref.Hat();
     Vect3 ymult = vect3_orthog_toy(ref).Hat();
     Vect3 zmult = ref.cross(vect3_orthog_toy(ref)).Hat();
-    Vect3 xmultInv = Vect3(xmult.x, ymult.x, zmult.x);
-    Vect3 ymultInv = Vect3(xmult.y, ymult.y, zmult.y);
-    Vect3 zmultInv = Vect3(xmult.z, ymult.z, zmult.z);
+    Vect3 xmultInv = Vect3(xmult.x(), ymult.x(), zmult.x());
+    Vect3 ymultInv = Vect3(xmult.y(), ymult.y(), zmult.y());
+    Vect3 zmultInv = Vect3(xmult.z(), ymult.z(), zmult.z());
     return  Vect3(xmultInv.dot(p), ymultInv.dot(p), zmultInv.dot(p));
   }
   
   static Vect2 sphere_to_plane(const Vect3& ref, const Vect3& p) {
     Vect3 v = equator_map(ref,p);
-    return Vect2(v.y, -v.z);
+    return Vect2(v.y(), -v.z());
   }
   
   static Vect3 plane_to_sphere(const Vect2& v) {
@@ -176,7 +176,7 @@ namespace larcfm {
     }
 
     LatLonAlt ENUProjection::inverse(const Vect3& xyz) const {  
-    	return inverse(xyz.vect2(), xyz.z);
+    	return inverse(xyz.vect2(), xyz.z());
     }
     
   Velocity ENUProjection::projectVelocity(const LatLonAlt& lla, const Velocity& v) const {

@@ -283,7 +283,7 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 						input.getColumn(head.get(LON_SY), "deg"), 
 						input.getColumn(head.get(ALT_SZ), "ft")));
 			} else {
-				ss = Position.make(Vect3.mk(
+				ss = Position.make(Vect3.mkXYZ(
 						input.getColumn(head.get(LAT_SX), "NM"), 
 						input.getColumn(head.get(LON_SY), "NM"), 
 						input.getColumn(head.get(ALT_SZ), "ft")));

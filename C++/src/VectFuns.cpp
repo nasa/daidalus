@@ -23,7 +23,7 @@ namespace larcfm {
 
 bool VectFuns::LoS(const Vect3& so, const Vect3& si, double D, double H) {
 	Vect3 s = so.Sub(si);
-	return s.x*s.x + s.y*s.y < D*D && std::abs(s.z) < H;
+	return s.x()*s.x() + s.y()*s.y() < D*D && std::abs(s.z()) < H;
 }
 
 bool VectFuns::rightOfLine(const Vect2& so, const Vect2& vo, const Vect2& si) {
@@ -108,7 +108,7 @@ double VectFuns::rateOfClosureHorizontal(const Vect3& so, const Vect3& vo, const
 }
 
 double VectFuns::rateOfClosureVertical(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi) {
-	return Util::sign(si.z-so.z)*(vo.z-vi.z);
+	return Util::sign(si.z()-so.z())*(vo.z()-vi.z());
 }
 
 // time of closest approach
@@ -156,9 +156,9 @@ std::pair<Vect3,double> VectFuns::intersection(const Vect3& so3, const Vect3& vo
 	double tt = ds.det(vi)/vo.det(vi);
 	//f.pln(" $$$ intersection: tt = "+tt);
 	Vect3 intersec = so3.Add(vo3.Scal(tt));
-	double nZ = intersec.z;
-	double maxZ = Util::max(so3.z,si3.z);
-	double minZ = Util::min(so3.z,si3.z);
+	double nZ = intersec.z();
+	double maxZ = Util::max(so3.z(),si3.z());
+	double minZ = Util::min(so3.z(),si3.z());
 	if (nZ > maxZ) nZ = maxZ;
 	if (nZ < minZ) nZ = minZ;
 	return std::pair<Vect3,double>(intersec.mkZ(nZ),tt);
@@ -187,12 +187,12 @@ std::pair<Vect3,double> VectFuns::intersectionAvgZ(const Vect3& so1, const Vect3
 	Vect3 interSec = iP.first;
 			double do1 = distanceH(so1,interSec);
 			double do2 = distanceH(so2,interSec);
-			double alt_o = so1.z;
-			if (do2 < do1) alt_o = so2.z;
+			double alt_o = so1.z();
+			if (do2 < do1) alt_o = so2.z();
 			double di1 = distanceH(si1,interSec);
 			double di2 = distanceH(si2,interSec);
-			double alt_i = si1.z;
-			if (di2 < di1) alt_i = si2.z;
+			double alt_i = si1.z();
+			if (di2 < di1) alt_i = si2.z();
 			double nZ = (alt_o + alt_i)/2.0;
 	        return std::pair<Vect3,double>(interSec.mkZ(nZ),iP.second);
 }
