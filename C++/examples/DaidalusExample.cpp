@@ -292,6 +292,8 @@ int main(int argc, const char* argv[]) {
   std::cout << "## " << Daidalus::release() << std::endl;
   std::cout << "##\n" << std::endl;
   bool verbose = false;
+	bool do_inst = false;
+	bool no_hyst = false;
 
   // Declare an empty Daidalus object
   Daidalus daa;
@@ -325,11 +327,19 @@ int main(int argc, const char* argv[]) {
       }
     } else if (startsWith(arga,"--verb") || startsWith(arga,"-verb")) {
       verbose = true;
-    } else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
+    } else if (startsWith(arga,"--inst") || startsWith(arga,"-inst")) {
+			// Use the given configuration, but do instantaneous bands
+			do_inst = true;
+		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
+			// Use the given configuration, but disable hysteresis
+			no_hyst = true;
+		} else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
       std::cerr << "Options:" << std::endl;
       std::cerr << "  --help\n\tPrint this message" << std::endl;
       std::cerr << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
       std::cerr << "  --verbose\n\tPrint more information" << std::endl;
+      std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
+			std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;
       exit(0);
     } else {
       std::cerr << "Unknown option " << arga << std::endl;
@@ -341,6 +351,13 @@ int main(int argc, const char* argv[]) {
     // If no alerter has been configured, configure alerters as in
     // DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
     daa.set_DO_365B();
+  }
+
+  if (do_inst) {
+    daa.setInstantaneousBands();
+  }
+  if (no_hyst) {
+    daa.disableHysteresis();
   }
 
   double t = 0.0;

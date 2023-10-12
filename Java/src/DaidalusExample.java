@@ -51,6 +51,8 @@ class DaidalusExample {
 		System.out.println("## "+Daidalus.release());
 		System.out.println("##\n");
 		boolean verbose = false;
+		boolean do_inst = false;
+		boolean no_hyst = false;
 
 		// Create an empty Daidalus object
 		Daidalus daa = new Daidalus();
@@ -84,11 +86,19 @@ class DaidalusExample {
 				}
 			} else if (arga.startsWith("--verb") || arga.startsWith("-verb")) {
 				verbose = true;
+			} else if (arga.startsWith("--inst") || arga.startsWith("-inst")) {
+				// Use the given configuration, but do instantaneous bands
+				do_inst = true;
+			} else if (arga.startsWith("--nohys") || arga.startsWith("-nohys")) {
+				// Use the given configuration, but disable hysteresis
+				no_hyst = true;
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Options:");
 				System.err.println("  --help\n\tPrint this message");
 				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
 				System.err.println("  --verbose\n\tPrint more information");
+				System.err.println("  --instantaneous\n\tOverride configuration to do instantaneous bands");
+				System.err.println("  --nohystereis\n\tOverride configuation to disable hysteresis");
 				System.exit(0);
 			} else {
 				System.err.println("Unknown option "+arga);
@@ -100,6 +110,13 @@ class DaidalusExample {
 			// If no alerter has been configured, configure alerters as in 
 		    // DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
 			daa.set_DO_365B();			
+		}
+
+		if (do_inst) {
+			daa.setInstantaneousBands();
+		}
+		if (no_hyst) {
+			daa.disableHysteresis();
 		}
 
 		double t = 0.0;

@@ -44,6 +44,8 @@ public:
 		std::cout << "  --pvs\n\tProduce PVS output format" << std::endl;
 		std::cout << "  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"" << std::endl;
 		std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;
+	    std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
+		std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;		
 		std::cout << getHelpString() << std::endl;
 		exit(0);
 	}
@@ -111,6 +113,8 @@ int main(int argc, const char* argv[]) {
 	std::string options = "";
 	ParameterData params;
 	int precision = 6;
+	bool do_inst = false;
+	bool no_hyst = false;
 	for (a=1;a < argc && argv[a][0]=='-'; ++a) {
 		std::string arga = argv[a];
 		options += arga + " ";
@@ -135,6 +139,12 @@ int main(int argc, const char* argv[]) {
 			++a;
 			std::istringstream(argv[a]) >> precision;
 			options += arga+" ";
+		} else if (startsWith(arga,"--inst") || startsWith(arga,"-inst")) {
+			// Use the given configuration, but do instantaneous bands
+			do_inst = true;
+		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
+			// Use the given configuration, but disable hysteresis
+			no_hyst = true;
 		} else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
 			std::string keyval = arga.substr(arga.find_last_of('-')+1);
 			params.set(keyval);
@@ -158,7 +168,6 @@ int main(int argc, const char* argv[]) {
 	}
 	DaidalusParameters::setDefaultOutputPrecision(precision);
 	Daidalus daa;
-
 	if (config == "") {
 		// Configure alerters as in DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
 		daa.set_DO_365B();
@@ -186,7 +195,12 @@ int main(int argc, const char* argv[]) {
 	if (params.size() > 0) {
 		daa.setParameterData(params);
 	}
-
+	if (do_inst) {
+    	daa.setInstantaneousBands();
+  	}
+  	if (no_hyst) {
+    	daa.disableHysteresis();
+  	}
 	switch (walker.format) {
 	case STANDARD:
 		if (walker.verbose) {

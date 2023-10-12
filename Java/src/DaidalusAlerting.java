@@ -74,6 +74,8 @@ public class DaidalusAlerting {
 		String conf = "";
 		boolean echo = false;
 		int precision = 6;
+		boolean do_inst = false;
+		boolean no_hyst = false;
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
@@ -106,7 +108,7 @@ public class DaidalusAlerting {
 					} else if (arga.equals("tcasii")) {
 						// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
 						daa.set_TCASII();
-						conf = "tcasii";
+						conf = "tcasii"; 
 					} else {
 						System.err.println("** Error: File "+args[a]+" not found");
 						System.exit(1);
@@ -130,6 +132,12 @@ public class DaidalusAlerting {
 			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
 				++a;
 				traffic.addAll(Arrays.asList(args[a].split(",")));
+			} else if (args[a].startsWith("--inst") || args[a].startsWith("-inst")) {
+				// Use the given configuration, but do instantaneous bands
+				do_inst = true;
+			} else if (args[a].startsWith("--nohys") || args[a].startsWith("-nohys")) {
+				// Use the given configuration, but disable hysteresis
+				no_hyst = true;
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DaidalusAlerting [<option>] <daa_file>");
@@ -141,6 +149,8 @@ public class DaidalusAlerting {
 				System.err.println("  --precision <n>\n\tOutput decimal precision");
 				System.err.println("  --ownship <id>\n\tSpecify a particular aircraft as ownship");
 				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
+				System.err.println("  --instantaneous\n\tOverride configuration to do instantaneous bands");
+				System.err.println("  --nohystereis\n\tOverride configuation to disable hysteresis");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -160,6 +170,12 @@ public class DaidalusAlerting {
 		}
 		if (params.size() > 0) {
 			daa.setParameterData(params);
+		}
+		if (do_inst) {
+			daa.setInstantaneousBands();
+		}
+		if (no_hyst) {
+			daa.disableHysteresis();
 		}
 		if (input_file.equals("")) {
 			if (echo) {
@@ -190,19 +206,16 @@ public class DaidalusAlerting {
 			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
-
 		DaidalusParameters.setDefaultOutputPrecision(precision);
 		System.err.println("Processing DAIDALUS file "+input_file);
 		System.err.println("Generating CSV file "+output_file);
 		DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
-
 		if (!ownship.isEmpty()) {
 			walker.setOwnship(ownship);
 		}
 		if (!traffic.isEmpty()) {
 			walker.selectTraffic(traffic);
 		}
-	
 		int max_alert_levels = daa.maxNumberOfAlertLevels();
 		if (max_alert_levels <= 0) {
 			return;
@@ -213,7 +226,6 @@ public class DaidalusAlerting {
 		String uver = daa.getUnitsOf("min_vertical_recovery");
 		String uhs = daa.getUnitsOf("step_hs");
 		String uvs = daa.getUnitsOf("step_vs");
-
 		out.print(" Time, Ownship, Traffic, Alerter, Alert Level");
 		if (!daa.isDisabledDTALogic()) {
 			out.print(", DTA Active, DTA Guidance, Distance to DTA");

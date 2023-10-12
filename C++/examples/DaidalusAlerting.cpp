@@ -64,6 +64,8 @@ int main(int argc, char* argv[]) {
   std::string conf = "";
   bool echo = false;
   int precision = 6;
+	bool do_inst = false;
+	bool no_hyst = false;
 
   for (int a=1;a < argc; ++a) {
     std::string arga = argv[a];
@@ -121,7 +123,13 @@ int main(int argc, char* argv[]) {
       ++a;
       std::vector<std::string> s = split(arga,",");
       traffic.insert(traffic.end(),s.begin(),s.end());
-    } else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
+    } else if (startsWith(arga,"--inst") || startsWith(arga,"-inst")) {
+			// Use the given configuration, but do instantaneous bands
+			do_inst = true;
+		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
+			// Use the given configuration, but disable hysteresis
+			no_hyst = true;
+		} else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
       std::cerr << "Usage:" << std::endl;
       std::cerr << "  DaidalusAlerting [<option>] <daa_file>" << std::endl;
       std::cerr << "  <option> can be" << std::endl;
@@ -132,6 +140,8 @@ int main(int argc, char* argv[]) {
       std::cerr << "  --precision <n>\n\tOutput decimal precision" << std::endl;
       std::cerr << "  --ownship <id>\n\tSpecify a particular aircraft as ownship" << std::endl;
       std::cerr << "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic" << std::endl;
+      std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
+			std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;
       std::cerr << "  --help\n\tPrint this message" << std::endl;
       exit(0);
     } else if (startsWith(arga,"-")){
@@ -151,6 +161,12 @@ int main(int argc, char* argv[]) {
   }
   if (params.size() > 0) {
     daa.setParameterData(params);
+  }
+  if (do_inst) {
+    daa.setInstantaneousBands();
+  }
+  if (no_hyst) {
+    daa.disableHysteresis();
   }
   if (input_file == "") {
     if (echo) {

@@ -86,7 +86,7 @@ public abstract class DaidalusProcessor {
 	public static String getHelpString() {
 		String s = "";
 		s += "  --ownship <id>\n\tSpecify a particular aircraft as ownship\n";
-		s += "  --traffic <id1>,..,<idn>\nSpecify a list of aircraft as traffic\n";
+		s += "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n";
 		s += "  --from t\n\tCheck from time t\n";
 		s += "  --to t\n\tCheck up to time t\n";
 		s += "  --at [t | t+k | t-k]\n\tCheck times t, [t,t+k], or [t-k,t]. ";
