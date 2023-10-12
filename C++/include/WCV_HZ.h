@@ -22,8 +22,7 @@ public:
   /** Constructor that a default instance of the WCV tables. */
   WCV_HZ();
 
-  /** Constructor that specifies a particular instance of the WCV tables. */
-  explicit WCV_HZ(const WCVTable& tab);
+  WCV_HZ(const WCV_HZ& wcv);
 
   virtual ~WCV_HZ() {}
 
@@ -41,7 +40,7 @@ public:
 
   std::string getSimpleClassName() const;
 
-  bool contains(const Detection3D* cd) const;
+  bool contains(const Detection3D& cd) const;
 
 };
 }

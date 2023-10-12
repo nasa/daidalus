@@ -22,10 +22,13 @@ public:
   /** Constructor that a default instance of the WCV tables. */
   WCV_TAUMOD();
 
-  /** Constructor that specifies a particular instance of the WCV tables. */
-  explicit WCV_TAUMOD(const WCVTable& tab);
+  WCV_TAUMOD(const std::string& id, const WCVTable& table);
 
-  virtual ~WCV_TAUMOD() {};
+  WCV_TAUMOD(const WCV_TAUMOD& wcv);
+
+  explicit WCV_TAUMOD(WCV_Vertical* wcv_vertical);
+
+  virtual ~WCV_TAUMOD() {}
 
   /**
    * @return one static WCV_TAUMOD
@@ -81,7 +84,7 @@ public:
 
   virtual std::string getSimpleClassName() const;
 
-  virtual bool contains(const Detection3D* cd) const;
+  virtual bool contains(const Detection3D& cd) const;
 
   static Position TAU_center(const Position& po, const Velocity& v, double TTHR, double T);
 

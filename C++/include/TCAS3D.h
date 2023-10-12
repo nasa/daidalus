@@ -188,13 +188,13 @@ public:
   virtual std::string getIdentifier() const;
   virtual void setIdentifier(const std::string& id);
 
-  virtual bool equals(Detection3D* d) const;
+  virtual bool equals(const Detection3D& d) const;
 
   ParameterData getParameters() const;
   void updateParameterData(ParameterData& p) const;
   void setParameters(const ParameterData& p);
 
-  bool contains(const Detection3D* cd) const;
+  bool contains(const Detection3D& cd) const;
 
   virtual void horizontalHazardZone(std::vector<Position>& haz, const TrafficState& ownship, const TrafficState& intruder,
       double T) const;

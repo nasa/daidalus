@@ -195,8 +195,8 @@ public:
   virtual std::string getIdentifier() const;
   virtual void setIdentifier(const std::string& s);
 
-  virtual bool equals(Detection3D* d) const;
-  virtual bool contains(const Detection3D* cd) const;
+  virtual bool equals(const Detection3D& dd) const;
+  virtual bool contains(const Detection3D& cd) const;
 
   /* Return a list of point representing a counter-clockwise circular arc centered at pc,
    * whose first point is pc+v(0), and the last one is pc+v(alpha), where alpha is

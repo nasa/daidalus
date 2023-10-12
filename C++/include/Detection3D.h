@@ -136,9 +136,9 @@ public:
    *      return true;
    *    }
    */
-  virtual bool equals(Detection3D* o) const = 0;
+  virtual bool equals(const Detection3D& o) const = 0;
 
-  virtual bool contains(const Detection3D* cd) const = 0;
+  virtual bool contains(const Detection3D& cd) const = 0;
 
   bool instanceOf(const std::string& classname) const {
     return larcfm::equals(getCanonicalClassName(), classname);

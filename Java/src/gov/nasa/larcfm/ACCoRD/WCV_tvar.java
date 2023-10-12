@@ -16,84 +16,97 @@ import gov.nasa.larcfm.Util.*;
 
 public abstract class WCV_tvar extends Detection3D {
 
-	protected WCVTable table;
-	protected WCV_Vertical wcv_vertical;
+	private String id_;	
+	private WCV_Vertical wcv_vertical_;
+	private WCVTable table_;
 
-	protected String id = "";
+	public WCV_tvar(String id, WCV_Vertical wcv_vertical, WCVTable table) {
+		id_ = id;
+		wcv_vertical_ = wcv_vertical;
+		table_ = table;
+	}
 
 	public abstract WCV_tvar copy();
 
 	public abstract WCV_tvar make();
 
+	public WCV_Vertical getWCVVertical() {
+		return wcv_vertical_;
+	}
+
+	public WCVTable getWCVTable() {
+		return table_;
+	}
+
 	/** 
 	 * Sets the internal table to be a copy of the supplied one. 
 	 **/
 	public void setWCVTable(WCVTable tab) {
-		table = tab.copy();
+		table_ = tab.copy();
 	}
 
 	public double getDTHR()  {
-		return table.getDTHR();
+		return table_.getDTHR();
 	}
 
 	public double getDTHR(String u)  {
-		return table.getDTHR(u);
+		return table_.getDTHR(u);
 	}
 
 	public double getZTHR()  {
-		return table.getZTHR();
+		return table_.getZTHR();
 	}
 
 	public double getZTHR(String u)  {
-		return table.getZTHR(u);
+		return table_.getZTHR(u);
 	}
 
 	public double getTTHR()  {
-		return table.getTTHR();
+		return table_.getTTHR();
 	}
 
 	public double getTTHR(String u)  {
-		return table.getTTHR(u);
+		return table_.getTTHR(u);
 	}
 
 	public double getTCOA()  {
-		return table.getTCOA();
+		return table_.getTCOA();
 	}
 
 	public double getTCOA(String u)  {
-		return table.getTCOA(u);
+		return table_.getTCOA(u);
 	}
 
 	public void setDTHR(double val) {
-		table.setDTHR(val);
+		table_.setDTHR(val);
 	}
 
 	public void setDTHR(double val, String u) {
-		table.setDTHR(val,u);
+		table_.setDTHR(val,u);
 	}   
 
 	public void setZTHR(double val) {
-		table.setZTHR(val);
+		table_.setZTHR(val);
 	}
 
 	public void setZTHR(double val, String u) {
-		table.setZTHR(val,u);
+		table_.setZTHR(val,u);
 	}
 
 	public void setTTHR(double val) {
-		table.setTTHR(val);
+		table_.setTTHR(val);
 	}
 
 	public void setTTHR(double val, String u) {
-		table.setTTHR(val,u);
+		table_.setTTHR(val,u);
 	}
 
 	public void setTCOA(double val) {
-		table.setTCOA(val);
+		table_.setTCOA(val);
 	}
 
 	public void setTCOA(double val, String u) {
-		table.setTCOA(val,u);
+		table_.setTCOA(val,u);
 	}
 
 	abstract public double horizontal_tvar(Vect2 s, Vect2 v);
@@ -101,10 +114,10 @@ public abstract class WCV_tvar extends Detection3D {
 	abstract public LossData horizontal_WCV_interval(double T, Vect2 s, Vect2 v);
 
 	public boolean horizontal_WCV(Vect2 s, Vect2 v) {
-		if (s.norm() <= table.DTHR) return true;
-		if (Horizontal.dcpa(s,v) <= table.DTHR) {
+		if (s.norm() <= table_.DTHR) return true;
+		if (Horizontal.dcpa(s,v) <= table_.DTHR) {
 			double tvar = horizontal_tvar(s,v);
-			return 0  <= tvar && tvar <= table.TTHR;
+			return 0  <= tvar && tvar <= table_.TTHR;
 		}
 		return false;
 	}
@@ -119,7 +132,7 @@ public abstract class WCV_tvar extends Detection3D {
 	private ConflictData WCV3D(Vect3 so, Vect3 vo, Vect3 si, Vect3 vi, double B, double T) {
 		LossData ld = WCV_interval(so,vo,si,vi,B,T);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-		double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table.DTHR,table.ZTHR);
+		double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table_.DTHR,table_.ZTHR);
 		return new ConflictData(ld,t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
 	}
 
@@ -137,7 +150,7 @@ public abstract class WCV_tvar extends Detection3D {
 		double sz = so.z-si.z;
 		double vz = vo.z-vi.z;
 
-		Interval ii = wcv_vertical.vertical_WCV_interval(table.ZTHR,table.TCOA,B,T,sz,vz);
+		Interval ii = wcv_vertical_.vertical_WCV_interval(table_.ZTHR,table_.TCOA,B,T,sz,vz);
 
 		if (ii.low > ii.up) {
 			return new LossData(time_in, time_out);
@@ -157,15 +170,15 @@ public abstract class WCV_tvar extends Detection3D {
 	}
 
 	public boolean containsTable(WCV_tvar wcv) {
-		return table.contains(wcv.table);
+		return table_.contains(wcv.table_);
 	}
 
 	public String toString() {
-		return (id.equals("") ? "" : id+" : ")+getSimpleClassName()+" = {"+table.toString()+"}";
+		return (id_.equals("") ? "" : id_+" : ")+getSimpleClassName()+" = {"+table_.toString()+"}";
 	}
 
 	public String toPVS() {
-		return getSimpleClassName()+"("+table.toPVS()+")";
+		return getSimpleClassName()+"("+table_.toPVS()+")";
 	}
 
 	public ParameterData getParameters() {
@@ -175,14 +188,14 @@ public abstract class WCV_tvar extends Detection3D {
 	}
 
 	public  void updateParameterData(ParameterData p) {
-		table.updateParameterData(p);
-		p.set("id",id);
+		table_.updateParameterData(p);
+		p.set("id",id_);
 	}
 
 	public void setParameters(ParameterData p) {
-		table.setParameters(p);
+		table_.setParameters(p);
 		if (p.contains("id")) {
-			id = p.getString("id");
+			id_ = p.getString("id");
 		}
 	}
 
@@ -195,11 +208,11 @@ public abstract class WCV_tvar extends Detection3D {
 	}
 
 	public String getIdentifier() {
-		return id;
+		return id_;
 	}
 
 	public void setIdentifier(String s) {
-		id = s;
+		id_ = s;
 	}
 
 	public void horizontalHazardZone(List<Position> haz, 
@@ -232,14 +245,14 @@ public abstract class WCV_tvar extends Detection3D {
 			return false;
 		}
 		WCV_tvar other = (WCV_tvar) obj;
-		if (id == null) {
-			if (other.id != null) {
+		if (id_ == null) {
+			if (other.id_ != null) {
 				return false;
 			}
-		} else if (!id.equals(other.id)) {
+		} else if (!id_.equals(other.id_)) {
 			return false;
 		}
-		if (!table.equals(other.table)) {
+		if (!table_.equals(other.table_)) {
 			return false;
 		}
 		return true;

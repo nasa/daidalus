@@ -22,12 +22,9 @@ namespace larcfm {
 
 void WCV_tvar::copyFrom(const WCV_tvar& wcv) {
   if (&wcv != this) {
-    table = wcv.table;
-    if (wcv_vertical != NULL) {
-      delete wcv_vertical;
-    }
-    wcv_vertical = wcv.wcv_vertical != NULL ? wcv.wcv_vertical->copy() : NULL;
-    id = wcv.id;
+    id_ = wcv.id_;
+    wcv_vertical_.reset(wcv.wcv_vertical_->copy());
+    table_ = wcv.table_;
   }
 }
 
@@ -36,78 +33,81 @@ WCV_tvar& WCV_tvar::operator=(const WCV_tvar& wcv) {
   return *this;
 }
 
-WCV_tvar::~WCV_tvar() {
-  delete wcv_vertical;
-}
+WCV_tvar::~WCV_tvar() {}
 
 /**
  * Sets the internal table to be a copy of the supplied one.
  **/
 void WCV_tvar::setWCVTable(const WCVTable& tab) {
-  table = tab;
+  table_ = tab;
 }
 
 double WCV_tvar::getDTHR() const {
-  return table.getDTHR();
+  return table_.getDTHR();
 }
+
 double WCV_tvar::getDTHR(const std::string& u) const {
-  return table.getDTHR(u);
+  return table_.getDTHR(u);
 }
 
 double WCV_tvar::getZTHR() const {
-  return table.getZTHR();
+  return table_.getZTHR();
 }
+
 double WCV_tvar::getZTHR(const std::string& u) const {
-  return table.getZTHR(u);
+  return table_.getZTHR(u);
 }
 
 double WCV_tvar::getTTHR() const {
-  return table.getTTHR();
+  return table_.getTTHR();
 }
 double WCV_tvar::getTTHR(const std::string& u) const {
-  return table.getTTHR(u);
+  return table_.getTTHR(u);
 }
 
 double WCV_tvar::getTCOA() const {
-  return table.getTCOA();
+  return table_.getTCOA();
 }
+
 double WCV_tvar::getTCOA(const std::string& u) const {
-  return table.getTCOA(u);
+  return table_.getTCOA(u);
 }
 
 void WCV_tvar::setDTHR(double val) {
-  table.setDTHR(val);
+  table_.setDTHR(val);
 }
 void WCV_tvar::setDTHR(double val, const std::string& u) {
-  table.setDTHR(val, u);
+  table_.setDTHR(val, u);
 }
 
 void WCV_tvar::setZTHR(double val) {
-  table.setZTHR(val);
+  table_.setZTHR(val);
 }
 void WCV_tvar::setZTHR(double val, const std::string& u) {
-  table.setZTHR(val,u);
+  table_.setZTHR(val,u);
 }
 
 void WCV_tvar::setTTHR(double val) {
-  table.setTTHR(val);
+  table_.setTTHR(val);
 }
+
 void WCV_tvar::setTTHR(double val, const std::string& u) {
-  table.setTTHR(val,u);
+  table_.setTTHR(val,u);
 }
 
 void WCV_tvar::setTCOA(double val) {
-  table.setTCOA(val);
+  table_.setTCOA(val);
 }
+
 void WCV_tvar::setTCOA(double val, const std::string& u) {
-  table.setTCOA(val,u);
+  table_.setTCOA(val,u);
 }
 
 bool WCV_tvar::horizontal_WCV(const Vect2& s, const Vect2& v) const {
-  if (s.norm() <= table.getDTHR()) return true;
-  if (Horizontal::dcpa(s,v) <= table.getDTHR()) {
+  if (s.norm() <= table_.getDTHR()) return true;
+  if (Horizontal::dcpa(s,v) <= table_.getDTHR()) {
     double tvar = horizontal_tvar(s,v);
-    return 0  <= tvar && tvar <= table.getTTHR();
+    return 0  <= tvar && tvar <= table_.getTTHR();
   }
   return false;
 }
@@ -115,7 +115,7 @@ bool WCV_tvar::horizontal_WCV(const Vect2& s, const Vect2& v) const {
 ConflictData WCV_tvar::conflictDetection(const Vect3& so, const Vect3& vo, const Vect3& si, const Vect3& vi, double B, double T) const {
   LossData ret = WCV3D(so,vo,si,vi,B,T);
   double t_tca = (ret.getTimeIn() + ret.getTimeOut())/2;
-  double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table.getDTHR(),table.getZTHR());
+  double dist_tca = so.linear(vo, t_tca).Sub(si.linear(vi, t_tca)).cyl_norm(table_.getDTHR(),table_.getZTHR());
   return ConflictData(ret, t_tca,dist_tca,so.Sub(si),vo.Sub(vi));
 }
 
@@ -137,7 +137,7 @@ LossData WCV_tvar::WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& s
   double sz = so.z()-si.z();
   double vz = vo.z()-vi.z();
 
-  Interval ii = wcv_vertical->vertical_WCV_interval(table.getZTHR(),table.getTCOA(),B,T,sz,vz);
+  Interval ii = wcv_vertical_->vertical_WCV_interval(table_.getZTHR(),table_.getTCOA(),B,T,sz,vz);
 
   if (ii.low > ii.up) {
     return LossData(time_in,time_out);
@@ -156,16 +156,16 @@ LossData WCV_tvar::WCV_interval(const Vect3& so, const Vect3& vo, const Vect3& s
   return LossData(time_in,time_out);
 }
 
-bool WCV_tvar::containsTable(const WCV_tvar* wcv) const {
-  return table.contains(wcv->table);
+bool WCV_tvar::containsTable(const WCV_tvar& wcv) const {
+  return table_.contains(wcv.table_);
 }
 
 std::string WCV_tvar::toString() const {
-  return (id == "" ? "" : id+" : ")+getSimpleClassName()+" = {"+table.toString()+"}";
+  return (id_ == "" ? "" : id_+" : ")+getSimpleClassName()+" = {"+table_.toString()+"}";
 }
 
 std::string WCV_tvar::toPVS() const {
-  return getSimpleClassName()+"("+table.toPVS()+")";
+  return getSimpleClassName()+"("+table_.toPVS()+")";
 }
 
 ParameterData WCV_tvar::getParameters() const {
@@ -175,23 +175,23 @@ ParameterData WCV_tvar::getParameters() const {
 }
 
 void WCV_tvar::updateParameterData(ParameterData& p) const {
-  table.updateParameterData(p);
-  p.set("id",id);
+  table_.updateParameterData(p);
+  p.set("id",id_);
 }
 
 void WCV_tvar::setParameters(const ParameterData& p) {
-  table.setParameters(p);
+  table_.setParameters(p);
   if (p.contains("id")) {
-    id = p.getString("id");
+    id_ = p.getString("id");
   }
 }
 
 std::string WCV_tvar::getIdentifier() const {
-  return id;
+  return id_;
 }
 
 void WCV_tvar::setIdentifier(const std::string& s) {
-  id = s;
+  id_ = s;
 }
 
 void WCV_tvar::horizontalHazardZone(std::vector<Position>& haz, const TrafficState& ownship, const TrafficState& intruder,
@@ -209,10 +209,10 @@ void WCV_tvar::horizontalHazardZone(std::vector<Position>& haz, const TrafficSta
   }
 }
 
-bool WCV_tvar::equals(Detection3D *obj) const {
-  if (!larcfm::equals(getCanonicalClassName(), obj->getCanonicalClassName())) return false;
-  if (!table.equals(((WCV_tvar*)obj)->table)) return false;
-  if (!larcfm::equals(id, ((WCV_tvar*)obj)->id)) return false;
+bool WCV_tvar::equals(const Detection3D& obj) const {
+  if (!larcfm::equals(getCanonicalClassName(), obj.getCanonicalClassName())) return false;
+  if (!table_.equals(((WCV_tvar &)obj).table_)) return false;
+  if (!larcfm::equals(id_, ((WCV_tvar &)obj).id_)) return false;
   return true;
 }
 

@@ -24,8 +24,7 @@ public:
   /** Constructor that a default instance of the WCV tables. */
   WCV_TEP();
 
-  /** Constructor that specifies a particular instance of the WCV tables. */
-  explicit WCV_TEP(const WCVTable& tab);
+  WCV_TEP(const WCV_TEP& wcv);
 
   virtual ~WCV_TEP() {}
 
@@ -47,7 +46,7 @@ public:
 
   std::string getSimpleClassName() const;
 
-  bool contains(const Detection3D* cd) const;
+  bool contains(const Detection3D& cd) const;
 
   virtual void hazard_zone_far_end(std::vector<Position>& haz,
       const Position& po, const Velocity& v, const Vect3& pu, double T) const;

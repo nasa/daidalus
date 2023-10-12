@@ -21,17 +21,13 @@
 namespace larcfm {
 
 /** Constructor that uses the default TCAS tables. */
-WCV_TAUMOD::WCV_TAUMOD() {
-  wcv_vertical = new WCV_TCOA();
-  id = "";
-}
+WCV_TAUMOD::WCV_TAUMOD() : WCV_tvar(new WCV_TCOA()) {}
 
-/** Constructor that specifies a particular instance of the TCAS tables. */
-WCV_TAUMOD::WCV_TAUMOD(const WCVTable& tab) {
-  wcv_vertical = new WCV_TCOA();
-  table = tab;
-  id = "";
-}
+WCV_TAUMOD::WCV_TAUMOD(const std::string& id, const WCVTable& table) : WCV_tvar(id,new WCV_TCOA(),table) {}
+
+WCV_TAUMOD::WCV_TAUMOD(const WCV_TAUMOD& wcv) : WCV_tvar(wcv.getIdentifier(),wcv.getWCVVertical().copy(),wcv.getWCVTable()) {}
+
+WCV_TAUMOD::WCV_TAUMOD(WCV_Vertical* wcv_vertical) : WCV_tvar(wcv_vertical) {}
 
 /**
  * @return one static WCV_TAUMOD
@@ -46,7 +42,7 @@ const WCV_TAUMOD& WCV_TAUMOD::A_WCV_TAUMOD() {
  * TTHR=35s, TCOA=0.
  */
 const WCV_TAUMOD& WCV_TAUMOD::DO_365_Phase_I_preventive() {
-  static WCV_TAUMOD preventive(WCVTable::DO_365_Phase_I_preventive());
+  static WCV_TAUMOD preventive("DO_365_Phase_I_preventive",WCVTable::DO_365_Phase_I_preventive());
   return preventive;
 }
 
@@ -55,7 +51,8 @@ const WCV_TAUMOD& WCV_TAUMOD::DO_365_Phase_I_preventive() {
  * TTHR=35s, TCOA=0.
  */
 const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Phase_I() {
-  return A_WCV_TAUMOD();
+  static WCV_TAUMOD dwc("DO_365_DWC_Phase_I",WCVTable::DO_365_DWC_Phase_I());
+  return dwc;
 }
 
 /**
@@ -63,7 +60,7 @@ const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Phase_I() {
  * TTHR=0s, TCOA=0.
  */
 const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Phase_II() {
-  static WCV_TAUMOD dwc(WCVTable::DO_365_DWC_Phase_II());
+  static WCV_TAUMOD dwc("DO_365_DWC_Phase_II",WCVTable::DO_365_DWC_Phase_II());
   return dwc;
 }
 
@@ -72,7 +69,7 @@ const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Phase_II() {
  * TTHR=0s, TCOA=0.
  */
 const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Non_Coop() {
-  static WCV_TAUMOD dwc(WCVTable::DO_365_DWC_Non_Coop());
+  static WCV_TAUMOD dwc("DO_365_DWC_Non_Coop",WCVTable::DO_365_DWC_Non_Coop());
   return dwc;
 }
 
@@ -81,7 +78,7 @@ const WCV_TAUMOD& WCV_TAUMOD::DO_365_DWC_Non_Coop() {
  * TTHR=35s, TCOA=20.
  */
 const WCV_TAUMOD& WCV_TAUMOD::Buffered_Phase_I_preventive() {
-  static WCV_TAUMOD preventive(WCVTable::Buffered_Phase_I_preventive());
+  static WCV_TAUMOD preventive("Buffered_Phase_I_preventive",WCVTable::Buffered_Phase_I_preventive());
   return preventive;
 }
 
@@ -90,7 +87,7 @@ const WCV_TAUMOD& WCV_TAUMOD::Buffered_Phase_I_preventive() {
  * TTHR=35s, TCOA=20.
  */
 const WCV_TAUMOD& WCV_TAUMOD::Buffered_DWC_Phase_I() {
-  static WCV_TAUMOD dwc(WCVTable::Buffered_DWC_Phase_I());
+  static WCV_TAUMOD dwc("Buffered_DWC_Phase_I",WCVTable::Buffered_DWC_Phase_I());
   return dwc;
 }
 
@@ -99,7 +96,7 @@ double WCV_TAUMOD::horizontal_tvar(const Vect2& s, const Vect2& v) const {
   double taumod = -1;
   double sdotv = s.dot(v);
   if (sdotv < 0)
-    return (Util::sq(table.getDTHR())-s.sqv())/sdotv;
+    return (Util::sq(getDTHR())-s.sqv())/sdotv;
   return taumod;
 }
 
@@ -108,10 +105,10 @@ LossData WCV_TAUMOD::horizontal_WCV_interval(double T, const Vect2& s, const Vec
   double time_out = 0;
   double sqs = s.sqv();
   double sdotv = s.dot(v);
-  double sqD = Util::sq(table.getDTHR());
+  double sqD = Util::sq(getDTHR());
   double a = v.sqv();
-  double b = 2*sdotv+table.getTTHR()*v.sqv();
-  double c = sqs+table.getTTHR()*sdotv-sqD;
+  double b = 2*sdotv+getTTHR()*v.sqv();
+  double c = sqs+getTTHR()*sdotv-sqD;
   if (Util::almost_equals(a,0) && sqs <= sqD) { // [CAM] Changed from == to almost_equals to mitigate numerical problems
     time_in = 0;
     time_out = T;
@@ -119,16 +116,16 @@ LossData WCV_TAUMOD::horizontal_WCV_interval(double T, const Vect2& s, const Vec
   }
   if (sqs <= sqD) {
     time_in = 0;
-    time_out = Util::min(T,Horizontal::Theta_D(s,v,1,table.getDTHR()));
+    time_out = Util::min(T,Horizontal::Theta_D(s,v,1,getDTHR()));
     return LossData(time_in,time_out);
   }
   double discr = Util::sq(b)-4*a*c;
   if (sdotv >= 0 || discr < 0)
     return LossData(time_in,time_out);
   double t = (-b - std::sqrt(discr))/(2*a);
-  if (Horizontal::Delta(s, v,table.getDTHR()) >= 0 && t <= T) {
+  if (Horizontal::Delta(s, v,getDTHR()) >= 0 && t <= T) {
     time_in = Util::max(0.0,t);
-    time_out = Util::min(T, Horizontal::Theta_D(s,v,1,table.getDTHR()));
+    time_out = Util::min(T, Horizontal::Theta_D(s,v,1,getDTHR()));
   }
   return LossData(time_in,time_out);
 }
@@ -141,19 +138,17 @@ Detection3D* WCV_TAUMOD::make() const {
  * Returns a deep copy of this WCV_TAUMOD object, including any results that have been calculated.
  */
 Detection3D* WCV_TAUMOD::copy() const {
-  WCV_TAUMOD* ret = new WCV_TAUMOD();
-  ret->copyFrom(*this);
-  return ret;
+  return new WCV_TAUMOD(*this);
 }
 
 std::string WCV_TAUMOD::getSimpleClassName() const {
   return "WCV_TAUMOD";
 }
 
-bool WCV_TAUMOD::contains(const Detection3D* cd) const {
-  if (larcfm::equals(getCanonicalClassName(), cd->getCanonicalClassName()) ||
-      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TCPA", cd->getCanonicalClassName())) {
-    return containsTable((WCV_tvar*)cd);
+bool WCV_TAUMOD::contains(const Detection3D& cd) const {
+  if (larcfm::equals(getCanonicalClassName(), cd.getCanonicalClassName()) ||
+      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TCPA", cd.getCanonicalClassName())) {
+    return containsTable(((WCV_tvar&)cd));
   }
   return false;
 }

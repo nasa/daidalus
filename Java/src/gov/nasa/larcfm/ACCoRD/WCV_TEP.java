@@ -17,14 +17,12 @@ public class WCV_TEP extends WCV_tvar {
 
 	/** Constructor that a default instance of the WCV tables. */
 	public WCV_TEP() {
-		table = new WCVTable();
-		wcv_vertical = new WCV_TCOA();
+		super("",new WCV_TCOA(),new WCVTable());
 	}
 
 	/** Constructor that specifies a particular instance of the WCV tables. */
-	public WCV_TEP(WCVTable tab) {
-		table = tab.copy();
-		wcv_vertical = new WCV_TCOA();
+	public WCV_TEP(WCV_TEP wcv) {
+		super(wcv.getIdentifier(),wcv.getWCVVertical().copy(),wcv.getWCVTable().copy());
 	}
 
 	/**
@@ -37,8 +35,8 @@ public class WCV_TEP extends WCV_tvar {
 		// Time variable is Time to Entry Vect3
 		double tep = -1;
 		double sdotv = s.dot(v);
-		if (sdotv < 0 && Horizontal.Delta(s,v,table.DTHR) >= 0)
-			return Horizontal.Theta_D(s,v,-1,table.DTHR);
+		if (sdotv < 0 && Horizontal.Delta(s,v,getDTHR()) >= 0)
+			return Horizontal.Theta_D(s,v,-1,getDTHR());
 		return tep;
 	}
 
@@ -48,7 +46,7 @@ public class WCV_TEP extends WCV_tvar {
 		double sqs = s.sqv();
 		double sqv = v.sqv();
 		double sdotv = s.dot(v);
-		double sqD = Util.sq(table.DTHR);
+		double sqD = Util.sq(getDTHR());
 		if (Util.almost_equals(sqv,0) && sqs <= sqD) { // [CAM] Changed from == to almost_equals to mitigate numerical problems 
 			time_in = 0;
 			time_out = T;
@@ -58,16 +56,16 @@ public class WCV_TEP extends WCV_tvar {
 			return new LossData(time_in,time_out);
 		if (sqs <= sqD) {
 			time_in = 0;
-			time_out = Util.min(T,Horizontal.Theta_D(s,v,1,table.DTHR));
+			time_out = Util.min(T,Horizontal.Theta_D(s,v,1,getDTHR()));
 			return new LossData(time_in,time_out);
 		}
-		if (sdotv > 0 || Horizontal.Delta(s,v,table.DTHR) < 0) 
+		if (sdotv > 0 || Horizontal.Delta(s,v,getDTHR()) < 0) 
 			return new LossData(time_in,time_out);
-		double tep = Horizontal.Theta_D(s,v,-1,table.DTHR);
-		if (tep-table.TTHR > T) 
+		double tep = Horizontal.Theta_D(s,v,-1,getDTHR());
+		if (tep-getTTHR() > T) 
 			return new LossData(time_in,time_out);
-		time_in = Util.max(0,tep-table.TTHR);
-		time_out = Util.min(T,Horizontal.Theta_D(s,v,1,table.DTHR));
+		time_in = Util.max(0,tep-getTTHR());
+		time_out = Util.min(T,Horizontal.Theta_D(s,v,1,getDTHR()));
 		return new LossData(time_in,time_out);
 	}
 
@@ -79,9 +77,7 @@ public class WCV_TEP extends WCV_tvar {
 	 * Returns a deep copy of this WCV_TEP object, including any results that have been calculated.  
 	 */
 	public WCV_TEP copy() {
-		WCV_TEP ret = new WCV_TEP(table);
-		ret.id = id;
-		return ret;
+		return new WCV_TEP(this);
 	}
 
 	public boolean contains(Detection3D cd) {

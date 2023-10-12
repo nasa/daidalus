@@ -22,17 +22,9 @@
 namespace larcfm {
 
 /** Constructor that uses the default TCAS tables. */
-WCV_TEP::WCV_TEP() {
-  wcv_vertical = new WCV_TCOA();
-  id = "";
-}
+WCV_TEP::WCV_TEP() : WCV_tvar(new WCV_TCOA()) {}
 
-/** Constructor that specifies a particular instance of the TCAS tables. */
-WCV_TEP::WCV_TEP(const WCVTable& tab) {
-  wcv_vertical = new WCV_TCOA();
-  table = tab;
-  id = "";
-}
+WCV_TEP::WCV_TEP(const WCV_TEP& wcv) :  WCV_tvar(wcv.getIdentifier(),wcv.getWCVVertical().copy(),wcv.getWCVTable()) {}
 
 /**
  * @return one static WCV_TEP
@@ -47,7 +39,7 @@ double WCV_TEP::horizontal_tvar(const Vect2& s, const Vect2& v) const {
   double TEP = -1;
   double sdotv = s.dot(v);
   if (sdotv < 0)
-    return (Util::sq(table.getDTHR())-s.sqv())/sdotv;
+    return (Util::sq(getDTHR())-s.sqv())/sdotv;
   return TEP;
 }
 
@@ -57,7 +49,7 @@ LossData WCV_TEP::horizontal_WCV_interval(double T, const Vect2& s, const Vect2&
   double sqs = s.sqv();
   double sqv = v.sqv();
   double sdotv = s.dot(v);
-  double sqD = Util::sq(table.getDTHR());
+  double sqD = Util::sq(getDTHR());
   if (Util::almost_equals(sqv,0) && sqs <= sqD) { // [CAM] Changed from == to almost_equals to mitigate numerical problems
     time_in = 0;
     time_out = T;
@@ -67,16 +59,16 @@ LossData WCV_TEP::horizontal_WCV_interval(double T, const Vect2& s, const Vect2&
     return LossData(time_in,time_out);
   if (sqs <= sqD) {
     time_in = 0;
-    time_out = Util::min(T,Horizontal::Theta_D(s,v,1,table.getDTHR()));
+    time_out = Util::min(T,Horizontal::Theta_D(s,v,1,getDTHR()));
     return LossData(time_in,time_out);
   }
-  if (sdotv > 0 || Horizontal::Delta(s,v,table.getDTHR()) < 0)
+  if (sdotv > 0 || Horizontal::Delta(s,v,getDTHR()) < 0)
     return LossData(time_in,time_out);
-  double tep = Horizontal::Theta_D(s,v,-1,table.getDTHR());
-  if (tep-table.getTTHR() > T)
+  double tep = Horizontal::Theta_D(s,v,-1,getDTHR());
+  if (tep-getTTHR() > T)
     return LossData(time_in,time_out);
-  time_in = Util::max(0.0,tep-table.getTTHR());
-  time_out = Util::min(T,Horizontal::Theta_D(s,v,1,table.getDTHR()));
+  time_in = Util::max(0.0,tep-getTTHR());
+  time_out = Util::min(T,Horizontal::Theta_D(s,v,1,getDTHR()));
   return LossData(time_in,time_out);
 }
 
@@ -88,20 +80,18 @@ Detection3D* WCV_TEP::make() const {
  * Returns a deep copy of this WCV_TEP object, including any results that have been calculated.
  */
 Detection3D* WCV_TEP::copy() const {
-  WCV_TEP* ret = new WCV_TEP();
-  ret->copyFrom(*this);
-  return ret;
+  return new WCV_TEP(*this);
 }
 
 std::string WCV_TEP::getSimpleClassName() const {
   return "WCV_TEP";
 }
 
-bool WCV_TEP::contains(const Detection3D* cd) const {
-  if (larcfm::equals(getCanonicalClassName(), cd->getCanonicalClassName()) ||
-      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TAUMOD", cd->getCanonicalClassName()) ||
-      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TCPA", cd->getCanonicalClassName())) {
-    return containsTable((WCV_tvar*)cd);
+bool WCV_TEP::contains(const Detection3D& cd) const {
+  if (larcfm::equals(getCanonicalClassName(), cd.getCanonicalClassName()) ||
+      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TAUMOD", cd.getCanonicalClassName()) ||
+      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TCPA", cd.getCanonicalClassName())) {
+    return containsTable((WCV_tvar&)cd);
   }
   return false;
 }

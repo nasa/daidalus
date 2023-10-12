@@ -36,14 +36,28 @@ void WCV_TAUMOD_SUM::initSUM() {
 
 /** Constructor that a default instance of the WCV tables. */
 WCV_TAUMOD_SUM::WCV_TAUMOD_SUM() {
-  wcv_vertical = new WCV_TCOA();
   initSUM();
 }
 
+WCV_TAUMOD_SUM::WCV_TAUMOD_SUM(const WCV_TAUMOD_SUM& wcv) : 
+          WCV_TAUMOD(wcv), 
+          h_vel_z_distance_units_(wcv.h_vel_z_distance_units_) {
+  h_pos_z_score_ = wcv.h_pos_z_score_;
+  h_pos_z_score_enabled_ = wcv.h_pos_z_score_enabled_;
+  h_vel_z_score_min_ = wcv.h_vel_z_score_min_;
+  h_vel_z_score_min_enabled_ = wcv.h_vel_z_score_min_enabled_;
+  h_vel_z_score_max_ = wcv.h_vel_z_score_max_;
+  h_vel_z_score_max_enabled_ = wcv.h_vel_z_score_max_enabled_;
+  h_vel_z_distance_ = wcv.h_vel_z_distance_;
+  h_vel_z_distance_enabled_ = wcv.h_vel_z_distance_enabled_;
+  v_pos_z_score_ = wcv.v_pos_z_score_;
+  v_pos_z_score_enabled_ = wcv.v_pos_z_score_enabled_;
+  v_vel_z_score_ = wcv.v_vel_z_score_;
+  v_vel_z_score_enabled_ = wcv.v_vel_z_score_enabled_;
+}
+
 /** Constructor that specifies a particular instance of the WCV tables. */
-WCV_TAUMOD_SUM::WCV_TAUMOD_SUM(const WCVTable& tab) {
-  table = tab;
-  wcv_vertical = new WCV_TCOA();
+WCV_TAUMOD_SUM::WCV_TAUMOD_SUM(const std::string& id, const WCVTable& table) : WCV_TAUMOD(id,table) {
   initSUM();
 }
 
@@ -60,7 +74,7 @@ const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::A_WCV_TAUMOD_SUM() {
  * TTHR=35s, TCOA=0, with SUM
  */
 const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_Phase_I_preventive() {
-  static WCV_TAUMOD_SUM preventive(WCVTable::DO_365_Phase_I_preventive());
+  static WCV_TAUMOD_SUM preventive("DO_365_Phase_I_preventive",WCVTable::DO_365_Phase_I_preventive());
   return preventive;
 }
 
@@ -69,7 +83,8 @@ const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_Phase_I_preventive() {
  * TTHR=35s, TCOA=0, with SUM
  */
 const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_DWC_Phase_I() {
-  return A_WCV_TAUMOD_SUM();
+  static WCV_TAUMOD_SUM dwc("DO_365_DWC_Phase_I",WCVTable::DO_365_DWC_Phase_I());
+  return dwc;
 }
 
 /**
@@ -77,7 +92,7 @@ const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_DWC_Phase_I() {
  * TTHR=0s, TCOA=0, with SUM
  */
 const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_DWC_Phase_II() {
-  static WCV_TAUMOD_SUM dwc(WCVTable::DO_365_DWC_Phase_II());
+  static WCV_TAUMOD_SUM dwc("DO_365_DWC_Phase_II",WCVTable::DO_365_DWC_Phase_II());
   return dwc;
 }
 
@@ -86,18 +101,13 @@ const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_DWC_Phase_II() {
  * TTHR=0s, TCOA=0.
  */
 const WCV_TAUMOD_SUM& WCV_TAUMOD_SUM::DO_365_DWC_Non_Coop() {
-  static WCV_TAUMOD_SUM dwc(WCVTable::DO_365_DWC_Non_Coop());
+  static WCV_TAUMOD_SUM dwc("DO_365_DWC_Non_Coop",WCVTable::DO_365_DWC_Non_Coop());
   return dwc;
 }
 
 void WCV_TAUMOD_SUM::copyFrom(const WCV_TAUMOD_SUM& wcv) {
   if (&wcv != this) {
-    id = wcv.id;
-    table = wcv.table;
-    if (wcv_vertical != NULL) {
-      delete wcv_vertical;
-    }
-    wcv_vertical = wcv.wcv_vertical != NULL ? wcv.wcv_vertical->copy() : NULL;
+    WCV_tvar::copyFrom(wcv);
     h_pos_z_score_ = wcv.h_pos_z_score_;
     h_pos_z_score_enabled_ = wcv.h_pos_z_score_enabled_;
     h_vel_z_score_min_ = wcv.h_vel_z_score_min_;
@@ -188,7 +198,7 @@ bool WCV_TAUMOD_SUM::horizontal_wcv_taumod_uncertain(const Vect2& s, const Vect2
   if (horizontal_WCV(s,v)) {
     return true;
   }
-  if (s.sqv()<=Util::sq(table.DTHR+s_err)) {
+  if (s.sqv()<=Util::sq(getDTHR()+s_err)) {
     return true;
   }
   if (v.sqv()<=Util::sq(v_err)) {
@@ -203,7 +213,7 @@ bool WCV_TAUMOD_SUM::vertical_WCV_uncertain(double sz, double vz, double sz_err,
   int ssign = Util::sign(sz);
   double snew = sz-ssign*Util::min(sz_err,std::abs(sz));
   double vnew = vz-ssign*vz_err;
-  return wcv_vertical->vertical_WCV(table.ZTHR,table.TCOA,snew,vnew);
+  return getWCVVertical().vertical_WCV(getZTHR(),getTCOA(),snew,vnew);
 }
 
 bool WCV_TAUMOD_SUM::WCV_taumod_uncertain(const Vect3& s, const Vect3& v, double s_err, double sz_err, double v_err, double vz_err) const {
@@ -212,7 +222,7 @@ bool WCV_TAUMOD_SUM::WCV_taumod_uncertain(const Vect3& s, const Vect3& v, double
 }
 
 double WCV_TAUMOD_SUM::horizontal_wcv_taumod_uncertain_entry(const Vect2& s, const Vect2& v, double s_err, double v_err, double T) const {
-  if (horizontal_WCV(s,v) || s.sqv()<=Util::sq(table.DTHR+s_err)) {
+  if (horizontal_WCV(s,v) || s.sqv()<=Util::sq(getDTHR()+s_err)) {
     return 0;
   }
   if (v.sqv() <= Util::sq(v_err)) {
@@ -239,7 +249,7 @@ double WCV_TAUMOD_SUM::Theta_D_uncertain(const Vect2& s, const Vect2& v, double 
     return -1;
   }
   else {
-    double rt = Util::root(v.sqv()-Util::sq(v_err),2*(s.dot(v)-v_err*(table.DTHR+s_err)),s.sqv()-Util::sq(table.DTHR+s_err),eps);
+    double rt = Util::root(v.sqv()-Util::sq(v_err),2*(s.dot(v)-v_err*(getDTHR()+s_err)),s.sqv()-Util::sq(getDTHR()+s_err),eps);
     if (ISFINITE(rt)) {
       return rt;
     }
@@ -248,7 +258,7 @@ double WCV_TAUMOD_SUM::Theta_D_uncertain(const Vect2& s, const Vect2& v, double 
 }
 
 double WCV_TAUMOD_SUM::horizontal_wcv_taumod_uncertain_exit(const Vect2& s, const Vect2& v,double s_err, double v_err, double T) const {
-  if (v.sqv() <= Util::sq(v_err) && s.sqv() <= Util::sq(table.DTHR+s_err)) {
+  if (v.sqv() <= Util::sq(v_err) && s.sqv() <= Util::sq(getDTHR()+s_err)) {
     return T;
   } else if (v.sqv() <= Util::sq(v_err)) {
     Vect2 s_hat = s.Hat();
@@ -273,13 +283,13 @@ LossData WCV_TAUMOD_SUM::horizontal_wcv_taumod_uncertain_interval(const Vect2& s
 }
 
 LossData WCV_TAUMOD_SUM::vertical_WCV_uncertain_full_interval_szpos_vzpos(double T, double minsz/*,double maxsz*/, double minvz/*, double maxvz*/) const {
-  Interval ii = wcv_vertical->vertical_WCV_interval(table.ZTHR,table.TCOA,0,T,minsz,minvz);
+  Interval ii = getWCVVertical().vertical_WCV_interval(getZTHR(),getTCOA(),0,T,minsz,minvz);
   return LossData(ii.low,ii.up);
 }
 
 LossData WCV_TAUMOD_SUM::vertical_WCV_uncertain_full_interval_szpos_vzneg(double T, double minsz,double maxsz, double minvz, double maxvz) const {
-  Interval entryint = wcv_vertical->vertical_WCV_interval(table.ZTHR,table.TCOA,0,T,minsz,minvz);
-  Interval exitint = wcv_vertical->vertical_WCV_interval(table.ZTHR,table.TCOA,0,T,maxsz,maxvz);
+  Interval entryint = getWCVVertical().vertical_WCV_interval(getZTHR(),getTCOA(),0,T,minsz,minvz);
+  Interval exitint = getWCVVertical().vertical_WCV_interval(getZTHR(),getTCOA(),0,T,maxsz,maxvz);
   if (entryint.low > entryint.up) {
     return LossData();
   } else if (exitint.low > exitint.up) {
@@ -390,7 +400,7 @@ ConflictData WCV_TAUMOD_SUM::conflictDetectionWithTrafficState(const TrafficStat
   Vect3 v = vo.Sub(vi);
   LossData ld = WCV_taumod_uncertain_interval(B,T,s,v,s_err,sz_err,v_err,vz_err);
   double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-  double dist_tca = s.linear(v, t_tca).cyl_norm(table.DTHR,table.ZTHR);
+  double dist_tca = s.linear(v, t_tca).cyl_norm(getDTHR(),getZTHR());
   return ConflictData(ld,t_tca,dist_tca,s,v);
 }
 
@@ -402,34 +412,32 @@ Detection3D* WCV_TAUMOD_SUM::make() const {
  * Returns a deep copy of this WCV_TAUMOD object, including any results that have been calculated.
  */
 Detection3D* WCV_TAUMOD_SUM::copy() const {
-  WCV_TAUMOD_SUM* ret = new WCV_TAUMOD_SUM();
-  ret->copyFrom(*this);
-  return ret;
+  return new WCV_TAUMOD_SUM(*this);
 }
 
 std::string WCV_TAUMOD_SUM::getSimpleClassName() const {
   return "WCV_TAUMOD_SUM";
 }
 
-bool WCV_TAUMOD_SUM::containsSUM(const WCV_TAUMOD_SUM* wcv) const {
-  return h_pos_z_score_ == wcv->h_pos_z_score_ &&
-      h_vel_z_score_min_ == wcv->h_vel_z_score_min_ &&
-      h_vel_z_score_max_ == wcv->h_vel_z_score_max_ &&
-      h_vel_z_distance_ == wcv->h_vel_z_distance_ &&
-      v_pos_z_score_ == wcv->v_pos_z_score_ &&
-      v_vel_z_score_ == wcv->v_vel_z_score_;
+bool WCV_TAUMOD_SUM::containsSUM(const WCV_TAUMOD_SUM& wcv) const {
+  return h_pos_z_score_ == wcv.h_pos_z_score_ &&
+      h_vel_z_score_min_ == wcv.h_vel_z_score_min_ &&
+      h_vel_z_score_max_ == wcv.h_vel_z_score_max_ &&
+      h_vel_z_distance_ == wcv.h_vel_z_distance_ &&
+      v_pos_z_score_ == wcv.v_pos_z_score_ &&
+      v_vel_z_score_ == wcv.v_vel_z_score_;
 }
 
-bool WCV_TAUMOD_SUM::contains(const Detection3D* cd) const {
-  if (larcfm::equals(getCanonicalClassName(),cd->getCanonicalClassName())) {
-    if (!containsSUM((WCV_TAUMOD_SUM*)cd)) {
+bool WCV_TAUMOD_SUM::contains(const Detection3D& cd) const {
+  if (larcfm::equals(getCanonicalClassName(),cd.getCanonicalClassName())) {
+    if (!containsSUM((WCV_TAUMOD_SUM&)cd)) {
       return false;
     }
   }
-  if (larcfm::equals(getCanonicalClassName(),cd->getCanonicalClassName()) ||
-      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TAUMOD", cd->getCanonicalClassName()) ||
-      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TCPA", cd->getCanonicalClassName()) ) {
-    return containsTable((WCV_tvar*)cd);
+  if (larcfm::equals(getCanonicalClassName(),cd.getCanonicalClassName()) ||
+      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TAUMOD", cd.getCanonicalClassName()) ||
+      larcfm::equals("gov.nasa.larcfm.ACCoRD.WCV_TCPA", cd.getCanonicalClassName()) ) {
+    return containsTable((WCV_tvar&)cd);
   }
   return false;
 }
@@ -649,7 +657,7 @@ std::string WCV_TAUMOD_SUM::toString() const {
 }
 
 std::string WCV_TAUMOD_SUM::toPVS() const {
-  std::string str = getSimpleClassName()+"((# "+table.toPVS_();
+  std::string str = getSimpleClassName()+"((# "+getWCVTable().toPVS_();
   str += ", h_pos_z_score := "+FmPrecision(h_pos_z_score_);
   str += ", h_vel_z_score_min := "+FmPrecision(h_vel_z_score_min_);
   str += ", h_vel_z_score_max := "+FmPrecision(h_vel_z_score_max_);

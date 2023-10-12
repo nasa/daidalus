@@ -18,21 +18,21 @@ public class WCV_TAUMOD extends WCV_tvar {
 
 	/** Constructor that a default instance of the WCV tables. */
 	public WCV_TAUMOD() {
-		table = new WCVTable();
-		wcv_vertical = new WCV_TCOA();
+		super("",new WCV_TCOA(),new WCVTable());
+	}
+
+	public WCV_TAUMOD(WCV_Vertical wcv_vertical_ref) {
+		super("",wcv_vertical_ref,new WCVTable());
 	}
 
 	/** Constructor that specifies a particular instance of the WCV tables. */
-	public WCV_TAUMOD(WCVTable tab) {
-		table = tab.copy();
-		wcv_vertical = new WCV_TCOA();
+	public WCV_TAUMOD(String id, WCVTable table) {
+		super(id,new WCV_TCOA(),table.copy());
 	}
 
 	/** Constructor that specifies a particular instance of the WCV_TAUMOD */
 	public WCV_TAUMOD(WCV_TAUMOD wcv) {
-		id = wcv.id;
-		table = wcv.table.copy();
-		wcv_vertical = wcv.wcv_vertical.copy();
+		super(wcv.getIdentifier(),wcv.getWCVVertical().copy(),wcv.getWCVTable().copy());
 	}
 
 	/**
@@ -46,48 +46,49 @@ public class WCV_TAUMOD extends WCV_tvar {
 	 * TTHR=35s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_Phase_I_preventive =
-			new WCV_TAUMOD(WCVTable.DO_365_Phase_I_preventive);
+			new WCV_TAUMOD("DO_365_Phase_I_preventive",WCVTable.DO_365_Phase_I_preventive);
 
 	/**
 	 * DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=0.
 	 */
-	public static final WCV_TAUMOD DO_365_DWC_Phase_I = A_WCV_TAUMOD;
+	public static final WCV_TAUMOD DO_365_DWC_Phase_I = 
+		new WCV_TAUMOD("DO_365_DWC_Phase_I",WCVTable.DO_365_DWC_Phase_I);
 
 	/**
 	 * DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
 	 * TTHR=0s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_DWC_Phase_II = 
-			new WCV_TAUMOD(WCVTable.DO_365_DWC_Phase_II);
+			new WCV_TAUMOD("DO_365_DWC_Phase_II",WCVTable.DO_365_DWC_Phase_II);
 
 	/**
 	 * DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
 	 * TTHR=0s, TCOA=0.
 	 */
 	public static final WCV_TAUMOD DO_365_DWC_Non_Coop = 
-			new WCV_TAUMOD(WCVTable.DO_365_DWC_Non_Coop);
+			new WCV_TAUMOD("DO_365_DWC_Non_Coop",WCVTable.DO_365_DWC_Non_Coop);
 
 	/**
 	 * Buffered preventive thresholds Phase I (en-route), i.e., DTHR=1nmi, ZTHR=750ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCV_TAUMOD Buffered_Phase_I_preventive =
-			new WCV_TAUMOD(WCVTable.Buffered_Phase_I_preventive);
+			new WCV_TAUMOD("Buffered_Phase_I_preventive",WCVTable.Buffered_Phase_I_preventive);
 
 	/**
 	 * Buffered Well-Clear thresholds Phase I (en-route), i.e., DTHR=1.0nmi, ZTHR=450ft,
 	 * TTHR=35s, TCOA=20.
 	 */
 	public static final WCV_TAUMOD Buffered_DWC_Phase_I =
-			new WCV_TAUMOD(WCVTable.Buffered_DWC_Phase_I);
+			new WCV_TAUMOD("Buffered_DWC_Phase_I",WCVTable.Buffered_DWC_Phase_I);
 
 	public double horizontal_tvar(Vect2 s, Vect2 v) {
 		// Time variable is Modified Tau
 		double taumod = -1;
 		double sdotv = s.dot(v);
 		if (sdotv < 0)
-			return (Util.sq(table.DTHR)-s.sqv())/sdotv;
+			return (Util.sq(getDTHR())-s.sqv())/sdotv;
 		return taumod;
 	}
 
@@ -96,10 +97,10 @@ public class WCV_TAUMOD extends WCV_tvar {
 		double time_out = 0;
 		double sqs = s.sqv();
 		double sdotv = s.dot(v);
-		double sqD = Util.sq(table.DTHR);
+		double sqD = Util.sq(getDTHR());
 		double a = v.sqv();
-		double b = 2*sdotv+table.TTHR*v.sqv();
-		double c = sqs+table.TTHR*sdotv-sqD;
+		double b = 2*sdotv+getTTHR()*v.sqv();
+		double c = sqs+getTTHR()*sdotv-sqD;
 		if (Util.almost_equals(a,0) && sqs <= sqD) { // [CAM] Changed from == to almost_equals to mitigate numerical problems 
 			time_in = 0;
 			time_out = T;
@@ -107,16 +108,16 @@ public class WCV_TAUMOD extends WCV_tvar {
 		}
 		if (sqs <= sqD) {
 			time_in = 0;
-			time_out = Util.min(T,Horizontal.Theta_D(s,v,1,table.DTHR));
+			time_out = Util.min(T,Horizontal.Theta_D(s,v,1,getDTHR()));
 			return new LossData(time_in, time_out);
 		}
 		double discr = Util.sq(b)-4*a*c;
 		if (sdotv >= 0 || discr < 0) 
 			return new LossData(time_in, time_out);
 		double t = (-b - Math.sqrt(discr))/(2*a);
-		if (Horizontal.Delta(s, v,table.DTHR) >= 0 && t <= T) {
+		if (Horizontal.Delta(s, v,getDTHR()) >= 0 && t <= T) {
 			time_in = Util.max(0,t);
-			time_out = Util.min(T, Horizontal.Theta_D(s,v,1,table.DTHR));
+			time_out = Util.min(T, Horizontal.Theta_D(s,v,1,getDTHR()));
 		}
 		return new LossData(time_in, time_out);
 	} 
@@ -129,13 +130,12 @@ public class WCV_TAUMOD extends WCV_tvar {
 	 * Returns a deep copy of this WCV_TAUMOD object, including any results that have been calculated.  
 	 */
 	public WCV_TAUMOD copy() {
-		WCV_TAUMOD ret = new WCV_TAUMOD(this);
-		return ret;
+		return new WCV_TAUMOD(this);
 	}
 
 	public boolean contains(Detection3D cd) {
 		if (cd instanceof WCV_TAUMOD || cd instanceof WCV_TCPA) {
-			return containsTable((WCV_tvar)cd);
+			return containsTable(((WCV_tvar)cd));
 		}
 		return false;
 	}

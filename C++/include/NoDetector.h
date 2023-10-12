@@ -70,11 +70,11 @@ public:
 
   virtual void setIdentifier(const std::string& s) {}
 
-  virtual bool equals(Detection3D* d) const {
+  virtual bool equals(const Detection3D& cd) const {
     return false;
   }
 
-  virtual bool contains(const Detection3D* cd) const {
+  virtual bool contains(const Detection3D& cd) const {
     return false;
   }
 

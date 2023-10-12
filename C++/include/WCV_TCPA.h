@@ -24,8 +24,7 @@ public:
   /** Constructor that a default instance of the WCV tables. */
   WCV_TCPA();
 
-  /** Constructor that specifies a particular instance of the WCV tables. */
-  explicit WCV_TCPA(const WCVTable& tab);
+  WCV_TCPA(const WCV_TCPA& wcv);
 
   virtual ~WCV_TCPA() {}
 
@@ -47,7 +46,7 @@ public:
 
   std::string getSimpleClassName() const;
 
-  bool contains(const Detection3D* cd) const;
+  bool contains(const Detection3D& cd) const;
 
   virtual void hazard_zone_far_end(std::vector<Position>& haz,
       const Position& po, const Velocity& v, const Vect3& pu, double T) const;

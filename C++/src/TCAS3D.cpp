@@ -421,17 +421,17 @@ void TCAS3D::setIdentifier(const std::string& s) {
   id = s;
 }
 
-bool TCAS3D::equals(Detection3D* d) const {
-  if (!larcfm::equals(getCanonicalClassName(), d->getCanonicalClassName())) return false;
-  if (!larcfm::equals(id, d->getIdentifier())) return false;
-  if (!table_.equals(((TCAS3D*)d)->table_)) return false;
+bool TCAS3D::equals(const Detection3D& cd) const {
+  if (!larcfm::equals(getCanonicalClassName(), cd.getCanonicalClassName())) return false;
+  if (!larcfm::equals(id, cd.getIdentifier())) return false;
+  if (!table_.equals(((TCAS3D&)cd).table_)) return false;
   return true;
 }
 
-bool TCAS3D::contains(const Detection3D* cd) const {
-  if (larcfm::equals(getCanonicalClassName(), cd->getCanonicalClassName())) {
-    const TCAS3D* d = (TCAS3D*)cd;
-    return table_.contains(d->table_);
+bool TCAS3D::contains(const Detection3D& cd) const {
+  if (larcfm::equals(getCanonicalClassName(), cd.getCanonicalClassName())) {
+    const TCAS3D& td = (TCAS3D&)cd;
+    return table_.contains(td.table_);
   }
   return false;
 }

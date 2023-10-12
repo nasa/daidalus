@@ -62,49 +62,17 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 
 	/** Constructor that a default instance of the WCV tables. */
 	public WCV_TAUMOD_SUM() {
-		table = new WCVTable();
-		wcv_vertical = new WCV_TCOA();
 		initSUM();
 	}
 
 	/** Constructor that specifies a particular instance of the WCV tables. */
-	public WCV_TAUMOD_SUM(WCVTable tab) {
-		super(tab);
+	public WCV_TAUMOD_SUM(String id, WCVTable table) {
+		super(id,table);
 		initSUM();
 	}
 
-	/**
-	 * DO-365 Phase I (en-route) preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft,
-	 * TTHR=35s, TCOA=0, with SUM
-	 */
-	public static final WCV_TAUMOD_SUM DO_365_Phase_I_preventive =
-			new WCV_TAUMOD_SUM(WCVTable.DO_365_Phase_I_preventive);
-
-	/**
-	 * DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
-	 * TTHR=35s, TCOA=0, with SUM
-	 */
-	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_I = 
-			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_I);
-
-	/**
-	 * DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
-	 * TTHR=0s, TCOA=0, with SUM
-	 */
-	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_II = 
-			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Phase_II);
-
-	/**
-	 * DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
-	 * TTHR=0s, TCOA=0.
-	 */
-	public static final WCV_TAUMOD_SUM DO_365_DWC_Non_Coop = 
-			new WCV_TAUMOD_SUM(WCVTable.DO_365_DWC_Non_Coop);
-
-	private void copyFrom(WCV_TAUMOD_SUM wcv) {
-		id = wcv.id;
-		table = wcv.table.copy();
-		wcv_vertical = wcv.wcv_vertical.copy();
+	public WCV_TAUMOD_SUM(WCV_TAUMOD_SUM wcv) {
+		super(wcv);  
 		h_pos_z_score_ = wcv.h_pos_z_score_;
 		h_pos_z_score_enabled_ = wcv.h_pos_z_score_enabled_;
 		h_vel_z_score_min_ = wcv.h_vel_z_score_min_;
@@ -120,17 +88,39 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		v_vel_z_score_enabled_ = wcv.v_vel_z_score_enabled_;
 	}
 
-	/** Constructor that specifies a particular instance of the WCV_TAUMOD_SUM. */
-	public WCV_TAUMOD_SUM(WCV_TAUMOD_SUM wcv) {
-		copyFrom(wcv);
-	}
+	/**
+	 * DO-365 Phase I (en-route) preventive thresholds, i.e., DTHR=0.66nmi, ZTHR=700ft,
+	 * TTHR=35s, TCOA=0, with SUM
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_Phase_I_preventive =
+			new WCV_TAUMOD_SUM("DO_365_Phase_I_preventive",WCVTable.DO_365_Phase_I_preventive);
+
+	/**
+	 * DO-365 Well-Clear thresholds Phase I (en-route), i.e., DTHR=0.66nmi, ZTHR=450ft,
+	 * TTHR=35s, TCOA=0, with SUM
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_I = 
+			new WCV_TAUMOD_SUM("DO_365_DWC_Phase_I",WCVTable.DO_365_DWC_Phase_I);
+
+	/**
+	 * DO-365 Well-Clear thresholds Phase II (DTA), i.e., DTHR=1500 [ft], ZTHR=450ft,
+	 * TTHR=0s, TCOA=0, with SUM
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_DWC_Phase_II = 
+			new WCV_TAUMOD_SUM("DO_365_DWC_Phase_II",WCVTable.DO_365_DWC_Phase_II);
+
+	/**
+	 * DO-365 Well-Clear thresholds Non-Cooperative, i.e., DTHR=2200 [ft], ZTHR=450ft,
+	 * TTHR=0s, TCOA=0.
+	 */
+	public static final WCV_TAUMOD_SUM DO_365_DWC_Non_Coop = 
+			new WCV_TAUMOD_SUM("DO_365_DWC_Non_Coop",WCVTable.DO_365_DWC_Non_Coop);
 
 	/**
 	 * Returns a deep copy of this WCV_TAUMOD object, including any results that have been calculated.  
 	 */
 	public WCV_TAUMOD_SUM copy() {
-		WCV_TAUMOD_SUM ret = new WCV_TAUMOD_SUM(this);
-		return ret;
+		return new WCV_TAUMOD_SUM(this);
 	}
 	
 	/**
@@ -203,7 +193,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		if (horizontal_WCV(s,v)) {
 			return true;
 		}
-		if (s.sqv()<=Util.sq(table.DTHR+s_err)) {
+		if (s.sqv()<=Util.sq(getDTHR()+s_err)) {
 			return true;
 		}
 		if (v.sqv()<=Util.sq(v_err)) {
@@ -218,7 +208,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		int ssign = Util.sign(sz);
 		double snew = sz-ssign*Util.min(sz_err,Math.abs(sz));
 		double vnew = vz-ssign*vz_err;
-		return wcv_vertical.vertical_WCV(table.ZTHR,table.TCOA,snew,vnew);
+		return getWCVVertical().vertical_WCV(getZTHR(),getTCOA(),snew,vnew);
 	}
 
 	public boolean WCV_taumod_uncertain(Vect3 s, Vect3 v, double s_err, double sz_err, double v_err, double vz_err) {
@@ -227,7 +217,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	private double horizontal_wcv_taumod_uncertain_entry(Vect2 s, Vect2 v, double s_err, double v_err, double T) {
-		if (horizontal_WCV(s,v) || s.sqv()<=Util.sq(table.DTHR+s_err)) { 
+		if (horizontal_WCV(s,v) || s.sqv()<=Util.sq(getDTHR()+s_err)) { 
 			return 0;
 		} 
 		if (v.sqv() <= Util.sq(v_err)) { 
@@ -254,7 +244,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 			return -1;
 		}
 		else {
-			double rt = Util.root(v.sqv()-Util.sq(v_err),2*(s.dot(v)-v_err*(table.DTHR+s_err)),s.sqv()-Util.sq(table.DTHR+s_err),eps);
+			double rt = Util.root(v.sqv()-Util.sq(v_err),2*(s.dot(v)-v_err*(getDTHR()+s_err)),s.sqv()-Util.sq(getDTHR()+s_err),eps);
 			if (Double.isFinite(rt)) {
 				return rt;
 			} 
@@ -263,7 +253,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	private double horizontal_wcv_taumod_uncertain_exit(Vect2 s, Vect2 v,double s_err, double v_err, double T) {
-		if (v.sqv() <= Util.sq(v_err) && s.sqv() <= Util.sq(table.DTHR+s_err)) { 
+		if (v.sqv() <= Util.sq(v_err) && s.sqv() <= Util.sq(getDTHR()+s_err)) { 
 			return T;
 		} else if (v.sqv() <= Util.sq(v_err)) { 
 			Vect2 s_hat = s.Hat();
@@ -288,13 +278,13 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	private LossData vertical_WCV_uncertain_full_interval_szpos_vzpos(double T, double minsz/*,double maxsz*/, double minvz/*, double maxvz*/) {
-		Interval ii = wcv_vertical.vertical_WCV_interval(table.ZTHR,table.TCOA,0,T,minsz,minvz);
+		Interval ii = getWCVVertical().vertical_WCV_interval(getZTHR(),getTCOA(),0,T,minsz,minvz);
 		return new LossData(ii.low,ii.up);
 	}
 
 	private LossData vertical_WCV_uncertain_full_interval_szpos_vzneg(double T, double minsz,double maxsz, double minvz, double maxvz) {
-		Interval entryint = wcv_vertical.vertical_WCV_interval(table.ZTHR,table.TCOA,0,T,minsz,minvz);
-		Interval exitint = wcv_vertical.vertical_WCV_interval(table.ZTHR,table.TCOA,0,T,maxsz,maxvz);
+		Interval entryint = getWCVVertical().vertical_WCV_interval(getZTHR(),getTCOA(),0,T,minsz,minvz);
+		Interval exitint = getWCVVertical().vertical_WCV_interval(getZTHR(),getTCOA(),0,T,maxsz,maxvz);
 		if (entryint.low > entryint.up) {
 			return LossData.EMPTY;
 		} else if (exitint.low > exitint.up) { 
@@ -404,7 +394,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 		Vect3 v = vo.Sub(vi);
 		LossData ld = WCV_taumod_uncertain_interval(B,T,s,v,s_err,sz_err,v_err,vz_err);
 		double t_tca = (ld.getTimeIn() + ld.getTimeOut())/2.0;
-		double dist_tca = s.linear(v, t_tca).cyl_norm(table.DTHR,table.ZTHR);
+		double dist_tca = s.linear(v, t_tca).cyl_norm(getDTHR(),getZTHR());
 		return new ConflictData(ld,t_tca,dist_tca,s,v);
 	}
 
@@ -647,7 +637,7 @@ public class WCV_TAUMOD_SUM extends WCV_TAUMOD {
 	}
 
 	public String toPVS() {
-		String str = getSimpleClassName()+"((# "+table.toPVS_();
+		String str = getSimpleClassName()+"((# "+getWCVTable().toPVS_();
 		str += ", h_pos_z_score := "+f.FmPrecision(h_pos_z_score_);
 		str += ", h_vel_z_score_min := "+f.FmPrecision(h_vel_z_score_min_);
 		str += ", h_vel_z_score_max := "+f.FmPrecision(h_vel_z_score_max_);

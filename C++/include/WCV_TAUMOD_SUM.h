@@ -20,8 +20,9 @@ public:
   /** Constructor that a default instance of the WCV tables. */
   WCV_TAUMOD_SUM();
 
-  /** Constructor that specifies a particular instance of the WCV tables. */
-  explicit WCV_TAUMOD_SUM(const WCVTable& tab);
+  WCV_TAUMOD_SUM(const std::string& id, const WCVTable& table);
+
+  WCV_TAUMOD_SUM(const WCV_TAUMOD_SUM& wcv);
 
   virtual ~WCV_TAUMOD_SUM() {}
 
@@ -117,7 +118,7 @@ private:
 
   LossData vertical_WCV_uncertain_interval(double B, double T, double sz, double vz, double sz_err, double vz_err) const;
 
-  bool containsSUM(const WCV_TAUMOD_SUM* wcv) const;
+  bool containsSUM(const WCV_TAUMOD_SUM& wcv) const;
 
   double relativeHorizontalPositionError(const TrafficState& own, const TrafficState& ac) const;
 
@@ -150,7 +151,7 @@ public:
   bool WCV_taumod_uncertain_detection(double B, double T, const Vect3& s, const Vect3& v,
       double s_err, double sz_err, double v_err, double vz_err) const;
 
-  virtual bool contains(const Detection3D* cd) const;
+  virtual bool contains(const Detection3D& cd) const;
 
   void updateParameterData(ParameterData& p) const;
 
