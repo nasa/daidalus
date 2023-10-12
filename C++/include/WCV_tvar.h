@@ -14,6 +14,7 @@
 #include "LossData.h"
 #include "WCV_Vertical.h"
 #include <string>
+#include <memory>
 
 namespace larcfm {
 class WCV_tvar : public Detection3D {
