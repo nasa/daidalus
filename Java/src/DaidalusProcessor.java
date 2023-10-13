@@ -18,6 +18,7 @@ public abstract class DaidalusProcessor {
 	private double relative_;
 	private String options_;
 	private String ownship_;
+	private boolean skip_;
 	private List<String> traffic_;
 
 	public DaidalusProcessor() {
@@ -26,6 +27,7 @@ public abstract class DaidalusProcessor {
 		relative_ = 0;
 		options_ = "";
 		ownship_ = "";
+		skip_ = true;
 		traffic_ = new ArrayList<String>();
 	}
 
@@ -87,10 +89,11 @@ public abstract class DaidalusProcessor {
 		String s = "";
 		s += "  --ownship <id>\n\tSpecify a particular aircraft as ownship\n";
 		s += "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n";
-		s += "  --from t\n\tCheck from time t\n";
-		s += "  --to t\n\tCheck up to time t\n";
-		s += "  --at [t | t+k | t-k]\n\tCheck times t, [t,t+k], or [t-k,t]. ";
-		s += "First time is denoted by +0. Last time is denoted by -0\n";
+		s += "  --from <t>\n\tStart at time <t>\n";
+		s += "  --to <t>\n\tEnd at time <t>\n";
+		s += "  --at [<t> | <t>+<k> | <t>-<k>]\n\tDo times <t>, [<t>,<t>+<k>], or [<t>-<k>,<t>], respectively.\n";
+		s += "\tFirst time is denoted by +0. Last time is denoted by -0\n";
+		s += "  --keephyst\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n";
 		return s;    
 	}
 
@@ -140,6 +143,8 @@ public abstract class DaidalusProcessor {
 					}
 				}
 			}
+		} else if (args[i].startsWith("--keep") || args[i].startsWith("-keep")) {
+			skip_ = false;
 		} else {
 			return false;
 		}
@@ -161,7 +166,6 @@ public abstract class DaidalusProcessor {
 		if (!traffic_.isEmpty()) {
 			dw.selectTraffic(traffic_);
 		}
-		
 		if (from < 0) {
 			from = dw.firstTime();        
 		}
@@ -174,10 +178,22 @@ public abstract class DaidalusProcessor {
 		if (relative_ < 0) {
 			from = to + relative_;
 		}
-		if (dw.goToTime(from) && from <= to) {
+		if (skip_) {
+			dw.goToTime(from);
+		} else {
+			dw.goToBeginning();
+		}
+		if (from <= to) {
 			while (!dw.atEnd() && dw.getTime() <= to) {
 				dw.readState(daa);
-				processTime(daa,filename);
+				if (dw.getTime() >= from) {
+					processTime(daa,filename);
+				} else {
+					daa.forceAltitudeBandsComputation();
+					daa.forceHorizontalDirectionBandsComputation();
+					daa.forceHorizontalSpeedBandsComputation();
+					daa.forceVerticalSpeedBandsComputation();
+				}
 			} 
 		}   
 	}

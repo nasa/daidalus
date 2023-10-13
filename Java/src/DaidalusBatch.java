@@ -24,8 +24,8 @@ public class DaidalusBatch extends DaidalusProcessor {
 
 	static void printHelpMsg() {
 		System.err.println("Usage:");
-		System.err.println("  DaidalusBatch [flags] files");
-		System.err.println("  flags include:");
+		System.err.println("  DaidalusBatch [<options>] files\n");
+		System.err.println("Valid <options>:");
 		System.err.println("  --help\n\tPrint this message");
 		System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
 		System.err.println("  --out <file>\n\tOutput information to <file>");

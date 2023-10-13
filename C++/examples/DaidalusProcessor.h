@@ -18,6 +18,7 @@ private:
 	double relative_;
 	std::string options_;
 	std::string ownship_;
+	bool skip_;
 	std::vector<std::string> traffic_;
 
 public:

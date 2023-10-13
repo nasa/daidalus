@@ -34,8 +34,8 @@ public:
 
 	static void printHelpMsg() {
 		std::cout << "Usage:" << std::endl;
-		std::cout << "  DaidalusBatch [flags] files" << std::endl;
-		std::cout << "  flags include:" << std::endl;
+		std::cout << "  DaidalusBatch [<options>] files\n" << std::endl;
+		std::cout << "Valid <options>:" << std::endl;
 		std::cout << "  --help\n\tPrint this message" << std::endl;
 		std::cout << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
 		std::cout << "  --out <file>\n\tOutput information to <file>" << std::endl;
