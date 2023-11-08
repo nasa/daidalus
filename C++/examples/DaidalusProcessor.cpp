@@ -33,7 +33,7 @@ std::string DaidalusProcessor::getHelpString() {
 	s += "  --to <t>\n\tEnd at time <t>\n";
 	s += "  --at [<t> | <t>+<k> | <t>-<k>]\n\tDo times <t>, [<t>,<t>+<k>], or [<t>-<k>,<t>], respectively.\n";
 	s += "\tFirst time is denoted by +0. Last time is denoted by -0\n";
-	s += "  --keephyst\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n";
+	s += "  --dontskip\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n";
 	return s;
 }
 
@@ -90,7 +90,7 @@ bool DaidalusProcessor::processOptions(const char* args[], int argc, int i) {
 				}
 			}
 		}
-	} else if (startsWith(args[i],"--keep") || startsWith(args[i],"-keep")) {
+	} else if (startsWith(args[i],"--dont") || startsWith(args[i],"-dont")) {
 		skip_ = false;
 	} else {
 		return false;
@@ -133,7 +133,7 @@ void DaidalusProcessor::processFile(const std::string& filename, Daidalus &daa) 
 	if (dw.goToTime(from) && from <= to) {
 		while (!dw.atEnd() && dw.getTime() <= to) {
 			dw.readState(daa);
-			if (dw.getTime() >= from) {
+			if (daa.getCurrentTime() >= from) {
 				processTime(daa,filename);
 			} else {
 				daa.forceAltitudeBandsComputation();

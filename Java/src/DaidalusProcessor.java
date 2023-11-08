@@ -93,7 +93,7 @@ public abstract class DaidalusProcessor {
 		s += "  --to <t>\n\tEnd at time <t>\n";
 		s += "  --at [<t> | <t>+<k> | <t>-<k>]\n\tDo times <t>, [<t>,<t>+<k>], or [<t>-<k>,<t>], respectively.\n";
 		s += "\tFirst time is denoted by +0. Last time is denoted by -0\n";
-		s += "  --keephyst\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n";
+		s += "  --dontskip\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n";
 		return s;    
 	}
 
@@ -143,7 +143,7 @@ public abstract class DaidalusProcessor {
 					}
 				}
 			}
-		} else if (args[i].startsWith("--keep") || args[i].startsWith("-keep")) {
+		} else if (args[i].startsWith("--dont") || args[i].startsWith("-dont")) {
 			skip_ = false;
 		} else {
 			return false;
@@ -186,9 +186,10 @@ public abstract class DaidalusProcessor {
 		if (from <= to) {
 			while (!dw.atEnd() && dw.getTime() <= to) {
 				dw.readState(daa);
-				if (dw.getTime() >= from) {
+				if (daa.getCurrentTime() >= from) {
 					processTime(daa,filename);
 				} else {
+					// Skipping processing but keeping hysteresis
 					daa.forceAltitudeBandsComputation();
 					daa.forceHorizontalDirectionBandsComputation();
 					daa.forceHorizontalSpeedBandsComputation();

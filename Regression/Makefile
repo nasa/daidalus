@@ -1,5 +1,5 @@
 all:
-	@echo "make mold | diff"
+	@echo "make mold | diff | java | cpp"
 
 gold:
 	cd ../Java;make mold
