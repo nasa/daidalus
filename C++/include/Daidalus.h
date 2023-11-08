@@ -5,8 +5,8 @@
  * Rights Reserved.
  */
 
-#ifndef DAIDALUSBANDS_H_
-#define DAIDALUSBANDS_H_
+#ifndef DAIDALUS_H_
+#define DAIDALUS_H_
 
 #include "DaidalusCore.h"
 #include "DaidalusAltBands.h"
