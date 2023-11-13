@@ -23,7 +23,7 @@ import gov.nasa.larcfm.Util.Velocity;
 
 public class DaidalusAltBands extends DaidalusRealBands {
 
-	public boolean get_recovery(DaidalusParameters parameters) {
+	public boolean do_recovery(DaidalusParameters parameters) {
 		return parameters.isEnabledRecoveryAltitudeBands();
 	}
 

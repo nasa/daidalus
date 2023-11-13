@@ -22,7 +22,7 @@ DaidalusHsBands::DaidalusHsBands() {}
 
 DaidalusHsBands::DaidalusHsBands(const DaidalusHsBands& b) : DaidalusRealBands(b) {}
 
-bool DaidalusHsBands::get_recovery(const DaidalusParameters& parameters) const {
+bool DaidalusHsBands::do_recovery(const DaidalusParameters& parameters) const {
   return parameters.isEnabledRecoveryHorizontalSpeedBands();
 }
 

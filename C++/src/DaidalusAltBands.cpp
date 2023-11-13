@@ -22,7 +22,7 @@ DaidalusAltBands::DaidalusAltBands() {}
 
 DaidalusAltBands::DaidalusAltBands(const DaidalusAltBands& b) : DaidalusRealBands(b) {}
 
-bool DaidalusAltBands::get_recovery(const DaidalusParameters& parameters) const {
+bool DaidalusAltBands::do_recovery(const DaidalusParameters& parameters) const {
   return parameters.isEnabledRecoveryAltitudeBands();
 }
 

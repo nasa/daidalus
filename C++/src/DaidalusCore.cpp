@@ -150,8 +150,7 @@ void DaidalusCore::stale() {
     most_urgent_ac_ = TrafficState::INVALID();
     epsh_ = 0;
     epsv_ = 0;
-    dta_status_ = 0;
-    below_min_as_ = false;
+    special_band_flags_.reset();
     for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
       acs_conflict_bands_[conflict_region].clear();
       tiov_[conflict_region] = Interval::EMPTY;
@@ -194,24 +193,25 @@ void DaidalusCore::refresh() {
         }
       }
     }
-    dta_status_ = 0; // Not active
+    int dta_status = 0; // Not active
     if (parameters.getDTALogic() != 0 && parameters.getDTAAlerter() != 0) {
       if (parameters.isAlertingLogicOwnshipCentric()) {
         if (alerter_index_of(ownship) == parameters.getDTAAlerter()) { // Hysteresis for dta is done here
-          dta_status_ = -1; // Inside DTA
+          dta_status = -1; // Inside DTA
         }
       } else {
-        for (int ac=0; ac < static_cast<int>(traffic.size()) && dta_status_ == 0; ++ac) {
+        for (int ac=0; ac < static_cast<int>(traffic.size()) && dta_status == 0; ++ac) {
           if (alerter_index_of(traffic[ac]) == parameters.getDTAAlerter()) { // Hysteresis for dta is done here
-            dta_status_ = -1; // Inside DTA
+            dta_status = -1; // Inside DTA
           }
         }
       }
-      if (dta_status_  < 0 && greater_than_corrective()) {
-        dta_status_ = 1; //Inside DTA and special bands enabled
+      if (dta_status  < 0 && greater_than_corrective()) {
+        dta_status = 1; //Inside DTA and special bands enabled
       }
     }
-    below_min_as_ = below_min_as_hysteresis_current_value();
+    special_band_flags_.set_dta_status(dta_status);
+    special_band_flags_.set_below_min_as(below_min_as_hysteresis_current_value());
     refresh_mua_eps();
     cache_ = 1;
   }
@@ -264,20 +264,9 @@ int DaidalusCore::below_min_as_hysteresis_current_value() {
 	return actual_bmas > 0;
 }
   
-/**
- * Returns DTA status:
- *  0 : DTA is not active
- * -1 : DTA is active, but special bands are not enabled yet
- *  1 : DTA is active and special bands are enabled
- */
-int DaidalusCore::getDTAStatus() {
-  refresh();
-  return dta_status_;
-}
-
-SpecialBandFlags DaidalusCore::getSpecialBandFlags() {
+const SpecialBandFlags& DaidalusCore::getSpecialBandFlags() {
 	refresh();
-	return SpecialBandFlags(below_min_as_,dta_status_);
+	return special_band_flags_;
 }
 
 /**
@@ -836,7 +825,6 @@ std::string DaidalusCore::rawString() const {
   s += "most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
   s += "epsh_ = "+Fmi(epsh_)+"\n";
   s += "epsv_ = "+Fmi(epsv_)+"\n";
-  s += "dta_status_ = "+Fmi(dta_status_)+"\n";
   for (int conflict_region=0; conflict_region < BandsRegion::NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
     s += "acs_conflict_bands_["+Fmi(conflict_region)+"] = "+
         IndexLevelT::toString(acs_conflict_bands_[conflict_region])+"\n";
@@ -885,8 +873,9 @@ std::string DaidalusCore::rawString() const {
   } else {
     s += "\n";
   }
+  s += "dta_status_ = "+Fmi(special_band_flags_.get_dta_status())+"\n";
   s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
-	s += "below_min_as_ = "+Fmb(below_min_as_)+"\n";
+	s += "below_min_as_ = "+Fmb(special_band_flags_.get_below_min_as())+"\n";
   s += "wind_vector = "+wind_vector.toString()+"\n";
   s += "## Ownship and Traffic Relative to Wind\n";
   s += outputStringAircraftStates(true,false);

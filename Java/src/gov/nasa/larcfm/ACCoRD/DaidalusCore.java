@@ -48,23 +48,17 @@ public class DaidalusCore {
 	private int epsh_; 
 	/* Cached vertical epsilon for implicit coordination */
 	private int epsv_; 
-	/* Cached value indicating that aircraft if flying below min_airspeed. This may happen when
-	 * aircraft is a rotor craft. In this case, heading bands are computed using min_airspeed value.
-	 */
-	private boolean below_min_as_;
-	/* Cached value of DTA status given current aircraft states. 
-	 *  0 : Not in DTA 
-	 * -1 : In DTA, but special bands are not enabled yet 
-	 *  1 : In DTA and special bands are enabled 
-	 */
-	private int dta_status_;
-	/* Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral) 
+	/* Cached value of special bands flag: below min airsped and dta status	*/
+	private SpecialBandFlags special_band_flags_; 
+	/* 
+	 * Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral) 
 	 * band listed per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR 
 	 */
 	private List<List<IndexLevelT>> acs_conflict_bands_; 
 	/* Cached list of time to violation per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR */
 	private Interval[] tiov_; 
-	/* Cached list of boolean alues indicating which bands should be computed, where 0th:NEAR, 1th:MID, 2th:FAR.
+	/* 
+	 * Cached list of boolean alues indicating which bands should be computed, where 0th:NEAR, 1th:MID, 2th:FAR.
 	 * NaN means that bands are not computed for that region
 	 */
 	private boolean[] bands4region_;
@@ -86,7 +80,8 @@ public class DaidalusCore {
 		parameters = new DaidalusParameters();
 		urgency_strategy = NoneUrgencyStrategy.NONE_URGENCY_STRATEGY;
 
-		// Cached arrays_ are initialized
+		// Cached variables are initialized
+		special_band_flags_ = new SpecialBandFlags();
 		acs_conflict_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			acs_conflict_bands_.add(new ArrayList<IndexLevelT>());
@@ -123,7 +118,8 @@ public class DaidalusCore {
 		// Public arrays are initialized
 		traffic = new ArrayList<TrafficState>(); 
 
-		// Cached arrays_ are initialized
+		// Cached variables are initialized
+		special_band_flags_ = new SpecialBandFlags();
 		acs_conflict_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			acs_conflict_bands_.add(new ArrayList<IndexLevelT>());
@@ -205,8 +201,7 @@ public class DaidalusCore {
 			most_urgent_ac_ = TrafficState.INVALID;
 			epsh_ = 0;
 			epsv_ = 0;
-			dta_status_ = 0;
-			below_min_as_ = false;
+			special_band_flags_.reset();
 			for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 				acs_conflict_bands_.get(conflict_region).clear();
 				tiov_[conflict_region] = Interval.EMPTY;
@@ -248,24 +243,25 @@ public class DaidalusCore {
 					}
 				}
 			}
-			dta_status_ = 0; // Not active 
+			int dta_status = 0; // Not active 
 			if (parameters.getDTALogic() != 0 && parameters.getDTAAlerter() != 0) {
 				if (parameters.isAlertingLogicOwnshipCentric()) {
 					if (alerter_index_of(ownship) == parameters.getDTAAlerter()) { // Hysteresis for dta is done here
-						dta_status_ = -1; // Inside DTA
+						dta_status = -1; // Inside DTA
 					}
 				} else {
-					for (int ac=0; ac < traffic.size() && dta_status_ == 0; ++ac) {
+					for (int ac=0; ac < traffic.size() && dta_status == 0; ++ac) {
 						if (alerter_index_of(traffic.get(ac)) == parameters.getDTAAlerter()) { // Hysteresis for dta is done here
-							dta_status_ = -1; // Inside DTA
+							dta_status = -1; // Inside DTA
 						}
 					}
 				}
-				if (dta_status_  < 0 && greater_than_corrective()) {
-					dta_status_ = 1; //Inside DTA and special bands enabled
+				if (dta_status  < 0 && greater_than_corrective()) {
+					dta_status = 1; //Inside DTA and special bands enabled
 				}
 			}
-			below_min_as_ = below_min_as_hysteresis_current_value();
+			special_band_flags_.set_dta_status(dta_status);
+			special_band_flags_.set_below_min_as(below_min_as_hysteresis_current_value());
 			refresh_mua_eps();
 			cache_ = 1;
 		} 
@@ -318,20 +314,9 @@ public class DaidalusCore {
 		return actual_bmas > 0;
 	}
 
-	/**
-	 * Returns DTA status:
-	 * 0 : DTA is not active
-	 * -1 : DTA is active, but special bands are not enabled yet
-	 * 1 : DTA is active and special bands are enabled
-	 */	
-	public int getDTAStatus() {
-		refresh();
-		return dta_status_;
-	}
-
 	public SpecialBandFlags getSpecialBandFlags() {
 		refresh();
-		return new SpecialBandFlags(below_min_as_,dta_status_);
+		return special_band_flags_;
 	}
 
 	/**
@@ -884,7 +869,6 @@ public class DaidalusCore {
 		s += "most_urgent_ac_ = "+most_urgent_ac_.getId()+"\n";
 		s += "epsh_ = "+f.Fmi(epsh_)+"\n";
 		s += "epsv_ = "+f.Fmi(epsv_)+"\n";
-		s += "dta_status_ = "+dta_status_+"\n";
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			s += "acs_conflict_bands_["+conflict_region+"] = "+
 					IndexLevelT.toString(acs_conflict_bands_.get(conflict_region))+"\n";
@@ -929,8 +913,9 @@ public class DaidalusCore {
 		} else {
 			s += "\n";
 		}
+		s += "dta_status_ = "+special_band_flags_.get_dta_status()+"\n";
 		s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
-		s += "below_min_as_ = "+below_min_as_+"\n";
+		s += "below_min_as_ = "+special_band_flags_.get_below_min_as()+"\n";
 		s += "wind_vector = "+wind_vector.toString()+"\n";
 		s += "## Ownship and Traffic Relative to Wind\n";
 		s += outputStringAircraftStates(true,false);

@@ -19,14 +19,28 @@ public class SpecialBandFlags {
 	 * -1 : In DTA, but special bands are not enabled yet 
 	 *  1 : In DTA and special bands are enabled 
 	 */
+
 	private int dta_status_;
 	/* Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral) 
 	 * band listed per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR 
 	 */
 
-    public SpecialBandFlags(boolean below_min_as, int dta_status) {
-        below_min_as_ = below_min_as;
-        dta_status_ = dta_status;
+    public SpecialBandFlags() {
+        below_min_as_ = false;
+        dta_status_ = 0;
+    }
+    
+    public void reset() {
+        below_min_as_ = false;
+        dta_status_ = 0;
+    }
+
+    public void set_below_min_as(boolean bmas) {
+        below_min_as_ = bmas;
+    }
+
+    public void set_dta_status(int dta) {
+        dta_status_ = dta;
     }
 
     public boolean get_below_min_as() {

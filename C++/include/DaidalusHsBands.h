@@ -26,7 +26,7 @@ public:
 
   DaidalusHsBands(const DaidalusHsBands& b);
 
-  virtual bool get_recovery(const DaidalusParameters& parameters) const;
+  virtual bool do_recovery(const DaidalusParameters& parameters) const;
 
   virtual double get_step(const DaidalusParameters& parameters) const;
 

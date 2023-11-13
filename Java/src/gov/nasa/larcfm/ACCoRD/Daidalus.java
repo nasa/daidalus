@@ -2558,14 +2558,14 @@ public class Daidalus {
 	 * Return true if DTA logic is active at current time
 	 */
 	public boolean isActiveDTALogic() {
-		return core_.getDTAStatus() != 0;
+		return core_.getSpecialBandFlags().get_dta_status()!= 0;
 	}
 
 	/**
 	 * Return true if DTA special maneuver guidance is active at current time
 	 */
 	public boolean isActiveDTASpecialManeuverGuidance() {
-		return core_.getDTAStatus() > 0;
+		return core_.getSpecialBandFlags().get_dta_status() > 0;
 	}
 
 	/** 

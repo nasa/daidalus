@@ -22,7 +22,7 @@ DaidalusVsBands::DaidalusVsBands() {}
 
 DaidalusVsBands::DaidalusVsBands(const DaidalusVsBands& b) : DaidalusRealBands(b) {}
 
-bool DaidalusVsBands::get_recovery(const DaidalusParameters& parameters) const {
+bool DaidalusVsBands::do_recovery(const DaidalusParameters& parameters) const {
   return parameters.isEnabledRecoveryVerticalSpeedBands();
 }
 

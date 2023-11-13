@@ -21,7 +21,7 @@ public class DaidalusVsBands extends DaidalusRealBands {
 		super(b);
 	}
 
-	public boolean get_recovery(DaidalusParameters parameters) {
+	public boolean do_recovery(DaidalusParameters parameters) {
 		return parameters.isEnabledRecoveryVerticalSpeedBands();
 	}
 

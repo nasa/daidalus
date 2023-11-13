@@ -121,7 +121,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		stale();
 	}
 
-	abstract public boolean get_recovery(DaidalusParameters parameters);
+	abstract public boolean do_recovery(DaidalusParameters parameters);
 
 	abstract public double get_step(DaidalusParameters parameters);
 
@@ -574,7 +574,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		}
 		compute_none_bands(none_sets[conflict_region],acs_bands_.get(conflict_region),
 				Detection3D.NoDetector,Detection3D.NoDetector,false,0.0,core);
-		if (get_recovery(core.parameters)) {
+		if (do_recovery(core.parameters)) {
 			if  (conflict_region <= corrective_region && none_sets[conflict_region].isEmpty()) {
 				// Compute recovery bands
 				compute_recovery_bands(none_sets[corrective_region],acs_bands_.get(corrective_region),core);

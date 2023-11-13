@@ -55,23 +55,17 @@ public:
   int epsh_;
   /* Cached vertical epsilon for implicit coordination */
   int epsv_;
-  /* Cached value indicating that aircraft if flying below min_airspeed. This may happen when
-	 * aircraft is a rotor craft. In this case, heading bands are computed using min_airspeed value.
-	 */
-	bool below_min_as_;
-  /* Cached value of DTA status given current aircraft states.
-   *  0 : Not in DTA
-   * -1 : In DTA, but special bands are not enabled yet
-   *  1 : In DTA and special bands are enabled
-   */
-  int dta_status_;
-  /* Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral)
+  /* Cached value of special bands flag: below min airsped and dta status	*/
+	SpecialBandFlags special_band_flags_; 
+  /* 
+   * Cached lists of aircraft indices, alert_levels, and lookahead times sorted by indices, contributing to conflict (non-peripheral)
    * band listed per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR 
    */
   std::vector<std::vector<IndexLevelT> > acs_conflict_bands_;
   /* Cached list of time to violation per conflict bands, where 0th:NEAR, 1th:MID, 2th:FAR */
   Interval tiov_[BandsRegion::NUMBER_OF_CONFLICT_BANDS];
-  /* Cached list of bool alues indicating which bands should be computed, where 0th:NEAR, 1th:MID, 2th:FAR.
+  /* 
+   * Cached list of bool alues indicating which bands should be computed, where 0th:NEAR, 1th:MID, 2th:FAR.
    * NaN means that bands are not computed for that region
    */
   bool bands4region_[BandsRegion::NUMBER_OF_CONFLICT_BANDS];
@@ -135,15 +129,7 @@ public:
    */
   void refresh();
 
-  /**
-   * Returns DTA status:
-   *  0 : DTA is not active
-   * -1 : DTA is active, but special bands are not enabled yet
-   *  1 : DTA is active and special bands are enabled
-   */
-  int getDTAStatus();
-
-  SpecialBandFlags getSpecialBandFlags();
+  const SpecialBandFlags& getSpecialBandFlags();
 
   /**
    * @return most urgent aircraft for implicit coordination

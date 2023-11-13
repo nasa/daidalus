@@ -23,7 +23,7 @@ public class DaidalusHsBands extends DaidalusRealBands {
 		super(b);
 	}
 
-	public boolean get_recovery(DaidalusParameters parameters) {
+	public boolean do_recovery(DaidalusParameters parameters) {
 		return parameters.isEnabledRecoveryHorizontalSpeedBands();
 	}
 

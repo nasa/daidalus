@@ -22,7 +22,7 @@ DaidalusDirBands::DaidalusDirBands() : DaidalusRealBands(2*Pi), inst_below_min_a
 
 DaidalusDirBands::DaidalusDirBands(const DaidalusDirBands& b) : DaidalusRealBands(b), inst_below_min_as(false) {}
 
-bool DaidalusDirBands::get_recovery(const DaidalusParameters& parameters) const {
+bool DaidalusDirBands::do_recovery(const DaidalusParameters& parameters) const {
   return parameters.isEnabledRecoveryHorizontalDirectionBands();
 }
 

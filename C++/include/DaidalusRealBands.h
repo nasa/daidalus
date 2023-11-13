@@ -94,7 +94,7 @@ public:
 
   DaidalusRealBands(const DaidalusRealBands& b);
 
-  virtual bool get_recovery(const DaidalusParameters& parameters) const = 0;
+  virtual bool do_recovery(const DaidalusParameters& parameters) const = 0;
 
   virtual double get_step(const DaidalusParameters& parameters) const = 0;
 

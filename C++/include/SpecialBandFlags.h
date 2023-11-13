@@ -33,11 +33,24 @@ private:
 	 */
 
 public:
-    SpecialBandFlags(bool below_min_as, int dta_status) : below_min_as_(below_min_as), dta_status_(dta_status) {}
+    SpecialBandFlags() : below_min_as_(false), dta_status_(0) {}
 
     virtual ~SpecialBandFlags() {}
 
-    bool get_below_min_as() const { return below_min_as_; }
+	void reset() {
+        below_min_as_ = false;
+        dta_status_ = 0;
+    }
+
+    void set_below_min_as(bool bmas) {
+        below_min_as_ = bmas;
+    }
+
+    void set_dta_status(int dta) {
+        dta_status_ = dta;
+    }
+	
+	bool get_below_min_as() const { return below_min_as_; }
 
     int get_dta_status() const { return dta_status_; }
 };
