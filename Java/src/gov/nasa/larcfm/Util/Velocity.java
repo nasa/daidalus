@@ -36,7 +36,7 @@
 	 * Instantiates a new velocity in internal units.
 	 *
 	 * @param trk the trk (clockwise, true north)
-	 * @param gs the grouns speed
+	 * @param gs the ground speed
 	 * @param vx the vx
 	 * @param vy the vy
 	 * @param vz the vz
