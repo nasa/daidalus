@@ -175,11 +175,13 @@ public class DAAGenerator {
 			String ugs = "knot";
 			String uvs = "fpm";
 			TrafficState ownship = daa.getOwnshipState();
+			Velocity wind = daa.getWindVelocityTo();
 			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
 			for (double t = -Util.min(backward,daa.getCurrentTime()); t <= forward; t++) {
-				Pair<Position,Velocity> posvel = ProjectedKinematics.gsAccel(ownship.getPosition(),
-					ownship.getVelocity(),t, Util.sign(t)*horizontal_accel);
-				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posvel.first,posvel.second);
+				Pair<Position,Velocity> posvel = horizontal_accel == 0.0 ? 
+					new Pair<Position,Velocity>(ownship.linearProjection(t).getPosition(),ownship.getGroundVelocity()) :
+					ProjectedKinematics.gsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t, Util.sign(t)*horizontal_accel);
+				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posvel.first,posvel.second,posvel.second.Sub(wind.vect3()));
 				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()+t));
 				for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 					TrafficState newtraffic = daa.getAircraftStateAt(ac_idx).linearProjection(t);

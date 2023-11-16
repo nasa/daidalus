@@ -174,17 +174,6 @@ public class TrafficState {
 	}
 
 	/**
-	 * Make an ownship's aircraft
-	 * @param id Ownship's identifier
-	 * @param pos Ownship's position
-	 * @param vel Ownship's ground velocity (assumes ground and air velocity are the same)
-	 */
-
-	public static TrafficState makeOwnship(String id, Position pos, Velocity vel) {
-		return makeOwnship(id,pos,vel,vel);
-	}
-
-	/**
 	 * Set aircraft as intruder of ownship 
 	 */
 	public void setAsIntruderOf(TrafficState ownship) {
@@ -281,13 +270,13 @@ public class TrafficState {
 
 	/**
 	 * Project aircraft state offset time, which can be positive or negative, in the direction of the
-	 * air velocity. This methods doesn't change ownship, i.e., the resulting aircraft is considered as 
-	 * another intruder.
+	 * ground velocity. This methods doesn't change the current aircraft, i.e., the resulting aircraft is considered as 
+	 * another aircraft.
 	 * @param offset Offset time.
 	 * @return Projected aircraft.
 	 */
 	public TrafficState linearProjection(double offset) {
-		Position new_pos = pos_.linear(avel_,offset);
+		Position new_pos = pos_.linear(gvel_,offset);
 		TrafficState ac = new TrafficState(this);
 		ac.setPosition(new_pos);
 		return ac;

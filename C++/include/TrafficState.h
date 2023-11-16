@@ -100,15 +100,6 @@ public:
   static TrafficState makeOwnship(const std::string& id, const Position& pos, const Velocity& vel, const Velocity& airvel);
 
   /**
-   * Make an ownship's aircraft
-   * @param id Ownship's identifier
-   * @param pos Ownship's position
-   * @param vel Ownship's ground velocity (assumes ground and air velocity are the same)
-   */
-
-  static TrafficState makeOwnship(const std::string& id, const Position& pos, const Velocity& vel);
-
-  /**
    * Set aircraft as intruder of ownship
    */
   void setAsIntruderOf(const TrafficState& ownship);

@@ -120,10 +120,6 @@ TrafficState TrafficState::makeOwnship(const std::string& id, const Position& po
   return ac;
 }
 
-TrafficState TrafficState::makeOwnship(const std::string& id, const Position& pos, const Velocity& vel) {
-  return makeOwnship(id,pos,vel,vel);
-}
-
 void TrafficState::setAsIntruderOf(const TrafficState& ownship) {
   if (isLatLon() && ownship.isLatLon()) {
     eprj_ = ownship.getEuclideanProjection();
@@ -192,7 +188,7 @@ Velocity TrafficState::inverseVelocity(const Velocity& v) const {
 }
 
 TrafficState TrafficState::linearProjection(double offset) const {
-  Position new_pos = pos_.linear(avel_,offset);
+  Position new_pos = pos_.linear(gvel_,offset);
   TrafficState ac = *this;
   ac.setPosition(new_pos);
   return ac;
