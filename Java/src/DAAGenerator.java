@@ -74,6 +74,7 @@ public class DAAGenerator {
 		int backward = 0;
 		int forward = 0;
 		double time = 0.0;
+		double reftime = -1;
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
@@ -91,13 +92,16 @@ public class DAAGenerator {
 				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
 			} else if (arga.startsWith("--t") || arga.startsWith("-t")) {
 				++a;
-				time = Double.parseDouble(args[a]);
+				time = Math.abs(Double.parseDouble(args[a]));
 			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
 				++a;
-				backward = Integer.parseInt(args[a]);
+				backward = Math.abs(Integer.parseInt(args[a]));
 			} else if (arga.startsWith("--f") || arga.startsWith("-f")) {
 				++a;
-				forward = Integer.parseInt(args[a]);
+				forward = Math.abs(Integer.parseInt(args[a]));
+			} else if (arga.startsWith("--r") || arga.startsWith("-r")) {
+				++a;
+				reftime = Math.abs(Integer.parseInt(args[a]));
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<option>] <daa_file>");
@@ -107,7 +111,8 @@ public class DAAGenerator {
 				System.err.println("  --precision <n>\n\tOutput decimal precision to <n>");
 				System.err.println("  --ownship <id>\n\tSpecify <id> as ownship");
 				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
-				System.err.println("  --time <t>\n\tGenerate scenario relative to time <t>");
+				System.err.println("  --time <t>\n\tGo to time in <daa_file><t>");
+				System.err.println("  --reftime <t>\n\tUse <t> are the reference time in the output file");
 				System.err.println("  --backward <n>\n\tGenerate scenario <n> seconds backwards");
 				System.err.println("  --forward <n>\n\tGenerate scenario <n> seconds backwards");
 				System.err.println("  --help\n\tPrint this message");
@@ -151,19 +156,25 @@ public class DAAGenerator {
 			}
 			walker.readState(daa);
 			if (!daa.hasOwnship()) {
-				System.err.println("** Warning: Ownship not found in file "+input_file);
-				continue;
+				System.err.println("** Error: Ownship not found in file "+input_file);
+				System.exit(0);;
 			}
-			double from = Util.max(0,daa.getCurrentTime()-backward);
-			double to = daa.getCurrentTime()+forward;
+			reftime = reftime < 0 ? daa.getCurrentTime() : reftime;
 			double horizontal_accel = params.getValue("horizontal_accel");
+			// double vertical_accel = params.getValue("vertical_accel");
 			try {
-				System.out.println("Horizontal_accel: "+horizontal_accel+"[m/s^2]");
-				String postfix = "_"+f.Fm0(from)+"_"+f.Fm0(to);
-				if (horizontal_accel > 0) {
-					postfix += "_"+f.FmPrecision(horizontal_accel,2);
+				String postfix = f.Fm0(reftime);
+				if (backward != 0) {
+					double from = Math.max(0,reftime-backward);
+					postfix = f.Fm0(from)+"_"+f.Fm0(reftime);
 				}
-				output_file += postfix+ext;
+				if (forward != 0) {
+					postfix += "_"+f.Fm0(reftime+forward);
+				}
+				if (horizontal_accel > 0) {
+					postfix += "_"+f.FmPrecision(horizontal_accel,2)+"_mps2";
+				}
+				output_file += "_"+postfix+ext;
 				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 			} catch (Exception e) {
 				System.err.println("** Warning: "+e);
@@ -177,15 +188,15 @@ public class DAAGenerator {
 			TrafficState ownship = daa.getOwnshipState();
 			Velocity wind = daa.getWindVelocityTo();
 			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
-			for (double t = -Util.min(backward,daa.getCurrentTime()); t <= forward; t++) {
+			for (double t = -Util.min(backward,reftime); t <= forward; t++) {
 				Pair<Position,Velocity> posvel = horizontal_accel == 0.0 ? 
 					new Pair<Position,Velocity>(ownship.linearProjection(t).getPosition(),ownship.getGroundVelocity()) :
 					ProjectedKinematics.gsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t, Util.sign(t)*horizontal_accel);
 				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posvel.first,posvel.second,posvel.second.Sub(wind.vect3()));
-				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()+t));
+				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,reftime+t));
 				for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 					TrafficState newtraffic = daa.getAircraftStateAt(ac_idx).linearProjection(t);
-					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()+t));
+					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,reftime+t));
 				}
 			}  
 			out.close();
