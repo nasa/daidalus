@@ -1,12 +1,23 @@
 DAIDALUS: Detect and Avoid Alerting Logic for Unmanned Systems
 -----------------------------------------------------
-Release:  v2.0.3-FormalATM-v2.7.5 (Java), September-8-2023
+Release:  v2.0.4-FormalATM-v2.7.5 (Java), November-30-2023
 Contact: Cesar Munoz (cesar.a.munoz@nasa.gov)
 
 Copyright: Copyright (c) 2021 United States Government as represented by 
 the National Aeronautics and Space Administration.  No copyright 
 is claimed in the United States under Title 17, U.S.Code. All Other 
 Rights Reserved.
+
+Release DAIDALUS-v2.0.4:
+------------------
+* November 30, 2023
+- Cleaned Java and C++ code (removed stale code)
+- Added support for horizontal speed = 0
+- Added parameter min_airspeed, which is used to compute horizontal
+direction bands when horizontal speed is less than min_airspeed.
+- Added parameter hdir_bands_below_min_as, which specifies 
+instantaneous or kinematic horizontal_speed_bands when horizontal
+speed is less than min_airspeed, i.e., (1:Instantaneous, -1:Kinematic)
 
 Release DAIDALUS-v2.0.3:
 ------------------
