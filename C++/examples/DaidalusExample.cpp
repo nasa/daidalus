@@ -48,6 +48,8 @@ TERMINATION OF THIS AGREEMENT.
 using namespace larcfm;
 
 void printDetection(Daidalus& daa) {
+  std::cout << "Ownship in conflict for corrective (" << BandsRegion::to_string(daa.getCorrectiveRegion()) 
+  << ") region: " << Fmb(daa.inCorrectiveConflict()) << std::endl;
   // Aircraft at index 0 is ownship
   for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
     TrafficState intruder = daa.getAircraftStateAt(ac_idx);

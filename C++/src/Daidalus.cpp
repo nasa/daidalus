@@ -3805,10 +3805,10 @@ int Daidalus::alertLevel(int ac_idx) {
 
 /**
  * Return the most severe alert level with respect to all traffic aircraft
- * The number 0 means no alert. A negative number means no traffic aircraft
+ * The number 0 means no alert. 
  */
 int Daidalus::alertLevelAllTraffic() {
-  int max = -1;
+  int max = 0;
   for (int ac_idx=1; ac_idx <= lastTrafficIndex(); ++ac_idx) {
     int alert = alertLevel(ac_idx);
     if (alert > max) {
@@ -3816,6 +3816,19 @@ int Daidalus::alertLevelAllTraffic() {
     }
   }
   return max;
+}
+
+/**
+ * Return true if ownship is in confict with respect the corrective volume with any traffic aircraft.
+ */
+bool Daidalus::inCorrectiveConflict() {
+  for (int ac_idx=1; ac_idx <= lastTrafficIndex(); ++ac_idx) {
+    int alert = alertLevel(ac_idx);
+    if (alert > 0 && alert >= alertLevelOfRegion(ac_idx,getCorrectiveRegion())) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

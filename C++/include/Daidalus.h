@@ -386,6 +386,11 @@ public:
    */
   int mostSevereAlertLevel(int ac_idx);
 
+	/**
+	 * Returns true if ownship is in confict with respect the corrective volume with any traffic aircraft.
+	 */
+	bool inCorrectiveConflict();
+
   /* SUM Setting */
 
   /**
@@ -2586,7 +2591,7 @@ public:
 
   /**
    * Return the most severe alert level with respect to all traffic aircraft
-   * The number 0 means no alert. A negative number means no traffic aircraft
+   * The number 0 means no alert. 
    */
   int alertLevelAllTraffic();
 

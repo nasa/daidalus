@@ -129,6 +129,7 @@ intruder, 33.86191658, -96.73272601, 9000.0, 0.0, 210.0, 0.0, 358.0043334101, 20
 Number of Aircraft: 2
 Last Aircraft Index: 1
 
+Ownship in conflict for corrective (MID) region: true
 Predicted Time to Violation of Alert Thresholds at Level 1 with intruder: 19.42 [s]
 Predicted Time to Violation of Alert Thresholds at Level 2 with intruder: 19.42 [s]
 Predicted Time to Violation of Alert Thresholds at Level 3 with intruder: 19.42 [s]

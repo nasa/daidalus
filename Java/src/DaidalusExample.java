@@ -192,6 +192,7 @@ class DaidalusExample {
 	} 
 
 	static void printDetection(Daidalus daa) {
+		System.out.println("Ownship in conflict for corrective ("+daa.getCorrectiveRegion()+") region: "+daa.inCorrectiveConflict());
 		// Aircraft at index 0 is ownship
 		for (int ac_idx=1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 			TrafficState intruder = daa.getAircraftStateAt(ac_idx);
