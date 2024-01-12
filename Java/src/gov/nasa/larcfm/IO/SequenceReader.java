@@ -75,7 +75,7 @@ import java.util.Set;
 public class SequenceReader extends StateReader {
 
 	private Map< Double, Map<String, Pair<Position, Velocity> > > sequenceTable = new Hashtable< Double, Map<String, Pair<Position, Velocity> > >();
-	private List<String> nameIndex = new ArrayList<String>();
+	private List<String> nameIndex = new ArrayList<>();
 	private Set<String> names = new HashSet<String>();
 	private int windowSize = AircraftState.DEFAULT_BUFFER_SIZE;
 
@@ -155,9 +155,9 @@ public class SequenceReader extends StateReader {
 		clock = true;
 		//interpretUnits = false;
 		sequenceTable = new Hashtable< Double, Map<String, Pair<Position, Velocity> > >();
-		states = new ArrayList<AircraftState>();
-		nameIndex = new ArrayList<String>();
-		names = new HashSet<String>();
+		states = new ArrayList<>();
+		nameIndex = new ArrayList<>();
+		names = new HashSet<>();
 		String lastName = ""; // the current aircraft name
 		//double lastTime = -1000000; // time must be increasing
 		//int stateIndex = -1;
@@ -351,7 +351,7 @@ public class SequenceReader extends StateReader {
 
 	/** remove any time-point entries for which there is only one aircraft (and so no chance of conflict) */
 	public void clearSingletons() {
-		ArrayList<Double> keys = sequenceKeys();		
+		List<Double> keys = sequenceKeys();		
 		for (int i = 0; i < keys.size(); i++) {
 			if (sequenceTable.get(keys.get(i)).size() < 2) {
 				//f.pln("removing singleton (only one aircraft present) at time "+keys.get(i));				
@@ -363,9 +363,9 @@ public class SequenceReader extends StateReader {
 	// we need to preserve the order of the aircraft as in the input file (because the first might be the only way we know which is the ownship)
 	// so we build an arraylist states to us as the subset of all possible inputs
 	private void buildActive(double tm) {
-		ArrayList<Double> times = sequenceKeysUpTo(windowSize,tm); // Note: this includes the last entry
+		List<Double> times = sequenceKeysUpTo(windowSize,tm); // Note: this includes the last entry
 		Map<String, Boolean> included = new Hashtable<String,Boolean>(10); // use to make sure there are no duplicates
-		states = new ArrayList<AircraftState>(0);
+		states = new ArrayList<>(0);
 		extracolumnValues = new HashMap<Pair<Integer,Integer>,Triple<Double,Boolean,String>>();
 		// build all AircraftStates that exist in these times
 		for (int i = 0; i < nameIndex.size(); i++) { // work through the names in order
@@ -402,7 +402,7 @@ public class SequenceReader extends StateReader {
 	 * @param tm Sequence key (time)
 	 */
 	public void setActive(double tm) {
-		states = new ArrayList<AircraftState>();
+		states = new ArrayList<>();
 		if (sequenceTable.containsKey(tm)) {
 			buildActive(tm);
 		}
@@ -412,22 +412,22 @@ public class SequenceReader extends StateReader {
 	 * Set the first entry to be the active one.
 	 */
 	public void setFirstActive() {
-		ArrayList<Double> keys = sequenceKeys();
+		List<Double> keys = sequenceKeys();
 		if (keys.size() > 0)
 			buildActive(keys.get(0));
 		else
-			states = new ArrayList<AircraftState>();
+			states = new ArrayList<>();
 	}
 
 	/**
 	 * Set the last entry to be the active one.
 	 */
 	public void setLastActive() {
-		ArrayList<Double> keys = sequenceKeys();
+		List<Double> keys = sequenceKeys();
 		if (keys.size() > 0)
 			buildActive(keys.get(keys.size()-1));
 		else
-			states = new ArrayList<AircraftState>();
+			states = new ArrayList<>();
 	}
 
 
@@ -435,14 +435,14 @@ public class SequenceReader extends StateReader {
 	 * Returns a sorted list of all sequence keys (times)
 	 * @return list of keys
 	 */
-	public ArrayList<Double> sequenceKeys() {
-		ArrayList<Double> arl = new ArrayList<Double>();
+	public List<Double> sequenceKeys() {
+		List<Double> arl = new ArrayList<>();
 		for (Iterator<Double> e = sequenceTable.keySet().iterator(); e.hasNext();) {
 			arl.add(e.next());
 		}
 		Double[] ar = arl.toArray(new Double[0]);
 		Arrays.sort(ar);
-		arl = new ArrayList<Double>(Arrays.asList(ar));
+		arl = new ArrayList<>(Arrays.asList(ar));
 		return arl;
 	}
 
@@ -451,8 +451,8 @@ public class SequenceReader extends StateReader {
 	 * @param tm 
 	 * @return list of keys 
 	 * */ 
-	public ArrayList<Double> sequenceKeysUpTo(int n, double tm) {
-		ArrayList<Double> arl = new ArrayList<Double>();
+	public List<Double> sequenceKeysUpTo(int n, double tm) {
+		List<Double> arl = new ArrayList<>();
 		for (Iterator<Double> e = sequenceTable.keySet().iterator(); e.hasNext();) {
 			Double elem = e.next();
 			if (elem <= tm) {
@@ -462,15 +462,15 @@ public class SequenceReader extends StateReader {
 		Double[] ar = arl.toArray(new Double[0]);
 		Arrays.sort(ar);
 		ar = Arrays.copyOfRange(ar, Util.max(ar.length-n,0), ar.length);
-		arl = new ArrayList<Double>(Arrays.asList(ar));
+		arl = new ArrayList<>(Arrays.asList(ar));
 		return arl;
 	}
 
 	/** Return a list of aircraft names 
 	 * @return aircraft 
 	 * */
-	public ArrayList<String> getNameIndex() {
-		return new ArrayList<String>(nameIndex);
+	public List<String> getNameIndex() {
+		return new ArrayList<>(nameIndex);
 	}
 
 	/** Returns true if an entry exists for the given name and time 
@@ -513,8 +513,8 @@ public class SequenceReader extends StateReader {
 	/** Returns a list of all Aircraft ids in the sequence 
 	 * @return aircraft ids
 	 * */
-	public ArrayList<String> getSequenceAircraftIdList() {
-		return new ArrayList<String>(names);
+	public List<String> getSequenceAircraftIdList() {
+		return new ArrayList<>(names);
 	}
 
 	/** sets a particular entry without reading in from a file 
@@ -534,7 +534,7 @@ public class SequenceReader extends StateReader {
 	 * This then resets the active time to the last time in the list
 	 * @param alist List of aircraft identifiers
 	 */
-	public void removeAircraft(ArrayList<String> alist) {
+	public void removeAircraft(List<String> alist) {
 		for (String a : alist) {
 			for (Double key : sequenceTable.keySet()) {
 				if (sequenceTable.get(key).containsKey(a)) {
@@ -547,8 +547,8 @@ public class SequenceReader extends StateReader {
 		setLastActive();
 	}
 
-	public ArrayList<Quad<String,Position,Velocity,Double>> allEntries() {
-		ArrayList<Quad<String,Position,Velocity,Double>> list = new ArrayList<Quad<String,Position,Velocity,Double>>();
+	public List<Quad<String,Position,Velocity,Double>> allEntries() {
+		List<Quad<String,Position,Velocity,Double>> list = new ArrayList<>();
 		for (double t : sequenceTable.keySet()) {
 			for (String name : sequenceTable.get(t).keySet()) {
 				Pair<Position,Velocity> p = sequenceTable.get(t).get(name);
@@ -625,7 +625,7 @@ public class SequenceReader extends StateReader {
 	public String toString() {
 		//return input.toString();
 		String rtn = "SequenceReader: ------------------------------------------------\n";
-		ArrayList<Double> keys = sequenceKeys();
+		List<Double> keys = sequenceKeys();
 		if (keys.size() > 0) {
 			rtn = rtn+" Sequence start: "+keys.get(0)+"\n";
 			rtn = rtn+" Sequence end: "+keys.get(keys.size()-1)+"\n";

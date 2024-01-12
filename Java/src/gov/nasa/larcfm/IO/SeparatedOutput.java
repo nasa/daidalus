@@ -36,11 +36,11 @@ public final class SeparatedOutput implements ErrorReporter {
     private ErrorLog error;
 	
 	private boolean header;         // has header line been written? 
-	private ArrayList<String> header_str;    // header line 
+	private List<String> header_str;    // header line 
 	private boolean bunits;          // Should units line be written?
-	private ArrayList<String> units_str;     // Units type
-	private ArrayList<Integer> precision;     // precision
-	private ArrayList<String> line_str;      // raw line
+	private List<String> units_str;     // Units type
+	private List<Integer> precision;     // precision
+	private List<String> line_str;      // raw line
 	private long   size;
 	private int    column_count;
 	private int    header_count;
@@ -48,8 +48,8 @@ public final class SeparatedOutput implements ErrorReporter {
 	private String space;
 	private String comment_char;
 	private String empty;
-	private ArrayList<String> comments;
-	private ArrayList<String> params;
+	private List<String> comments;
+	private List<String> params;
 
 	private static final String NL = System.getProperty("line.separator");
 
@@ -505,7 +505,7 @@ public final class SeparatedOutput implements ErrorReporter {
 	   column_count = -1;
    }
     
-    private void printLine(ArrayList<String> vals) {
+    private void printLine(List<String> vals) {
     	if (vals.isEmpty()) {
     		return;
     	}

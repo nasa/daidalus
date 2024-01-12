@@ -202,7 +202,7 @@ public final class FileUtil {
 	 * @return path to filename, or null if not found
 	 */
 	public static String file_search(String fileName, String srcFile, String subdir) {
-		ArrayList<String> paths = new ArrayList<String>();
+		List<String> paths = new ArrayList<>();
 		paths.add(srcFile);
 		paths.add(dir_absolute_path(srcFile)+File.separator+subdir);
 		paths.add("."+File.separator+subdir);
@@ -262,7 +262,7 @@ public final class FileUtil {
 	   * @return a list of file names
 	   */
 	  public static List<String> getFileNames(String[] names, String extension) {
-		  ArrayList<String> txtFiles = new ArrayList<String>(names.length);
+		  List<String> txtFiles = new ArrayList<>(names.length);
 		  for (int i=0; i < names.length; i++) {
 			  txtFiles.addAll(getFileName(names[i], extension));
 		  }
@@ -279,7 +279,7 @@ public final class FileUtil {
 	   * @return a list of file names
 	   */
 	  public static List<String> getFileNames(List<String> names, String extension) {
-		  ArrayList<String> txtFiles = new ArrayList<String>(names.size());
+		  List<String> txtFiles = new ArrayList<>(names.size());
 		  for (String name: names) {
 			  txtFiles.addAll(getFileName(name, extension));
 		  }
@@ -297,7 +297,7 @@ public final class FileUtil {
 	   * @return a list of file names
 	   */
 	  public static List<String> getFileName(String name, String extension) {
-		  ArrayList<String> txtFiles = new ArrayList<String>();
+		  List<String> txtFiles = new ArrayList<>();
 		  File file = new File(name);
 		  if (file.canRead()) {
 			  if (file.isDirectory()) {
