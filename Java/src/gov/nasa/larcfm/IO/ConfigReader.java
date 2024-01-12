@@ -69,7 +69,7 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 	private ErrorLog error;
 	private String[] param_var;
 	private boolean[] param_isValue;
-	private ArrayList<String[]> param_val;
+	private List<String[]> param_val;
 	private int count;
 	private int[] count_itr;
 	private boolean caseSensitive;
@@ -83,13 +83,13 @@ public final class ConfigReader implements ParameterReader, ParameterProvider, E
 		error = new ErrorLog("ConfigReader()");
 		param_var = new String[0];
 		param_isValue = new boolean[0];
-		param_val = new ArrayList<String[]>(10);
+		param_val = new ArrayList<>(10);
 		count_itr = new int[0];
 		count = 0;
 		caseSensitive = false;
 		pd = ParameterData.make();
 		preambleImage = "";
-		includeNames = new ArrayList<String>(10);
+		includeNames = new ArrayList<>(10);
 		includeNames.add(INCLUDE_FILE);
 	}
 

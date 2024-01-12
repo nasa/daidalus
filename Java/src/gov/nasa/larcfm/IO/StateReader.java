@@ -91,13 +91,13 @@ import java.io.FileNotFoundException;
 public class StateReader implements ParameterProvider, ParameterReader, ErrorReporter {
 	protected ErrorLog error;
 	protected SeparatedInput input;
-	protected ArrayList<AircraftState> states;
+	protected List<AircraftState> states;
 	protected boolean hasRead;
 	protected boolean latlon;
 	protected boolean trkgsvs;
 	protected boolean clock;
 	protected final int definedColumns = 8;  // this should the number of pre-defined columns
-	protected List<Integer> head = new ArrayList<Integer>(definedColumns);
+	protected List<Integer> head = new ArrayList<>(definedColumns);
 	// we store the heading indices in the following order:
 	protected final int NAME = 0;
 	protected final int LAT_SX = 1;
@@ -116,7 +116,7 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 	/** A new, empty StateReader. After you have a StateReader object then use the open() method. */
 	public StateReader() {
 		error = new ErrorLog("StateReader()");
-		states = new ArrayList<AircraftState>(0);
+		states = new ArrayList<>(0);
 		input = new SeparatedInput();
 		input.setCaseSensitive(false);            // headers & parameters are lower case
 		fname = "";
@@ -181,7 +181,7 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 		hasRead = false;
 		clock = true;
 		//interpretUnits = false;
-		states = new ArrayList<AircraftState>(10);
+		states = new ArrayList<>(10);
 		String name = ""; // the current aircraft name
 		double lastTime = -1000000; // time must be increasing
 		int stateIndex = -1;
@@ -376,7 +376,7 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 	 * Return a list of all user-defined columns in this reader.
 	 */
 	public List<String> getExtraColumnList() {
-		List<String> names = new ArrayList<String>();
+		List<String> names = new ArrayList<>();
 		for (int i = definedColumns; i < head.size(); i++) {
 			names.add(input.getHeading(head.get(i)));
 		}
@@ -466,8 +466,8 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 	/** Returns a (deep) copy of all AircraftStates in the file 
 	 * @return list of states
 	 * */
-	public ArrayList<AircraftState> getAircraftStateList() {
-		ArrayList<AircraftState> s = new ArrayList<AircraftState>(states.size());
+	public List<AircraftState> getAircraftStateList() {
+		List<AircraftState> s = new ArrayList<>(states.size());
 		for (int i = 0; i < states.size(); i++) {
 			s.add(states.get(i).copy());
 		}
