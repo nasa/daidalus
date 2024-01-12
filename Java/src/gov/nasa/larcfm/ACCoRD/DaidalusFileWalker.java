@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 United States Government as represented by
+ * Copyright (c) 2015-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
@@ -12,8 +12,8 @@ import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Velocity;
 
+import java.util.ArrayList;
 import java.util.List;
-
 
 public class DaidalusFileWalker implements ErrorReporter {
 
@@ -21,6 +21,8 @@ public class DaidalusFileWalker implements ErrorReporter {
 	private ParameterData p_;
 	private List<Double> times_;
 	private int index_;
+	private String ownship_; // Set ownship to a given value
+	private List<String> traffic_; // Only consider the traffic aircraft
 
 	public DaidalusFileWalker(String filename) {
 		sr_ = new SequenceReader(filename);
@@ -37,9 +39,79 @@ public class DaidalusFileWalker implements ErrorReporter {
 		index_ = 0;
 		times_ = sr_.sequenceKeys();
 		p_ = sr_.getParameters();
-		if (times_.size() > 0) 
+		if (times_.size() > 0) {
 			sr_.setActive(times_.get(0));
+		}
+		ownship_ = "";
+		traffic_ = new ArrayList<String>();
 	}
+
+	/** 
+	 * By default ownship is the first aircraft in the daa file.
+	 * This method allows for the selection of a different aircraft as the ownship
+	 * If aircraft with given name doesn't exist at a time step, no ownship or traffic 
+	 * is added to the Daidalus object at that particular time step.
+	 */
+	public void setOwnship(String name) {
+		ownship_ = name;
+	}
+
+	/** 
+	 * Returns the name of the ownship.
+	 * An empty string refers to the aircraft that is the first in the daa file
+	 */
+	public String getOwnship() {
+		return ownship_;
+	}
+
+	/** 
+	 * Reset the ownship value so that the first aircraft in the daa are considered
+	 * the ownship.
+	 */
+	public void resetOwnship() {
+		setOwnship("");
+	}
+
+	/** 
+	 * By default all aircraft that are not the ownship are considered to be traffic.
+	 * This method add a particular aircraft to the list of selected aircraft.
+	 * Several aircraft can be selected, but if the list of selected aircraft is non empty, 
+	 * only the aircraft in the list are considered traffic.  
+	 */
+	public void selectTraffic(String name) {
+		traffic_.add(name);
+	}
+
+	/** 
+	 * By default all aircraft that are not the ownship are considered to be traffic.
+	 * This method add a list of aircraft to the list of selected aircraft.
+	 * Several aircraft can be selected, but if the list of selected aircraft is non empty, 
+	 * only the aircraft in the list are considered traffic.  
+	 */
+	public void selectTraffic(List<String> names) {
+		traffic_.addAll(names);
+	}
+
+	/**
+	 * Returns the list of selected traffic. An empty list means that all aircraft that are 
+	 * not the ownship are considered traffic.
+	 */
+	public List<String> getSelectedTraffic() {
+		return traffic_;
+	}
+
+	/**
+	 * Reset the list of selected aircraft so that all aircraft that are not ownship are
+	 * considered traffic.
+	 */
+	public void resetSelectedTraffic() {
+		traffic_.clear();
+	}
+
+	/**
+	 * Returns the name of the traffic aircraft. An empty list 
+	 * @return
+	 */
 
 	public double firstTime() {
 		if (!times_.isEmpty()) {
@@ -189,16 +261,35 @@ public class DaidalusFileWalker implements ErrorReporter {
 			daa.setParameterData(p_);
 			daa.reset();
 		}
-		for (int ac = 0; ac < sr_.size();++ac) {
-			String ida = sr_.getName(ac);
-			Position sa = sr_.getPosition(ac);
-			Velocity va = sr_. getVelocity(ac);
-			if (ac==0) {
-				daa.setOwnshipState(ida,sa,va,getTime());
-			} else {
-				daa.addTrafficState(ida,sa,va);
+		int own = 0; // By default onwship is 0
+		if (!ownship_.isEmpty()) {
+			own = -1;
+			for (int ac = 0; ac < sr_.size();++ac) {
+				if (sr_.getName(ac).equals(ownship_)) {
+					own = ac;
+					break;
+				}
 			}
-			readExtraColumns(daa,sr_,ac);
+		}
+		if (own >= 0) {
+			String ido = sr_.getName(own);
+			Position so = sr_.getPosition(own);
+			Velocity vo = sr_. getVelocity(own);
+			daa.setOwnshipState(ido,so,vo,getTime());
+			readExtraColumns(daa,sr_,0);
+			for (int ac = 0; ac < sr_.size();++ac) {
+				if (ac == own) {
+					continue;
+				}
+				String ida = sr_.getName(ac);
+				if (traffic_.isEmpty() || traffic_.contains(ida)) {
+					Position sa = sr_.getPosition(ac);
+					Velocity va = sr_. getVelocity(ac);
+					// Notice that idx may be different from ac because of traffic
+					int idx=daa.addTrafficState(ida,sa,va);
+					readExtraColumns(daa,sr_,idx);
+				}
+			}
 		}
 		goNext();
 	}

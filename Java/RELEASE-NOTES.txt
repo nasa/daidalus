@@ -10,6 +10,10 @@ Rights Reserved.
 
 Release DAIDALUS-v2.0.1:
 ------------------
+* January 12, 2023
+- Added setOwnship and selectTraffic methods to DaidalusFileWalker for
+use with DAADisplays
+
 * January 11, 2021
 - Fixed comment related to SUM setting in Daidalus class
 - Added interface to raw resolutions 
