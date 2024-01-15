@@ -3909,9 +3909,12 @@ public class Daidalus {
 
 	/**
 	 * Return the most severe alert level with respect to all traffic aircraft
-	 * The number 0 means no alert. 
+	 * Return 0 if no alert. Return -1 if ownship has not been set
 	 */
 	public int alertLevelAllTraffic() {
+		if (!hasOwnship()) {
+			return -1;
+		}
 		int max = 0;
 		for (int ac_idx=1; ac_idx <= lastTrafficIndex(); ++ac_idx) {
 			int alert = alertLevel(ac_idx);

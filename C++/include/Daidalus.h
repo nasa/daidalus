@@ -2591,7 +2591,7 @@ public:
 
   /**
    * Return the most severe alert level with respect to all traffic aircraft
-   * The number 0 means no alert. 
+   * Return 0 if no alert. Return -1 if ownship has not been set 
    */
   int alertLevelAllTraffic();
 
