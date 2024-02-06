@@ -130,7 +130,7 @@ Vect2 Velocity::trkgs2v(double trk, double gs) {
 }
 
 double Velocity::angle() const {
-	return to_pi(M_PI_2-trk_);
+	return to_pi(M_PI/2.0-trk_);
 }
 
 double Velocity::angle(const std::string& uangle) const {

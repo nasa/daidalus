@@ -412,7 +412,7 @@ public class Horizontal extends Vect2  {
 			double td = Theta_D(s,v,dir,D);
 			if (td > 0) {
 				Vect2 p = v.ScalAdd(td,s);
-				opt_trk_gs_dot(p.Scal(th),vo,vi,Util.sq(D)-s.dot(p));
+				return opt_trk_gs_dot(p.Scal(th),vo,vi,Util.sq(D)-s.dot(p));
 			}
 		}
 		return NoHorizontalSolution;

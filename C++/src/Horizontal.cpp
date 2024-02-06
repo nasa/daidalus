@@ -101,12 +101,9 @@ bool Horizontal::horizontal_dir_at(const Vect2& s, const Vect2& v, const double 
   return horizontal_dir(sp,v,dir);
 }
 
-
 bool Horizontal::horizontal_entry(const Vect2& s, const Vect2& v) {
   return horizontal_dir(s,v,-1);
 }
-
-
 
 Vect2 Horizontal::Vdir(const Vect2& s, const Vect2& v) {
   Vect2 ps = s.PerpR();
@@ -348,7 +345,7 @@ Horizontal Horizontal::opt_trk_gs_vertical(const Vect2& s,const Vect2& vo,const 
     double td = Theta_D(s,v,dir,D);
     if (td > 0) {
       Vect2 p = s.AddScal(td, s); //s + v*td;
-      opt_trk_gs_dot(p*th,vo,vi,sq(D)-s*p);
+      return opt_trk_gs_dot(p*th,vo,vi,sq(D)-s*p);
     }
   }
   return NoHorizontalSolution();
