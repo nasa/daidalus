@@ -297,9 +297,9 @@ string representation supported by DAIDALUS.
 | Units  | String |
 | --|-- |
 | milliseconds | `"ms"` |
-| seconds | `"s"` |
+| seconds | `"s"`, `"sec"` |
 | minutes | `"min"` |
-| hours | `"h"` | `"hr"` |
+| hours | `"h"`, `"hr"` |
 | meters | `"m"` |
 | kilometers | `"km"` |
 | nautical miles | `"nmi"`, `"NM"`  |
