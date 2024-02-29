@@ -88,7 +88,7 @@ public:
 	/** Return altitude in [ft] 
 	 * @return altitude in feet
 	 * */
-	double altitude() const;
+	double altitude_ft() const;
 
 	/** Return latitude in internal units 
 	 * @return latitude value

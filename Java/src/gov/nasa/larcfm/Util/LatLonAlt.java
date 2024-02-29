@@ -230,7 +230,7 @@ public final class LatLonAlt {
 	/** Return altitude in [ft] 
 	 * @return altitude in feet
 	 * */
-	public double altitude() {
+	public double altitude_ft() {
 		return Units.to(Units.ft, alti);
 	}	
 
@@ -387,7 +387,7 @@ public final class LatLonAlt {
 		ArrayList<String> ret = new ArrayList<String>(3);
 		ret.add(f.FmPrecision(latitude(), precision));
 		ret.add(f.FmPrecision(longitude(), precision));
-		ret.add(f.FmPrecision(altitude(), precision));
+		ret.add(f.FmPrecision(altitude_ft(), precision));
 		return ret;
 	}
 

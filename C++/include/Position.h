@@ -227,19 +227,19 @@ public:
 	/** Return the altitude in feet
 	 * @return altitude [ft]
 	 * */
-	double altitude() const;
+	double altitude_ft() const;
 	/** Return the x coordinate in [NM]
 	 * @return x coordinate [NM]
 	 * */
-	double xCoordinate() const;
+	double xCoordinate_nmi() const;
 	/** Return the y coordinate in [NM]
 	 * @return y coordinate [NM]
 	 * */
-	double yCoordinate() const;
+	double yCoordinate_nmi() const;
 	/** Return the z coordinate in [ft]
 	 * @return z coordinate [ft]
 	 * */
-	double zCoordinate() const;
+	double zCoordinate_ft() const;
 
 	/** Return if this Position is a latitude or longitude
 	 * @return true if latitude/longitude

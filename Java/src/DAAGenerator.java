@@ -74,47 +74,69 @@ public class DAAGenerator {
 		int backward = 0;
 		int forward = 0;
 		double time = 0.0;
-		double reftime = -1;
+		double from = 0.0;
+		String output = "";
+		String options = "DAAGenerator";
+		boolean wind_enabled = false; // Is wind enabled in command line?
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
+			if (arga.startsWith("-")) {
+				options += " "+arga;
+			}
 			if (arga.startsWith("--prec") || arga.startsWith("-prec")) {
 				++a;
 				precision = Integer.parseInt(args[a]);
+				options += " "+args[a];
 			} else if (arga.startsWith("-") && arga.contains("=")) {
-				String keyval = arga.substring(arga.lastIndexOf('-')+1);
+				String keyval = arga.substring(arga.startsWith("--")?2:1);
 				params.set(keyval);
 			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
 				++a;
 				ownship_id = args[a];
+				options += " "+args[a];
 			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
 				++a;
 				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
+				options += " "+args[a];
+			} else if ((args[a].startsWith("--out") || args[a].startsWith("-out")) && a+1 < args.length) { 
+				++a;
+				output = args[a];
+				options += " "+args[a];
 			} else if (arga.startsWith("--t") || arga.startsWith("-t")) {
 				++a;
 				time = Math.abs(Double.parseDouble(args[a]));
+				options += " "+args[a];
 			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
 				++a;
 				backward = Math.abs(Integer.parseInt(args[a]));
+				options += " "+args[a];
 			} else if (arga.startsWith("--f") || arga.startsWith("-f")) {
 				++a;
 				forward = Math.abs(Integer.parseInt(args[a]));
-			} else if (arga.startsWith("--r") || arga.startsWith("-r")) {
+				options += " "+args[a];
+			} else if (arga.startsWith("--i") || arga.startsWith("-i")) {
 				++a;
-				reftime = Math.abs(Integer.parseInt(args[a]));
+				from = Math.abs(Integer.parseInt(args[a]));
+				options += " "+args[a];
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<option>] <daa_file>");
 				System.err.println("  <option> can be");
-				System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --horizontal_accel=\".25[G]\"");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --precision <n>\n\tOutput decimal precision to <n>");
 				System.err.println("  --ownship <id>\n\tSpecify <id> as ownship");
 				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
-				System.err.println("  --time <t>\n\tGo to time in <daa_file><t>");
-				System.err.println("  --reftime <t>\n\tUse <t> are the reference time in the output file");
-				System.err.println("  --backward <n>\n\tGenerate scenario <n> seconds backwards");
-				System.err.println("  --forward <n>\n\tGenerate scenario <n> seconds backwards");
+				System.err.println("  --time <t>\n\tUse states at time <t> in <daa_file> for generation of new scenario. By default, <t> is the first time in <daa_file>");
+				System.err.println("  --init <i>\n\tUse time <i> as initial time of the generated scenario. By default, <i> is 0");
+				System.err.println("  --backward <b>\n\tTo generate new scenario, project <b> seconds backward from states at time <t> in <daa_file>");
+				System.err.println("  --forward <f>\n\tTo generate new scenario, project <f> seconds forward from states at time <t> in <daa_file>");
+				System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g.,");
+				System.err.println("\t--horizontal_accel='-0.1[G]'");
+				System.err.println("\t--vertical_accel='0.1[G]'");
+				System.err.println("\t--slope='10[deg]' (forward projection ==> departing, backward projection ==> landing. Only if ground velocity at <t> is zero)");
+				System.err.println("\t--wind_norm='40[kn]'");
+				System.err.println("\t--wind_to='90[deg]' (direction is clockwise from true north)");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -127,16 +149,17 @@ public class DAAGenerator {
 		if (params.size() > 0) {
 			daa.setParameterData(params);
 		}
+		if (input_files.isEmpty()) {
+			System.err.println("Usage:  DAAGenerator [<option>] <daa_file>");
+			System.err.println("Try: DAAGenerator --help");
+			System.exit(1);
+		}
 		for (String input_file : input_files) {
 			File file = new File(input_file);
 			if (!file.exists() || !file.canRead()) {
 				System.err.println("** Warning: File "+input_file+" cannot be read");
 				continue;
 			}
-			String name = file.getName();
-			String base = name.substring(0,name.lastIndexOf('.'));
-			String ext = name.substring(name.lastIndexOf('.'),name.length());
-			String output_file = base;
 			DaidalusParameters.setDefaultOutputPrecision(precision);
 			DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
 			if (walker.atEnd()) {
@@ -156,47 +179,100 @@ public class DAAGenerator {
 			}
 			walker.readState(daa);
 			if (!daa.hasOwnship()) {
-				System.err.println("** Error: Ownship not found in file "+input_file);
-				System.exit(0);;
+				System.err.println("** Warning: Ownship not found in file "+input_file);
+				continue;
 			}
-			reftime = reftime < 0 ? daa.getCurrentTime() : reftime;
 			double horizontal_accel = params.getValue("horizontal_accel");
-			// double vertical_accel = params.getValue("vertical_accel");
+			double vertical_accel = params.getValue("vertical_accel");
+			if (params.contains("wind_norm") || params.contains("wind_to")) {
+				wind_enabled = true;
+			}
+			double wind_norm = params.getValue("wind_norm");
+			double wind_to = params.getValue("wind_to");
+			double slope = params.getValue("slope");
+			if (slope < 0 || slope >= Math.PI/2.0) {
+				System.err.println("Slope has to be in the interval (0,90) degrees");
+				continue;
+			}
 			try {
-				String postfix = f.Fm0(reftime);
-				if (backward != 0) {
-					double from = Math.max(0,reftime-backward);
-					postfix = f.Fm0(from)+"_"+f.Fm0(reftime);
+				if (output.isEmpty()) {
+					String filename = file.getName();
+					String output_file = filename.substring(0,filename.lastIndexOf('.'));
+					output_file += "_" + f.Fm0(from);
+					double to = from + backward + forward;
+					if (from != to) {
+						output_file += "_" + f.Fm0(to);
+					}
+					output_file += ".daa";
+					output = output_file;
 				}
-				if (forward != 0) {
-					postfix += "_"+f.Fm0(reftime+forward);
-				}
-				if (horizontal_accel > 0) {
-					postfix += "_"+f.FmPrecision(horizontal_accel,2)+"_mps2";
-				}
-				output_file += "_"+postfix+ext;
-				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+				out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
+				System.err.println("Writing "+output);
+				output = ""; // To avoid overwriting output file when there is more than one input file
 			} catch (Exception e) {
 				System.err.println("** Warning: "+e);
 				continue;
 			}
-			System.err.println("Writing "+output_file);
 			String uh = "nmi";
 			String uv = "ft";
 			String ugs = "knot";
 			String uvs = "fpm";
+			out.println("## "+options+" "+input_file);
 			TrafficState ownship = daa.getOwnshipState();
+			if (slope > 0) {
+				if ((horizontal_accel == 0.0 && vertical_accel != 0.0) || (horizontal_accel != 0.0 && vertical_accel == 0.0)) {
+					double tan_slope = Math.tan(slope);
+					boolean climb;
+					if ((horizontal_accel < 0.0 || vertical_accel > 0.0) && ownship.verticalSpeed() <= 0.0) {
+						climb = false;
+					} else if ((horizontal_accel > 0.0 || vertical_accel < 0.0) && ownship.verticalSpeed() >= 0.0) {
+						climb = true;
+					} else {
+						System.err.println("** Warning: Option --slope requires horizontal_accel to have the same sign as vertical speed");
+						continue;
+					}
+					if (horizontal_accel != 0.0) {
+						horizontal_accel = Util.sign(climb)*Math.abs(horizontal_accel);
+						vertical_accel = -horizontal_accel*tan_slope;
+					} else {
+						vertical_accel = -Util.sign(climb)*Math.abs(vertical_accel);
+						horizontal_accel = -vertical_accel/tan_slope;
+					} 
+				} else {
+					System.err.println("** Warning: Option --slope requires either --horizontal_accel or vertical_accel (but not both).");
+					continue;
+				}
+			}
+			if (horizontal_accel != 0.0) {
+				out.println("## Horizontal acceleration: "+horizontal_accel+ " [mps2]");
+			}
+			if (vertical_accel != 0.0) {
+				out.println("## Vertical acceleration: "+vertical_accel+ " [mps2]");
+			}
 			Velocity wind = daa.getWindVelocityTo();
+			if (wind_enabled) {
+				wind =  Velocity.mkTrkGsVs(wind_to,wind_norm,0.0);
+			}
+			if (!wind.isZero()) {				
+				out.println("## Wind: "+wind.toStringUnits("deg","kn","fpm"));
+			}
 			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
-			for (double t = -Util.min(backward,reftime); t <= forward; t++) {
-				Pair<Position,Velocity> posvel = horizontal_accel == 0.0 ? 
+			for (double t = -backward; t <= forward; t++, from++) {
+				Pair<Position,Velocity> posvelhor = horizontal_accel == 0.0 ? 
 					new Pair<Position,Velocity>(ownship.linearProjection(t).getPosition(),ownship.getGroundVelocity()) :
-					ProjectedKinematics.gsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t, Util.sign(t)*horizontal_accel);
-				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posvel.first,posvel.second,posvel.second.Sub(wind.vect3()));
-				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,reftime+t));
+					ProjectedKinematics.gsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t,horizontal_accel);
+				Position posown = posvelhor.first;
+				Velocity velown = posvelhor.second;
+				if (vertical_accel != 0.0) {
+					Pair<Position,Velocity> posvelvert = ProjectedKinematics.vsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t,vertical_accel);
+					posown = posown.mkAlt(posvelvert.first.alt());
+					velown = velown.mkVs(posvelvert.second.vs());
+				} 
+				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posown,velown,velown.Sub(wind.vect3()));
+				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 				for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 					TrafficState newtraffic = daa.getAircraftStateAt(ac_idx).linearProjection(t);
-					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,reftime+t));
+					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 				}
 			}  
 			out.close();

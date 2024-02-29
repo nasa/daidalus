@@ -67,7 +67,7 @@ double LatLonAlt::longitude() const {
 	return to_180(Units::to("deg", longi));
 }
 
-double LatLonAlt::altitude() const {
+double LatLonAlt::altitude_ft() const {
 	return Units::to("ft", alti);
 }
 

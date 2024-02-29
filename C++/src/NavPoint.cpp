@@ -176,21 +176,21 @@ double NavPoint::longitude() const {
 	return p.longitude();
 }
 
-double NavPoint::altitude() const {
-	return p.altitude();
+double NavPoint::altitude_ft() const {
+	return p.altitude_ft();
 }
 
 
-double NavPoint::xCoordinate() const {
-	return p.xCoordinate();
+double NavPoint::xCoordinate_nmi() const {
+	return p.xCoordinate_nmi();
 }
 
-double NavPoint::yCoordinate() const {
-	return p.yCoordinate();
+double NavPoint::yCoordinate_nmi() const {
+	return p.yCoordinate_nmi();
 }
 
-double NavPoint::zCoordinate() const {
-	return p.zCoordinate();
+double NavPoint::zCoordinate_ft() const {
+	return p.zCoordinate_ft();
 }
 
 double NavPoint::time() const {

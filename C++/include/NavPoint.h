@@ -178,13 +178,13 @@ public:
     /** Return the longitude in degrees east */
     double longitude() const;
     /** Return the altitude in [ft] */
-    double altitude() const;
+    double altitude_ft() const;
     /** Return the x coordinate in [nmi] */
-    double xCoordinate() const;
+    double xCoordinate_nmi() const;
     /** Return the y coordinate in [nmi] */
-    double yCoordinate() const;
+    double yCoordinate_nmi() const;
     /** Return the z coordinate in [ft] */
-    double zCoordinate() const;
+    double zCoordinate_ft() const;
 	/** Return the time [s] 
 	 * @return time in [s]
 	 * */

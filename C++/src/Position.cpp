@@ -172,22 +172,21 @@ double Position::longitude() const {
 	return ll.longitude();
 }
 
-double Position::altitude() const {
-	return ll.altitude();
+double Position::altitude_ft() const {
+	return ll.altitude_ft();
 }
 
-double Position::xCoordinate() const {
+double Position::xCoordinate_nmi() const {
 	return Units::to("nm", s3.x());
 }
 
-double Position::yCoordinate() const {
+double Position::yCoordinate_nmi() const {
 	return Units::to("nm", s3.y());
 }
 
-double Position::zCoordinate() const {
+double Position::zCoordinate_ft() const {
 	return Units::to("ft", s3.z());
 }
-
 
 bool Position::isLatLon() const {
 	return latlon;
@@ -545,7 +544,7 @@ std::vector<std::string> Position::toStringList() const {
 	} else if (latlon) {
 		ret.push_back(Fm12(ll.latitude()));
 		ret.push_back(Fm12(ll.longitude()));
-		ret.push_back(Fm12(ll.altitude()));
+		ret.push_back(Fm12(ll.altitude_ft()));
 	} else {
 		ret.push_back(Fm12(Units::to("NM",s3.x())));
 		ret.push_back(Fm12(Units::to("NM",s3.y())));
@@ -573,7 +572,7 @@ std::vector<std::string> Position::toStringList(int precision, int latLonExtraPr
 		} else {
 			ret.push_back(FmPrecision(ll.latitude(),precision+extra));
 			ret.push_back(FmPrecision(ll.longitude(),precision+extra));
-			ret.push_back(FmPrecision(ll.altitude(),precision));
+			ret.push_back(FmPrecision(ll.altitude_ft(),precision));
 		}
 	} else {
 		if (internalUnits) {

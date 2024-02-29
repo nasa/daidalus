@@ -13,7 +13,6 @@
 
 package gov.nasa.larcfm.Util;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -423,28 +422,28 @@ public final class Position implements OutputList {
 	/** Return the altitude in feet 
 	 * @return altitude [ft]
 	 * */
-	public double altitude() {
+	public double altitude_ft() {
 		return Units.to(Units.ft, alt());
 	}
 
 	/** Return the x coordinate in [NM] 
 	 * @return x coordinate [NM]
 	 * */ 
-	public double xCoordinate() {
+	public double xCoordinate_nmi() {
 		return Units.to(Units.NM, x());
 	}
 
 	/** Return the y coordinate in [NM] 
 	 * @return y coordinate [NM]
 	 * */
-	public double yCoordinate() {
+	public double yCoordinate_nmi() {
 		return Units.to(Units.NM, y());
 	}
 
 	/** Return the z coordinate in [ft] 
 	 * @return z coordinate [ft]
 	 * */
-	public double zCoordinate() {
+	public double zCoordinate_ft() {
 		return Units.to(Units.ft, z());
 	}
 
@@ -465,7 +464,6 @@ public final class Position implements OutputList {
 		} else {
 			return s3.isInvalid();			
 		}
-		//return s3.isInvalid() || ll.isInvalid();
 	}
 
 	/** Make a new Position from the current one with the X coordinate changed 
@@ -1126,7 +1124,7 @@ public final class Position implements OutputList {
 		} else if (latlon) {
 			ret.add(Double.toString(ll.latitude()));
 			ret.add(Double.toString(ll.longitude()));
-			ret.add(Double.toString(ll.altitude()));
+			ret.add(Double.toString(ll.altitude_ft()));
 		} else {
 			ret.add(Double.toString(Units.to("NM",s3.x)));
 			ret.add(Double.toString(Units.to("NM",s3.y)));
@@ -1181,7 +1179,7 @@ public final class Position implements OutputList {
 			} else {
 				ret.add(f.FmPrecision(ll.latitude(),precision+extra));
 				ret.add(f.FmPrecision(ll.longitude(),precision+extra));
-				ret.add(f.FmPrecision(ll.altitude(),precision));
+				ret.add(f.FmPrecision(ll.altitude_ft(),precision));
 			}
 		} else {
 			if (internalUnits) {
