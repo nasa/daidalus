@@ -63,10 +63,6 @@ Reference Manual - DAIDALUS-v2.0.x
 * [Advanced Features](#advanced-features)
    * [Batch Simulation and Analysis Tools](#batch-simulation-and-analysis-tools)
 * [Contact](#contact)
-
-<!-- Created by https://github.com/ekalinin/github-markdown-toc -->
-<!-- Added by: cesar, at: Mon Jun 27 10:02:13 EDT 2022 -->
-
 <!--te-->
 
 # Introduction
@@ -1282,29 +1278,31 @@ that are related to RTCA SC-228 MOPS Phase I.
   implementation against the maximum values in the
   encounter characterization files in Appendix P.
 
-# Advanced Features
-
-## Batch Simulation and Analysis Tools
-DAIDALUS has some programming utilities for batch simulation and for
-computing detection, alerting, and maneuver guidance from pre-defined
+# Batch Simulation and Analysis Tools
+DAIDALUS includes utilities for batch simulation and for
+computing alerting and maneuver guidance from pre-defined
 encounters.
 
-These utilities work with two text files: a DAIDALUS configuration file `name.conf`
+## `daidalize`
+DAIDALUS' batch utilities work with two text files: a DAIDALUS configuration file `name.conf`
 such as [`WC_SC_228_nom_b.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_b.txt)
 and an encounter file `name.daa` such as
 [`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa). The
 encounter file may list multiple aircraft, the first one is considered
-to be the ownship. The aircraft states can be given geodesic
+to be the ownship. The aircraft states can also be given in local Euclidean
 coordinates, e.g.,
-[`MultiAircraft.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/MultiAircraft.daa).
+[`H2.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H2.xyz). The
+extensions `.daa` and `.xyz` for geodesic vs Euclidean coordinates, respectively, is
+just a convention. 
 
-The configuration and encounter files can be generated from a Daidalus
+Configuration and encounter files can be generated from a Daidalus
 log file. A Daidalus log file is produced by writing into a text file
 the string `daa.toString()`, where `daa` is a `Daidalus` object.
 To generate the configuration and encounter file from a Daidalus log
 file, i.e., `name.log`, use the script
 [`daidalize`](https://github.com/nasa/daidalus/blob/master/Scripts/daidalize.pl),
 e.g.,
+
 ```
 $ ./daidalize.pl name.log 
 Processing name.log
@@ -1319,116 +1317,62 @@ problem by artificially increasing the time of contiguous time steps so
 that the time column of the generated encounter strictly increases at
 every time step.
 
-To produce alerting and state-based metrics, 
-use the Java program [`DaidalusAlerting`](https://github.com/nasa/daidalus/blob/master/Java/DaidalusAlerting), e.g.,
-```
-$ ./DaidalusAlerting --conf name.conf name.daa
-Loading configuration file name.conf
-Processing DAIDALUS file name.daa
-Generating CSV file name.csv
-```
-
-The script
-[`drawgraphs`](https://github.com/nasa/daidalus/blob/master/Scripts/drawgraphs.py)
-can be used to generate PDFs of the information produced by
-`DaidalusAlerting`, e.g.,
-```
-$ ./drawgraphs.py --conf name.conf --hd name.daa
-Writing PDF file name_horizontal_distance.pdf
-```
-
-To produce maneuver guidance graphs, 
-use the Java program [`DrawMultiBands`](https://github.com/nasa/daidalus/blob/master/Java/DrawMultiBands), e.g.,
-```
- $ ./DrawMultiBands  --conf name.conf name.daa
-Writing file name.draw, which can be processed with the Python script drawmultibands.py
-```
-
-Then, to produce a PDF file use the script
-[`drawmultibands`](https://github.com/nasa/daidalus/blob/master/Scripts/drawmultibands.py),
-e.g.,
-```
-$ ./drawmultibands.py name.draw 
-Reading name.draw
-Writing name.pdf
-```
-
----
-These applications
-use the DAIDALUS library in batch mode on a configuration (`.conf`)
-and encounter (`.daa`) file. 
-
-The application
-`DaidalusAlerting` computes several performance metrics in batch mode
-for a given congir
-
-encounter using the example
-program `DaidalusAlerting`, which is available in
+## `DaidalusAlerting`
+The application `DaidalusAlerting`, which is available in
 [Java](https://github.com/nasa/daidalus/blob/master/Java/src/DaidalusAlerting.java) and
-[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusAlerting.cpp), e.g.,
+[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusAlerting.cpp), 
+produces alerting and state-based metrics in a comma separated value
+(CSV) format, for given encounter and 
+configuration files, e.g.,
 
 ```
-./DaidalusAlerting --conf ../Configurations/WC_SC_228_std.txt ../Scenarios/H1.daa
-Generating CSV file H1.csv
+$ ./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa 
+Generating CSV file H1.csv 
 ```
 
-The generated file `H1.csv` contains  alerting information computed by DAIDALUS
-for the encounter [H1.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa) assuming [Nominal
-B](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_b.txt) configuration.
+In this case, the generated file `H1.csv` contains  alerting information computed by DAIDALUS 
+for the encounter
+[H1.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa)
+assuming [DO-365B (without Sensor Uncertainty Mitigation)](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365B_no_SUM.conf ) configuration. 
 
-Scripts are provided to produce graphs containing guidance and alerting
-information. For example, 
-
-```
-./DrawMultiBands --conf ../Configurations/WC_SC_228_std.txt ../Scenarios/H1.daa
-Writing file H1.draw, which can be processed with the Python script drawmultibands.py
-```
-
-produces a file `H1.draw`, which can be processed with the Python
-script `drawmultibands.py` to produce a PDF file displaying manuever
-guidance information for the given encounter, e.g.,
+## `DaidalusBatch`
+The program `DaidalusBatch`, which is available in
+[Java](https://github.com/nasa/daidalus/blob/master/Java/src/DaidalusBatch.java) and
+[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusBatch.cpp),  generates alerting and banding
+information for given configuration and encounter files, e.g.,
 
 ```
-../Scripts/drawmultibands.py H1.draw
-Writing H1.pdf
-```
-
-The script `drawgraph.py` (thanks to Rachael Shudde, NASA Intern
-2017)  can be used to produce graphs of the information produced by
-`DaidalusAlerting`, e.g.,
+$ ./DaidalusBatch --conf  ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
 
 ```
-../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --hd H12.daa
-Writing PDF file H12_horizontal_distance.pdf
+prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
 
-../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --taumod H12.daa
-Writing PDF file H12_taumod.pdf
-
-../Scripts/drawgraphs.py --conf ../Configurations/WC_SC_228_std.txt --hmd H12.daa
-Writing PDF file H12_hmd.pdf
-```
-----
-
-Finally, DAIDALUS encounter can be simulated in the visualization tool
-[`UASChorus`](https://shemesh.larc.nasa.gov/fm/ACCoRD/UASChorus.jar).
-UASChorus is part of a larger tool called TIGAR. The license of TIGAR is available from: https://shemesh.larc.nasa.gov/fm/ACCoRD/TIGAR-NOSA.pdf.
- 
-In Windows/MAC OS systems, just download the file and double-click it. It assumes a Java Run Time environment, which is default in most systems.
- In a Linux box, go to a terminal and type 
+## `DrawMultiBands`
+The program `DaidalusMultiBands`, which is available in
+[Java](https://github.com/nasa/daidalus/blob/master/Java/src/DrawMultiBands.java),
+produces guidance and alerting 
+information in a graphical form. For example, 
 
 ```
-$ java jar UASChorus.jar
+./DrawMultiBands --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa 
+Writing file H1.draw, which can be processed with the Python script drawmultibands.py 
 ```
 
-In UASChorus
-1. Go to `File/Open` in the main menu and open any encounter file, e.g., `name.daa`.
-2. By default, UASChorus is configured with a non-buffered well-clear
-volume (instantaneous bands). To load a different configuration,
-   go to `File/Load Configuration` and load a configuration file,
-   e.g., `name.conf`.
-3. To step through the scenario, go to `Window/Sequence Control Panel`
-   and click either the `execute` button (to reproduce the scenario)
-   or `linear` to generate a 1s linear projection on the current state. 
+produces a file `H1.draw`, which can be processed with the Python 
+script
+[`drawmultibands.py`](https://github.com/nasa/daidalus/blob/master/Scripts/drawmultibands.py)
+to produce a PDF file displaying manuever 
+guidance information for the given encounter and configuration files, e.g., 
+
+```
+../Scripts/drawmultibands.py H1.draw 
+Writing H1.pdf 
+```
+
+## `DAA-Displays`
+For better visualization, DAIDALUS encounters can be simulated in the visualization tool
+[`DAA-Displays`](https://shemesh.larc.nasa.gov/fm/DAA-Displays), which
+is available under NASA Open Source Agreement at [GitHub](https://github.com/nasa/daa-displays).
 
 # Contact
 

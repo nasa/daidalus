@@ -76,26 +76,28 @@ public class DAAGenerator {
 		double time = 0.0;
 		double from = 0.0;
 		String output = "";
+		int fcounter = 0;
 		String options = "DAAGenerator";
 		boolean wind_enabled = false; // Is wind enabled in command line?
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
-			if (arga.startsWith("-")) {
-				options += " "+arga;
-			}
 			if (arga.startsWith("--prec") || arga.startsWith("-prec")) {
+				options += " "+arga;
 				++a;
 				precision = Integer.parseInt(args[a]);
 				options += " "+args[a];
 			} else if (arga.startsWith("-") && arga.contains("=")) {
+				options += " "+arga;
 				String keyval = arga.substring(arga.startsWith("--")?2:1);
 				params.set(keyval);
 			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
+				options += " "+arga;
 				++a;
 				ownship_id = args[a];
 				options += " "+args[a];
 			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
+				options += " "+arga;
 				++a;
 				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
 				options += " "+args[a];
@@ -104,18 +106,22 @@ public class DAAGenerator {
 				output = args[a];
 				options += " "+args[a];
 			} else if (arga.startsWith("--t") || arga.startsWith("-t")) {
+				options += " "+arga;
 				++a;
 				time = Math.abs(Double.parseDouble(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
+				options += " "+arga;
 				++a;
 				backward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--f") || arga.startsWith("-f")) {
+				options += " "+arga;
 				++a;
 				forward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--i") || arga.startsWith("-i")) {
+				options += " "+arga;
 				++a;
 				from = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
@@ -194,21 +200,32 @@ public class DAAGenerator {
 				System.err.println("Slope has to be in the interval (0,90) degrees");
 				continue;
 			}
+			TrafficState ownship = daa.getOwnshipState();
 			try {
+				String output_file = "";
 				if (output.isEmpty()) {
+					String ext = ".";
+					if (ownship.isLatLon()) {
+						ext += "daa";
+					} else {
+						ext += "xyz";
+					}
 					String filename = file.getName();
-					String output_file = filename.substring(0,filename.lastIndexOf('.'));
+					output_file += filename.substring(0,filename.lastIndexOf('.'));
 					output_file += "_" + f.Fm0(from);
 					double to = from + backward + forward;
 					if (from != to) {
 						output_file += "_" + f.Fm0(to);
 					}
-					output_file += ".daa";
-					output = output_file;
+					output_file += ext;
+				} else {
+					if (input_files.size()>1) {
+						output_file += f.Fmi(++fcounter)+"_";
+					}
+					output_file += output;
 				}
-				out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
-				System.err.println("Writing "+output);
-				output = ""; // To avoid overwriting output file when there is more than one input file
+				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+				System.err.println("Writing "+output_file);
 			} catch (Exception e) {
 				System.err.println("** Warning: "+e);
 				continue;
@@ -218,7 +235,6 @@ public class DAAGenerator {
 			String ugs = "knot";
 			String uvs = "fpm";
 			out.println("## "+options+" "+input_file);
-			TrafficState ownship = daa.getOwnshipState();
 			if (slope > 0) {
 				if ((horizontal_accel == 0.0 && vertical_accel != 0.0) || (horizontal_accel != 0.0 && vertical_accel == 0.0)) {
 					double tan_slope = Math.tan(slope);

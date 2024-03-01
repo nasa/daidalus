@@ -60,8 +60,8 @@ To run a simple DAIDALUS application in a Unix environment, type
 $ ./DaidalusExample
 ```
 
-Several DAA metrics can be computed in batch mode for a given
-encounter file using the sample
+Several DAA metrics can be computed in batch mode for given
+configuration and encounter files using the sample
 program `DaidalusAlerting`, e.g.,
 
 ```
@@ -75,7 +75,7 @@ The generated file ` H1_DO_365B_no_SUM.csv` contains  alerting information compu
 for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
 
 The sample program `DaidalusBatch` generates alerting and banding
-information from a given encounter file, e.g.,
+information for given configuration and encounter files, e.g.,
 
 ```
 $ ./DaidalusBatch --conf  ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
