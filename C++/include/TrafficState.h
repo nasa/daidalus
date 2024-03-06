@@ -169,6 +169,8 @@ public:
 
   static std::string listToString(const std::vector<std::string>& traffic);
 
+  static std::string formattedHeader(bool latlon, const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs);
+
   std::string formattedHeader(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs) const;
 
   std::string formattedTrafficState(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time) const;

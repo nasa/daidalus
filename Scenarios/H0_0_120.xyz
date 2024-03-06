@@ -1,3 +1,4 @@
+## DAAGenerator --backward 100 --forward 20 H0.txt
 NAME sx sy sz trk gs vs heading airspeed time alerter s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std
 [none] [nmi] [nmi] [ft] [deg] [knot] [fpm] [deg] [knot] [s] [none] [nmi] [nmi] [nmi] [ft] [knot] [knot] [knot] [fpm]
 Ownship, -3.333333, 0.0, 15000.0, 90.0, 120.0, 0.0, 90.0, 120.0, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0

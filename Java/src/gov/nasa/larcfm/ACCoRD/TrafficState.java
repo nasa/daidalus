@@ -311,10 +311,10 @@ public class TrafficState {
 		return s+"}";
 	}
 
-	public String formattedHeader(String utrk, String uxy, String ualt, String ugs, String uvs) {
+	public static String formattedHeader(boolean latlon, String utrk, String uxy, String ualt, String ugs, String uvs) {
 		String s1="NAME";
 		String s2="[none]";
-		if (pos_.isLatLon()) {
+		if (latlon) {
 			s1 += " lat lon alt trk gs vs heading airspeed";
 			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
 		} else {
@@ -326,6 +326,10 @@ public class TrafficState {
 		s1 += " s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std";
 		s2 += " ["+uxy+"] ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+ugs+"] ["+ugs+"] ["+ugs+"] ["+uvs+"]";
 		return s1+"\n"+s2+"\n";
+	}
+
+	public String formattedHeader(String utrk, String uxy, String ualt, String ugs, String uvs) {
+		return formattedHeader(isLatLon(),utrk, uxy, ualt, ugs, uvs);
 	}
 
 	public String formattedTrafficState(String utrk, String uxy, String ualt, String ugs, String uvs, double time) {

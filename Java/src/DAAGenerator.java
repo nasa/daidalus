@@ -44,16 +44,21 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
+import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.ProjectedKinematics;
+import gov.nasa.larcfm.Util.Projection;
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
+import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
@@ -77,6 +82,9 @@ public class DAAGenerator {
 		double from = 0.0;
 		String output = "";
 		int fcounter = 0;
+		double lat = 0.0;
+		double lon = 0.0;
+		boolean xyz2latlon = false;
 		String options = "DAAGenerator";
 		boolean wind_enabled = false; // Is wind enabled in command line?
 
@@ -125,6 +133,18 @@ public class DAAGenerator {
 				++a;
 				from = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
+			} else if (arga.startsWith("--lat") || arga.startsWith("-lat")) {
+				options += " "+arga;
+				++a;
+				lat = Units.from("deg",Double.parseDouble(args[a]));
+				options += " "+args[a];
+				xyz2latlon = true;
+			} else if (arga.startsWith("--lon") || arga.startsWith("-lon")) {
+				options += " "+arga;
+				++a;
+				lon = Units.from("deg",Double.parseDouble(args[a]));
+				options += " "+args[a];
+				xyz2latlon = true;
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<option>] <daa_file>");
@@ -135,8 +155,10 @@ public class DAAGenerator {
 				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
 				System.err.println("  --time <t>\n\tUse states at time <t> in <daa_file> for generation of new scenario. By default, <t> is the first time in <daa_file>");
 				System.err.println("  --init <i>\n\tUse time <i> as initial time of the generated scenario. By default, <i> is 0");
-				System.err.println("  --backward <b>\n\tTo generate new scenario, project <b> seconds backward from states at time <t> in <daa_file>");
-				System.err.println("  --forward <f>\n\tTo generate new scenario, project <f> seconds forward from states at time <t> in <daa_file>");
+				System.err.println("  --backward <b>\n\tProject <b> seconds backward from states at time <t> in <daa_file>");
+				System.err.println("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>");
+				System.err.println("  --latitude <lat>\n\tLatitude in decimal degrees of Euclidean local origin to convert output to Geodesic coordinates");
+				System.err.println("  --longitude <lon>\n\tLongitude in decimal degrees of Euclidean local origin to convert output to Geodesic coordinates");
 				System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g.,");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
 				System.err.println("\t--vertical_accel='0.1[G]'");
@@ -200,12 +222,14 @@ public class DAAGenerator {
 				System.err.println("Slope has to be in the interval (0,90) degrees");
 				continue;
 			}
+			Optional<EuclideanProjection> projection = xyz2latlon ? Optional.of(Projection.createProjection(lat,lon,0.0)) : Optional.empty();
 			TrafficState ownship = daa.getOwnshipState();
+			boolean daalatlon = ownship.isLatLon() || xyz2latlon;
 			try {
 				String output_file = "";
 				if (output.isEmpty()) {
 					String ext = ".";
-					if (ownship.isLatLon()) {
+					if (daalatlon) {
 						ext += "daa";
 					} else {
 						ext += "xyz";
@@ -272,7 +296,7 @@ public class DAAGenerator {
 			if (!wind.isZero()) {				
 				out.println("## Wind: "+wind.toStringUnits("deg","kn","fpm"));
 			}
-			out.print(ownship.formattedHeader("deg",uh,uv,ugs,uvs));
+			out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
 			for (double t = -backward; t <= forward; t++, from++) {
 				Pair<Position,Velocity> posvelhor = horizontal_accel == 0.0 ? 
 					new Pair<Position,Velocity>(ownship.linearProjection(t).getPosition(),ownship.getGroundVelocity()) :
@@ -284,11 +308,27 @@ public class DAAGenerator {
 					posown = posown.mkAlt(posvelvert.first.alt());
 					velown = velown.mkVs(posvelvert.second.vs());
 				} 
+				if (projection.isPresent()) {
+					Vect3 so = posown.vect3();
+					if (velown.gs() > 0) {
+						velown = projection.get().inverseVelocity(so,velown,true);
+					}
+					posown = Position.make(projection.get().inverse(so));
+				}
 				TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posown,velown,velown.Sub(wind.vect3()));
 				out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 				for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 					TrafficState newtraffic = daa.getAircraftStateAt(ac_idx).linearProjection(t);
-					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
+					if (projection.isPresent()) {
+						Vect3 sac = newtraffic.get_s();
+						Velocity vac = newtraffic.getGroundVelocity();
+						Velocity velac = vac.gs() > 0 ? projection.get().inverseVelocity(sac,vac,true) : vac;
+						Position posac = Position.make(projection.get().inverse(sac));
+						TrafficState ac = newown.makeIntruder(newtraffic.getId(), posac, velac);
+						out.print(ac.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
+					} else {
+						out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
+					}
 				}
 			}  
 			out.close();

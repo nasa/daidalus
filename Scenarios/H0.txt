@@ -1,0 +1,6 @@
+## File: H0.txt.
+## Seed states to generate head-on encounters with a closest point of approach of 0.5 [nmi] using DAAGenerator
+NAME	sx      sy 	    sz	   trk       gs        vs	     time	
+[none]	[nmi]  [nmi]  [ft]           [deg]   [knot]   [fpm]  [s]
+Ownship,  0.0,   0.0,    15000.0,  90.0,   120.0,  0.0,    0.0
+Intruder,   0.0,   0.5,    15000.0,  270.0, 180.0,  0.0,    0.0

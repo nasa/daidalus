@@ -229,13 +229,13 @@ hard coded ownship and traffic states.
 To run this program in a Unix environment, type
 
 ```
-$ ./DaidalusExample
+$ <dir>/DaidalusExample
 ```
 This very simple program can be executed with several
 configurations. For a list of options, type
 
 ```
-$ ./DaidalusExample --help
+$ <dir>/DaidalusExample --help
 ```
 
 More sophisticated applications are also provided in the DAIDALUS
@@ -1283,28 +1283,27 @@ DAIDALUS includes utilities for batch simulation and for
 computing alerting and maneuver guidance from pre-defined
 encounters.
 
-## `daidalize`
+## Creating DAA Encounters from DAIDALUS Logs with `daidalize`
 DAIDALUS' batch utilities work with two text files: a DAIDALUS configuration file `name.conf`
-such as [`WC_SC_228_nom_b.txt`](https://github.com/nasa/daidalus/blob/master/Configurations/WC_SC_228_nom_b.txt)
+such as [`DO_365B_no_SUM.conf`](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365B_no_SUM.conf)
 and an encounter file `name.daa` such as
 [`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa). The
-encounter file may list multiple aircraft, the first one is considered
-to be the ownship. The aircraft states can also be given in local Euclidean
+encounter file may list multiple aircraft; the first one is considered
+to be the ownship. Aircraft states can also be given in local Euclidean
 coordinates, e.g.,
-[`H2.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H2.xyz). The
+[`H0_0_120.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). The
 extensions `.daa` and `.xyz` for geodesic vs Euclidean coordinates, respectively, is
 just a convention. 
 
 Configuration and encounter files can be generated from a Daidalus
 log file. A Daidalus log file is produced by writing into a text file
 the string `daa.toString()`, where `daa` is a `Daidalus` object.
-To generate the configuration and encounter file from a Daidalus log
-file, i.e., `name.log`, use the script
-[`daidalize`](https://github.com/nasa/daidalus/blob/master/Scripts/daidalize.pl),
-e.g.,
-
+The script
+[`daidalize`](https://github.com/nasa/daidalus/blob/master/Scripts/daidalize.pl)
+can be used to generate the configuration and encounter file from a Daidalus log
+file, i.e., `name.log`, e.g.,
 ```
-$ ./daidalize.pl name.log 
+$ Scripts/daidalize.pl name.log 
 Processing name.log
 Writing traffic file: name.daa
 Writing configuration file: name.conf 
@@ -1317,61 +1316,106 @@ problem by artificially increasing the time of contiguous time steps so
 that the time column of the generated encounter strictly increases at
 every time step.
 
-## `DaidalusAlerting`
+## Generating DAA Encounters with `DAAGenerator`
+The application `DAAGenerator`, which is available in
+[Java](https://github.com/nasa/daidalus/blob/master/Java/src/DAAGenerator.java),
+can be used to generate simple encounters by applying forward and
+backward projections to aircraft states. The initial aircraft states can be
+provided directly from a DAA encounter file. For example, to create a
+90 degree collision scenario, one could write a simple DAA file with
+the ownship and intruder aircraft at the collision state and project
+the state backward in time. 
+
+For example, the file
+[`C0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/C0.txt)
+specifies a collision state between two aircraft at the location
+40.67233 [deg] (latitude), -74.04466 [deg] (longitude), 15000 [ft]
+(altitude). At the collision state, the ownship has a ground speed of 150 [knot] and ground
+track of 0 [deg] (with respect to true north) and the intruder has a
+ground speed of 120 [knot] and ground track of 90 [deg] (clockwise
+with respect to true north). The command
+```
+$ <Java>/DAAGenerator --backward 120 C0.txt
+```
+linearly projects the aircaft states at time 0, from `C0.txt`, 120 seconds
+backward in time and generates the encounter file [C0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/C0_0_120.daa).
+
+The initial state could also be provided in Euclidean local
+coordinates. For example, to create a head-on encounter with a closest
+approach of 0.5 [nmi], one could linearly project the state
+at the time of closest point of approach forward and backward in time. For example,
+the file
+[H0.txt](https://github.com/nasa/daidalus/blob/master/Scenarios/H0.txt)
+specifies, in local Euclidean coordinates, a head-on encounter with a closest approach of 0.5
+[nmi]. The command 
+```
+$ <Java>/DAAGenerator --backward 100 --forward 20 H0.txt
+```
+linearly projects the aircaft states at time 0, from `H0.txt`, 100 seconds
+backward and 20 seconds forward in time and generates the encounter
+file
+[H0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
+the input is in local Euclidean coordinates, the ouput scenario is
+also in Euclidean coordinates.
+
+## Computing Alerting and DAA Metrics with `DaidalusAlerting`
 The application `DaidalusAlerting`, which is available in
 [Java](https://github.com/nasa/daidalus/blob/master/Java/src/DaidalusAlerting.java) and
 [C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusAlerting.cpp), 
-produces alerting and state-based metrics in a comma separated value
+computes alerting and DAA metrics in a comma separated value
 (CSV) format, for given encounter and 
-configuration files, e.g.,
-
+configuration files. For example,
 ```
-$ ./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa 
+$ <dir>/DaidalusAlerting --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
 Generating CSV file H1.csv 
 ```
-
-In this case, the generated file `H1.csv` contains  alerting information computed by DAIDALUS 
+generates the file `H1.csv` with  alerting information computed by DAIDALUS 
 for the encounter
 [H1.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa)
 assuming [DO-365B (without Sensor Uncertainty Mitigation)](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365B_no_SUM.conf ) configuration. 
 
-## `DaidalusBatch`
+## Running DAIDALUS in Batch Mode with `DaidalusBatch`
 The program `DaidalusBatch`, which is available in
 [Java](https://github.com/nasa/daidalus/blob/master/Java/src/DaidalusBatch.java) and
-[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusBatch.cpp),  generates alerting and banding
-information for given configuration and encounter files, e.g.,
+[C++](https://github.com/nasa/daidalus/blob/master/C%2B%2B/examples/DaidalusBatch.cpp),
+runs DAIDALUS on a given encounter using a specified configuration and
+prints time-step by time-step alerting and banding information
+computed by DAIDALUS. For example,
+```
+$ <dir>/DaidalusBatch --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa
 
 ```
-$ ./DaidalusBatch --conf  ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa
+runs DAIDALUS on the encounter [`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa)
+assuming [DO-365B (without Sensor Uncertainty Mitigation)](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365B_no_SUM.conf)
+configuration and prints second-by-second information computed by DAIDALUS.
 
-```
-prints alerting and banding information time-step by time-step for the encounter [`H1.daa`](../Scenarios/H1.daa) assuming [DO-365B (no SUM)](../Configurations/DO_365B_no_SUM.conf) configuration.
-
-## `DrawMultiBands`
-The program `DaidalusMultiBands`, which is available in
+## Drawing Bands with `DrawMultiBands`
+The program `DrawMultiBands`, which is available in
 [Java](https://github.com/nasa/daidalus/blob/master/Java/src/DrawMultiBands.java),
 produces guidance and alerting 
 information in a graphical form. For example, 
-
 ```
-./DrawMultiBands --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa 
+Java/DrawMultiBands --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
 Writing file H1.draw, which can be processed with the Python script drawmultibands.py 
 ```
-
-produces a file `H1.draw`, which can be processed with the Python 
+produces the file `H1.draw`, which can be processed with the Python 
 script
-[`drawmultibands.py`](https://github.com/nasa/daidalus/blob/master/Scripts/drawmultibands.py)
-to produce a PDF file displaying manuever 
-guidance information for the given encounter and configuration files, e.g., 
-
+[`drawmultibands.py`](https://github.com/nasa/daidalus/blob/master/Scripts/drawmultibands.py),
+e.g.,
 ```
-../Scripts/drawmultibands.py H1.draw 
+Scripts/drawmultibands.py H1.draw 
 Writing H1.pdf 
 ```
+to generate a PDF file displaying manuever 
+guidance information for the encounter [`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa)
+assuming [DO-365B (without Sensor Uncertainty Mitigation)](https://github.com/nasa/daidalus/blob/master/Configurations/DO_365B_no_SUM.conf)
 
-## `DAA-Displays`
-For better visualization, DAIDALUS encounters can be simulated in the visualization tool
-[`DAA-Displays`](https://shemesh.larc.nasa.gov/fm/DAA-Displays), which
+
+## DAA Simulations with `DAA-Displays`
+For better visualization of DAIDALUS encounters, the utility
+[`DAA-Displays`](https://shemesh.larc.nasa.gov/fm/DAA-Displays)
+provides graphical simulation tools designed to support DAA configuration and
+analysis. `DAA-Displays` 
 is available under NASA Open Source Agreement at [GitHub](https://github.com/nasa/daa-displays).
 
 # Contact

@@ -1,0 +1,6 @@
+## File: C0.txt.
+## Seed states to generate collision encounters at 90 degrees using DAAGenerator
+NAME	  lat			lon			alt		trk		gs		vs		time	
+[none]	  [deg] 		[deg] 		[ft]   	[deg] 	[knot] 	[fpm] 	[s]	
+Ownship,  40.67233,  	-74.04466,   	15000.0, 	0.0, 		150.0, 	0.0, 		0.0
+Intruder,   40.67233,  	-74.04466,   	15000.0,	90.0, 	120.0, 	0.0,		0.0

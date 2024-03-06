@@ -223,10 +223,10 @@ std::string TrafficState::listToString(const std::vector<std::string>& traffic) 
   return s+"}";
 }
 
-std::string TrafficState::formattedHeader(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs) const {
+std::string TrafficState::formattedHeader(bool latlon, const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs) {
   std::string s1="NAME";
   std::string s2="[none]";
-  if (pos_.isLatLon()) {
+  if (latlon) {
 			s1 += " lat lon alt trk gs vs heading airspeed";
 			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
   } else {
@@ -238,6 +238,10 @@ std::string TrafficState::formattedHeader(const std::string& utrk, const std::st
   s1 += " s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std";
   s2 += " ["+uxy+"] ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+ugs+"] ["+ugs+"] ["+ugs+"] ["+uvs+"]";
   return s1+"\n"+s2+"\n";
+}
+
+std::string TrafficState::formattedHeader(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs) const {
+  return formattedHeader(isLatLon(),utrk, uxy, ualt, ugs, uvs);
 }
 
 std::string TrafficState::formattedTrafficState(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time) const {
