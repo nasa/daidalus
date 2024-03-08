@@ -1337,7 +1337,7 @@ with respect to true north). The command
 ```
 $ <DAIDALUS_DIR>/Java/DAAGenerator --backward 120 C0.txt
 ```
-linearly projects the aircraft states at time 0, from `C0.txt`, 120 seconds
+linearly projects the aircraft states at time 0, from  [`C0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/C0.txt), 120 seconds
 backward in time and generates the encounter file [C0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/C0_0_120.daa).
 
 The initial state could also be provided in Euclidean local
@@ -1345,7 +1345,7 @@ coordinates. For example, to create a head-on encounter with a closest
 approach of 0.5 [nmi], one could linearly project the state
 at the time of closest point of approach forward and backward in time. For example,
 the file
-[H0.txt](https://github.com/nasa/daidalus/blob/master/Scenarios/H0.txt)
+[`H0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0.txt)
 specifies, in local Euclidean coordinates, a head-on encounter with a closest approach of 0.5
 [nmi]. The command 
 ```
@@ -1354,7 +1354,7 @@ $ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 H0.txt
 linearly projects the aircraft states at time 0, from `H0.txt`, 100 seconds
 backward and 20 seconds forward in time and generates the encounter
 file
-[H0_0_120.xyz](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
+[`H0_0_120.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
 the input is in local Euclidean coordinates, the output scenario is
 also in Euclidean coordinates. However, for convenience, the output
 scenario can be generated in geodesic coordinates if a latitude and
@@ -1364,10 +1364,24 @@ provided. For example, the command
 $ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --lat 40.67233 --lon -74.04466 H0.txt
 ```
  generates the encounter file
-[H0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.daa),
+[`H0_0_120.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.daa),
 where local Euclidean coordinates have been translated to geodesic
 coordinates using the provided latitude and longitude as origin of
 the local Euclidean coordinate system.
+
+Wind can be added to generated scenarios. The command
+```
+$ <DAIDALUS_DIR>/Java/DAAGenerator -backward 100 -forward 20 -lat 40.754377 -lon -74.007436 --wind_norm='40[kn]' --wind_from='170[deg]' --out C1_0_120_W.daa C1.txt
+```
+generates the file
+[`C0_1_120_W.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/C1_0_120_W.daa)
+from
+[`C1.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/C1.txt),
+where the states at time 0 are projected 100 seconds backward and 20 seconds forward with a southerly
+wind blowing from 170 degrees at 40 knots. 
+
+A complete list of options accepted by `DAAGenerator` is provided
+using the option '--help'.
 
 ## Computing Alerting and DAA Metrics with `DaidalusAlerting`
 The application `DaidalusAlerting`, which is available in

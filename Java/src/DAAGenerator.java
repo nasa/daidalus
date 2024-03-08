@@ -85,7 +85,7 @@ public class DAAGenerator {
 		double lon = 0.0; // In decimal degrees
 		boolean xyz2latlon = false;
 		String options = "DAAGenerator";
-		boolean wind_enabled = false; // Is wind enabled in command line?
+		int wind_spec = 0; // 0: not specified in the command line, 1: To direction, -1: From direction 
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
@@ -161,12 +161,11 @@ public class DAAGenerator {
 				System.err.println("  --<key>=<val>\n\t<key> key and value in givent units, e.g.,");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
 				System.err.println("\t--vertical_accel='0.1[G]'");
-				System.err.println("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requeries either positive horizontal acceleration");
-				System.err.println("\t\t(or vertical negative acceleration) for climbing or negative horizontal acceleraton (or negative horizontal acceleraton)");
-				System.err.println("\t\tfor descending.");
-				System.err.println("\t\tClimbing requires positive horizontal acceleration or negative vertical acceleration");
+				System.err.println("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requires either positive horizontal acceleration");
+				System.err.println("\t\tfor climbing or negative horizontal acceleration for descending.");
 				System.err.println("\t--wind_norm='40[kn]'");
-				System.err.println("\t--wind_to='90[deg]' (direction is clockwise from true north)");
+				System.err.println("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north");
+				System.err.println("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -214,11 +213,15 @@ public class DAAGenerator {
 		}
 		double horizontal_accel = params.getValue("horizontal_accel");
 		double vertical_accel = params.getValue("vertical_accel");
-		if (params.contains("wind_norm") || params.contains("wind_to")) {
-			wind_enabled = true;
-		}
 		double wind_norm = params.getValue("wind_norm");
-		double wind_to = params.getValue("wind_to");
+		double wind_dir = 0.0;
+		if (params.contains("wind_to")) {
+			wind_spec = 1;
+			wind_dir = params.getValue("wind_to");
+		} else if (params.contains("wind_from")) {
+			wind_spec = -1;
+			wind_dir = params.getValue("wind_from");
+		}
 		double slope = params.getValue("slope");
 		if (slope < 0 || slope >= Math.PI/2.0) {
 			System.err.println("Slope has to be in the interval (0,90) degrees");
@@ -289,11 +292,14 @@ public class DAAGenerator {
 			out.println("## Vertical acceleration: "+vertical_accel+ " [mps2]");
 		}
 		Velocity wind = daa.getWindVelocityTo();
-		if (wind_enabled) {
-			wind =  Velocity.mkTrkGsVs(wind_to,wind_norm,0.0);
+		if (wind_spec != 0) {
+			wind =  Velocity.mkTrkGsVs(wind_dir,wind_norm,0.0);
+			if (wind_spec < 0) {
+				wind = wind.Neg();
+			}
 		}
 		if (!wind.isZero()) {				
-			out.println("## Wind: "+wind.toStringUnits("deg","kn","fpm"));
+			out.println("## Wind To: "+wind.toStringUnits("deg","kn","fpm"));
 		}
 		out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
 		for (double t = -backward; t <= forward; t++, from++) {
