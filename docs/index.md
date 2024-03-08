@@ -1303,7 +1303,7 @@ The script
 can be used to generate the configuration and encounter file from a Daidalus log
 file, i.e., `name.log`, e.g.,
 ```
-$ Scripts/daidalize.pl name.log 
+$ <DAIDALUS_DIR>/Scripts/daidalize.pl name.log 
 Processing name.log
 Writing traffic file: name.daa
 Writing configuration file: name.conf 
@@ -1335,9 +1335,9 @@ track of 0 [deg] (with respect to true north) and the intruder has a
 ground speed of 120 [knot] and ground track of 90 [deg] (clockwise
 with respect to true north). The command
 ```
-$ <Java>/DAAGenerator --backward 120 C0.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 120 C0.txt
 ```
-linearly projects the aircaft states at time 0, from `C0.txt`, 120 seconds
+linearly projects the aircraft states at time 0, from `C0.txt`, 120 seconds
 backward in time and generates the encounter file [C0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/C0_0_120.daa).
 
 The initial state could also be provided in Euclidean local
@@ -1349,14 +1349,25 @@ the file
 specifies, in local Euclidean coordinates, a head-on encounter with a closest approach of 0.5
 [nmi]. The command 
 ```
-$ <Java>/DAAGenerator --backward 100 --forward 20 H0.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 H0.txt
 ```
-linearly projects the aircaft states at time 0, from `H0.txt`, 100 seconds
+linearly projects the aircraft states at time 0, from `H0.txt`, 100 seconds
 backward and 20 seconds forward in time and generates the encounter
 file
-[H0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
-the input is in local Euclidean coordinates, the ouput scenario is
-also in Euclidean coordinates.
+[H0_0_120.xyz](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
+the input is in local Euclidean coordinates, the output scenario is
+also in Euclidean coordinates. However, for convenience, the output
+scenario can be generated in geodesic coordinates if a latitude and
+longitude for the origin of the Euclidean coordinate system is
+provided. For example, the command
+```
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --lat 40.67233 --lon -74.04466 H0.txt
+```
+ generates the encounter file
+[H0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.daa),
+where local Euclidean coordinates have been translated to geodesic
+coordinates using the provided latitude and longitude as origin of
+the local Euclidean coordinate system.
 
 ## Computing Alerting and DAA Metrics with `DaidalusAlerting`
 The application `DaidalusAlerting`, which is available in
@@ -1366,7 +1377,7 @@ computes alerting and DAA metrics in a comma separated value
 (CSV) format, for given encounter and 
 configuration files. For example,
 ```
-$ <dir>/DaidalusAlerting --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
+$ <DAIDALUS_DIR>/Java/DaidalusAlerting --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
 Generating CSV file H1.csv 
 ```
 generates the file `H1.csv` with  alerting information computed by DAIDALUS 
@@ -1382,7 +1393,7 @@ runs DAIDALUS on a given encounter using a specified configuration and
 prints time-step by time-step alerting and banding information
 computed by DAIDALUS. For example,
 ```
-$ <dir>/DaidalusBatch --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa
+$ <DAIDALUS_DIR>/Java/DaidalusBatch --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa
 
 ```
 runs DAIDALUS on the encounter [`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa)
@@ -1395,7 +1406,7 @@ The program `DrawMultiBands`, which is available in
 produces guidance and alerting 
 information in a graphical form. For example, 
 ```
-Java/DrawMultiBands --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
+<DAIDALUS_DIR>/Java/DrawMultiBands --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
 Writing file H1.draw, which can be processed with the Python script drawmultibands.py 
 ```
 produces the file `H1.draw`, which can be processed with the Python 
@@ -1403,7 +1414,7 @@ script
 [`drawmultibands.py`](https://github.com/nasa/daidalus/blob/master/Scripts/drawmultibands.py),
 e.g.,
 ```
-Scripts/drawmultibands.py H1.draw 
+<DAIDALUS_DIR>/Scripts/drawmultibands.py H1.draw 
 Writing H1.pdf 
 ```
 to generate a PDF file displaying manuever 

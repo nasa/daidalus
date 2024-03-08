@@ -82,7 +82,7 @@ public class DaidalusAlerting {
 			if ((arga.startsWith("--c") || arga.startsWith("-c")) && a+1 < args.length) {
 				// Load configuration file
 				arga = args[++a];
-				conf = FileSystems.getDefault().getPath(arga).getFileName().toString();				
+				conf = ""+FileSystems.getDefault().getPath(arga).getFileName();				
 				conf = conf.contains(".") ? conf.substring(0,conf.lastIndexOf('.')) : conf;
 				if (!daa.loadFromFile(args[a])) {
 					if (arga.equals("sum")) {
