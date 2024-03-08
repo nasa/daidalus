@@ -1351,8 +1351,8 @@ specifies, in local Euclidean coordinates, a head-on encounter with a closest ap
 ```
 $ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 H0.txt
 ```
-linearly projects the aircraft states at time 0, from `H0.txt`, 100 seconds
-backward and 20 seconds forward in time and generates the encounter
+linearly projects the aircraft states at time 0, from [`H0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0.txt), 100 seconds
+backward and 20 seconds forward in time, and generates the encounter
 file
 [`H0_0_120.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
 the input is in local Euclidean coordinates, the output scenario is
