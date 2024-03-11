@@ -1,5 +1,5 @@
-## DAAGenerator -backward 100 -forward 20 -lat 40.754377 -lon -74.007436 --wind_norm=40[kn] --wind_from=170[deg] C1_0_120_W.daa C1.txt
-## Wind To: (350.0 [deg], 40.0 [kn], 0.0 [fpm])
+## DAAGenerator -backward 100 -forward 20 -lat 40.754377 -lon -74.007436 --wind_norm=40[kn] --wind_from=170[deg] --out C1_0_120_W.daa C1.txt
+## Wind (TO direction): (350.0 [deg], 40.0 [kn], 0.0 [fpm])
 NAME lat lon alt trk gs vs heading airspeed time alerter s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std
 [none] [deg] [deg] [ft] [deg] [knot] [fpm] [deg] [knot] [s] [none] [nmi] [nmi] [nmi] [ft] [knot] [knot] [knot] [fpm]
 Ownship, 40.698821, -74.007436, 15000.0, 0.0, 120.000051, 0.0, 4.924982, 80.906451, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0

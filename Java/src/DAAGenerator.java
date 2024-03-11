@@ -43,7 +43,9 @@ import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
@@ -57,24 +59,24 @@ import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.ProjectedKinematics;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
 public class DAAGenerator {
 
+	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); // Keyed by aircraft id
+	static Daidalus daa = new Daidalus();
+
 	public static void main(String[] args) {
 
 		// Create an empty Daidalus object
-		Daidalus daa = new Daidalus();
+
 
 		String input_file = "";
 		String ownship_id = "";
-		List<String> traffic_ids = new ArrayList<String>();
-		
+		List<String> traffic_ids = new ArrayList<String>();		
 		PrintWriter out = new PrintWriter(System.out);
-		ParameterData params = new ParameterData();
 		int precision = 6; 
 		int backward = 0; // In seconds
 		int forward = 0;  // In seconds
@@ -84,27 +86,23 @@ public class DAAGenerator {
 		double lat = 0.0; // In decimal degrees
 		double lon = 0.0; // In decimal degrees
 		boolean xyz2latlon = false;
-		String options = "DAAGenerator";
-		int wind_spec = 0; // 0: not specified in the command line, 1: To direction, -1: From direction 
-
+		String options = "";
+		List<String> keyvals = new ArrayList<String>();
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
+			options += " "+arga;
 			if (arga.startsWith("--prec") || arga.startsWith("-prec")) {
-				options += " "+arga;
 				++a;
 				precision = Integer.parseInt(args[a]);
 				options += " "+args[a];
 			} else if (arga.startsWith("-") && arga.contains("=")) {
-				options += " "+arga;
-				String keyval = arga.substring(arga.startsWith("--")?2:1);
-				params.set(keyval);
+				String idkeyval = arga.substring(arga.startsWith("--")?2:1);
+				keyvals.add(idkeyval);
 			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
-				options += " "+arga;
 				++a;
 				ownship_id = args[a];
 				options += " "+args[a];
 			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
-				options += " "+arga;
 				++a;
 				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
 				options += " "+args[a];
@@ -113,33 +111,27 @@ public class DAAGenerator {
 				output = args[a];
 				options += " "+args[a];
 			} else if (arga.startsWith("--t") || arga.startsWith("-t")) {
-				options += " "+arga;
 				++a;
 				time = Math.abs(Double.parseDouble(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
-				options += " "+arga;
 				++a;
 				backward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--f") || arga.startsWith("-f")) {
-				options += " "+arga;
 				++a;
 				forward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--i") || arga.startsWith("-i")) {
-				options += " "+arga;
 				++a;
 				from = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--lat") || arga.startsWith("-lat")) {
-				options += " "+arga;
 				++a;
 				lat = Units.from("deg",Double.parseDouble(args[a]));
 				options += " "+args[a];
 				xyz2latlon = true;
 			} else if (arga.startsWith("--lon") || arga.startsWith("-lon")) {
-				options += " "+arga;
 				++a;
 				lon = Units.from("deg",Double.parseDouble(args[a]));
 				options += " "+args[a];
@@ -158,7 +150,8 @@ public class DAAGenerator {
 				System.err.println("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>");
 				System.err.println("  --latitude <lat>\n\tLatitude in decimal degrees of Euclidean local origin to convert output to Geodesic coordinates");
 				System.err.println("  --longitude <lon>\n\tLongitude in decimal degrees of Euclidean local origin to convert output to Geodesic coordinates");
-				System.err.println("  --<key>=<val>\n\t<key> key and value in givent units, e.g.,");
+				System.err.println("  --[<id>@]<key>=<val>\n\t<key> key and value in givent units for aircraft <id>. If <id> is not provided,");
+				System.err.println("\t\tthe ownshio is assumed. The list of valid keys are provided below.");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
 				System.err.println("\t--vertical_accel='0.1[G]'");
 				System.err.println("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requires either positive horizontal acceleration");
@@ -181,18 +174,15 @@ public class DAAGenerator {
 				}
 			}
 		}
-		if (params.size() > 0) {
-			daa.setParameterData(params);
-		}
 		File file = new File(input_file);
 		if (!file.exists() || !file.canRead()) {
-			System.err.println("** Warning: File "+input_file+" cannot be read");
+			System.err.println("** Error: File "+input_file+" cannot be read");
 			System.exit(1);
 		}
 		DaidalusParameters.setDefaultOutputPrecision(precision);
 		DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
 		if (walker.atEnd()) {
-			System.err.println("** Warning: File "+input_file+" doesn't appear to be a daa file");
+			System.err.println("** Error: File "+input_file+" doesn't appear to be a daa file");
 			System.exit(1);
 		}
 		if (!ownship_id.isEmpty()) {
@@ -208,23 +198,7 @@ public class DAAGenerator {
 		}
 		walker.readState(daa);
 		if (!daa.hasOwnship()) {
-			System.err.println("** Warning: Ownship not found in file "+input_file);
-			System.exit(1);
-		}
-		double horizontal_accel = params.getValue("horizontal_accel");
-		double vertical_accel = params.getValue("vertical_accel");
-		double wind_norm = params.getValue("wind_norm");
-		double wind_dir = 0.0;
-		if (params.contains("wind_to")) {
-			wind_spec = 1;
-			wind_dir = params.getValue("wind_to");
-		} else if (params.contains("wind_from")) {
-			wind_spec = -1;
-			wind_dir = params.getValue("wind_from");
-		}
-		double slope = params.getValue("slope");
-		if (slope < 0 || slope >= Math.PI/2.0) {
-			System.err.println("Slope has to be in the interval (0,90) degrees");
+			System.err.println("** Error: Ownship not found in file "+input_file);
 			System.exit(1);
 		}
 		Optional<EuclideanProjection> projection = xyz2latlon ? Optional.of(Projection.createProjection(lat,lon,0.0)) : Optional.empty();
@@ -253,55 +227,24 @@ public class DAAGenerator {
 			out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 			System.err.println("Writing "+output_file);
 		} catch (Exception e) {
-			System.err.println("** Warning: "+e);
+			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
 		String uh = "nmi";
 		String uv = "ft";
 		String ugs = "knot";
 		String uvs = "fpm";
-		out.println("## "+options+" "+input_file);
-		if (slope > 0) {
-			if ((horizontal_accel == 0.0 && vertical_accel != 0.0) || (horizontal_accel != 0.0 && vertical_accel == 0.0)) {
-				double tan_slope = Math.tan(slope);
-				boolean climb = false;
-				if ((horizontal_accel < 0.0 || vertical_accel > 0.0) && ownship.verticalSpeed() <= 0.0) {
-					climb = false;
-				} else if ((horizontal_accel > 0.0 || vertical_accel < 0.0) && ownship.verticalSpeed() >= 0.0) {
-					climb = true;
-				} else {
-					System.err.println("** Warning: Option --slope requires horizontal_accel to have the same sign as vertical speed");
-					System.exit(1);
-				}
-				if (horizontal_accel != 0.0) {
-					horizontal_accel = Util.sign(climb)*Math.abs(horizontal_accel);
-					vertical_accel = -horizontal_accel*tan_slope;
-				} else {
-					vertical_accel = -Util.sign(climb)*Math.abs(vertical_accel);
-					horizontal_accel = -vertical_accel/tan_slope;
-				} 
-			} else {
-				System.err.println("** Warning: Option --slope requires either --horizontal_accel or vertical_accel (but not both).");
-				System.exit(1);
-			}
-		}
-		if (horizontal_accel != 0.0) {
-			out.println("## Horizontal acceleration: "+horizontal_accel+ " [mps2]");
-		}
-		if (vertical_accel != 0.0) {
-			out.println("## Vertical acceleration: "+vertical_accel+ " [mps2]");
-		}
-		Velocity wind = daa.getWindVelocityTo();
-		if (wind_spec != 0) {
-			wind =  Velocity.mkTrkGsVs(wind_dir,wind_norm,0.0);
-			if (wind_spec < 0) {
-				wind = wind.Neg();
-			}
-		}
+		out.println("## DAAGenerator"+options);
+		setKeyVals(keyvals);
+		Velocity wind = getWindFromOwnship();
 		if (!wind.isZero()) {				
-			out.println("## Wind To: "+wind.toStringUnits("deg","kn","fpm"));
+			out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
 		}
+		printKeyVals(keyvals,out);
 		out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
+		ParameterData param = params.get(daa.getOwnshipState().getId());
+		double horizontal_accel = param == null ? 0.0 : param.getValue("horizontal_accel");
+		double vertical_accel = param == null ? 0.0 : param.getValue("vertical_accel");	
 		for (double t = -backward; t <= forward; t++, from++) {
 			Pair<Position,Velocity> posvelhor = horizontal_accel == 0.0 ? 
 				new Pair<Position,Velocity>(ownship.linearProjection(t).getPosition(),ownship.getGroundVelocity()) :
@@ -337,6 +280,91 @@ public class DAAGenerator {
 			}
 		}  
 		out.close();
+	}
+
+	static void setKeyVals(List<String> keyvals) {
+		TrafficState ownship = daa.getOwnshipState();
+		for (String idkeyval : keyvals) {
+			int idpos = idkeyval.indexOf("@"); 
+			String acid = "";
+			if (idpos > 0) {
+				acid = idkeyval.substring(0,idpos);
+			} else {
+				acid = ownship.getId();
+			}
+			int acidx = daa.aircraftIndex(acid);
+			if (acidx < 0) {
+				System.err.println("** Error: Aircraft "+acid+" not found");
+				System.exit(1);
+			}
+			String keyval = idkeyval.substring(idpos+1);
+			ParameterData param = params.get(acid);
+			if (param == null) {
+				param = new ParameterData();
+				params.put(acid,param);
+			}
+			param.set(keyval);
+		}
+		for (Map.Entry<String,ParameterData> mapelement : params.entrySet()) {
+			String acid = mapelement.getKey();
+			ParameterData param = mapelement.getValue();
+			double slope = param.getValue("slope");
+			if (slope < 0 || slope >= Math.PI/2.0) {
+				System.err.println("** Error: ["+acid+"@slope=...] Slope has to be in the interval (0,90) degrees");
+				System.exit(1);
+			}
+			if (slope > 0) {
+				double horizontal_accel = param.getValue("horizontal_accel");
+				double vertical_accel = param.getValue("vertical_accel");
+				if ((horizontal_accel == 0.0 && vertical_accel != 0.0) || (horizontal_accel != 0.0 && vertical_accel == 0.0)) {
+					double tan_slope = Math.tan(slope);
+					if (!((horizontal_accel < 0.0 || vertical_accel > 0.0) && ownship.verticalSpeed() <= 0.0) &&
+					 	!((horizontal_accel > 0.0 || vertical_accel < 0.0) && ownship.verticalSpeed() >= 0.0)) {
+						System.err.println("** Error: ["+acid+"@slope=...] Option --slope requires horizontal_accel to have the same sign as vertical speed");
+						System.exit(1);
+					}
+					if (horizontal_accel != 0.0) {
+						vertical_accel = -horizontal_accel*tan_slope;
+						param.setInternal("vertical_accel",vertical_accel,"G");
+					} else {
+						horizontal_accel = -vertical_accel/tan_slope;
+						param.setInternal("horizontal_accel",horizontal_accel,"G");
+					} 			
+				} else {
+					System.err.println("** Error: ["+acid+"@slope=...] Option --slope requires either --horizontal_accel or vertical_accel (but not both).");
+					System.exit(1);
+				}
+			}
+		}
+	}
+
+	static void printKeyVals(List<String> keyvals, PrintWriter out) {
+		for (Map.Entry<String,ParameterData> mapelement : params.entrySet()) {
+			String acid = mapelement.getKey();
+			ParameterData param = mapelement.getValue();
+			double horizontal_accel = param.getValue("horizontal_accel");
+			double vertical_accel = param.getValue("vertical_accel");
+			if (horizontal_accel != 0.0) {
+				out.println("## Horizontal acceleration ("+acid+"): "+horizontal_accel+ " [mps2]");
+			}
+			if (vertical_accel != 0.0) {
+				out.println("## Vertical acceleration ("+acid+"): "+vertical_accel+ " [mps2]");
+			}
+		}
+	}
+
+	static Velocity getWindFromOwnship() {
+		ParameterData param = params.get(daa.getOwnshipState().getId());
+		if (param != null) {
+			double wind_norm = param.getValue("wind_norm");
+			if (param.contains("wind_from")) {
+				double wind_from = param.getValue("wind_from");
+				return Velocity.mkTrkGsVs(wind_from,wind_norm,0.0).Neg();
+			}
+			double wind_to = param.getValue("wind_to");
+			return Velocity.mkTrkGsVs(wind_to,wind_norm,0.0);
+		}
+		return daa.getWindVelocityTo();
 	}
 }
 
