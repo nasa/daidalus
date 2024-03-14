@@ -67,6 +67,10 @@ public class DAAGenerator {
 
 	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); // Keyed by aircraft id
 	static Daidalus daa = new Daidalus();
+	static String uh = "nmi";
+	static String uv = "ft";
+	static String ugs = "knot";
+	static String uvs = "fpm";
 
 	public static void main(String[] args) {
 
@@ -230,10 +234,6 @@ public class DAAGenerator {
 			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
-		String uh = "nmi";
-		String uv = "ft";
-		String ugs = "knot";
-		String uvs = "fpm";
 		out.println("## DAAGenerator"+options);
 		setKeyVals(keyvals);
 		Velocity wind = getWindFromOwnship();
@@ -242,41 +242,17 @@ public class DAAGenerator {
 		}
 		printKeyVals(keyvals,out);
 		out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
-		ParameterData param = params.get(daa.getOwnshipState().getId());
-		double horizontal_accel = param == null ? 0.0 : param.getValue("horizontal_accel");
-		double vertical_accel = param == null ? 0.0 : param.getValue("vertical_accel");	
+		ParameterData own_param = params.get(daa.getOwnshipState().getId());
 		for (double t = -backward; t <= forward; t++, from++) {
-			Pair<Position,Velocity> posvelhor = horizontal_accel == 0.0 ? 
-				new Pair<Position,Velocity>(ownship.linearProjection(t).getPosition(),ownship.getGroundVelocity()) :
-				ProjectedKinematics.gsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t,horizontal_accel);
-			Position posown = posvelhor.first;
-			Velocity velown = posvelhor.second;
-			if (vertical_accel != 0.0) {
-				Pair<Position,Velocity> posvelvert = ProjectedKinematics.vsAccel(ownship.getPosition(),ownship.getGroundVelocity(),t,vertical_accel);
-				posown = posown.mkAlt(posvelvert.first.alt());
-				velown = velown.mkVs(posvelvert.second.vs());
-			} 
-			if (projection.isPresent()) {
-				Vect3 so = posown.vect3();
-				if (velown.gs() > 0) {
-					velown = projection.get().inverseVelocity(so,velown,true);
-				}
-				posown = Position.make(projection.get().inverse(so));
-			}
-			TrafficState newown = TrafficState.makeOwnship(ownship.getId(),posown,velown,velown.Sub(wind.vect3()));
-			out.print(newown.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
+			Pair<Position,Velocity> own_posvel = move(ownship.getPosition(),ownship.getGroundVelocity(),own_param,t);
+			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
+			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
-				TrafficState newtraffic = daa.getAircraftStateAt(ac_idx).linearProjection(t);
-				if (projection.isPresent()) {
-					Vect3 sac = newtraffic.get_s();
-					Velocity vac = newtraffic.getGroundVelocity();
-					Velocity velac = vac.gs() > 0 ? projection.get().inverseVelocity(sac,vac,true) : vac;
-					Position posac = Position.make(projection.get().inverse(sac));
-					TrafficState ac = newown.makeIntruder(newtraffic.getId(), posac, velac);
-					out.print(ac.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
-				} else {
-					out.print(newtraffic.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
-				}
+				TrafficState ac = daa.getAircraftStateAt(ac_idx);
+				ParameterData ac_param = params.get(ac.getId());
+				Pair<Position,Velocity> ac_posvelhor = move(ac.getPosition(),ac.getGroundVelocity(),ac_param,t);
+				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
+				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 			}
 		}  
 		out.close();
@@ -366,5 +342,52 @@ public class DAAGenerator {
 		}
 		return daa.getWindVelocityTo();
 	}
+
+	static Pair<Position,Velocity> move(Position pos, Velocity vel, ParameterData param, double offset) {
+		double horizontal_accel = 0.0;
+		double vertical_accel = 0.0; 
+		if (param != null) {
+			horizontal_accel = param.getValue("horizontal_accel");
+			vertical_accel = param.getValue("vertical_accel");	
+		}
+		Pair<Position,Velocity> newposvel = horizontal_accel == 0.0 ? new Pair<>(pos.linear(vel,offset),vel) :
+											ProjectedKinematics.gsAccel(pos,vel,offset,horizontal_accel);
+		if (vertical_accel != 0.0) {
+			Pair<Position,Velocity> posvelvert = ProjectedKinematics.vsAccel(pos,vel,offset,vertical_accel);
+			Position newpos = newposvel.first.mkAlt(posvelvert.first.alt());
+			Velocity newvel = newposvel.second.mkVs(posvelvert.second.vs());
+			return new Pair<>(newpos,newvel);
+		} 
+		return newposvel;
+	}
+
+	static Pair<Position,Velocity> prj_aircraft(Pair<Position,Velocity> posvel, Optional<EuclideanProjection> projection) {
+		Position pos = posvel.first;
+		Velocity vel = posvel.second;
+		if (projection.isPresent()) {
+			Vect3 s = pos.vect3();
+			if (vel.gs() > 0) {
+				vel = projection.get().inverseVelocity(s,vel,true);
+			}
+			pos = Position.make(projection.get().inverse(s));
+		}
+		return new Pair<>(pos,vel);	
+	}
+
+	static TrafficState pp_ownship(String id, Pair<Position,Velocity> posvel, Velocity wind, Optional<EuclideanProjection> projection) {
+		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel, projection);
+		Position pos = prj_posvel.first;
+		Velocity vel = prj_posvel.second;
+		return TrafficState.makeOwnship(id,pos,vel,vel.Sub(wind.vect3()));		
+	}
+
+	static TrafficState pp_traffic(String id, Pair<Position,Velocity> posvel, TrafficState ownship, Optional<EuclideanProjection> projection) {
+		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel, projection);
+		Position pos = prj_posvel.first;
+		Velocity vel = prj_posvel.second;
+		return ownship.makeIntruder(id,pos,vel);
+	}
+
+
 }
 
