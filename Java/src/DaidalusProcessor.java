@@ -52,7 +52,7 @@ public abstract class DaidalusProcessor {
 				if (file.isDirectory()) {
 					try(BufferedReader br = new BufferedReader(new FileReader(names[i]+"/encounters.txt"))) {
 				    for(String line; (line = br.readLine()) != null; ) {
-				    		line.trim();
+				    		line = line.trim();
 				    		if (line.isEmpty() || line.startsWith("#")) {
 				    			continue;
 				    		}

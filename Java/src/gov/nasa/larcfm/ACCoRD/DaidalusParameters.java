@@ -50,7 +50,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	 * String indicating the DAIDALUS version
 	 */
 
-	protected ErrorLog error = new ErrorLog("DaidalusParameters");
+	private ErrorLog error = new ErrorLog("DaidalusParameters");
 
 	// Bands
 	private double lookahead_time_; // [s] Lookahead time
