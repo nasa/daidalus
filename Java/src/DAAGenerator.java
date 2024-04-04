@@ -51,21 +51,27 @@ import java.util.Optional;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
+import gov.nasa.larcfm.ACCoRD.Horizontal;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
 import gov.nasa.larcfm.Util.EuclideanProjection;
+import gov.nasa.larcfm.Util.Kinematics;
 import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.ProjectedKinematics;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Util;
+import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
 public class DAAGenerator {
 
-	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); // Keyed by aircraft id
+	// Keyed by aircraft id
+	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 
+	static Map<String, Velocity> hcpa_vel = new HashMap<String,Velocity>();
 	static Daidalus daa = new Daidalus();
 	static String uh = "nmi";
 	static String uv = "ft";
@@ -142,8 +148,8 @@ public class DAAGenerator {
 				xyz2latlon = true;
 			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
 				System.err.println("Usage:");
-				System.err.println("  DAAGenerator [<option>] <daa_file>");
-				System.err.println("  <option> can be");
+				System.err.println("  DAAGenerator [<options>] <daa_file>");
+				System.err.println("Valid <options> are");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --precision <n>\n\tOutput decimal precision to <n>");
 				System.err.println("  --ownship <id>\n\tSpecify <id> as ownship");
@@ -158,11 +164,17 @@ public class DAAGenerator {
 				System.err.println("\t\tthe ownshio is assumed. The list of valid keys are provided below.");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
 				System.err.println("\t--vertical_accel='0.1[G]'");
+				System.err.println("\t--turn_rate='3[deg/s]'");
+				System.err.println("\t\tPositive (resp., negative) turn_rate  is a clowckwise (resp., counter-clockwise) turn");
+				System.err.println("\t--bank_angle='30[deg]'");
+				System.err.println("\t\tPositive (resp., negative) bank  is a clowckwise (resp., counter-clockwise) turn");
+				System.err.println("\t\tOnly one of --turn_rate or --bank_angle can be specified");
 				System.err.println("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requires either positive horizontal acceleration");
 				System.err.println("\t\tfor climbing or negative horizontal acceleration for descending.");
 				System.err.println("\t--wind_norm='40[kn]'");
 				System.err.println("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north");
 				System.err.println("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north");
+				System.err.println("\t--hcpa_with=AC\n\t\tModify ground speed of AC so that the current state is the horizontal CPA between <id> and AC");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -172,11 +184,16 @@ public class DAAGenerator {
 				if (input_file.isEmpty()) {
 					input_file = arga;
 				} else {
-					System.err.println("Usage:  DAAGenerator [<option>] <daa_file>");
+					System.err.println("Usage:  DAAGenerator [<options>] <daa_file>");
 					System.err.println("Try: DAAGenerator --help");
 					System.exit(1);					
 				}
 			}
+		}
+		if (input_file.isEmpty()) {
+			System.err.println("Usage:  DAAGenerator [<options>] <daa_file>");
+			System.err.println("Try: DAAGenerator --help");
+			System.exit(1);		
 		}
 		File file = new File(input_file);
 		if (!file.exists() || !file.canRead()) {
@@ -244,13 +261,13 @@ public class DAAGenerator {
 		out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
 		ParameterData own_param = params.get(daa.getOwnshipState().getId());
 		for (double t = -backward; t <= forward; t++, from++) {
-			Pair<Position,Velocity> own_posvel = move(ownship.getPosition(),ownship.getGroundVelocity(),own_param,t);
+			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
 			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = params.get(ac.getId());
-				Pair<Position,Velocity> ac_posvelhor = move(ac.getPosition(),ac.getGroundVelocity(),ac_param,t);
+				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
 				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
 			}
@@ -283,20 +300,22 @@ public class DAAGenerator {
 		}
 		for (Map.Entry<String,ParameterData> mapelement : params.entrySet()) {
 			String acid = mapelement.getKey();
+			int acidx = daa.aircraftIndex(acid);
+			TrafficState ac = daa.getAircraftStateAt(acidx);
 			ParameterData param = mapelement.getValue();
 			double slope = param.getValue("slope");
 			if (slope < 0 || slope >= Math.PI/2.0) {
-				System.err.println("** Error: ["+acid+"@slope=...] Slope has to be in the interval (0,90) degrees");
+				System.err.println("** Error: ["+acid+"] Value of slope has to be in the interval (0,90) degrees");
 				System.exit(1);
 			}
+			double horizontal_accel = param.getValue("horizontal_accel");
+			double vertical_accel = param.getValue("vertical_accel");
 			if (slope > 0) {
-				double horizontal_accel = param.getValue("horizontal_accel");
-				double vertical_accel = param.getValue("vertical_accel");
 				if ((horizontal_accel == 0.0 && vertical_accel != 0.0) || (horizontal_accel != 0.0 && vertical_accel == 0.0)) {
 					double tan_slope = Math.tan(slope);
 					if (!((horizontal_accel < 0.0 || vertical_accel > 0.0) && ownship.verticalSpeed() <= 0.0) &&
 					 	!((horizontal_accel > 0.0 || vertical_accel < 0.0) && ownship.verticalSpeed() >= 0.0)) {
-						System.err.println("** Error: ["+acid+"@slope=...] Option --slope requires horizontal_accel to have the same sign as vertical speed");
+						System.err.println("** Error: ["+acid+"] Slope requires horizontal acceleration have the same sign as vertical speed");
 						System.exit(1);
 					}
 					if (horizontal_accel != 0.0) {
@@ -307,8 +326,45 @@ public class DAAGenerator {
 						param.setInternal("horizontal_accel",horizontal_accel,"G");
 					} 			
 				} else {
-					System.err.println("** Error: ["+acid+"@slope=...] Option --slope requires either --horizontal_accel or vertical_accel (but not both).");
+					System.err.println("** Error: ["+acid+"] Slope requires either horizontal acceleration or vertical acceleration (but not both).");
 					System.exit(1);
+				}
+			}
+			double bank_angle = param.getValue("bank_angle");
+			double turn_rate = param.getValue("turn_rate");
+			if (bank_angle != 0.0 && turn_rate != 0.0) {
+				System.err.println("** Error: ["+acid+"] Bank angle and turn rate cannot be simulataneously specified");
+				System.exit(1); 
+			}
+			if (horizontal_accel != 0.0 && (bank_angle != 0.0 || turn_rate != 0.0)) {
+				System.err.println("** Error: ["+acid+"] Horizotnal accelaration or slope cannot be simulatenously specified with either bank angle or turn rate");
+				System.exit(1); 
+			}
+			double gs = ac.getGroundVelocity().gs();
+			if (turn_rate != 0.0) {
+			  	bank_angle = Kinematics.bankAngle(gs,turn_rate);
+			}
+			if (bank_angle != 0.0) {
+				double R = Kinematics.turnRadius(gs,bank_angle);
+				param.setInternal("turn_radius",R,"m");
+				param.setBool("turn_dir",bank_angle > 0);
+			}
+			String hcpa_ac = param.getString("hcpa_with");
+			if (!hcpa_ac.isEmpty()) {
+				if (hcpa_vel.get(hcpa_ac) == null) {
+					int acidx1 = daa.aircraftIndex(hcpa_ac);
+					TrafficState ac1 = daa.getAircraftStateAt(acidx1);
+					Vect2 s   = ac.get_s().vect2().Sub(ac1.get_s().vect2());
+					Vect2 v0  = ac.get_v().vect2();
+					Vect2 v1  = ac.get_v().vect2();
+					Vect2 nv1 = Horizontal.vel_of_hcpa(s,v0,v1);
+					if (nv1.isZero()) {
+						System.err.println("** Error: ["+acid+"] Horizontal CPA cannot be achieved at current state");
+					} else {
+						hcpa_vel.put(hcpa_ac,ac1.getGroundVelocity().mkGs(nv1.norm()));
+					}
+				} else {
+					System.err.println("** Error: ["+acid+"] Horizontal CPA for "+hcpa_ac+" already associated with another aircraft");
 				}
 			}
 		}
@@ -320,11 +376,19 @@ public class DAAGenerator {
 			ParameterData param = mapelement.getValue();
 			double horizontal_accel = param.getValue("horizontal_accel");
 			double vertical_accel = param.getValue("vertical_accel");
+			double bank_angle = param.getValue("bank_angle");
+			double turn_rate = param.getValue("turn_rate");
 			if (horizontal_accel != 0.0) {
 				out.println("## Horizontal acceleration ("+acid+"): "+horizontal_accel+ " [mps2]");
 			}
 			if (vertical_accel != 0.0) {
 				out.println("## Vertical acceleration ("+acid+"): "+vertical_accel+ " [mps2]");
+			}
+			if (bank_angle != 0.0) {
+				out.println("## Bank angle ("+acid+"): "+Units.to("deg",bank_angle)+ " [deg]");
+			}
+			if (turn_rate != 0.0) {
+				out.println("## Turn rate ("+acid+"): "+Units.to("deg/s",turn_rate)+ " [deg/s]");
 			}
 		}
 	}
@@ -343,15 +407,22 @@ public class DAAGenerator {
 		return daa.getWindVelocityTo();
 	}
 
-	static Pair<Position,Velocity> move(Position pos, Velocity vel, ParameterData param, double offset) {
+	static Pair<Position,Velocity> move(TrafficState ac, ParameterData param, double offset) {
+		Position pos = ac.getPosition();
+		Velocity vel = hcpa_vel.getOrDefault(ac.getId(),ac.getGroundVelocity());
 		double horizontal_accel = 0.0;
 		double vertical_accel = 0.0; 
+		double turn_radius = 0.0;
+		boolean turn_dir = true;
 		if (param != null) {
 			horizontal_accel = param.getValue("horizontal_accel");
 			vertical_accel = param.getValue("vertical_accel");	
+			turn_radius = param.getValue("turn_radius");
+			turn_dir = param.getBool("turn_dir");
 		}
-		Pair<Position,Velocity> newposvel = horizontal_accel == 0.0 ? new Pair<>(pos.linear(vel,offset),vel) :
-											ProjectedKinematics.gsAccel(pos,vel,offset,horizontal_accel);
+		Pair<Position,Velocity> newposvel = horizontal_accel == 0.0 && turn_radius == 0.0 ? new Pair<>(pos.linear(vel,offset),vel) :
+											horizontal_accel != 0.0 ? ProjectedKinematics.gsAccel(pos,vel,offset,horizontal_accel) :
+											ProjectedKinematics.turn(pos,vel,offset,turn_radius,turn_dir);
 		if (vertical_accel != 0.0) {
 			Pair<Position,Velocity> posvelvert = ProjectedKinematics.vsAccel(pos,vel,offset,vertical_accel);
 			Position newpos = newposvel.first.mkAlt(posvelvert.first.alt());

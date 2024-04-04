@@ -91,6 +91,31 @@ public class Horizontal extends Vect2  {
 	}
 
 	/**
+	 * Compute nv2 such that relative position s (= s1-s2) is the horizontal closest point of approach for s, v1, nv2 
+	 * (where nv2 has the  same direction as v2).
+	 * If nv2 is zero, either v1 or v2 are zero or no such velocity exists.
+	 */
+  
+	public static Vect2 vel_of_hcpa(Vect2 s, Vect2 v1, Vect2 v2) {
+		Vect2 v = v1.Sub(v2);
+		if (Util.almost_equals(s.dot(v),0.0)) {
+			return v2;
+		} else if (v1.isZero() || v2.isZero()) {
+			return Vect2.ZERO;
+		} else {
+			double sdotv2 = s.dot(v2);
+			if (Util.almost_equals(sdotv2, 0.0)) {
+				return Vect2.ZERO;
+			}
+			double r = s.dot(v1)/sdotv2;
+			if (r >= 0) {
+				return v2.Scal(r);
+			}
+			return Vect2.ZERO;
+		}
+	}
+
+	/**
 	 * Intersection time between line and circle.
 	 * 
 	 * @param v Vector

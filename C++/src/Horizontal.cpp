@@ -66,6 +66,30 @@ double Horizontal::hmd(const Vect2& s, const Vect2& v, double T) {
   return v.ScalAdd(t,s).norm();
 }
 
+/**
+ * Compute nv2 such that relative position s (= s1-s2) is the horizontal closest point of approach for s, v1, nv2 
+ * (where nv2 has the  same direction as v2).
+ * If nv2 is zero, either v1 or v2 are zero or no such velocity exists.
+ */
+Vect2 Horizontal::vel_of_hcpa(const Vect2& s, const Vect2& v1, const Vect2& v2) {
+		Vect2 v = v1.Sub(v2);
+		if (Util::almost_equals(s.dot(v),0.0)) {
+			return v2;
+		} else if (v1.isZero() || v2.isZero()) {
+			return Vect2::ZERO();
+		} else {
+			double sdotv2 = s.dot(v2);
+			if (Util::almost_equals(sdotv2, 0.0)) {
+				return Vect2::ZERO();
+			}
+			double r = s.dot(v1)/sdotv2;
+			if (r >= 0) {
+				return v2.Scal(r);
+			}
+			return Vect2::ZERO();
+		}
+	}
+
 // Computes times when (s,v) intersects circle of radius D
 // eps = -1 : larcfm::Entry
 // eps =  1 : larcfm::Exit

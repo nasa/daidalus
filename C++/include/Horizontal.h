@@ -70,6 +70,13 @@ public:
   static double hmd(const Vect2& s, const Vect2& v, double T);
 
   /**
+   * Compute nv2 such that relative position s (= s1-s2) is the horizontal closest point of approach for s, v1, nv2 
+   * (where nv2 has the  same direction as v2).
+   * If nv2 is zero, either v1 or v2 are zero or no such velocity exists.
+   */
+  static Vect2 vel_of_hcpa(const Vect2& s, const Vect2& v1, const Vect2& v2);
+
+  /**
    * Intersection time between line and circle.
    * 
    * @param v Vector
