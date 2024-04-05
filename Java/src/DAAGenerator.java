@@ -61,7 +61,6 @@ import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.ProjectedKinematics;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
@@ -73,10 +72,10 @@ public class DAAGenerator {
 	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 
 	static Map<String, Velocity> hcpa_vel = new HashMap<String,Velocity>();
 	static Daidalus daa = new Daidalus();
-	static String uh = "nmi";
-	static String uv = "ft";
-	static String ugs = "knot";
-	static String uvs = "fpm";
+	static final String uh = "nmi";
+	static final String uv = "ft";
+	static final String ugs = "knot";
+	static final String uvs = "fpm";
 
 	public static void main(String[] args) {
 
@@ -108,15 +107,15 @@ public class DAAGenerator {
 			} else if (arga.startsWith("-") && arga.contains("=")) {
 				String idkeyval = arga.substring(arga.startsWith("--")?2:1);
 				keyvals.add(idkeyval);
-			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
+			} else if ((arga.startsWith("--own") || arga.startsWith("-own")) && a+1 < args.length) { 
 				++a;
 				ownship_id = args[a];
 				options += " "+args[a];
-			} else if ((args[a].startsWith("--traf") || args[a].startsWith("-traf")) && a+1 < args.length) { 
+			} else if ((arga.startsWith("--traf") || arga.startsWith("-traf")) && a+1 < args.length) { 
 				++a;
 				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
 				options += " "+args[a];
-			} else if ((args[a].startsWith("--out") || args[a].startsWith("-out")) && a+1 < args.length) { 
+			} else if ((arga.startsWith("--out") || arga.startsWith("-out")) && a+1 < args.length) { 
 				++a;
 				output = args[a];
 				options += " "+args[a];
@@ -158,9 +157,9 @@ public class DAAGenerator {
 				System.err.println("  --init <i>\n\tUse time <i> as initial time of the generated scenario. By default, <i> is 0");
 				System.err.println("  --backward <b>\n\tProject <b> seconds backward from states at time <t> in <daa_file>");
 				System.err.println("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>");
-				System.err.println("  --latitude <lat>\n\tLatitude in decimal degrees of Euclidean local origin to convert output to Geodesic coordinates");
-				System.err.println("  --longitude <lon>\n\tLongitude in decimal degrees of Euclidean local origin to convert output to Geodesic coordinates");
-				System.err.println("  --[<id>@]<key>=<val>\n\t<key> key and value in givent units for aircraft <id>. If <id> is not provided,");
+				System.err.println("  --latitude <lat>\n\tSet Euclidean local origin to latitude <lat>, in decimal degrees");
+				System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees");
+				System.err.println("  --[<id>@]<key>=<val>\n\tSet key <key> to value <val> in givent units for aircraft <id>. If <id> is not provided,");
 				System.err.println("\t\tthe ownshio is assumed. The list of valid keys are provided below.");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
 				System.err.println("\t--vertical_accel='0.1[G]'");
@@ -174,7 +173,7 @@ public class DAAGenerator {
 				System.err.println("\t--wind_norm='40[kn]'");
 				System.err.println("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north");
 				System.err.println("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north");
-				System.err.println("\t--hcpa_with=AC\n\t\tModify ground speed of AC so that the current state is the horizontal CPA between <id> and AC");
+				System.err.println("\t--hcpa_with=<acid>\n\t\tModify ground speed so that the current state is the horizontal CPA between <id> and <acid>");
 				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
@@ -349,22 +348,22 @@ public class DAAGenerator {
 				param.setInternal("turn_radius",R,"m");
 				param.setBool("turn_dir",bank_angle > 0);
 			}
-			String hcpa_ac = param.getString("hcpa_with");
-			if (!hcpa_ac.isEmpty()) {
-				if (hcpa_vel.get(hcpa_ac) == null) {
-					int acidx1 = daa.aircraftIndex(hcpa_ac);
-					TrafficState ac1 = daa.getAircraftStateAt(acidx1);
-					Vect2 s   = ac.get_s().vect2().Sub(ac1.get_s().vect2());
-					Vect2 v0  = ac.get_v().vect2();
-					Vect2 v1  = ac.get_v().vect2();
-					Vect2 nv1 = Horizontal.vel_of_hcpa(s,v0,v1);
-					if (nv1.isZero()) {
-						System.err.println("** Error: ["+acid+"] Horizontal CPA cannot be achieved at current state");
-					} else {
-						hcpa_vel.put(hcpa_ac,ac1.getGroundVelocity().mkGs(nv1.norm()));
-					}
+			String hcpa_acid = param.getString("hcpa_with");
+			if (!hcpa_acid.isEmpty()) {
+				int hcpa_acidx = daa.aircraftIndex(hcpa_acid);
+				if (hcpa_acidx < 0) {
+					System.err.println("** Error: ["+acid+"] Aircraft "+hcpa_acid+" not found (--hcpa_with)");
+					System.exit(1);
+				}
+				TrafficState hcpa_ac = daa.getAircraftStateAt(hcpa_acidx);
+				Vect2 s = hcpa_ac.get_s().vect2().Sub(ac.get_s().vect2());
+				Vect2 v_hcpa = hcpa_ac.get_v().vect2();
+				Vect2 v_ac = ac.get_v().vect2();
+				Vect2 nv1 = Horizontal.vel_of_hcpa(s,v_hcpa,v_ac);
+				if (nv1.isZero()) {
+					System.err.println("** Error: ["+acid+"] Horizontal CPA cannot be achieved at current state");
 				} else {
-					System.err.println("** Error: ["+acid+"] Horizontal CPA for "+hcpa_ac+" already associated with another aircraft");
+					hcpa_vel.put(acid,ac.getGroundVelocity().mkGs(nv1.norm()));
 				}
 			}
 		}

@@ -72,7 +72,6 @@ public class DaidalusAlerting {
 		PrintWriter out = new PrintWriter(System.out);
 		ParameterData params = new ParameterData();
 		String conf = "";
-		boolean echo = false;
 		int precision = 6;
 		boolean do_inst = false;
 		boolean no_hyst = false;
@@ -116,8 +115,6 @@ public class DaidalusAlerting {
 				} else {
 					System.err.println("Loading configuration file "+arga);
 				}
-			} else if (arga.equals("--echo") || arga.equals("-echo")) {
-				echo = true;
 			} else if (arga.startsWith("--prec") || arga.startsWith("-prec")) {
 				++a;
 				precision = Integer.parseInt(args[a]);
@@ -145,7 +142,6 @@ public class DaidalusAlerting {
 				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
 				System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
-				System.err.println("  --echo\n\tEcho configuration and traffic list in standard outoput");
 				System.err.println("  --precision <n>\n\tOutput decimal precision");
 				System.err.println("  --ownship <id>\n\tSpecify a particular aircraft as ownship");
 				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
@@ -178,13 +174,9 @@ public class DaidalusAlerting {
 			daa.disableHysteresis();
 		}
 		if (input_file.equals("")) {
-			if (echo) {
-				System.out.print(daa.toString());
-				System.exit(0);
-			} else {
-				System.err.println("** Error: One input file must be provided");
-				System.exit(1);
-			}
+			System.err.println("Usage:\n  DaidalusAlerting [<option>] <daa_file>");
+			System.err.println("Try:\n  DaidalusAlerting --help");
+			System.exit(1);
 		}
 		File file = new File(input_file);
 		if (!file.exists() || !file.canRead()) {
@@ -249,9 +241,6 @@ public class DaidalusAlerting {
 
 		while (!walker.atEnd()) {
 			walker.readState(daa);
-			if (echo) {
-				System.out.print(daa.toString());
-			}
 			// At this point, daa has the state information of ownhsip and traffic for a given time
 			for (int ac=1; ac <= daa.lastTrafficIndex(); ++ac) {
 				int alerter_idx = daa.alerterIndexBasedOnAlertingLogic(ac);

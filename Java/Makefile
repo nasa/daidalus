@@ -41,17 +41,19 @@ doc:
 	javadoc -d doc -sourcepath src gov.nasa.larcfm.Util gov.nasa.larcfm.IO gov.nasa.larcfm.ACCoRD
 
 configs: examples
-	./DaidalusAlerting --echo --conf sum > DO_365B_SUM.conf  
-	./DaidalusAlerting --echo --conf no_sum > DO_365B_no_SUM.conf  
-	./DaidalusAlerting --echo --conf nom_a > Buffered_DWC_SC_228_nom_a.conf
-	./DaidalusAlerting --echo --conf nom_b > Buffered_DWC_SC_228_nom_b.conf
-	./DaidalusAlerting --echo --conf cd3d > CD3D.conf
-	./DaidalusAlerting --echo --conf tcasii > TCAS3D.conf
-	./DaidalusAlerting -echo -conf ../Configurations/DO_365A_SUM.conf > DO_365A_SUM.conf 
-	./DaidalusAlerting -echo -conf ../Configurations/DO_365A_no_SUM.conf > DO_365A_no_SUM.conf 
+	./DAAEcho --conf sum > ../Configurations/DO_365B_SUM.conf  
+	./DAAEcho --conf no_sum > ../Configurations/DO_365B_no_SUM.conf  
+	./DAAEcho --conf nom_a > ../Configurations/Buffered_DWC_SC_228_nom_a.conf
+	./DAAEcho --conf nom_b > ../Configurations/Buffered_DWC_SC_228_nom_b.conf
+	./DAAEcho --conf cd3d > ../Configurations/CD3D.conf
+	./DAAEcho --conf tcasii > ../Configurations/TCAS3D.conf
+	-mv -f ../Configurations/DO_365A_SUM.conf DO_365A_SUM.old
+	-mv -f ../Configurations/DO_365A_no_SUM.conf DO_365A_no_SUM.old
+	./DAAEcho --conf DO_365A_SUM.old > ../Configurations/DO_365A_SUM.conf 
+	./DAAEcho --conf DO_365A_no_SUM.old > ../Configurations/DO_365A_no_SUM.conf 
 
 clean:
-	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar 
+	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar *.old
 
 mold: examples
 	./DaidalusExample --config no_sum --verbose > ../Regression/Java/DaidalusExample-no_sum.out

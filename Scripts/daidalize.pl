@@ -64,9 +64,6 @@ while (<INFILE>) {
       my $unit = "unitless";
       if ($val =~ /^(.+)\s*\[(.+)\]/) {
 	$val = trim($1);
-	#if ($val < 5) {
-	#  $val = 5;
-	#}
 	$unit = trim($2);
       }
       $colval{$label} = $val;

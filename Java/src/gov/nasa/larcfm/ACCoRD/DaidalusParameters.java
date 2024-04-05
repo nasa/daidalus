@@ -2736,7 +2736,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		public String toString() {
-			String s = "# V-"+VERSION+"\n";
+			String s = "# DAIDALUS-v"+VERSION+"\n";
 			ParameterData p = new ParameterData();
 			updateParameterData(p);
 			s+=p.listToString(p.getKeyListEntryOrder());

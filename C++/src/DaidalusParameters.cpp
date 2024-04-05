@@ -2013,7 +2013,7 @@ void DaidalusParameters::setDefaultOutputPrecision(int precision, bool trailing_
 }
 
 std::string DaidalusParameters::toString() const {
-  std::string s = "# V-"+VERSION+"\n";
+  std::string s = "# DAIDALUS-v"+VERSION+"\n";
   ParameterData p;
   updateParameterData(p);
   s+=p.listToString(p.getKeyListEntryOrder());
