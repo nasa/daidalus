@@ -4359,7 +4359,12 @@ public class Daidalus {
 	 */
 	public double modifiedTau(int ac_idx, double DMOD, String DMODu, String u) {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-			return Units.to(u,modifiedTau(ac_idx,Units.from(DMODu,DMOD)));
+			double modtau = modifiedTau(ac_idx,Units.from(DMODu,DMOD));
+			if (Double.isFinite(modtau) && modtau >= 0) {
+				return Units.to(u,modtau);
+			} else {
+				return modtau;
+			}
 		} else {
 			return Double.NaN;
 		}

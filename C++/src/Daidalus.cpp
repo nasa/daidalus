@@ -4256,7 +4256,12 @@ double Daidalus::modifiedTau(int ac_idx, double DMOD) const {
  */
 double Daidalus::modifiedTau(int ac_idx, double DMOD, const std::string& DMODu, const std::string& u) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-    return Units::to(u,modifiedTau(ac_idx,Units::from(DMODu,DMOD)));
+    double modtau = modifiedTau(ac_idx,Units::from(DMODu,DMOD));
+    if (ISFINITE(modtau) && modtau >= 0) {
+				return Units::to(u,modtau);
+			} else {
+				return modtau;
+			}
   } else {
     return NaN;
   }

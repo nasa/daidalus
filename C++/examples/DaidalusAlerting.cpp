@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
 
   for (int a=1;a < argc; ++a) {
     std::string arga = argv[a];
-    if ((startsWith(arga,"--c") || startsWith(arga,"-c"))  && a+1 < argc) {
+    if ((startsWith(arga,"--conf") || startsWith(arga,"-conf"))  && a+1 < argc) {
       // Load configuration file
       arga = argv[++a];
       std::string base_filename = arga.substr(arga.find_last_of("/\\") + 1);
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
     } else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
       ++a;
       std::istringstream(argv[a]) >> precision;
-    } else if ((startsWith(arga,"--o") || startsWith(arga,"-o")) && a+1 < argc) {
+    } else if ((startsWith(arga,"--out") || startsWith(arga,"-out")) && a+1 < argc) {
       output_file = argv[++a];
     } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
       std::string keyval = arga.substr(startsWith(arga,"--")?2:1);

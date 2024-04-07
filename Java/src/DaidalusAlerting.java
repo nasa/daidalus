@@ -78,7 +78,7 @@ public class DaidalusAlerting {
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
-			if ((arga.startsWith("--c") || arga.startsWith("-c")) && a+1 < args.length) {
+			if ((arga.startsWith("--conf") || arga.startsWith("-conf")) && a+1 < args.length) {
 				// Load configuration file
 				arga = args[++a];
 				conf = ""+FileSystems.getDefault().getPath(arga).getFileName();				
@@ -118,7 +118,7 @@ public class DaidalusAlerting {
 			} else if (arga.startsWith("--prec") || arga.startsWith("-prec")) {
 				++a;
 				precision = Integer.parseInt(args[a]);
-			} else if ((arga.startsWith("--o") || arga.startsWith("-o")) && a+1 < args.length) {
+			} else if ((arga.startsWith("--out") || arga.startsWith("-out")) && a+1 < args.length) {
 				output_file = args[++a];
 			} else if (arga.startsWith("-") && arga.contains("=")) {
 				String keyval = arga.substring(arga.startsWith("--")?2:1);
