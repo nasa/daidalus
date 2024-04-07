@@ -12,7 +12,6 @@ import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Units;
-import gov.nasa.larcfm.Util.f;
 
 /**
  * This class provides criteria for
