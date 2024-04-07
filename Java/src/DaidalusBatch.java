@@ -78,7 +78,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 				// Use the given configuration, but disable hysteresis
 				no_hyst = true;
 			} else if (args[a].startsWith("-") && args[a].contains("=")) {
-				String keyval = args[a].substring(args[a].lastIndexOf('-')+1);
+				String keyval = args[a].substring(args[a].startsWith("--")?2:1);
 				params.set(keyval);
 			} else if (args[a].startsWith("-")) {
 				System.out.println("Invalid option: "+args[a]);

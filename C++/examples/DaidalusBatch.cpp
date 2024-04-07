@@ -146,7 +146,7 @@ int main(int argc, const char* argv[]) {
 			// Use the given configuration, but disable hysteresis
 			no_hyst = true;
 		} else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
-			std::string keyval = arga.substr(arga.find_last_of('-')+1);
+			std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
 			params.set(keyval);
 		} else if (argv[a][0] == '-') {
 			std::cout << "Invalid option: " << arga << std::endl;

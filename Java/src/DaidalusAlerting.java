@@ -121,7 +121,7 @@ public class DaidalusAlerting {
 			} else if ((arga.startsWith("--o") || arga.startsWith("-o")) && a+1 < args.length) {
 				output_file = args[++a];
 			} else if (arga.startsWith("-") && arga.contains("=")) {
-				String keyval = arga.substring(arga.lastIndexOf('-')+1);
+				String keyval = arga.substring(arga.startsWith("--")?2:1);
 				params.set(keyval);
 			} else if ((args[a].startsWith("--own") || args[a].startsWith("-own")) && a+1 < args.length) { 
 				++a;

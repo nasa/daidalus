@@ -55,6 +55,7 @@ import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
 public class DAAEcho {
@@ -80,6 +81,7 @@ public class DAAEcho {
 		boolean xyz2latlon = false;
 		double from = 0.0; // [sec]
 		double to = 0.0; // [sec]
+		Velocity wind = Velocity.INVALID;
 
 		for (int a=0;a < args.length; ++a) {
 			String arga = args[a];
@@ -132,7 +134,7 @@ public class DAAEcho {
 			} else if ((arga.startsWith("--out") || arga.startsWith("-out")) && a+1 < args.length) {
 				output_file = args[++a];
 			} else if (arga.startsWith("-") && arga.contains("=")) {
-				String keyval = arga.substring(arga.lastIndexOf('-')+1);
+				String keyval = arga.substring(arga.startsWith("--")?2:1);
 				params.set(keyval);
 			} else if ((arga.startsWith("--own") || arga.startsWith("-own")) && a+1 < args.length) { 
 				++a;
@@ -157,14 +159,17 @@ public class DAAEcho {
 				System.err.println("  DAAEcho [<option>] [<daa_file>]");
 				System.err.println("  Print back configuration and DAA file. <option> can be");
 				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
-				System.err.println("  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"");
+				System.err.println("  --<key>='<val>'\n\tOverride configuration value, where <key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"");
+				System.err.println("  --wind_speed='<val>[uval]'\n\tOverride wind speed to specify val and units, e.g., 40[knot]");
+				System.err.println("  --wind_to='<val>[deg]'\n\tOverride direction wind is blowing to, val is clockwise from true north in degrees");
+				System.err.println("  --wind_from='<val>[deg]'\n\tOverride direction wind is coming from, val is clockwise from true north in degrees");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --precision <n>\n\tOutput decimal precision");
 				System.err.println("  --ownship <id>\n\tSpecify a particular aircraft as ownship");
 				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
 				System.err.println("  --instantaneous\n\tOverride configuration to do instantaneous bands");
 				System.err.println("  --nohystereis\n\tOverride configuation to disable hysteresis");
-				System.err.println("  --latitude <lat>\n\tSet Euclidean local origin to latitude <lat>, in decimal degrees. Ignore if <daa_file> is in Geodesic coordinates.");
+				System.err.println("  --latitude <lat>\n\tSet Eucliedean local origin to latitude <lat>, in decimal degrees. Ignore if <daa_file> is in Geodesic coordinates.");
 				System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees. Ignore if <daa_file> is in Geodesic coordinates.");
 				System.err.println("  --from <t>\n\tStart at time <t>");
 				System.err.println("  --to <t>\n\tEnd at time <t>");
@@ -181,7 +186,22 @@ public class DAAEcho {
 			}				
 		}
 		if (params.size() > 0) {
+			double wind_speed =  0.0;
+			double wind_dir = 0.0;
 			daa.setParameterData(params);
+			if (params.contains("wind_speed")) {
+				wind_speed = params.getValue("wind_speed");
+				wind_dir = params.getValue("wind_to");
+				boolean from_dir = false;
+				if (params.contains("wind_from")) {
+					wind_dir = params.getValue("wind_from");
+					from_dir = true;
+				}
+				wind = Velocity.mkTrkGsVs(wind_dir,wind_speed,0.0);
+				if (from_dir) {
+					wind = wind.Neg();
+				}
+			}
 		}
 		if (do_inst) {
 			daa.setInstantaneousBands();
@@ -203,6 +223,9 @@ public class DAAEcho {
 			}
 			DaidalusParameters.setDefaultOutputPrecision(precision);
 			DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
+			if (!wind.isInvalid()) {
+				walker.setWindVelocityTo(wind);
+			}
 			if (!ownship_id.isEmpty()) {
 				walker.setOwnship(ownship_id);
 			}

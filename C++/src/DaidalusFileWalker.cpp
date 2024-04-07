@@ -30,7 +30,9 @@ void DaidalusFileWalker::init() {
   if (times_.size() > 0) {
     sr_.setActive(times_[0]);
   }
-  ownship_ = "";
+  ownship_.clear();
+  traffic_.clear();
+  wind_ = Velocity::INVALID();
 }
 
 /**
@@ -44,19 +46,11 @@ void DaidalusFileWalker::setOwnship(const std::string& name) {
 }
 
 /**
- * Returns the name of the ownship.
- * An empty string refers to the aircraft that is the first in the daa file
- */
-const std::string& DaidalusFileWalker::getOwnship() const {
-  return ownship_;
-}
-
-/**
  * Reset the ownship value so that the first aircraft in the daa are considered
  * the ownship.
  */
 void DaidalusFileWalker::resetOwnship() {
-  setOwnship("");
+  ownship_.clear();
 }
 
 /**
@@ -80,19 +74,40 @@ void DaidalusFileWalker::selectTraffic(const std::vector<std::string>& names) {
 }
 
 /**
- * Returns the list of selected traffic. An empty list means that all aircraft that are
- * not the ownship are considered traffic.
- */
-const std::vector<std::string>& DaidalusFileWalker::getSelectedTraffic() const {
-  return traffic_;
-}
-
-/**
  * Reset the list of selected aircraft so that all aircraft that are not ownship are
  * considered traffic.
  */
 void DaidalusFileWalker::resetSelectedTraffic() {
   traffic_.clear();
+}
+
+/**
+ * Set wind velocity (TO direction, i.e., direction the wind blows to)
+ * This setting will override wind information available in the DAA file
+ * @param wind Wind (TO direction)
+ */
+void DaidalusFileWalker::setWindVelocityTo(const Velocity& wind) {
+  wind_ = wind;
+}
+
+/**
+ * Set wind velocity (FROM direction, i.e., direction the wind comes from)
+ * This setting will override wind information available in the DAA file
+ * @param wind Wind (FROM direction)
+ */
+void DaidalusFileWalker::setWindVelocityFrom(const Velocity& wind) {
+  if (wind.isInvalid()) {
+    wind_ = wind;
+  } else {
+    wind_ = wind.Neg();
+  }
+}
+
+/**
+ * Reset wind. Wind from DAA file will be used.
+ */
+void DaidalusFileWalker::resetWind() {
+  wind_ = Velocity::INVALID();
 }
 
 double DaidalusFileWalker::firstTime() const {
@@ -194,14 +209,15 @@ ParameterData DaidalusFileWalker::extraColumnsToParameters(const SequenceReader&
 }
 
 
-void DaidalusFileWalker::readExtraColumns(Daidalus& daa, const SequenceReader& sr, int ac_idx) {
+void DaidalusFileWalker::readExtraColumns(Daidalus& daa, const SequenceReader& sr, int ac_idx, bool read_wind) {
   ParameterData pcol = extraColumnsToParameters(sr,daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
   if (pcol.size() > 0) {
 		if (ac_idx == 0) {
 			// Note that daidalus parameters (in column format) and air velocity are ignored for traffic aircraft
 			// The index of the aircraft below is the index in daa
 			daa.setParameterData(pcol);
-			if (pcol.contains("heading") && pcol.contains("airspeed")) {
+      // Read wind unless is overriden 
+			if (pcol.contains("heading") && pcol.contains("airspeed") && read_wind) {
 				double heading = pcol.getValue("heading");
 				double airspeed = pcol.getValue("airspeed");
 				daa.setOwnshipAirVelocity(heading,airspeed);
@@ -255,7 +271,7 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
     daa.reset();
   }
   int own = 0; // By default onwship is 0
-  if (ownship_ != "") {
+  if (!ownship_.empty()) {
     own = -1;
     for (int ac = 0; ac < sr_.size();++ac) {
       if (sr_.getName(ac) == ownship_) {
@@ -269,7 +285,11 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
     Position so = sr_.getPosition(own);
     Velocity vo = sr_. getVelocity(own);
     daa.setOwnshipState(ido,so,vo,getTime());
-    readExtraColumns(daa,sr_,0);
+    readExtraColumns(daa,sr_,0,wind_.isInvalid());
+    if (!wind_.isInvalid() && !wind_.isZero()) {
+				// Override wind
+				daa.setWindVelocityTo(wind_);
+		}
     for (int ac = 0; ac < sr_.size();++ac) {
       if (ac == own) {
         continue;
@@ -280,7 +300,7 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
         Position sa = sr_.getPosition(ac);
         Velocity va = sr_. getVelocity(ac);
         daa.addTrafficState(ida,sa,va);
-        readExtraColumns(daa,sr_,ac);
+        readExtraColumns(daa,sr_,ac,false);
       }
     }
   }

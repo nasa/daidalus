@@ -114,7 +114,7 @@ int main(int argc, char* argv[]) {
     } else if ((startsWith(arga,"--o") || startsWith(arga,"-o")) && a+1 < argc) {
       output_file = argv[++a];
     } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
-      std::string keyval = arga.substr(arga.find_last_of('-')+1);
+      std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
       params.set(keyval);
     } else if ((startsWith(arga,"--own") || startsWith(arga,"-own")) && a+1 < argc) {
       ++a;

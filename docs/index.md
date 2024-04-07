@@ -1371,7 +1371,7 @@ the local Euclidean coordinate system.
 
 Wind can be added to generated scenarios. The command
 ```
-$ <DAIDALUS_DIR>/Java/DAAGenerator -backward 100 -forward 20 -lat 40.754377 -lon -74.007436 --wind_norm='40[kn]' --wind_from='170[deg]' --out C1_0_120_W.daa C1.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator -backward 100 -forward 20 -lat 40.754377 -lon -74.007436 --wind_speed='40[kn]' --wind_from='170[deg]' --out C1_0_120_W.daa C1.txt
 ```
 generates the file
 [`C0_1_120_W.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/C1_0_120_W.daa)

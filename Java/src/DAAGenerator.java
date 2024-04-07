@@ -170,7 +170,7 @@ public class DAAGenerator {
 				System.err.println("\t\tOnly one of --turn_rate or --bank_angle can be specified");
 				System.err.println("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requires either positive horizontal acceleration");
 				System.err.println("\t\tfor climbing or negative horizontal acceleration for descending.");
-				System.err.println("\t--wind_norm='40[kn]'");
+				System.err.println("\t--wind_speed='40[kn]'");
 				System.err.println("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north");
 				System.err.println("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north");
 				System.err.println("\t--hcpa_with=<acid>\n\t\tModify ground speed so that the current state is the horizontal CPA between <id> and <acid>");
@@ -395,13 +395,13 @@ public class DAAGenerator {
 	static Velocity getWindFromOwnship() {
 		ParameterData param = params.get(daa.getOwnshipState().getId());
 		if (param != null) {
-			double wind_norm = param.getValue("wind_norm");
+			double wind_speed = param.getValue("wind_speed");
 			if (param.contains("wind_from")) {
 				double wind_from = param.getValue("wind_from");
-				return Velocity.mkTrkGsVs(wind_from,wind_norm,0.0).Neg();
+				return Velocity.mkTrkGsVs(wind_from,wind_speed,0.0).Neg();
 			}
 			double wind_to = param.getValue("wind_to");
-			return Velocity.mkTrkGsVs(wind_to,wind_norm,0.0);
+			return Velocity.mkTrkGsVs(wind_to,wind_speed,0.0);
 		}
 		return daa.getWindVelocityTo();
 	}

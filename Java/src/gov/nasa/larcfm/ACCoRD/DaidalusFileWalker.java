@@ -14,6 +14,7 @@ import gov.nasa.larcfm.Util.Velocity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DaidalusFileWalker implements ErrorReporter {
 
@@ -21,11 +22,13 @@ public class DaidalusFileWalker implements ErrorReporter {
 	private ParameterData p_;
 	private List<Double> times_;
 	private int index_;
-	private String ownship_; // Set ownship to a given value
-	private List<String> traffic_; // Only consider the traffic aircraft
+	private Optional<String> ownship_; // Set ownship to a given value
+	private List<String> traffic_; // Only consider the traffic aircraft in this list
+	private Velocity wind_; // Wind velocity vector
 
 	public DaidalusFileWalker(String filename) {
 		sr_ = new SequenceReader(filename);
+		traffic_ = new ArrayList<>();
 		init();
 	}
 
@@ -42,8 +45,9 @@ public class DaidalusFileWalker implements ErrorReporter {
 		if (times_.size() > 0) {
 			sr_.setActive(times_.get(0));
 		}
-		ownship_ = "";
-		traffic_ = new ArrayList<String>();
+		ownship_ = Optional.empty();
+		traffic_.clear();
+		wind_ = Velocity.INVALID;
 	}
 
 	/** 
@@ -53,15 +57,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 	 * is added to the Daidalus object at that particular time step.
 	 */
 	public void setOwnship(String name) {
-		ownship_ = name;
-	}
-
-	/** 
-	 * Returns the name of the ownship.
-	 * An empty string refers to the aircraft that is the first in the daa file
-	 */
-	public String getOwnship() {
-		return ownship_;
+		ownship_ = Optional.of(name);
 	}
 
 	/** 
@@ -69,7 +65,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 	 * the ownship.
 	 */
 	public void resetOwnship() {
-		setOwnship("");
+		ownship_ = Optional.empty();
 	}
 
 	/** 
@@ -93,19 +89,40 @@ public class DaidalusFileWalker implements ErrorReporter {
 	}
 
 	/**
-	 * Returns the list of selected traffic. An empty list means that all aircraft that are 
-	 * not the ownship are considered traffic.
-	 */
-	public List<String> getSelectedTraffic() {
-		return traffic_;
-	}
-
-	/**
 	 * Reset the list of selected aircraft so that all aircraft that are not ownship are
 	 * considered traffic.
 	 */
 	public void resetSelectedTraffic() {
 		traffic_.clear();
+	}
+
+	/**
+	 * Set wind velocity (TO direction, i.e., direction the wind blows to)
+	 * This setting will override wind information available in the DAA file
+	 * @param wind Wind (TO direction)
+	 */
+	public void setWindVelocityTo(Velocity wind) {
+		wind_ = wind;
+	}
+
+	/**
+	 * Set wind velocity (FROM direction, i.e., direction the wind comes from)
+	 * This setting will override wind information available in the DAA file
+	 * @param wind Wind (FROM direction)
+	 */
+	public void setWindVelocityFrom(Velocity wind) {
+		if (wind.isInvalid()) {
+			wind_ = wind;
+		} else {
+			wind_ = wind.Neg();
+		}
+	}
+
+	/**
+	 * Reset wind. Wind from DAA file will be used.
+	 */
+	public void resetWind() {
+		wind_ = Velocity.INVALID;
 	}
 
 	/**
@@ -210,14 +227,15 @@ public class DaidalusFileWalker implements ErrorReporter {
 		return pd;
 	}
 
-	public static void readExtraColumns(Daidalus daa, SequenceReader sr, int ac_idx) {
+	public static void readExtraColumns(Daidalus daa, SequenceReader sr, int ac_idx, boolean read_wind) {
 		ParameterData pcol = extraColumnsToParameters(sr,daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
 		if (pcol.size() > 0) {
 			if (ac_idx == 0) {
 				// Note that daidalus parameters (in column format) and air velocity are ignored for traffic aircraft
 				// The index of the aircraft below is the index in daa
 				daa.setParameterData(pcol);
-				if (pcol.contains("heading") && pcol.contains("airspeed")) {
+				// Read wind unless is overriden 
+				if (pcol.contains("heading") && pcol.contains("airspeed") && read_wind) {
 					double heading = pcol.getValue("heading");
 					double airspeed = pcol.getValue("airspeed");
 					daa.setOwnshipAirVelocity(heading,airspeed);
@@ -271,10 +289,10 @@ public class DaidalusFileWalker implements ErrorReporter {
 			daa.reset();
 		}
 		int own = 0; // By default onwship is 0
-		if (!ownship_.isEmpty()) {
+		if (ownship_.isPresent()) {
 			own = -1;
 			for (int ac = 0; ac < sr_.size();++ac) {
-				if (sr_.getName(ac).equals(ownship_)) {
+				if (sr_.getName(ac).equals(ownship_.get())) {
 					own = ac;
 					break;
 				}
@@ -285,7 +303,11 @@ public class DaidalusFileWalker implements ErrorReporter {
 			Position so = sr_.getPosition(own);
 			Velocity vo = sr_. getVelocity(own);
 			daa.setOwnshipState(ido,so,vo,getTime());
-			readExtraColumns(daa,sr_,0);
+			readExtraColumns(daa,sr_,0,wind_.isInvalid());
+			if (!wind_.isInvalid() && !wind_.isZero()) {
+				// Override wind
+				daa.setWindVelocityTo(wind_);
+			}
 			for (int ac = 0; ac < sr_.size();++ac) {
 				if (ac == own) {
 					continue;
@@ -296,7 +318,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 					Velocity va = sr_. getVelocity(ac);
 					// Notice that idx may be different from ac because of traffic
 					int idx=daa.addTrafficState(ida,sa,va);
-					readExtraColumns(daa,sr_,idx);
+					readExtraColumns(daa,sr_,idx,false);
 				}
 			}
 		}

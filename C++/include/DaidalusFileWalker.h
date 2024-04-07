@@ -28,6 +28,7 @@ private:
   int index_;
   std::string ownship_; // Set ownship to a given value
   std::vector<std::string> traffic_; // Only consider the traffic aircraft
+  Velocity wind_; // Wind velocity vector
 
 public:
   explicit DaidalusFileWalker(const std::string& filename);
@@ -48,12 +49,6 @@ public:
    * is added to the Daidalus object at that particular time step.
    */
   void setOwnship(const std::string& name);
-
-  /**
-   * Returns the name of the ownship.
-   * An empty string refers to the aircraft that is the first in the daa file
-   */
-  const std::string& getOwnship() const;
 
   /**
    * Reset the ownship value so that the first aircraft in the daa are considered
@@ -78,16 +73,29 @@ public:
   void selectTraffic(const std::vector<std::string>& names);
 
   /**
-   * Returns the list of selected traffic. An empty list means that all aircraft that are
-   * not the ownship are considered traffic.
-   */
-  const std::vector<std::string>& getSelectedTraffic() const;
-
-  /**
    * Reset the list of selected aircraft so that all aircraft that are not ownship are
    * considered traffic.
    */
   void resetSelectedTraffic();
+
+  /**
+	 * Set wind velocity (TO direction, i.e., direction the wind blows to)
+	 * This setting will override wind information available in the DAA file
+	 * @param wind Wind (TO direction)
+	 */
+	void setWindVelocityTo(const Velocity& wind);
+	
+ 	/**
+	 * Set wind velocity (FROM direction, i.e., direction the wind comes from)
+	 * This setting will override wind information available in the DAA file
+	 * @param wind Wind (FROM direction)
+	 */
+	void setWindVelocityFrom(const Velocity& wind);
+ 
+	/**
+	 * Reset wind. Wind from DAA file will be used.
+	 */
+	void resetWind();
 
   double firstTime() const;
 
@@ -115,7 +123,7 @@ public:
 
   int indexOfTime(double t) const;
 
-  static void readExtraColumns(Daidalus& daa, const SequenceReader& sr, int ac_idx);
+  static void readExtraColumns(Daidalus& daa, const SequenceReader& sr, int ac_idx, bool read_wind);
 
   void readState(Daidalus& daa);
   bool hasError() const;
