@@ -78,7 +78,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 		} 
 		try {
 			String output = processor.getOutputFile();
-			if (output.isEmpty()) {
+			if (!output.isEmpty()) {
 				out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
 			}
 		} catch (Exception e) {
