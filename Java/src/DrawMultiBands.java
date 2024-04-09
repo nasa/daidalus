@@ -41,28 +41,28 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 
 import gov.nasa.larcfm.ACCoRD.BandsRegion;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
-import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
-import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
 
-public class DrawMultiBands {
+public class DrawMultiBands extends DaidalusProcessor {
 
 	static void printHelpMsg() {
-		System.err.println("Version: DAIDALUS V-"+DaidalusParameters.VERSION);
-		System.err.println("Generates a file that can be processed with the Python script drawmultibands.py");
 		System.err.println("Usage:");
-		System.err.println("  DrawMultiBands [options] file");
-		System.err.println("Options:");
+		System.err.println("  DrawMultiBands [<options>] <daa_file>");
+		System.err.println("Generate a file with DAIDALUS guidance bands, given configuration on DAA file.");
+		System.err.println("The generated file can be processed with the Python script drawmultibands.py.");
+		System.err.println("Valid <options> are");
 		System.err.println("  --help\n\tPrint this message");
-		System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
-		System.err.println("  --output <file.draw>\n\tOutout file <file.draw>");
-		System.exit(0);
+		System.err.println(getHelpString());
+		System.exit(1);
 	}
 
 	static String region2str(BandsRegion r) {
@@ -76,178 +76,154 @@ public class DrawMultiBands {
 		}
 	}
 
-	public static void main(String[] args) {
-		PrintWriter out = new PrintWriter(System.out);
-		String config = null;
-		String scenario = null;
-		String output = null;
+	static String hs_units;
+	static String vs_units;
+	static String alt_units;
+	static String scenario;
+	static Hashtable<String,String> alerting_times;
+	static String str_to;
+	static String str_trko;
+	static String str_gso;
+	static String str_vso;
+	static String str_alto;
+	static String str_trk;
+	static String str_gs;
+	static String str_vs;
+	static String str_alt;
 
+	public static void main(String[] args) {
+		DrawMultiBands processor = new DrawMultiBands();
+		List<String> file_names = new ArrayList<>();
 		/* Reading and processing options */
-		int a=0;
-		for (;a < args.length && args[a].startsWith("-"); ++a) {
-			if (args[a].equals("--help") || args[a].equals("-help") || args[a].equals("-h")) {
-				printHelpMsg();
-			} else if (args[a].startsWith("--conf") || args[a].startsWith("-conf") || args[a].equals("-c")) {
-				config = args[++a];
-			} else if (args[a].startsWith("--out") || args[a].startsWith("-out") || args[a].equals("-o")) {
-				output = args[++a];
-			} else if (args[a].startsWith("-")) {
-				System.err.println("** Error: Invalid option ("+args[a]+")");
-				System.exit(1);
+		for (int a=0;a < args.length; ++a) {
+			int ap = processor.processOptions(args,a);
+			if (ap >= 0) {
+				a = ap;
+			} else {
+				String arga = args[a];
+				if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
+					printHelpMsg();
+				} else if (arga.startsWith("-")) {
+					System.err.println("** Error: Invalid option ("+arga+")");
+					System.exit(1);
+				} else {
+					file_names.add(arga);
+				}
 			}
 		}
-		if (a+1 != args.length) {
-			System.err.println("** Error: Expecting exactly one input file. Try --help for usage.");
-			System.exit(1);
-		} 
-		String input = args[a];
-		File file = new File(input);
-		if (!file.exists() || !file.canRead()) {
-			System.err.println("** Error: File "+input+" cannot be read");
+		Daidalus daa = new Daidalus();
+		processor.setDaidalusConfig(daa);
+		if (daa.numberOfAlerters()==0) {
+			// If no alerter has been configured, configure alerters as in 
+			// DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
+			daa.set_DO_365B();			
+		}
+		List<String> exts = Arrays.asList("daa","xyz");
+		List<File> input_files = getFiles(file_names,exts);
+		if (input_files.size() != 1) {
+			System.err.println("Usage:\n\tDrawMultiBands [<options>] <daa_file>");
+			System.err.println("Try:\n\tDrawMultiBands --help");
 			System.exit(1);
 		}
+		File file = input_files.get(0);
+		String base_name = input_files.get(0).getName();
+		scenario = base_name.substring(0,base_name.lastIndexOf('.'));
+		String output_file = processor.getOutputFileNameOr(scenario,"draw");
 		try {
-			String name = file.getName();
-			scenario = name.contains(".") ? name.substring(0, name.lastIndexOf('.')):name;
-			if (output == null) {
-				output = scenario+".draw";
-			} 
-			out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
+			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+			System.out.println("Writing file "+output_file+", which can be processed with the Python script drawmultibands.py");
+			hs_units = daa.getUnitsOf("step_hs");
+			vs_units = daa.getUnitsOf("step_vs");
+			alt_units = daa.getUnitsOf("step_alt");
+			out.println("# This file can be processed with the Python script drawmultibands.py");
+			out.println("Scenario:"+scenario);    
+			str_to = "";
+			str_trko = "";
+			str_gso = "";
+			str_vso = "";
+			str_alto = "";
+			str_trk = "";
+			str_gs = "";
+			str_vs = "";
+			str_alt = "";
+			// Hashtable per aircraft to list of times per alert level
+			alerting_times = new Hashtable<String,String>(); 
+			processor.processFile(file.getPath(), daa);
+			out.println("Ownship:"+daa.getOwnshipState().getId());
+			out.println("# Bands Encoding");
+			out.println("# NONE = "+region2str(BandsRegion.NONE));
+			out.println("# FAR = "+region2str(BandsRegion.FAR));
+			out.println("# MID = "+region2str(BandsRegion.MID));
+			out.println("# NEAR = "+region2str(BandsRegion.NEAR));
+			out.println("# RECOVERY = "+region2str(BandsRegion.RECOVERY));
+			out.println("MinMaxGs:"+daa.getMinHorizontalSpeed(hs_units)+" "+
+					daa.getMaxHorizontalSpeed(hs_units)+":"+hs_units);
+			out.println("MinMaxVs:"+daa.getMinVerticalSpeed(vs_units)+" "+
+					daa.getMaxVerticalSpeed(vs_units)+":"+vs_units);
+			out.println("MinMaxAlt:"+daa.getMinAltitude(alt_units)+" "+
+					daa.getMaxAltitude(alt_units)+":"+alt_units);
+			out.print(str_trk);
+			out.print(str_gs);
+			out.print(str_vs);
+			out.print(str_alt);		
+			out.println("MostSevereAlertLevel:"+daa.mostSevereAlertLevel(1));
+			for (String key: alerting_times.keySet()) {
+				out.println(alerting_times.get(key));
+			}
+			out.println("Times:"+str_to);
+			out.println("OwnTrk:"+str_trko);
+			out.println("OwnGs:"+str_gso);
+			out.println("OwnVs:"+str_vso);
+			out.println("OwnAlt:"+str_alto);
+			out.close();
 		} catch (Exception e) {
 			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
+	}
 
-		/* Create Daidalus object and setting the configuration parameters */
-		Daidalus daa  = new Daidalus();
-		if (config == null) {
-			// Configure alerters as in DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
-			daa.set_DO_365B();		
-		} else if (!daa.loadFromFile(config)) {
-			if (config.equals("no_sum")) {
-				// Configure DAIDALUS as in DO-365B, without SUM
-				daa.set_DO_365B(true,false);
-			} else if (config.equals("nom_a")) {
-				// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
-				daa.set_Buffered_WC_DO_365(false);
-			} else if (config.equals("nom_b")) {
-				// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
-				daa.set_Buffered_WC_DO_365(true);
-			} else if (config.equals("cd3d")) {
-				// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
-				daa.set_CD3D();
-			} else if (config.equals("tcasii")) {
-				// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
-				daa.set_TCASII();
-			} else {
-				System.err.println("** Error: File "+config+" not found");
-				System.exit(1);
+	public void processTime(Daidalus daa, int iteration) {
+		str_to += f.FmPrecision(daa.getCurrentTime())+" ";
+		double trko = Util.to_pi(daa.getOwnshipState().horizontalDirection());
+		str_trko += f.FmPrecision(Units.to("deg",trko))+" ";
+		double gso = daa.getOwnshipState().horizontalSpeed();
+		str_gso += f.FmPrecision(Units.to(hs_units,gso))+" ";
+		double vso = daa.getOwnshipState().verticalSpeed();
+		str_vso += f.FmPrecision(Units.to(vs_units,vso))+" ";
+		double alto = daa.getOwnshipState().altitude();
+		str_alto += f.FmPrecision(Units.to(alt_units,alto))+" ";
+		for (int ac=1;ac<=daa.lastTrafficIndex();++ac) {
+			int alert = daa.alertLevel(ac);
+			if (alert > 0) {
+				String ac_name = daa.getAircraftStateAt(ac).getId();
+				String times = alerting_times.get(ac_name);
+				if (times == null) {
+					times = "AlertingTimes:"+ac_name+":";
+				}	
+				times += f.FmPrecision(daa.getCurrentTime())+" "+alert+" ";
+				alerting_times.put(ac_name,times);
 			}
 		}
-
-		System.out.println("Writing file "+output+", which can be processed with the Python script drawmultibands.py");
-
-		/* Creating a DaidalusFileWalker */
-		DaidalusFileWalker walker = new DaidalusFileWalker(input);
-		String hs_units = daa.getUnitsOf("step_hs");
-		String vs_units = daa.getUnitsOf("step_vs");
-		String alt_units = daa.getUnitsOf("step_alt");
-
-		out.println("# This file can be processed with the Python script drawmultibands.py");
-		out.println("Scenario:"+scenario);    
-		String str_to = "";
-		String str_trko = "";
-		String str_gso = "";
-		String str_vso = "";
-		String str_alto = "";
-		String str_trk = "";
-		String str_gs = "";
-		String str_vs = "";
-		String str_alt = "";
-
-		// Hashtable per aircraft to list of times per alert level
-		Hashtable<String,String> alerting_times = new Hashtable<String,String>(); 
-
-		/* Processing the input file time step by time step and writing output file */
-		while (!walker.atEnd()) {
-			walker.readState(daa);
-
-			str_to += f.FmPrecision(daa.getCurrentTime())+" ";
-
-			double trko = Util.to_pi(daa.getOwnshipState().horizontalDirection());
-			str_trko += f.FmPrecision(Units.to("deg",trko))+" ";
-
-			double gso = daa.getOwnshipState().horizontalSpeed();
-			str_gso += f.FmPrecision(Units.to(hs_units,gso))+" ";
-
-			double vso = daa.getOwnshipState().verticalSpeed();
-			str_vso += f.FmPrecision(Units.to(vs_units,vso))+" ";
-
-			double alto = daa.getOwnshipState().altitude();
-			str_alto += f.FmPrecision(Units.to(alt_units,alto))+" ";
-
-			for (int ac=1;ac<=daa.lastTrafficIndex();++ac) {
-				int alert = daa.alertLevel(ac);
-				if (alert > 0) {
-					String ac_name = daa.getAircraftStateAt(ac).getId();
-					String times = alerting_times.get(ac_name);
-					if (times == null) {
-						times = "AlertingTimes:"+ac_name+":";
-					}	
-					times += f.FmPrecision(daa.getCurrentTime())+" "+alert+" ";
-					alerting_times.put(ac_name,times);
-				}
-			}
-
-			double time = daa.getCurrentTime();
-			str_trk += "TrkBands:"+f.FmPrecision(time)+":";
-			for (int i=0; i < daa.horizontalDirectionBandsLength(); ++i) {
-				str_trk += daa.horizontalDirectionIntervalAt(i,"deg")+" "+region2str(daa.horizontalDirectionRegionAt(i))+" ";
-			}
-			str_trk += "\n";
-			str_gs += "GsBands:"+f.FmPrecision(time)+":";
-			for (int i=0; i < daa.horizontalSpeedBandsLength(); ++i) {
-				str_gs += daa.horizontalSpeedIntervalAt(i,hs_units)+" "+region2str(daa.horizontalSpeedRegionAt(i))+" ";
-			}
-			str_gs += "\n";
-			str_vs += "VsBands:"+f.FmPrecision(time)+":";
-			for (int i=0; i < daa.verticalSpeedBandsLength(); ++i) {
-				str_vs += daa.verticalSpeedIntervalAt(i,vs_units)+" "+region2str(daa.verticalSpeedRegionAt(i))+" ";
-			}
-			str_vs += "\n";
-			str_alt += "AltBands:"+f.FmPrecision(time)+":";
-			for (int i=0; i < daa.altitudeBandsLength(); ++i) {
-				str_alt += daa.altitudeIntervalAt(i,alt_units)+" "+region2str(daa.altitudeRegionAt(i))+" ";
-			}
-			str_alt += "\n";
+		double time = daa.getCurrentTime();
+		str_trk += "TrkBands:"+f.FmPrecision(time)+":";
+		for (int i=0; i < daa.horizontalDirectionBandsLength(); ++i) {
+			str_trk += daa.horizontalDirectionIntervalAt(i,"deg")+" "+region2str(daa.horizontalDirectionRegionAt(i))+" ";
 		}
-		out.println("Ownship:"+daa.getOwnshipState().getId());
-		out.println("# Bands Encoding");
-		out.println("# NONE = "+region2str(BandsRegion.NONE));
-		out.println("# FAR = "+region2str(BandsRegion.FAR));
-		out.println("# MID = "+region2str(BandsRegion.MID));
-		out.println("# NEAR = "+region2str(BandsRegion.NEAR));
-		out.println("# RECOVERY = "+region2str(BandsRegion.RECOVERY));
-		out.println("MinMaxGs:"+daa.getMinHorizontalSpeed(hs_units)+" "+
-				daa.getMaxHorizontalSpeed(hs_units)+":"+hs_units);
-		out.println("MinMaxVs:"+daa.getMinVerticalSpeed(vs_units)+" "+
-				daa.getMaxVerticalSpeed(vs_units)+":"+vs_units);
-		out.println("MinMaxAlt:"+daa.getMinAltitude(alt_units)+" "+
-				daa.getMaxAltitude(alt_units)+":"+alt_units);
-		out.print(str_trk);
-		out.print(str_gs);
-		out.print(str_vs);
-		out.print(str_alt);
-
-		out.println("MostSevereAlertLevel:"+daa.mostSevereAlertLevel(1));
-		for (String key: alerting_times.keySet()) {
-			out.println(alerting_times.get(key));
+		str_trk += "\n";
+		str_gs += "GsBands:"+f.FmPrecision(time)+":";
+		for (int i=0; i < daa.horizontalSpeedBandsLength(); ++i) {
+			str_gs += daa.horizontalSpeedIntervalAt(i,hs_units)+" "+region2str(daa.horizontalSpeedRegionAt(i))+" ";
 		}
-		out.println("Times:"+str_to);
-		out.println("OwnTrk:"+str_trko);
-		out.println("OwnGs:"+str_gso);
-		out.println("OwnVs:"+str_vso);
-		out.println("OwnAlt:"+str_alto);
-		out.close();
+		str_gs += "\n";
+		str_vs += "VsBands:"+f.FmPrecision(time)+":";
+		for (int i=0; i < daa.verticalSpeedBandsLength(); ++i) {
+			str_vs += daa.verticalSpeedIntervalAt(i,vs_units)+" "+region2str(daa.verticalSpeedRegionAt(i))+" ";
+		}
+		str_vs += "\n";
+		str_alt += "AltBands:"+f.FmPrecision(time)+":";
+		for (int i=0; i < daa.altitudeBandsLength(); ++i) {
+			str_alt += daa.altitudeIntervalAt(i,alt_units)+" "+region2str(daa.altitudeRegionAt(i))+" ";
+		}
+		str_alt += "\n";
 	}
 }

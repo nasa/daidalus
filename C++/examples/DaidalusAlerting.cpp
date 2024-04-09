@@ -62,7 +62,6 @@ int main(int argc, char* argv[]) {
 
   ParameterData params;
   std::string conf = "";
-  bool echo = false;
   int precision = 6;
 	bool do_inst = false;
 	bool no_hyst = false;
@@ -106,8 +105,6 @@ int main(int argc, char* argv[]) {
       } else {
         std::cerr << "Loading configuration file " << arga << std::endl;
       }
-    } else if (arga == "--echo" || arga == "-echo") {
-      echo = true;
     } else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
       ++a;
       std::istringstream(argv[a]) >> precision;
@@ -129,10 +126,10 @@ int main(int argc, char* argv[]) {
 		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
 			// Use the given configuration, but disable hysteresis
 			no_hyst = true;
-		} else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
+		} else if (arga == "--help" || arga == "-help" || arga == "-h") {
       std::cerr << "Usage:" << std::endl;
-      std::cerr << "  DaidalusAlerting [<option>] <daa_file>" << std::endl;
-      std::cerr << "  <option> can be" << std::endl;
+      std::cerr << "  DaidalusAlerting [<options>] <daa_file>" << std::endl;
+     	std::cerr << "Run DAIDALUS alerting logic in batch mode with a given configuration on a DAA file. Valid <options> are" << std::endl;
       std::cerr << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
       std::cerr << "  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"" << std::endl;
       std::cerr << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
@@ -169,13 +166,8 @@ int main(int argc, char* argv[]) {
     daa.disableHysteresis();
   }
   if (input_file == "") {
-    if (echo) {
-      std::cout << daa.toString();
-      exit(0);
-    } else {
       std::cerr << "** Error: One input file must be provided" << std::endl;
       exit(1);
-    }
   }
   std::ifstream file(input_file.c_str());
   if (!file.good()) {
@@ -241,9 +233,6 @@ int main(int argc, char* argv[]) {
 
   while (!walker.atEnd()) {
     walker.readState(daa);
-    if (echo) {
-      std::cout << daa.toString();
-    }
     // At this point, daa has the state information of ownhsip and traffic for a given time
     for (int ac=1; ac <= daa.lastTrafficIndex(); ++ac) {
       int alerter_idx = daa.alerterIndexBasedOnAlertingLogic(ac);

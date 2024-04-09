@@ -123,7 +123,7 @@ public class DAAGenerator {
 				++a;
 				time = Math.abs(Double.parseDouble(args[a]));
 				options += " "+args[a];
-			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
+			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
 				++a;
 				backward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
@@ -149,6 +149,7 @@ public class DAAGenerator {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<options>] <daa_file>");
 				System.err.println("Valid <options> are");
+				System.err.println("  --help\n\tPrint this message");
 				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
 				System.err.println("  --precision <n>\n\tOutput decimal precision to <n>");
 				System.err.println("  --ownship <id>\n\tSpecify <id> as ownship");
@@ -174,7 +175,6 @@ public class DAAGenerator {
 				System.err.println("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north");
 				System.err.println("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north");
 				System.err.println("\t--hcpa_with=<acid>\n\t\tModify ground speed so that the current state is the horizontal CPA between <id> and <acid>");
-				System.err.println("  --help\n\tPrint this message");
 				System.exit(0);
 			} else if (arga.startsWith("-")){
 				System.err.println("** Error: Unknown option "+arga);

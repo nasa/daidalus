@@ -34,8 +34,8 @@ public:
 
 	static void printHelpMsg() {
 		std::cout << "Usage:" << std::endl;
-		std::cout << "  DaidalusBatch [<options>] files\n" << std::endl;
-		std::cout << "Valid <options>:" << std::endl;
+		std::cout << "  DaidalusBatch [<options>] <daa_files>" << std::endl;
+		std::cout << "Run DAIDALUS in batch mode with a given configuration on a list of DAA files. Valid <options> are" << std::endl;
 		std::cout << "  --help\n\tPrint this message" << std::endl;
 		std::cout << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
 		std::cout << "  --out <file>\n\tOutput information to <file>" << std::endl;
@@ -121,7 +121,7 @@ int main(int argc, const char* argv[]) {
 		if (walker.processOptions(argv,argc,a)) {
 			++a;
 			options += walker.getOptionsString();
-		} if (arga == "--help" || arga == "-help" || arga == "-h") {
+		} else if (arga == "--help" || arga == "-help" || arga == "-h") {
 			DaidalusBatch::printHelpMsg();
 		} else if (startsWith(arga,"--conf") || startsWith(arga,"-conf") || arga == "-c") {
 			config = argv[++a];

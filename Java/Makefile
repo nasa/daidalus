@@ -26,15 +26,15 @@ examples:
 	@echo "./DaidalusExample"
 	@echo
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo
 	@echo "** To run DaidalusBatch type, e.g.,"
-	@echo "./DaidalusBatch --conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DaidalusBatch --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo
 	@echo "** To run DrawMultiBands, first type, e.g.,"
-	@echo "./DrawMultiBands -conf ../Configurations/DO_365A_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DrawMultiBands -conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo "** and then type, e.g.,"
-	@echo "../scripts/drawmultibands.py H1.draw"
+	@echo "../Scripts/drawmultibands.py H1_DO_365B_no_SUM.draw"
 	@echo
 
 doc:

@@ -81,7 +81,7 @@ class DaidalusExample {
 					// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
 					daa.set_TCASII();
 				} else {
-					System.err.println("File "+arga+" not found");
+					System.err.println("** Error: Configuration file "+arga+" not found");
 					System.exit(1);
 				}
 			} else if (arga.startsWith("--verb") || arga.startsWith("-verb")) {
@@ -92,17 +92,19 @@ class DaidalusExample {
 			} else if (arga.startsWith("--nohys") || arga.startsWith("-nohys")) {
 				// Use the given configuration, but disable hysteresis
 				no_hyst = true;
-			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
-				System.err.println("Options:");
+			} else 	if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
+				System.err.println("Usage:");
+				System.err.println("  DaidalusExample [<options>]");
+				System.err.println("This sample code illustrates many of the DAIDALUS capabilities. Valid <options> are");
 				System.err.println("  --help\n\tPrint this message");
 				System.err.println("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>");
 				System.err.println("  --verbose\n\tPrint more information");
 				System.err.println("  --instantaneous\n\tOverride configuration to do instantaneous bands");
 				System.err.println("  --nohystereis\n\tOverride configuation to disable hysteresis");
-				System.exit(0);
+				System.exit(1);
 			} else {
-				System.err.println("Unknown option "+arga);
-				System.exit(0);
+				System.err.println("** Error: Unknown option "+arga);
+				System.exit(1);
 			}
 		}
 

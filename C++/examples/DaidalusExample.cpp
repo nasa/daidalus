@@ -324,7 +324,7 @@ int main(int argc, const char* argv[]) {
         // Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
         daa.set_TCASII();
       } else {
-        std::cerr << "File " << arga << " not found" << std::endl;
+        std::cerr << "** Errof: Configuration file " << arga << " not found" << std::endl;
         exit(1);
       }
     } else if (startsWith(arga,"--verb") || startsWith(arga,"-verb")) {
@@ -335,17 +335,19 @@ int main(int argc, const char* argv[]) {
 		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
 			// Use the given configuration, but disable hysteresis
 			no_hyst = true;
-		} else if (startsWith(arga,"--h") || startsWith(arga,"-h")) {
-      std::cerr << "Options:" << std::endl;
+		} else if (arga == "--help" || arga == "-help" || arga == "-h") {
+ 			std::cerr << "Usage:" << std::endl;
+			std::cerr << "  DaidalusExample [<options>]" << std::endl;
+			std::cerr << "This sample code illustrates many of the DAIDALUS capabilities. Valid <options> are" << std::endl;
       std::cerr << "  --help\n\tPrint this message" << std::endl;
       std::cerr << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
       std::cerr << "  --verbose\n\tPrint more information" << std::endl;
       std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
 			std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;
-      exit(0);
+      exit(1);
     } else {
-      std::cerr << "Unknown option " << arga << std::endl;
-      exit(0);
+      std::cerr << "** Error: Unknown option " << arga << std::endl;
+      exit(1);
     }
   }
 
