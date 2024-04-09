@@ -90,7 +90,7 @@ public class DAAGenerator {
 		int backward = 0; // In seconds
 		int forward = 0;  // In seconds
 		double time = 0.0;  // In seconds
-		double from = 0.0;
+		double init = 0.0;
 		String output = "";
 		double lat = 0.0; // In decimal degrees
 		double lon = 0.0; // In decimal degrees
@@ -115,29 +115,25 @@ public class DAAGenerator {
 				++a;
 				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
 				options += " "+args[a];
-			} else if ((arga.startsWith("--out") || arga.startsWith("-out")) && a+1 < args.length) { 
+			} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) { 
 				++a;
 				output = args[a];
 				options += " "+args[a];
-			} else if (arga.startsWith("--t") || arga.startsWith("-t")) {
+			} else if (arga.equals("--time") || arga.equals("-time") || arga.equals("-t")) {
 				++a;
 				time = Math.abs(Double.parseDouble(args[a]));
 				options += " "+args[a];
-			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
+			} else if (arga.startsWith("--back") || arga.startsWith("-back") || arga.equals("-b")) {
 				++a;
 				backward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
-			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
-				++a;
-				backward = Math.abs(Integer.parseInt(args[a]));
-				options += " "+args[a];
-			} else if (arga.startsWith("--f") || arga.startsWith("-f")) {
+			} else if (arga.startsWith("--for") || arga.startsWith("-for") || arga.equals("-f")) {
 				++a;
 				forward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
-			} else if (arga.startsWith("--i") || arga.startsWith("-i")) {
+			} else if (arga.startsWith("--init") || arga.startsWith("-init")) {
 				++a;
-				from = Math.abs(Integer.parseInt(args[a]));
+				init = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
 			} else if (arga.startsWith("--lat") || arga.startsWith("-lat")) {
 				++a;
@@ -149,7 +145,7 @@ public class DAAGenerator {
 				lon = Units.from("deg",Double.parseDouble(args[a]));
 				options += " "+args[a];
 				xyz2latlon = true;
-			} else if (arga.startsWith("--h") || arga.startsWith("-h")) {
+			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<options>] <daa_file>");
 				System.err.println("Valid <options> are");
@@ -165,7 +161,7 @@ public class DAAGenerator {
 				System.err.println("  --latitude <lat>\n\tSet Euclidean local origin to latitude <lat>, in decimal degrees");
 				System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees");
 				System.err.println("  --[<id>@]<key>=<val>\n\tSet key <key> to value <val> in givent units for aircraft <id>. If <id> is not provided,");
-				System.err.println("\t\tthe ownshio is assumed. The list of valid keys are provided below.");
+				System.err.println("\t\tthe ownship is assumed. The list of valid keys are provided below.");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
 				System.err.println("\t--vertical_accel='0.1[G]'");
 				System.err.println("\t--turn_rate='3[deg/s]'");
@@ -239,9 +235,9 @@ public class DAAGenerator {
 				}
 				String filename = file.getName();
 				output_file += filename.substring(0,filename.lastIndexOf('.'));
-				output_file += "_" + f.Fm0(from);
-				double to = from + backward + forward;
-				if (from != to) {
+				output_file += "_" + f.Fm0(init);
+				double to = init + backward + forward;
+				if (init != to) {
 					output_file += "_" + f.Fm0(to);
 				}
 				output_file += ext;
@@ -263,16 +259,16 @@ public class DAAGenerator {
 		printKeyVals(keyvals,out);
 		out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
 		ParameterData own_param = params.get(daa.getOwnshipState().getId());
-		for (double t = -backward; t <= forward; t++, from++) {
+		for (double t = -backward; t <= forward; t++, init++) {
 			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
+			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,init));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = params.get(ac.getId());
 				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,from));
+				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,init));
 			}
 		}  
 		out.close();

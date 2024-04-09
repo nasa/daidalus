@@ -143,7 +143,7 @@ public abstract class DaidalusProcessor {
 			conf_ = args[++a];	
 		} else if ((arga.startsWith("--prec") || arga.startsWith("-prec") && a+1 < args.length)) {
 			precision_ = Integer.parseInt(args[++a]);
-		} else if ((arga.startsWith("--out") || arga.startsWith("-out")) && a+1 < args.length) {
+		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
 		} else if (arga.startsWith("-") && arga.contains("=")) {
 			String keyval = arga.substring(arga.startsWith("--")?2:1);
