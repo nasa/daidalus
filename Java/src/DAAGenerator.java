@@ -127,6 +127,10 @@ public class DAAGenerator {
 				++a;
 				backward = Math.abs(Integer.parseInt(args[a]));
 				options += " "+args[a];
+			} else if (arga.startsWith("--b") || arga.startsWith("-b")) {
+				++a;
+				backward = Math.abs(Integer.parseInt(args[a]));
+				options += " "+args[a];
 			} else if (arga.startsWith("--f") || arga.startsWith("-f")) {
 				++a;
 				forward = Math.abs(Integer.parseInt(args[a]));

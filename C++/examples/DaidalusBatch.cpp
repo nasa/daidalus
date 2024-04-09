@@ -47,38 +47,7 @@ public:
 	    std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
 		std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;		
 		std::cout << getHelpString() << std::endl;
-		exit(0);
-	}
-
-	static std::string stringList2PVS(const std::string& msg, const std::vector<TrafficState>& l) {
-		std::string s="%%% ";
-		s += msg+": "+Fmi(l.size())+"\n(:";
-		bool first = true;
-		for (TrafficState::nat ac=0; ac < l.size(); ++ac) {
-			if (first) {
-				first = false;
-				s+=" ";
-			} else {
-				s+=", ";
-			}
-			s+="\""+l[ac].getId()+"\"";
-		}
-		s+=" :)";
-		if (l.empty()) {
-			s+="::list[string]";
-		}
-		return s;
-	}
-
-	void header(Daidalus& daa, const std::string& filename) {
-		switch (format) {
-		case STANDARD:
-			break;
-		case PVS:
-			break;
-		default:
-			break;
-		}
+		exit(1);
 	}
 
 	void printOutput(Daidalus& daa) {
@@ -95,11 +64,7 @@ public:
 		}
 	}
 
-	void contours(Daidalus& daa, const std::string& filename) {
-	}
-
 	void processTime(Daidalus& daa, const std::string& filename) {
-		header(daa,filename);
 		printOutput(daa);
 	}
 
