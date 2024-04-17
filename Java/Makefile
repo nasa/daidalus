@@ -41,16 +41,16 @@ doc:
 	javadoc -d doc -sourcepath src gov.nasa.larcfm.Util gov.nasa.larcfm.IO gov.nasa.larcfm.ACCoRD
 
 configs: examples
-	./DAAEcho --conf sum > ../Configurations/DO_365B_SUM.conf  
-	./DAAEcho --conf no_sum > ../Configurations/DO_365B_no_SUM.conf  
-	./DAAEcho --conf nom_a > ../Configurations/Buffered_DWC_SC_228_nom_a.conf
-	./DAAEcho --conf nom_b > ../Configurations/Buffered_DWC_SC_228_nom_b.conf
-	./DAAEcho --conf cd3d > ../Configurations/CD3D.conf
-	./DAAEcho --conf tcasii > ../Configurations/TCAS3D.conf
+	./DAAEcho --conf sum --out ../Configurations/DO_365B_SUM.conf  
+	./DAAEcho --conf no_sum --out ../Configurations/DO_365B_no_SUM.conf  
+	./DAAEcho --conf nom_a --out ../Configurations/Buffered_DWC_SC_228_nom_a.conf
+	./DAAEcho --conf nom_b --out ../Configurations/Buffered_DWC_SC_228_nom_b.conf
+	./DAAEcho --conf cd3d --out ../Configurations/CD3D.conf
+	./DAAEcho --conf tcasii --out ../Configurations/TCAS3D.conf
 	-mv -f ../Configurations/DO_365A_SUM.conf DO_365A_SUM.old
 	-mv -f ../Configurations/DO_365A_no_SUM.conf DO_365A_no_SUM.old
-	./DAAEcho --conf DO_365A_SUM.old > ../Configurations/DO_365A_SUM.conf 
-	./DAAEcho --conf DO_365A_no_SUM.old > ../Configurations/DO_365A_no_SUM.conf 
+	./DAAEcho --conf DO_365A_SUM.old --out ../Configurations/DO_365A_SUM.conf 
+	./DAAEcho --conf DO_365A_no_SUM.old --out ../Configurations/DO_365A_no_SUM.conf 
 
 clean:
 	rm -f src/*.class  src/gov/nasa/larcfm/IO/*.class src/gov/nasa/larcfm/Util/*.class src/gov/nasa/larcfm/ACCoRD/*.class lib/*.jar *.old

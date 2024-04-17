@@ -49,12 +49,21 @@ import java.util.Optional;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
 import gov.nasa.larcfm.Util.EuclideanProjection;
+import gov.nasa.larcfm.Util.Pair;
+import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Vect3;
+import gov.nasa.larcfm.Util.Velocity;
 
 public class DAAEcho extends DaidalusProcessor {
 
 	static PrintWriter out;
+	static Optional<EuclideanProjection> projection;
+	static final String uh = "nmi";
+	static final String uv = "ft";
+	static final String ugs = "knot";
+	static final String uvs = "fpm";
 
 	public static void main(String[] args) {
 
@@ -104,33 +113,74 @@ public class DAAEcho extends DaidalusProcessor {
 			System.err.println("Try:\n\tDAAEcho --help");
 			System.exit(1);
 		}
+		try {
+			String output_file = processor.getOutputFile();
+			if (!output_file.isEmpty()) {
+				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+				System.err.println("Writing "+output_file);
+			}
+		} catch (Exception e) {
+			System.out.println("** Error: "+e);
+			System.exit(1);
+		}   
 		Daidalus daa = new Daidalus();
 		processor.setDaidalusConfig(daa);
 		if (!processor.getConfigurationName().isEmpty()) {
-			System.out.print(daa.getCore().parameters.toString());
+			out.print(daa.getCore().parameters.toString());
 		} 
 		if (!input_files.isEmpty()) {
 			File file = input_files.get(0);
-			Optional<EuclideanProjection> projection = xyz2latlon ? 
+			projection = xyz2latlon ? 
 				Optional.of(Projection.createProjection(lat,lon,0.0)) : 
 				Optional.empty();
-			try {
-				String output_file = processor.getOutputFile();
-				if (!output_file.isEmpty()) {
-					out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
-					System.err.println("Writing "+output_file);
-				}
-			} catch (Exception e) {
-				System.out.println("** Error: "+e);
-				System.exit(1);
-			}   
 			processor.processFile(file.getPath(),daa);
-			out.close();
+		}
+		out.close();
+	}
+
+	public void processTime(Daidalus daa, int iteration) {
+		if (!daa.isLatLon() && projection.isPresent()) {
+			Velocity wind = daa.getWindVelocityTo();
+			TrafficState ownship = daa.getOwnshipState();
+			Pair<Position,Velocity> own_posvel = Pair.make(ownship.getPosition(),ownship.getGroundVelocity());
+			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
+			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()));
+			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
+				TrafficState ac = daa.getAircraftStateAt(ac_idx);
+				Pair<Position,Velocity> ac_posvel = Pair.make(ac.getPosition(),ac.getGroundVelocity());
+				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvel,new_own,projection);
+				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()));
+			}
+		} else {
+			out.print(daa.outputStringAircraftStates(iteration == 0));
 		}
 	}
-	
-	public void processTime(Daidalus daa, int iteration) {
-		out.print(daa.outputStringAircraftStates(iteration == 0));
+
+	static Pair<Position,Velocity> prj_aircraft(Pair<Position,Velocity> posvel, Optional<EuclideanProjection> projection) {
+		Position pos = posvel.first;
+		Velocity vel = posvel.second;
+		if (projection.isPresent()) {
+			Vect3 s = pos.vect3();
+			if (vel.gs() > 0) {
+				vel = projection.get().inverseVelocity(s,vel,true);
+			}
+			pos = Position.make(projection.get().inverse(s));
+		}
+		return new Pair<>(pos,vel);	
+	}
+
+	static TrafficState pp_ownship(String id, Pair<Position,Velocity> posvel, Velocity wind, Optional<EuclideanProjection> projection) {
+		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel, projection);
+		Position pos = prj_posvel.first;
+		Velocity vel = prj_posvel.second;
+		return TrafficState.makeOwnship(id,pos,vel,vel.Sub(wind.vect3()));		
+	}
+
+	static TrafficState pp_traffic(String id, Pair<Position,Velocity> posvel, TrafficState ownship, Optional<EuclideanProjection> projection) {
+		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel, projection);
+		Position pos = prj_posvel.first;
+		Velocity vel = prj_posvel.second;
+		return ownship.makeIntruder(id,pos,vel);
 	}
 
 }
