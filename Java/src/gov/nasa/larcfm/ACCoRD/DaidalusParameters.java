@@ -2934,9 +2934,9 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			p.setInternal("lookahead_time", lookahead_time_, getUnitsOf("lookahead_time"));
 			p.updateComment("lookahead_time","Bands Parameters");
 			p.setInternal("distance_filter", distance_filter_, getUnitsOf("distance_filter"));
-			p.updateComment("distance_filter","Traffic aircraft farther than this distances to the ownship are ignored. Zero means no filter");
+			p.updateComment("distance_filter","Traffic aircraft farther than this distance to the ownship are ignored. Zero means no filter");
 			p.setInternal("altitude_filter", altitude_filter_, getUnitsOf("altitude_filter"));
-			p.updateComment("altitude_filter","Traffic aircraft above/below than this altitude to the ownship are ignored. Zero means no filter");
+			p.updateComment("altitude_filter","Traffic aircraft above/below this altitude to the ownship are ignored. Zero means no filter");
 			p.setInternal("left_hdir", left_hdir_, getUnitsOf("left_hdir"));
 			p.setInternal("right_hdir", right_hdir_, getUnitsOf("right_hdir"));
 			p.setInternal("min_airspeed", min_airspeed_, getUnitsOf("min_airspeed"));

@@ -8,7 +8,6 @@ package gov.nasa.larcfm.ACCoRD;
 
 import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.Position;
-import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
@@ -840,22 +839,11 @@ public class DaidalusCore {
 	}
 
 	public String outputStringAircraftStates(boolean internal, boolean header) {
-		String ualt = internal ? "m" : parameters.getUnitsOf("step_alt");
+		String utrk = internal ? "rad" : "deg";
+		String uxy = internal ? "m" : parameters.getUnitsOf("distance_filter");
+		String ualt = internal ? "m" : parameters.getUnitsOf("altitude_filter");
 		String uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
 		String uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
-		String uxy = "m";
-		String utrk = "deg";
-		if (!internal) {
-			if (Units.isCompatible(uhs,"knot")) {
-				uxy = "nmi";
-			} else if (Units.isCompatible(uhs,"fpm")) {
-				uxy = "ft";
-			} else if (Units.isCompatible(uhs,"kph")) {
-				uxy = "km";
-			}
-		} else {
-			utrk="rad";
-		}
 		return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,header);
 	}
 

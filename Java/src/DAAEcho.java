@@ -144,6 +144,9 @@ public class DAAEcho extends DaidalusProcessor {
 			TrafficState ownship = daa.getOwnshipState();
 			Pair<Position,Velocity> own_posvel = Pair.make(ownship.getPosition(),ownship.getGroundVelocity());
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
+			if (iteration == 0) {
+				out.print(TrafficState.formattedHeader(true,"deg",uh,uv,ugs,uvs));
+			}
 			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
