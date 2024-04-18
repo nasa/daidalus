@@ -983,6 +983,33 @@ public class Daidalus {
 	}
 
 	/** 
+	 * @return distance filter in meters.
+	 */
+	public double getDistanceFilter() {
+		return core_.parameters.getDistanceFilter();
+	}
+
+	/** 
+	 * @return distance filter in specified units [u].
+	 */
+	public double getDistanceFilter(String u) {
+		return core_.parameters.getDistanceFilter(u);
+	}
+	/** 
+	 * @return altitude filter in meters.
+	 */
+	public double getAltitudeFilter() {
+		return core_.parameters.getAltitudeFilter();
+	}
+
+	/** 
+	 * @return altitude filter in specified units [u].
+	 */
+	public double getAltitudeFilter(String u) {
+		return core_.parameters.getAltitudeFilter(u);
+	}
+
+	/** 
 	 * @return left direction in radians [0 - pi] [rad] from current ownship's direction
 	 */
 	public double getLeftHorizontalDirection() {
@@ -1531,276 +1558,288 @@ public class Daidalus {
 		return core_.parameters.getMinVerticalRecovery(u);
 	}
 
+	private boolean reset_or_false(boolean val) {
+		if (val) {
+			reset();
+			return true;
+		}
+		return false;
+	}
+
+	private boolean clearHysteresis_or_false(boolean val) {
+		if (val) {
+			clearHysteresis();;
+			return true;
+		}
+		return false;
+	}
+
 	/** 
 	 * Sets lookahead time in seconds. 
 	 */ 
-	public void setLookaheadTime(double t) {
-		core_.parameters.setLookaheadTime(t);
-		reset();
+	public boolean setLookaheadTime(double t) {
+		return reset_or_false(core_.parameters.setLookaheadTime(t));
 	}
 
 	/** 
 	 * Set lookahead time to value in specified units [u].
 	 */
-	public void setLookaheadTime(double t, String u) {
-		core_.parameters.setLookaheadTime(t,u);
-		reset();
+	public boolean setLookaheadTime(double t, String u) {
+		return reset_or_false(core_.parameters.setLookaheadTime(t,u));
+	}
+
+	/** 
+	 * Set distance filter to value in meters.
+	 */
+	public boolean setDistanceFilter(double val) {
+		return reset_or_false(core_.parameters.setDistanceFilter(val));
+	}
+
+	/** 
+	 * Set distance filter to value in specified units [u].
+	 */
+	public boolean setDistanceFilter(double val, String u) {
+		return reset_or_false(core_.parameters.setDistanceFilter(val,u));
+	}
+
+	/** 
+	 * Set altitude filter to value in meters.
+	 */
+	public boolean setAltitudeFilter(double val) {
+		return reset_or_false(core_.parameters.setAltitudeFilter(val));
+	}
+
+	/** 
+	 * Set altitude filter to value in specified units [u].
+	 */
+	public boolean setAltitudeFilter(double val, String u) {
+		return reset_or_false(core_.parameters.setAltitudeFilter(val,u));
 	}
 
 	/** 
 	 * Set left direction to value in internal units [rad]. Value is expected to be in [0 - pi]
 	 */
-	public void setLeftHorizontalDirection(double val) {
-		core_.parameters.setLeftHorizontalDirection(val);
-		reset();
+	public boolean setLeftHorizontalDirection(double val) {
+		return reset_or_false(core_.parameters.setLeftHorizontalDirection(val));
 	}
 
 	/** 
 	 * Set left direction to value in specified units [u]. Value is expected to be in [0 - pi]
 	 */
-	public void setLeftHorizontalDirection(double val, String u) {
-		core_.parameters.setLeftHorizontalDirection(val,u);
-		reset();
+	public boolean setLeftHorizontalDirection(double val, String u) {
+		return reset_or_false(core_.parameters.setLeftHorizontalDirection(val,u));
 	}
 
 	/** 
 	 * Set right direction to value in internal units [rad]. Value is expected to be in [0 - pi]
 	 */
-	public void setRightHorizontalDirection(double val) {
-		core_.parameters.setRightHorizontalDirection(val);
-		reset();
+	public boolean setRightHorizontalDirection(double val) {
+		return reset_or_false(core_.parameters.setRightHorizontalDirection(val));
 	}
 
 	/** 
 	 * Set right direction to value in specified units [u]. Value is expected to be in [0 - pi]
 	 */
-	public void setRightHorizontalDirection(double val, String u) {
-		core_.parameters.setRightHorizontalDirection(val,u);
-		reset();
+	public boolean setRightHorizontalDirection(double val, String u) {
+		return reset_or_false(core_.parameters.setRightHorizontalDirection(val,u));
 	}
 
 	/** 
 	 * Set minimum air speed to value in internal units [m/s].
 	 * Minimum air speed must be greater or equal than min horizontal speed.
 	 */
-	public void setMinAirSpeed(double val) {
-		core_.parameters.setMinAirSpeed(val);
-		reset();
+	public boolean setMinAirSpeed(double val) {
+		return reset_or_false(core_.parameters.setMinAirSpeed(val));
 	}
 
 	/** 
 	 * Set minimum air speed to value in specified units [u].
 	 * Minimum air speed must be greater or equal than min horizontal speed.
 	 */
-	public void setMinAirSpeed(double val, String u) {	
-		core_.parameters.setMinAirSpeed(val,u);
-		reset();
+	public boolean setMinAirSpeed(double val, String u) {	
+		return reset_or_false(core_.parameters.setMinAirSpeed(val,u));
 	}
 
 	/** 
 	 * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
 	 * Minimum horizontal speed must be non-negative.
 	 */
-	public void setMinHorizontalSpeed(double val) {
-		core_.parameters.setMinHorizontalSpeed(val);
-		reset();
+	public boolean setMinHorizontalSpeed(double val) {
+		return reset_or_false(core_.parameters.setMinHorizontalSpeed(val));
 	}
 
 	/** 
 	 * Sets minimum horizontal speed for horizontal speed bands to value in specified units [u].
 	 * Minimum horizontal speed must be non-negative.
 	 */
-	public void setMinHorizontalSpeed(double val, String u) {
-		core_.parameters.setMinHorizontalSpeed(val,u);
-		reset();
+	public boolean setMinHorizontalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setMinHorizontalSpeed(val,u));
 	}
 
 	/** 
 	 * Sets maximum horizontal speed for horizontal speed bands to value in internal units [m/s].
 	 */
-	public void setMaxHorizontalSpeed(double val) {
-		core_.parameters.setMaxHorizontalSpeed(val);
-		reset();
+	public boolean setMaxHorizontalSpeed(double val) {
+		return reset_or_false(core_.parameters.setMaxHorizontalSpeed(val));
 	}
 
 	/** 
 	 * Sets maximum horizontal speed for horizontal speed bands to value in specified units [u].
 	 */
-	public void setMaxHorizontalSpeed(double val, String u) {
-		core_.parameters.setMaxHorizontalSpeed(val,u);
-		reset();
+	public boolean setMaxHorizontalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setMaxHorizontalSpeed(val,u));
 	}
 
 	/** 
 	 * Sets minimum vertical speed for vertical speed bands to value in internal units [m/s].
 	 */
-	public void setMinVerticalSpeed(double val) {
-		core_.parameters.setMinVerticalSpeed(val);
-		reset();
+	public boolean setMinVerticalSpeed(double val) {
+		return reset_or_false(core_.parameters.setMinVerticalSpeed(val));
 	}
 
 	/** 
 	 * Sets minimum vertical speed for vertical speed bands to value in specified units [u].
 	 */
-	public void setMinVerticalSpeed(double val, String u) {
-		core_.parameters.setMinVerticalSpeed(val,u);
-		reset();
+	public boolean setMinVerticalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setMinVerticalSpeed(val,u));
 	}
 
 	/** 
 	 * Sets maximum vertical speed for vertical speed bands to value in internal units [m/s].
 	 */
-	public void setMaxVerticalSpeed(double val) {
-		core_.parameters.setMaxVerticalSpeed(val);
-		reset();
+	public boolean setMaxVerticalSpeed(double val) {
+		return reset_or_false(core_.parameters.setMaxVerticalSpeed(val));
 	}
 
 	/** 
 	 * Sets maximum vertical speed for vertical speed bands to value in specified units [u].
 	 */
-	public void setMaxVerticalSpeed(double val, String u) {
-		core_.parameters.setMaxVerticalSpeed(val,u);
-		reset();
+	public boolean setMaxVerticalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setMaxVerticalSpeed(val,u));
 	}
 
 	/** 
 	 * Sets minimum altitude for altitude bands to value in internal units [m]
 	 */
-	public void setMinAltitude(double val) {
-		core_.parameters.setMinAltitude(val);
-		reset();
+	public boolean setMinAltitude(double val) {
+		return reset_or_false(core_.parameters.setMinAltitude(val));
 	}
 
 	/** 
 	 * Sets minimum altitude for altitude bands to value in specified units [u].
 	 */
-	public void setMinAltitude(double val, String u) {
-		core_.parameters.setMinAltitude(val,u);
-		reset();
+	public boolean setMinAltitude(double val, String u) {
+		return reset_or_false(core_.parameters.setMinAltitude(val,u));
 	}
 
 	/** 
 	 * Sets maximum altitude for altitude bands to value in internal units [m]
 	 */
-	public void setMaxAltitude(double val) {
-		core_.parameters.setMaxAltitude(val);
-		reset();
+	public boolean setMaxAltitude(double val) {
+		return reset_or_false(core_.parameters.setMaxAltitude(val));
 	}
 
 	/** 
 	 * Sets maximum altitude for altitude bands to value in specified units [u].
 	 */
-	public void setMaxAltitude(double val, String u) {
-		core_.parameters.setMaxAltitude(val,u);
-		reset();
+	public boolean setMaxAltitude(double val, String u) {
+		return reset_or_false(core_.parameters.setMaxAltitude(val,u));
 	}
 
 	/**
 	 * Set horizontal speed in internal units (below current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setBelowRelativeHorizontalSpeed(double val) {
-		core_.parameters.setBelowRelativeHorizontalSpeed(val);
-		reset();
+	public boolean setBelowRelativeHorizontalSpeed(double val) {
+		return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val));
 	}
 
 	/**
 	 * Set horizontal speed in given units (below current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setBelowRelativeHorizontalSpeed(double val,String u) {
-		core_.parameters.setBelowRelativeHorizontalSpeed(val,u);
-		reset();
+	public boolean setBelowRelativeHorizontalSpeed(double val,String u) {
+		return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val,u));
 	}
 
 	/**
 	 * Set horizontal speed in internal units (above current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setAboveRelativeHorizontalSpeed(double val) {
-		core_.parameters.setAboveRelativeHorizontalSpeed(val);
-		reset();
+	public boolean setAboveRelativeHorizontalSpeed(double val) {
+		return reset_or_false(core_.parameters.setAboveRelativeHorizontalSpeed(val));
 	}
 
 	/**
 	 * Set horizontal speed in given units (above current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setAboveRelativeHorizontalSpeed(double val, String u) {
-		core_.parameters.setAboveRelativeHorizontalSpeed(val,u);
-		reset();
+	public boolean setAboveRelativeHorizontalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setAboveRelativeHorizontalSpeed(val,u));
 	}
 
 	/**
 	 * Set vertical speed in internal units (below current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setBelowRelativeVerticalSpeed(double val) {
-		core_.parameters.setBelowRelativeHorizontalSpeed(val);
-		reset();
+	public boolean setBelowRelativeVerticalSpeed(double val) {
+		return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val));
 	}
 
 	/**
 	 * Set vertical speed in given units (below current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setBelowRelativeVerticalSpeed(double val, String u) {
-		core_.parameters.setBelowRelativeVerticalSpeed(val,u);
-		reset();
+	public boolean setBelowRelativeVerticalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setBelowRelativeVerticalSpeed(val,u));
 	}
 
 	/**
 	 * Set vertical speed in internal units (above current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setAboveRelativeVerticalSpeed(double val) {
-		core_.parameters.setAboveRelativeVerticalSpeed(val);
-		reset();
+	public boolean setAboveRelativeVerticalSpeed(double val) {
+		return reset_or_false(core_.parameters.setAboveRelativeVerticalSpeed(val));
 	}
 
 	/**
 	 * Set vertical speed in given units (above current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setAboveRelativeVerticalSpeed(double val, String u) {
-		core_.parameters.setAboveRelativeVerticalSpeed(val,u);
-		reset();
+	public boolean setAboveRelativeVerticalSpeed(double val, String u) {
+		return reset_or_false(core_.parameters.setAboveRelativeVerticalSpeed(val,u));
 	}
 
 	/**
 	 * Set altitude in internal units (below current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setBelowRelativeAltitude(double val) {
-		core_.parameters.setBelowRelativeAltitude(val);
-		reset();
+	public boolean setBelowRelativeAltitude(double val) {
+		return reset_or_false(core_.parameters.setBelowRelativeAltitude(val));
 	}
 
 	/**
 	 * Set altitude in given units (below current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setBelowRelativeAltitude(double val, String u) {
-		core_.parameters.setBelowRelativeAltitude(val,u);
-		reset();
+	public boolean setBelowRelativeAltitude(double val, String u) {
+		return reset_or_false(core_.parameters.setBelowRelativeAltitude(val,u));
 	}
 
 	/**
 	 * Set altitude in internal units (above current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setAboveRelativeAltitude(double val) {
-		core_.parameters.setAboveRelativeAltitude(val);
-		reset();
+	public boolean setAboveRelativeAltitude(double val) {
+		return reset_or_false(core_.parameters.setAboveRelativeAltitude(val));
 	}
 
 	/**
 	 * Set altitude in given units (above current value) for the 
 	 * computation of relative bands 
 	 */
-	public void setAboveRelativeAltitude(double val, String u) {
-		core_.parameters.setAboveRelativeAltitude(val,u);
-		reset();
+	public boolean setAboveRelativeAltitude(double val, String u) {
+		return reset_or_false(core_.parameters.setAboveRelativeAltitude(val,u));
 	}
 
 	/**
@@ -1872,337 +1911,296 @@ public class Daidalus {
 	/** 
 	 * Sets step size for direction bands in internal units [rad].
 	 */
-	public void setHorizontalDirectionStep(double val) {
-		core_.parameters.setHorizontalDirectionStep(val);
-		reset();
+	public boolean setHorizontalDirectionStep(double val) {
+		return reset_or_false(core_.parameters.setHorizontalDirectionStep(val));
 	}
 
 	/** 
 	 * Sets step size for direction bands in specified units [u].
 	 */
-	public void setHorizontalDirectionStep(double val, String u) {
-		core_.parameters.setHorizontalDirectionStep(val,u);
-		reset();
+	public boolean setHorizontalDirectionStep(double val, String u) {
+		return reset_or_false(core_.parameters.setHorizontalDirectionStep(val,u));
 	}
 
 	/** 
 	 * Sets step size for horizontal speed bands to value in internal units [m/s].
 	 */
-	public void setHorizontalSpeedStep(double val) {
-		core_.parameters.setHorizontalSpeedStep(val);
-		reset();
+	public boolean setHorizontalSpeedStep(double val) {
+		return reset_or_false(core_.parameters.setHorizontalSpeedStep(val));
 	}
 
 	/** 
 	 * Sets step size for horizontal speed bands to value in specified units [u].
 	 */
-	public void setHorizontalSpeedStep(double val, String u) {
-		core_.parameters.setHorizontalSpeedStep(val,u);
-		reset();
+	public boolean setHorizontalSpeedStep(double val, String u) {
+		return reset_or_false(core_.parameters.setHorizontalSpeedStep(val,u));
 	}
 
 	/** 
 	 * Sets step size for vertical speed bands to value in internal units [m/s].
 	 */
-	public void setVerticalSpeedStep(double val) {
-		core_.parameters.setVerticalSpeedStep(val);
-		reset();
+	public boolean setVerticalSpeedStep(double val) {
+		return reset_or_false(core_.parameters.setVerticalSpeedStep(val));
 	}
 
 	/** 
 	 * Sets step size for vertical speed bands to value in specified units [u].
 	 */
-	public void setVerticalSpeedStep(double val, String u) {
-		core_.parameters.setVerticalSpeedStep(val,u);
-		reset();
+	public boolean setVerticalSpeedStep(double val, String u) {
+		return reset_or_false(core_.parameters.setVerticalSpeedStep(val,u));
 	}
 
 	/** 
 	 * Sets step size for altitude bands to value in internal units [m]
 	 */
-	public void setAltitudeStep(double val) {
-		core_.parameters.setAltitudeStep(val);
-		reset();
+	public boolean setAltitudeStep(double val) {
+		return reset_or_false(core_.parameters.setAltitudeStep(val));
 	}
 
 	/** 
 	 * Sets step size for altitude bands to value in specified units [u].
 	 */
-	public void setAltitudeStep(double val, String u) {
-		core_.parameters.setAltitudeStep(val,u);
-		reset();
+	public boolean setAltitudeStep(double val, String u) {
+		return reset_or_false(core_.parameters.setAltitudeStep(val,u));
 	}
 
 	/** 
 	 * Sets horizontal acceleration for horizontal speed bands to value in internal units [m/s^2].
 	 */
-	public void setHorizontalAcceleration(double val) {
-		core_.parameters.setHorizontalAcceleration(val);
-		reset();
+	public boolean setHorizontalAcceleration(double val) {
+		return reset_or_false(core_.parameters.setHorizontalAcceleration(val));
 	}
 
 	/** 
 	 * Sets horizontal acceleration for horizontal speed bands to value in specified units [u].
 	 */
-	public void setHorizontalAcceleration(double val, String u) {
-		core_.parameters.setHorizontalAcceleration(val,u);
-		reset();
+	public boolean setHorizontalAcceleration(double val, String u) {
+		return reset_or_false(core_.parameters.setHorizontalAcceleration(val,u));
 	}
 
 	/** 
 	 * Sets the constant vertical acceleration for vertical speed and altitude bands
 	 * to value in internal units [m/s^2]
 	 */
-	public void setVerticalAcceleration(double val) {
-		core_.parameters.setVerticalAcceleration(val);
-		reset();
+	public boolean setVerticalAcceleration(double val) {
+		return reset_or_false(core_.parameters.setVerticalAcceleration(val));
 	}
 
 	/** 
 	 * Sets the constant vertical acceleration for vertical speed and altitude bands
 	 * to value in specified units [u].
 	 */
-	public void setVerticalAcceleration(double val, String u) {
-		core_.parameters.setVerticalAcceleration(val,u);
-		reset();
+	public boolean setVerticalAcceleration(double val, String u) {
+		return reset_or_false(core_.parameters.setVerticalAcceleration(val,u));
 	}
 
 	/** 
 	 * Sets turn rate for direction bands to value in internal units [rad/s]. As a side effect, this method
 	 * resets the bank angle.
 	 */
-	public void setTurnRate(double val) {
-		core_.parameters.setTurnRate(val);
-		reset();
+	public boolean setTurnRate(double val) {
+		return reset_or_false(core_.parameters.setTurnRate(val));
 	}
 
 	/** 
 	 * Sets turn rate for direction bands to value in specified units [u]. As a side effect, this method
 	 * resets the bank angle.
 	 */
-	public void setTurnRate(double val, String u) {
-		core_.parameters.setTurnRate(val,u);
-		reset();
+	public boolean setTurnRate(double val, String u) {
+		return reset_or_false(core_.parameters.setTurnRate(val,u));
 	}
 
 	/** 
 	 * Sets bank angle for direction bands to value in internal units [rad]. As a side effect, this method
 	 * resets the turn rate.
 	 */
-	public void setBankAngle(double val) {
-		core_.parameters.setBankAngle(val);
-		reset();
+	public boolean setBankAngle(double val) {
+		return reset_or_false(core_.parameters.setBankAngle(val));
 	}
 
 	/** 
 	 * Sets bank angle for direction bands to value in specified units [u]. As a side effect, this method
 	 * resets the turn rate.
 	 */
-	public void setBankAngle(double val, String u) {
-		core_.parameters.setBankAngle(val,u);
-		reset();
+	public boolean setBankAngle(double val, String u) {
+		return reset_or_false(core_.parameters.setBankAngle(val,u));
 	}
 
 	/** 
 	 * Sets vertical rate for altitude bands to value in internal units [m/s]
 	 */
-	public void setVerticalRate(double val) {
-		core_.parameters.setVerticalRate(val);
-		reset();
+	public boolean setVerticalRate(double val) {
+		return reset_or_false(core_.parameters.setVerticalRate(val));
 	}
 
 	/** 
 	 * Sets vertical rate for altitude bands to value in specified units [u].
 	 */
-	public void setVerticalRate(double val, String u) {
-		core_.parameters.setVerticalRate(val,u);
-		reset();
+	public boolean setVerticalRate(double val, String u) {
+		return reset_or_false(core_.parameters.setVerticalRate(val,u));
 	}
 
 	/** 
 	 * Set horizontal NMAC distance to value in internal units [m].
 	 */
-	public void setHorizontalNMAC(double val) {
-		core_.parameters.setHorizontalNMAC(val);
-		reset();
+	public boolean setHorizontalNMAC(double val) {
+		return reset_or_false(core_.parameters.setHorizontalNMAC(val));
 	}
 
 	/** 
 	 * Set horizontal NMAC distance to value in specified units [u].
 	 */
-	public void setHorizontalNMAC(double val, String u) {
-		core_.parameters.setHorizontalNMAC(val,u);
-		reset();
+	public boolean setHorizontalNMAC(double val, String u) {
+		return reset_or_false(core_.parameters.setHorizontalNMAC(val,u));
 	}
 
 	/** 
 	 * Set vertical NMAC distance to value in internal units [m].
 	 */
-	public void setVerticalNMAC(double val) {
-		core_.parameters.setVerticalNMAC(val);
-		reset();
+	public boolean setVerticalNMAC(double val) {
+		return reset_or_false(core_.parameters.setVerticalNMAC(val));
 	}
 
 	/** 
 	 * Set vertical NMAC distance to value in specified units [u].
 	 */
-	public void setVerticalNMAC(double val, String u) {
-		core_.parameters.setVerticalNMAC(val,u);
-		reset();
+	public boolean setVerticalNMAC(double val, String u) {
+		return reset_or_false(core_.parameters.setVerticalNMAC(val,u));
 	}
 
 	/**
 	 * Sets recovery stability time in seconds. Recovery bands are computed at time of 
 	 * first conflict-free region plus this time.
 	 */
-	public void setRecoveryStabilityTime(double t) {
-		core_.parameters.setRecoveryStabilityTime(t);
-		reset();
+	public boolean setRecoveryStabilityTime(double t) {
+		return reset_or_false(core_.parameters.setRecoveryStabilityTime(t));
 	}
 
 	/**
 	 * Sets recovery stability time in specified units. Recovery bands are computed at time of 
 	 * first conflict-free region plus this time.
 	 */
-	public void setRecoveryStabilityTime(double t, String u) {
-		core_.parameters.setRecoveryStabilityTime(t,u);
-		reset();
+	public boolean setRecoveryStabilityTime(double t, String u) {
+		return reset_or_false(core_.parameters.setRecoveryStabilityTime(t,u));
 	}
 
 	/** 
 	 * Set hysteresis time to value in seconds.
 	 */
-	public void setHysteresisTime(double val) {
-		core_.parameters.setHysteresisTime(val);
-		clearHysteresis();
+	public boolean setHysteresisTime(double val) {
+		return clearHysteresis_or_false(core_.parameters.setHysteresisTime(val));
 	}
 
 	/** 
 	 * Set hysteresis time to value in specified units [u].
 	 */
-	public void setHysteresisTime(double val, String u) {
-		core_.parameters.setHysteresisTime(val,u);
-		clearHysteresis();
+	public boolean setHysteresisTime(double val, String u) {
+		return clearHysteresis_or_false(core_.parameters.setHysteresisTime(val,u));
 	}
 
 	/** 
 	 * Set alerting persistence time to value in seconds.
 	 */
-	public void setPersistenceTime(double val) {
-		core_.parameters.setPersistenceTime(val);
-		clearHysteresis();
+	public boolean setPersistenceTime(double val) {
+		return clearHysteresis_or_false(core_.parameters.setPersistenceTime(val));
 	}
 
 	/** 
 	 * Set alerting persistence time to value in specified units [u].
 	 */
-	public void setPersistenceTime(double val, String u) {
-		core_.parameters.setPersistenceTime(val,u);
-		clearHysteresis();
+	public boolean setPersistenceTime(double val, String u) {
+		return clearHysteresis_or_false(core_.parameters.setPersistenceTime(val,u));
 	}
 
 	/** 
 	 * Set persistence in horizontal direction resolution in internal units
 	 */
-	public void setPersistencePreferredHorizontalDirectionResolution(double val) {
-		core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val);
-		reset();
+	public boolean setPersistencePreferredHorizontalDirectionResolution(double val) {
+		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val));
 	}
 
 	/** 
 	 * Set persistence in horizontal direction resolution in given units
 	 */
-	public void setPersistencePreferredHorizontalDirectionResolution(double val, String u) {
-		core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val,u);
-		reset();
+	public boolean setPersistencePreferredHorizontalDirectionResolution(double val, String u) {
+		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val,u));
 	}
 
 	/** 
 	 * Set persistence in horizontal speed resolution in internal units
 	 */
-	public void setPersistencePreferredHorizontalSpeedResolution(double val) {
-		core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val);
-		reset();
+	public boolean setPersistencePreferredHorizontalSpeedResolution(double val) {
+		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val));
 	}
 
 	/** 
 	 * Set persistence in horizontal speed resolution in given units
 	 */
-	public void setPersistencePreferredHorizontalSpeedResolution(double val, String u) {
-		core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val,u);
-		reset();
+	public boolean setPersistencePreferredHorizontalSpeedResolution(double val, String u) {
+		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val,u));
 	}
 
 	/** 
 	 * Set persistence in vertical speed resolution in internal units
 	 */
-	public void setPersistencePreferredVerticalSpeedResolution(double val) {
-		core_.parameters.setPersistencePreferredVerticalSpeedResolution(val);
-		reset();
+	public boolean setPersistencePreferredVerticalSpeedResolution(double val) {
+		return reset_or_false(core_.parameters.setPersistencePreferredVerticalSpeedResolution(val));
 	}
 
 	/** 
 	 * Set persistence in vertical speed resolution in given units
 	 */
-	public void setPersistencePreferredVerticalSpeedResolution(double val, String u) {
-		core_.parameters.setPersistencePreferredVerticalSpeedResolution(val,u);
-		reset();
+	public boolean setPersistencePreferredVerticalSpeedResolution(double val, String u) {
+		return reset_or_false(core_.parameters.setPersistencePreferredVerticalSpeedResolution(val,u));
 	}
 
 	/** 
 	 * Set persistence in altitude resolution in internal units
 	 */
-	public void setPersistencePreferredAltitudeResolution(double val) {
-		core_.parameters.setPersistencePreferredAltitudeResolution(val);
-		reset();
+	public boolean setPersistencePreferredAltitudeResolution(double val) {
+		return reset_or_false(core_.parameters.setPersistencePreferredAltitudeResolution(val));
 	}
 
 	/** 
 	 * Set persistence in altitude resolution in given units
 	 */
-	public void setPersistencePreferredAltitudeResolution(double val, String u) {
-		core_.parameters.setPersistencePreferredAltitudeResolution(val,u);
-		reset();
+	public boolean setPersistencePreferredAltitudeResolution(double val, String u) {
+		return reset_or_false(core_.parameters.setPersistencePreferredAltitudeResolution(val,u));
 	}
 
 	/** 
 	 * Set alerting parameters of M of N strategy
 	 */
-	public void setAlertingMofN(int m, int n) {
-		core_.parameters.setAlertingMofN(m,n);
-		clearHysteresis();
+	public boolean setAlertingMofN(int m, int n) {
+		return clearHysteresis_or_false(core_.parameters.setAlertingMofN(m,n));
 	}
 
 	/** 
 	 * Sets minimum horizontal separation for recovery bands in internal units [m].
 	 */
-	public void setMinHorizontalRecovery(double val) {
-		core_.parameters.setMinHorizontalRecovery(val);
-		reset();
+	public boolean setMinHorizontalRecovery(double val) {
+		return reset_or_false(core_.parameters.setMinHorizontalRecovery(val));
 	}
 
 	/** 
 	 * Set minimum horizontal separation for recovery bands in specified units [u].
 	 */
-	public void setMinHorizontalRecovery(double val, String u) {
-		core_.parameters.setMinHorizontalRecovery(val,u);
-		reset();
+	public boolean setMinHorizontalRecovery(double val, String u) {
+		return reset_or_false(core_.parameters.setMinHorizontalRecovery(val,u));
 	}
 
 	/**
 	 * Sets minimum vertical separation for recovery bands in internal units [m].
 	 */
-	public void setMinVerticalRecovery(double val) {
-		core_.parameters.setMinVerticalRecovery(val);
-		reset();
+	public boolean setMinVerticalRecovery(double val) {
+		return reset_or_false(core_.parameters.setMinVerticalRecovery(val));
 	}
 
 	/** 
 	 * Set minimum vertical separation for recovery bands in units
 	 */
-	public void setMinVerticalRecovery(double val, String u) {
-		core_.parameters.setMinVerticalRecovery(val,u);
-		reset();
+	public boolean setMinVerticalRecovery(double val, String u) {
+		return reset_or_false(core_.parameters.setMinVerticalRecovery(val,u));
 	}
 
 	/** 
@@ -2408,9 +2406,8 @@ public class Daidalus {
 	/** 
 	 * Set factor for computing collision avoidance bands. Factor value is in (0,1]
 	 */
-	public void setCollisionAvoidanceBandsFactor(double val) {
-		core_.parameters.setCollisionAvoidanceBandsFactor(val);
-		reset();
+	public boolean setCollisionAvoidanceBandsFactor(double val) {
+		return reset_or_false(core_.parameters.setCollisionAvoidanceBandsFactor(val));
 	}
 
 	/** 
@@ -2423,9 +2420,8 @@ public class Daidalus {
 	/** 
 	 * Set z-score (number of standard deviations) for horizontal position (non-negative value)
 	 */
-	public void setHorizontalPositionZScore(double val) {
-		core_.parameters.setHorizontalPositionZScore(val);
-		reset();
+	public boolean setHorizontalPositionZScore(double val) {
+		return reset_or_false(core_.parameters.setHorizontalPositionZScore(val));
 	}
 
 	/** 
@@ -2438,9 +2434,8 @@ public class Daidalus {
 	/** 
 	 * Set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
-	public void setHorizontalVelocityZScoreMin(double val) {
-		core_.parameters.setHorizontalVelocityZScoreMin(val);
-		reset();
+	public boolean setHorizontalVelocityZScoreMin(double val) {
+		return reset_or_false(core_.parameters.setHorizontalVelocityZScoreMin(val));
 	}
 
 	/** 
@@ -2453,9 +2448,8 @@ public class Daidalus {
 	/** 
 	 * Set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
-	public void setHorizontalVelocityZScoreMax(double val) {
-		core_.parameters.setHorizontalVelocityZScoreMax(val);
-		reset();
+	public boolean setHorizontalVelocityZScoreMax(double val) {
+		return reset_or_false(core_.parameters.setHorizontalVelocityZScoreMax(val));
 	}
 
 	/** 
@@ -2475,17 +2469,15 @@ public class Daidalus {
 	/** 
 	 * Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
 	 */
-	public void setHorizontalVelocityZDistance(double val) {
-		core_.parameters.setHorizontalVelocityZDistance(val);
-		reset();
+	public boolean setHorizontalVelocityZDistance(double val) {
+		return reset_or_false(core_.parameters.setHorizontalVelocityZDistance(val));
 	}
 
 	/** 
 	 * Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
 	 */
-	public void setHorizontalVelocityZDistance(double val, String u) {
-		core_.parameters.setHorizontalVelocityZDistance(val,u);
-		reset();
+	public boolean setHorizontalVelocityZDistance(double val, String u) {
+		return reset_or_false(core_.parameters.setHorizontalVelocityZDistance(val,u));
 	}
 
 	/** 
@@ -2498,9 +2490,8 @@ public class Daidalus {
 	/** 
 	 * Set z-score (number of standard deviations) for vertical position (non-negative value)
 	 */
-	public void setVerticalPositionZScore(double val) {
-		core_.parameters.setVerticalPositionZScore(val);
-		reset();
+	public boolean setVerticalPositionZScore(double val) {
+		return reset_or_false(core_.parameters.setVerticalPositionZScore(val));
 	}
 
 	/** 
@@ -2513,9 +2504,8 @@ public class Daidalus {
 	/** 
 	 * Set z-score (number of standard deviations) for vertical velocity (non-negative value)
 	 */
-	public void setVerticalSpeedZScore(double val) {
-		core_.parameters.setVerticalSpeedZScore(val);
-		reset();
+	public boolean setVerticalSpeedZScore(double val) {
+		return reset_or_false(core_.parameters.setVerticalSpeedZScore(val));
 	}
 
 	/** 
@@ -2541,8 +2531,8 @@ public class Daidalus {
 	 * the left/right of current aircraft direction. A value of 0 means only conflict contours. 
 	 * A value of pi means all contours.
 	 */
-	public void setHorizontalContourThreshold(double val) {
-		core_.parameters.setHorizontalContourThreshold(val);
+	public boolean setHorizontalContourThreshold(double val) {
+		return reset_or_false(core_.parameters.setHorizontalContourThreshold(val));
 	}
 
 	/** 
@@ -2550,8 +2540,8 @@ public class Daidalus {
 	 * the left/right of current aircraft direction. A value of 0 means only conflict contours. 
 	 * A value of pi means all contours.
 	 */
-	public void setHorizontalContourThreshold(double val, String u) {
-		core_.parameters.setHorizontalContourThreshold(val,u);
+	public boolean setHorizontalContourThreshold(double val, String u) {
+		return reset_or_false(core_.parameters.setHorizontalContourThreshold(val,u));
 	}
 
 	/**
@@ -2647,33 +2637,29 @@ public class Daidalus {
 	/** 
 	 * Set DAA Terminal Area (DTA) latitude (internal units)
 	 */ 
-	public void setDTALatitude(double lat) {
-		core_.parameters.setDTALatitude(lat);
-		reset();
+	public boolean setDTALatitude(double lat) {
+		return reset_or_false(core_.parameters.setDTALatitude(lat));
 	}
 
 	/** 
 	 * Set DAA Terminal Area (DTA) latitude in given units
 	 */ 
-	public void setDTALatitude(double lat, String ulat) {
-		core_.parameters.setDTALatitude(lat,ulat);
-		reset();
+	public boolean setDTALatitude(double lat, String ulat) {
+		return reset_or_false(core_.parameters.setDTALatitude(lat,ulat));
 	}
 
 	/** 
 	 * Set DAA Terminal Area (DTA) longitude (internal units)
 	 */ 
-	public void setDTALongitude(double lon) {
-		core_.parameters.setDTALongitude(lon);
-		reset();
+	public boolean setDTALongitude(double lon) {
+		return reset_or_false(core_.parameters.setDTALongitude(lon));
 	}
 
 	/** 
 	 * Set DAA Terminal Area (DTA) longitude in given units
 	 */ 
-	public void setDTALongitude(double lon, String ulon) {
-		core_.parameters.setDTALongitude(lon,ulon);
-		reset();
+	public boolean setDTALongitude(double lon, String ulon) {
+		return reset_or_false(core_.parameters.setDTALongitude(lon,ulon));
 	}
 
 	/** 
@@ -2693,17 +2679,15 @@ public class Daidalus {
 	/** 
 	 * Set DAA Terminal Area (DTA) radius (internal units)
 	 */ 
-	public void setDTARadius(double val) {
-		core_.parameters.setDTARadius(val);
-		reset();
+	public boolean setDTARadius(double val) {
+		return reset_or_false(core_.parameters.setDTARadius(val));
 	}
 
 	/** 
 	 * Set DAA Terminal Area (DTA) radius in given units
 	 */ 
-	public void setDTARadius(double val, String u) {
-		core_.parameters.setDTARadius(val,u);
-		reset();
+	public boolean setDTARadius(double val, String u) {
+		return reset_or_false(core_.parameters.setDTARadius(val,u));
 	}
 
 	/** 
@@ -2723,17 +2707,15 @@ public class Daidalus {
 	/** 
 	 * Set DAA Terminal Area (DTA) height (internal units)
 	 */ 
-	public void setDTAHeight(double val) {
-		core_.parameters.setDTAHeight(val);
-		reset();
+	public boolean setDTAHeight(double val) {
+		return reset_or_false(core_.parameters.setDTAHeight(val));
 	}
 
 	/** 
 	 * Set DAA Terminal Area (DTA) height in given units
 	 */ 
-	public void setDTAHeight(double val, String u) {
-		core_.parameters.setDTAHeight(val,u);
-		reset();
+	public boolean setDTAHeight(double val, String u) {
+		return reset_or_false(core_.parameters.setDTAHeight(val,u));
 	}
 
 	/** 
@@ -2850,9 +2832,8 @@ public class Daidalus {
 	/** 
 	 * Set corrective region for calculation of resolution maneuvers and bands saturation.
 	 */
-	public void setCorrectiveRegion(BandsRegion val) {
-		core_.parameters.setCorrectiveRegion(val);
-		reset();
+	public boolean setCorrectiveRegion(BandsRegion val) {
+		return reset_or_false(core_.parameters.setCorrectiveRegion(val));
 	}
 
 	/**
@@ -2903,9 +2884,7 @@ public class Daidalus {
 	 *  Load parameters from file.
 	 */
 	public boolean loadFromFile(String file) {
-		boolean flag = core_.parameters.loadFromFile(file);
-		clearHysteresis();
-		return flag;
+		return clearHysteresis_or_false(core_.parameters.loadFromFile(file));
 	}
 
 	/**
@@ -2923,10 +2902,8 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	public void setParameterData(ParameterData p) {
-		if (core_.parameters.setParameterData(p)) {
-			clearHysteresis();
-		}
+	public boolean setParameterData(ParameterData p) {
+		return clearHysteresis_or_false(core_.parameters.setParameterData(p)); 
 	}
 
 	public ParameterData getParameterData() {

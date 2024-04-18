@@ -33,7 +33,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/**
 	 * DAIDALUS version
 	 */
-	public static final String VERSION = "2.0.4";
+	public static final String VERSION = "2.0.4a";
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	static {
@@ -54,6 +54,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 	// Bands
 	private double lookahead_time_; // [s] Lookahead time
+	private double distance_filter_; // Distance filter (respect to the ownship)
+	private double altitude_filter_; // Altitude filter (respect to the ownship) 
 	private double left_hdir_;      // Left horizontal direction [0 - pi]
 	private double right_hdir_;     // Right horizontal direction [0 - pi]
 	private double min_airspeed_;   // Minimum airspeed for calculation of horizontal direction bands
@@ -61,8 +63,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	private double max_hs_;         // Maximum horizontal speed
 	private double min_vs_;         // Minimum vertical speed
 	private double max_vs_;         // Maximum vertical speed
-	private double min_alt_;        // Minimum altitude// Maximum altitude
-
+	private double min_alt_;        // Minimum altitude
 	private double max_alt_;        // Maximum altitude
 
 	// Relative bands
@@ -201,6 +202,12 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			// Bands Parameters
 			lookahead_time_ = 180.0; // [s]
 			units_.put("lookahead_time","s");
+
+			distance_filter_ = 0.0; // Zero means no filter
+			units_.put("distance_filter","nmi");
+
+			altitude_filter_ = 0.0; // Zero means no filter
+			units_.put("altitude_filter","ft");
 
 			left_hdir_  = Units.from("deg",180.0); 
 			units_.put("left_hdir","deg");
@@ -392,6 +399,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 			// Bands
 			lookahead_time_ = parameters.lookahead_time_;
+			distance_filter_ = parameters.distance_filter_;
+			altitude_filter_ = parameters.altitude_filter_;
 			left_hdir_ = parameters.left_hdir_;
 			right_hdir_ = parameters.right_hdir_;
 			min_airspeed_ = parameters.min_airspeed_;   
@@ -575,6 +584,33 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 */
 		public double getLookaheadTime(String u) {
 			return Units.to(u,getLookaheadTime());
+		}
+
+		/** 
+		 * @return distance filter in meters.
+		 */
+		public double getDistanceFilter() {
+			return distance_filter_;
+		}
+
+		/** 
+		 * @return distance filter in specified units [u].
+		 */
+		public double getDistanceFilter(String u) {
+			return Units.to(u,getDistanceFilter());
+		}
+		/** 
+		 * @return altitude filter in meters.
+		 */
+		public double getAltitudeFilter() {
+			return altitude_filter_;
+		}
+
+		/** 
+		 * @return altitude filter in specified units [u].
+		 */
+		public double getAltitudeFilter(String u) {
+			return Units.to(u,getAltitudeFilter());
 		}
 
 		/** 
@@ -1142,6 +1178,50 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			}
 			return false;
 		}
+		
+		/** 
+		 * Set distance filter to value in meters.
+		 */
+		public boolean setDistanceFilter(double val) {
+			if (error.isNonNegative("setDistanceFilter",val)) {
+				distance_filter_ = val;	
+				return true;
+			}
+			return false;
+		}
+
+		/** 
+		 * Set distance filter to value in specified units [u].
+		 */
+		public boolean setDistanceFilter(double val, String u) {
+			if (setDistanceFilter(Units.from(u,val))) {
+				units_.put("distance_filter",u);
+				return true;
+			}
+			return false;
+		}
+
+		/** 
+		 * Set altitude filter to value in meters.
+		 */
+		public boolean setAltitudeFilter(double val) {
+			if (error.isNonNegative("setAltitudeFilter",val)) {
+				altitude_filter_ = val;	
+				return true;
+			}
+			return false;
+		}
+
+		/** 
+		 * Set altitude filter to value in specified units [u].
+		 */
+		public boolean setAltitudeFilter(double val, String u) {
+			if (setAltitudeFilter(Units.from(u,val))) {
+				units_.put("altitude_filter",u);
+				return true;
+			}
+			return false;
+		}
 
 		/** 
 		 * Set left direction to value in internal units [rad]. Value is expected to be in [0 - pi]
@@ -1325,102 +1405,108 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * Set horizontal speed in internal units (below current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setBelowRelativeHorizontalSpeed(double val) {
+		public boolean setBelowRelativeHorizontalSpeed(double val) {
 			below_relative_hs_ = val;
+			return true;
 		}
 
 		/**
 		 * Set horizontal speed in given units (below current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setBelowRelativeHorizontalSpeed(double val,String u) {
+		public boolean setBelowRelativeHorizontalSpeed(double val,String u) {
 			units_.put("below_relative_hs",u);
-			setBelowRelativeHorizontalSpeed(Units.from(u, val));
+			return setBelowRelativeHorizontalSpeed(Units.from(u, val));
 		}
 
 		/**
 		 * Set horizontal speed in internal units (above current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setAboveRelativeHorizontalSpeed(double val) {
+		public boolean setAboveRelativeHorizontalSpeed(double val) {
 			above_relative_hs_ = val;
+			return true;
 		}
 
 		/**
 		 * Set horizontal speed in given units (above current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setAboveRelativeHorizontalSpeed(double val, String u) {
+		public boolean setAboveRelativeHorizontalSpeed(double val, String u) {
 			units_.put("above_relative_hs",u);
-			setAboveRelativeHorizontalSpeed(Units.from(u, val));
+			return setAboveRelativeHorizontalSpeed(Units.from(u, val));
 		}
 
 		/**
 		 * Set vertical speed in internal units (below current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setBelowRelativeVerticalSpeed(double val) {
+		public boolean setBelowRelativeVerticalSpeed(double val) {
 			below_relative_vs_ = val;
+			return true;
 		}
 
 		/**
 		 * Set vertical speed in given units (below current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setBelowRelativeVerticalSpeed(double val, String u) {
+		public boolean setBelowRelativeVerticalSpeed(double val, String u) {
 			units_.put("below_relative_vs",u);
-			setBelowRelativeVerticalSpeed(Units.from(u, val));
+			return setBelowRelativeVerticalSpeed(Units.from(u, val));
 		}
 
 		/**
 		 * Set vertical speed in internal units (above current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setAboveRelativeVerticalSpeed(double val) {
+		public boolean setAboveRelativeVerticalSpeed(double val) {
 			above_relative_vs_ = val;
+			return true;
 		}
 
 		/**
 		 * Set vertical speed in given units (above current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setAboveRelativeVerticalSpeed(double val, String u) {
+		public boolean setAboveRelativeVerticalSpeed(double val, String u) {
 			units_.put("above_relative_vs",u);
-			setAboveRelativeVerticalSpeed(Units.from(u, val));
+			return setAboveRelativeVerticalSpeed(Units.from(u, val));
 		}
 
 		/**
 		 * Set altitude in internal units (below current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setBelowRelativeAltitude(double val) {
+		public boolean setBelowRelativeAltitude(double val) {
 			below_relative_alt_ = val;
+			return true;
 		}
 
 		/**
 		 * Set altitude in given units (below current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setBelowRelativeAltitude(double val, String u) {
+		public boolean setBelowRelativeAltitude(double val, String u) {
 			units_.put("below_relative_alt",u);
-			setBelowRelativeAltitude(Units.from(u, val));
+			return setBelowRelativeAltitude(Units.from(u, val));
 		}
 
 		/**
 		 * Set altitude in internal units (above current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setAboveRelativeAltitude(double val) {
+		public boolean setAboveRelativeAltitude(double val) {
 			above_relative_alt_ = val;
+			return true;
 		}
 
 		/**
 		 * Set altitude in given units (above current value) for the 
 		 * computation of relative bands 
 		 */
-		public void setAboveRelativeAltitude(double val, String u) {
+		public boolean setAboveRelativeAltitude(double val, String u) {
 			units_.put("above_relative_alt",u);
-			setAboveRelativeAltitude(Units.from(u, val));
+			return setAboveRelativeAltitude(Units.from(u, val));
 		}
 
 		/**
@@ -2411,31 +2497,34 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		/** 
 		 * Set DAA Terminal Area (DTA) latitude (internal units)
 		 */ 
-		public void setDTALatitude(double lat) {
+		public boolean setDTALatitude(double lat) {
 			dta_latitude_ = lat;
+			return true;
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) latitude in given units
 		 */ 
-		public void setDTALatitude(double lat, String ulat) {
-			setDTALatitude(Units.from(ulat,lat));
+		public boolean setDTALatitude(double lat, String ulat) {
 			units_.put("dta_latitude",ulat);
+			return setDTALatitude(Units.from(ulat,lat));
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) longitude (internal units)
 		 */ 
-		public void setDTALongitude(double lon) {
+		public boolean setDTALongitude(double lon) {
 			dta_longitude_ = lon;
+			return true;
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) longitude in given units
 		 */ 
-		public void setDTALongitude(double lon, String ulon) {
-			setDTALongitude(Units.from(ulon,lon));
+		public boolean setDTALongitude(double lon, String ulon) {
 			units_.put("dta_longitude",ulon);
+			return setDTALongitude(Units.from(ulon,lon));
+	
 		}
 
 		/** 
@@ -2455,16 +2544,17 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		/** 
 		 * Set DAA Terminal Area (DTA) radius (internal units)
 		 */ 
-		public void setDTARadius(double val) {
+		public boolean setDTARadius(double val) {
 			dta_radius_ = val;
+			return true;
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) radius in given units
 		 */ 
-		public void setDTARadius(double val, String u) {
-			setDTARadius(Units.from(u,val));
+		public boolean setDTARadius(double val, String u) {
 			units_.put("dta_radius",u);
+			return setDTARadius(Units.from(u,val));
 		}
 
 		/** 
@@ -2484,16 +2574,17 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		/** 
 		 * Set DAA Terminal Area (DTA) height (internal units)
 		 */ 
-		public void setDTAHeight(double val) {
+		public boolean setDTAHeight(double val) {
 			dta_height_ = val;
+			return true;
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) height in given units
 		 */ 
-		public void setDTAHeight(double val, String u) {
-			setDTAHeight(Units.from(u,val));
+		public boolean setDTAHeight(double val, String u) {
 			units_.put("dta_height",u);
+			return setDTAHeight(Units.from(u,val));
 		}
 
 		/** 
@@ -2747,6 +2838,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			String s = "";
 			s+="(# ";
 			s+="lookahead_time := "+f.FmPrecision(lookahead_time_)+", ";
+			s+="distance_filter := "+f.FmPrecision(distance_filter_)+", ";
+			s+="altitude_filter := "+f.FmPrecision(altitude_filter_)+", ";
 			s+="left_hdir := "+f.FmPrecision(left_hdir_)+", ";
 			s+="right_hdir := "+f.FmPrecision(right_hdir_)+", ";
 			s+="min_airspeed := "+f.FmPrecision(min_airspeed_)+", ";
@@ -2840,6 +2933,10 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			// Bands Parameters
 			p.setInternal("lookahead_time", lookahead_time_, getUnitsOf("lookahead_time"));
 			p.updateComment("lookahead_time","Bands Parameters");
+			p.setInternal("distance_filter", distance_filter_, getUnitsOf("distance_filter"));
+			p.updateComment("distance_filter","Traffic aircraft farther than this distances to the ownship are ignored. Zero means no filter");
+			p.setInternal("altitude_filter", altitude_filter_, getUnitsOf("altitude_filter"));
+			p.updateComment("altitude_filter","Traffic aircraft above/below than this altitude to the ownship are ignored. Zero means no filter");
 			p.setInternal("left_hdir", left_hdir_, getUnitsOf("left_hdir"));
 			p.setInternal("right_hdir", right_hdir_, getUnitsOf("right_hdir"));
 			p.setInternal("min_airspeed", min_airspeed_, getUnitsOf("min_airspeed"));
@@ -3013,6 +3110,16 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			if (contains(p,"lookahead_time")) {
 				setLookaheadTime(getValue(p,"lookahead_time"));
 				units_.put("lookahead_time",getUnit(p,"lookahead_time"));
+				setit = true;
+			}
+			if (contains(p,"distance_filter")) {
+				setDistanceFilter(getValue(p,"distance_filter"));
+				units_.put("distance_filter",getUnit(p,"distance_filter"));
+				setit = true;
+			}
+			if (contains(p,"altitude_filter")) {
+				setAltitudeFilter(getValue(p,"altitude_filter"));
+				units_.put("altitude_filter",getUnit(p,"altitude_filter"));
 				setit = true;
 			}
 			if (contains(p,"left_hdir")) { 
