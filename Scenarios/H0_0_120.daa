@@ -1,4 +1,4 @@
-## DAAGenerator --backward 100 --forward 20 --lat 40.67233 --lon -74.04466 H0.txt
+## DAAGenerator --backward 100 --forward 20 --loc NY.loc H0.txt
 NAME lat lon alt trk gs vs heading airspeed time alerter s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std
 [none] [deg] [deg] [ft] [deg] [knot] [fpm] [deg] [knot] [s] [none] [nmi] [nmi] [nmi] [ft] [knot] [knot] [knot] [fpm]
 Ownship, 40.672307, -74.117909, 15000.0, 89.952261, 120.000051, 0.0, 89.952261, 120.000051, 0.0, 1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0

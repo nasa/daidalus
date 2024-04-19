@@ -48,8 +48,10 @@ import java.util.Optional;
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
+import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Pair;
+import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
@@ -88,13 +90,36 @@ public class DAAEcho extends DaidalusProcessor {
 					++a;
 					lon = Units.from("deg",Double.parseDouble(args[a]));
 					xyz2latlon = true;
-				} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
+				} else if (arga.startsWith("--loc") || arga.startsWith("-loc")) {	
+				++a;
+				ConfigReader reader = new ConfigReader();
+				reader.open(args[a]);
+				if (reader.hasError()) {
+					System.err.print("** Error: "+reader.getMessage());
+					System.exit(1);
+				}
+				ParameterData platlon = reader.getParameters();
+				xyz2latlon = true;
+				if (platlon.contains("lat")) {
+					lat = platlon.getValue("lat");
+				}
+				if (platlon.contains("latitude")) {
+					lat = platlon.getValue("latitude");
+				}
+				if (platlon.contains("lon")) {
+					lon = platlon.getValue("lon");
+				}
+				if (platlon.contains("longitude")) {
+					lon = platlon.getValue("longitude");
+				}
+			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
 					System.err.println("Usage:");
 					System.err.println("  DAAEcho [<options>] [<daa_file>]");
 					System.err.println("Print back configuration and DAA file. Valid <options> are");
 					System.err.println("  --help\n\tPrint this message");
 					System.err.println("  --latitude <lat>\n\tSet Eucliedean local origin to latitude <lat>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.");
 					System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.");
+					System.err.println("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>");
 					System.err.println(getHelpString());
 					System.exit(1);
 				} else if (arga.startsWith("-")){

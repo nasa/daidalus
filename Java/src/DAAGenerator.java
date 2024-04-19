@@ -53,6 +53,7 @@ import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.ACCoRD.Horizontal;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
+import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Kinematics;
 import gov.nasa.larcfm.Util.Pair;
@@ -145,6 +146,29 @@ public class DAAGenerator {
 				lon = Units.from("deg",Double.parseDouble(args[a]));
 				options += " "+args[a];
 				xyz2latlon = true;
+			} else if (arga.startsWith("--loc") || arga.startsWith("-loc")) {	
+				++a;
+				options += " "+args[a];
+				ConfigReader reader = new ConfigReader();
+				reader.open(args[a]);
+				if (reader.hasError()) {
+					System.err.print("** Error: "+reader.getMessage());
+					System.exit(1);
+				}
+				ParameterData platlon = reader.getParameters();
+				xyz2latlon = true;
+				if (platlon.contains("lat")) {
+					lat = platlon.getValue("lat");
+				}
+				if (platlon.contains("latitude")) {
+					lat = platlon.getValue("latitude");
+				}
+				if (platlon.contains("lon")) {
+					lon = platlon.getValue("lon");
+				}
+				if (platlon.contains("longitude")) {
+					lon = platlon.getValue("longitude");
+				}
 			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
 				System.err.println("Usage:");
 				System.err.println("  DAAGenerator [<options>] <daa_file>");
@@ -160,6 +184,7 @@ public class DAAGenerator {
 				System.err.println("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>");
 				System.err.println("  --latitude <lat>\n\tSet Euclidean local origin to latitude <lat>, in decimal degrees");
 				System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees");
+				System.err.println("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>");
 				System.err.println("  --[<id>@]<key>=<val>\n\tSet key <key> to value <val> in givent units for aircraft <id>. If <id> is not provided,");
 				System.err.println("\t\tthe ownship is assumed. The list of valid keys are provided below.");
 				System.err.println("\t--horizontal_accel='-0.1[G]'");
