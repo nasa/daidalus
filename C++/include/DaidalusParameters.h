@@ -28,6 +28,8 @@ private:
 
   // Bands
   double lookahead_time_; // [s] Lookahead time
+  double distance_filter_; // Distance filter (respect to the ownship)
+	double altitude_filter_; // Altitude filter (respect to the ownship) 
   double left_hdir_;      // Left horizontal direction [0 - pi]
   double right_hdir_;     // Right horizontal direction [0 - pi]
   double min_airspeed_;   // Minimum airspeed for calculation of horizontal direction bands
@@ -206,6 +208,26 @@ public:
    * @return lookahead time in specified units [u].
    */
   double getLookaheadTime(const std::string& u) const;
+  
+  /** 
+   * @return distance filter in meters.
+   */
+	double getDistanceFilter() const;
+
+  /** 
+   * @return distance filter in specified units [u].
+   */
+	double getDistanceFilter(const std::string& u) const;
+
+  /** 
+   * @return altitude filter in meters.
+   */
+	double getAltitudeFilter() const;
+
+  /** 
+   * @return altitude filter in specified units [u].
+   */
+	double getAltitudeFilter(const std::string& u) const;
 
   double getLeftHorizontalDirection() const;
 
@@ -381,6 +403,26 @@ public:
 
   bool setLookaheadTime(double val, const std::string& u);
 
+  /** 
+   * Set distance filter to value in meters.
+   */
+	bool setDistanceFilter(double val);
+
+  /** 
+   * Set distance filter to value in specified units [u].
+   */
+  bool setDistanceFilter(double val, const std::string& u); 
+  
+  /** 
+   * Set altitude filter to value in meters.
+   */
+	bool setAltitudeFilter(double val);
+
+  /** 
+   * Set altitude filter to value in specified units [u].
+   */
+  bool setAltitudeFilter(double val, const std::string& u); 
+
   bool setLeftHorizontalDirection(double val);
 
   bool setLeftHorizontalDirection(double val, const std::string& u);
@@ -433,29 +475,29 @@ public:
 
   bool setMaxAltitude(double val, const std::string& u);
 
-  void setBelowRelativeHorizontalSpeed(double val);
+  bool setBelowRelativeHorizontalSpeed(double val);
 
-  void setBelowRelativeHorizontalSpeed(double val, const std::string& u);
+  bool setBelowRelativeHorizontalSpeed(double val, const std::string& u);
 
-  void setAboveRelativeHorizontalSpeed(double val);
+  bool setAboveRelativeHorizontalSpeed(double val);
 
-  void setAboveRelativeHorizontalSpeed(double val, const std::string& u);
+  bool setAboveRelativeHorizontalSpeed(double val, const std::string& u);
 
-  void setBelowRelativeVerticalSpeed(double val);
+  bool setBelowRelativeVerticalSpeed(double val);
 
-  void setBelowRelativeVerticalSpeed(double val, const std::string& u);
+  bool setBelowRelativeVerticalSpeed(double val, const std::string& u);
 
-  void setAboveRelativeVerticalSpeed(double val);
+  bool setAboveRelativeVerticalSpeed(double val);
 
-  void setAboveRelativeVerticalSpeed(double val, const std::string& u);
+  bool setAboveRelativeVerticalSpeed(double val, const std::string& u);
 
-  void setBelowRelativeAltitude(double val);
+  bool setBelowRelativeAltitude(double val);
 
-  void setBelowRelativeAltitude(double val, const std::string& u);
+  bool setBelowRelativeAltitude(double val, const std::string& u);
 
-  void setAboveRelativeAltitude(double val);
+  bool setAboveRelativeAltitude(double val);
 
-  void setAboveRelativeAltitude(double val, const std::string& u);
+  bool setAboveRelativeAltitude(double val, const std::string& u);
 
   void setBelowToMinRelativeHorizontalSpeed();
 
@@ -801,22 +843,22 @@ public:
   /**
    * Set DAA Terminal Area (DTA) latitude (internal units)
    */
-  void setDTALatitude(double lat);
+  bool setDTALatitude(double lat);
 
   /**
    * Set DAA Terminal Area (DTA) latitude in given units
    */
-  void setDTALatitude(double lat, const std::string& ulat);
+  bool setDTALatitude(double lat, const std::string& ulat);
 
   /**
    * Set DAA Terminal Area (DTA) longitude (internal units)
    */
-  void setDTALongitude(double lon);
+  bool setDTALongitude(double lon);
 
   /**
    * Set DAA Terminal Area (DTA) longitude in given units
    */
-  void setDTALongitude(double lon, const std::string& ulon);
+  bool setDTALongitude(double lon, const std::string& ulon);
 
   /**
    * Get DAA Terminal Area (DTA) radius (internal units)
@@ -831,12 +873,12 @@ public:
   /**
    * Set DAA Terminal Area (DTA) radius (internal units)
    */
-  void setDTARadius(double val);
+  bool setDTARadius(double val);
 
   /**
    * Set DAA Terminal Area (DTA) radius in given units
    */
-  void setDTARadius(double val, const std::string& u);
+  bool setDTARadius(double val, const std::string& u);
 
   /**
    * Get DAA Terminal Area (DTA) height (internal units)
@@ -851,12 +893,12 @@ public:
   /**
    * Set DAA Terminal Area (DTA) height (internal units)
    */
-  void setDTAHeight(double val);
+  bool setDTAHeight(double val);
 
   /**
    * Set DAA Terminal Area (DTA) height in given units
    */
-  void setDTAHeight(double val, const std::string& u);
+  bool setDTAHeight(double val, const std::string& u);
 
   /**
    * Get DAA Terminal Area (DTA) alerter

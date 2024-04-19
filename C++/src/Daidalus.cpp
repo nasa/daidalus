@@ -306,7 +306,9 @@ void Daidalus::setOwnshipState(const std::string& id, const Position& pos, const
  * into current time. If it's the first aircraft, this aircraft is
  * set as the ownship. If a traffic state with the same id already exists,
  * the traffic state is overwritten. If id is ownship's, nothing is done and 
- * the value -1 is returned. 
+ * the value -1 is returned.
+ * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
+ * -1 is returned.
  * @param id Aircraft's identifier
  * @param pos Aircraft's position
  * @param vel Aircraft's ground velocity
@@ -317,7 +319,9 @@ int Daidalus::addTrafficState(const std::string& id, const Position& pos, const 
   if (lastTrafficIndex() < 0) {
     setOwnshipState(id,pos,vel,time);
     return 0;
-  } else {
+  }
+  if ((core_.parameters.getDistanceFilter() <= 0 || core_.ownship.getPosition().distanceH(pos) <= core_.parameters.getDistanceFilter()) && 
+    (core_.parameters.getAltitudeFilter() <= 0 || core_.ownship.getPosition().distanceV(pos) <= core_.parameters.getAltitudeFilter())) {
     int idx = core_.set_traffic_state(id,pos,vel,time);
     if (idx >= 0) {
       ++idx;
@@ -325,11 +329,14 @@ int Daidalus::addTrafficState(const std::string& id, const Position& pos, const 
     }
     return idx;
   }
+  return -1;
 }
 
 /**
  * Add traffic state at current time. If it's the first aircraft, this aircraft is
  * set as the ownship.
+ * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
+ * -1 is returned.
  * @param id Aircraft's identifier
  * @param pos Aircraft's position
  * @param vel Aircraft's ground velocity
@@ -338,7 +345,6 @@ int Daidalus::addTrafficState(const std::string& id, const Position& pos, const 
 int Daidalus::addTrafficState(const std::string& id, const Position& pos, const Velocity& vel) {
   return addTrafficState(id,pos,vel,core_.current_time);
 }
-
 
 /**
  * Get index of aircraft with given name. Return -1 if no such index exists
@@ -882,6 +888,34 @@ double Daidalus::getLookaheadTime() const {
  */
 double Daidalus::getLookaheadTime(const std::string& u) const {
   return core_.parameters.getLookaheadTime(u);
+}
+
+/** 
+ * @return distance filter in meters.
+ */
+double Daidalus::getDistanceFilter() const {
+  return core_.parameters.getDistanceFilter();
+}
+
+/** 
+ * @return distance filter in specified units [u].
+ */
+double Daidalus::getDistanceFilter(const std::string& u) const {
+  return core_.parameters.getDistanceFilter(u);
+}
+
+/** 
+ * @return altitude filter in meters.
+ */
+double Daidalus::getAltitudeFilter() const {
+  return core_.parameters.getAltitudeFilter();
+}
+
+/** 
+ * @return altitude filter in specified units [u].
+ */
+double Daidalus::getAltitudeFilter(const std::string& u) const {
+  return core_.parameters.getAltitudeFilter(u);
 }
 
 /**
@@ -1433,276 +1467,288 @@ double Daidalus::getMinVerticalRecovery(const std::string& u) const {
   return core_.parameters.getMinVerticalRecovery(u);
 }
 
+bool Daidalus::reset_or_false(bool val) {
+  if (val) {
+    reset();
+    return true;
+  }
+  return false;
+}
+
+bool Daidalus::clearHysteresis_or_false(bool val) {
+  if (val) {
+    clearHysteresis();;
+    return true;
+  }
+  return false;
+}
+
 /**
  * Sets lookahead time in seconds.
  */
-void Daidalus::setLookaheadTime(double t) {
-  core_.parameters.setLookaheadTime(t);
-  reset();
+bool Daidalus::setLookaheadTime(double t) {
+  return reset_or_false(core_.parameters.setLookaheadTime(t));
 }
 
 /**
  * Set lookahead time to value in specified units [u].
  */
-void Daidalus::setLookaheadTime(double t, const std::string& u) {
-  core_.parameters.setLookaheadTime(t,u);
-  reset();
+bool Daidalus::setLookaheadTime(double t, const std::string& u) {
+  return reset_or_false(core_.parameters.setLookaheadTime(t,u));
 }
+
+/** 
+ * Set distance filter to value in meters.
+ */
+bool Daidalus::setDistanceFilter(double val) {
+  return reset_or_false(core_.parameters.setDistanceFilter(val));
+}
+
+/** 
+ * Set distance filter to value in specified units [u].
+ */
+bool Daidalus::setDistanceFilter(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setDistanceFilter(val,u));
+}
+
+/** 
+ * Set altitude filter to value in meters.
+ */
+bool Daidalus::setAltitudeFilter(double val) {
+  return reset_or_false(core_.parameters.setAltitudeFilter(val));
+}
+
+/** 
+ * Set altitude filter to value in specified units [u].
+ */
+bool Daidalus::setAltitudeFilter(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setAltitudeFilter(val,u));
+} 
 
 /**
  * Set left direction to value in internal units [rad]. Value is expected to be in [0 - pi]
  */
-void Daidalus::setLeftHorizontalDirection(double val) {
-  core_.parameters.setLeftHorizontalDirection(val);
-  reset();
+bool Daidalus::setLeftHorizontalDirection(double val) {
+  return reset_or_false(core_.parameters.setLeftHorizontalDirection(val));
 }
 
 /**
  * Set left direction to value in specified units [u]. Value is expected to be in [0 - pi]
  */
-void Daidalus::setLeftHorizontalDirection(double val, const std::string& u) {
-  core_.parameters.setLeftHorizontalDirection(val,u);
-  reset();
+bool Daidalus::setLeftHorizontalDirection(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setLeftHorizontalDirection(val,u));
 }
 
 /**
  * Set right direction to value in internal units [rad]. Value is expected to be in [0 - pi]
  */
-void Daidalus::setRightHorizontalDirection(double val) {
-  core_.parameters.setRightHorizontalDirection(val);
-  reset();
+bool Daidalus::setRightHorizontalDirection(double val) {
+  return reset_or_false(core_.parameters.setRightHorizontalDirection(val));
 }
 
 /**
  * Set right direction to value in specified units [u]. Value is expected to be in [0 - pi]
  */
-void Daidalus::setRightHorizontalDirection(double val, const std::string& u) {
-  core_.parameters.setRightHorizontalDirection(val,u);
-  reset();
+bool Daidalus::setRightHorizontalDirection(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setRightHorizontalDirection(val,u));
 }
 
 /** 
  * Set minimum air speed to value in internal units [m/s].
  * Minimum air speed must be greater or equal than min horizontal speed.
  */
-void Daidalus::setMinAirSpeed(double val) {
-	core_.parameters.setMinAirSpeed(val);
-	reset();
+bool Daidalus::setMinAirSpeed(double val) {
+	return reset_or_false(core_.parameters.setMinAirSpeed(val));
 }
 
 /** 
  * Set minimum air speed to value in specified units [u].
  * Minimum air speed must be greater or equal than min horizontal speed.
  */
-void Daidalus::setMinAirSpeed(double val, const std::string& u) {
-	core_.parameters.setMinAirSpeed(val,u);
-	reset();
+bool Daidalus::setMinAirSpeed(double val, const std::string& u) {
+	return reset_or_false(core_.parameters.setMinAirSpeed(val,u));
 }
 
 /**
  * Set minimum horizontal speed to value in internal units [m/s].
  * Minimum horizontal speed must be non-negative.
  */
-void Daidalus::setMinHorizontalSpeed(double val) {
-  core_.parameters.setMinHorizontalSpeed(val);
-  reset();
+bool Daidalus::setMinHorizontalSpeed(double val) {
+  return reset_or_false(core_.parameters.setMinHorizontalSpeed(val));
 }
 
 /**
  * Set minimum horizontal speed to value in specified units.
  * Minimum horizontal speed must be non-negative.
  */
-void Daidalus::setMinHorizontalSpeed(double val, const std::string& u) {
-  core_.parameters.setMinHorizontalSpeed(val,u);
-  reset();
+bool Daidalus::setMinHorizontalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMinHorizontalSpeed(val,u));
 }
 
 /**
  * Sets maximum horizontal speed for horizontal speed bands to value in internal units [m/s].
  */
-void Daidalus::setMaxHorizontalSpeed(double val) {
-  core_.parameters.setMaxHorizontalSpeed(val);
-  reset();
+bool Daidalus::setMaxHorizontalSpeed(double val) {
+  return reset_or_false(core_.parameters.setMaxHorizontalSpeed(val));
 }
 
 /**
  * Sets maximum horizontal speed for horizontal speed bands to value in specified units [u].
  */
-void Daidalus::setMaxHorizontalSpeed(double val, const std::string& u) {
-  core_.parameters.setMaxHorizontalSpeed(val,u);
-  reset();
+bool Daidalus::setMaxHorizontalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMaxHorizontalSpeed(val,u));
 }
 
 /**
  * Sets minimum vertical speed for vertical speed bands to value in internal units [m/s].
  */
-void Daidalus::setMinVerticalSpeed(double val) {
-  core_.parameters.setMinVerticalSpeed(val);
-  reset();
+bool Daidalus::setMinVerticalSpeed(double val) {
+  return reset_or_false(core_.parameters.setMinVerticalSpeed(val));
 }
 
 /**
  * Sets minimum vertical speed for vertical speed bands to value in specified units [u].
  */
-void Daidalus::setMinVerticalSpeed(double val, const std::string& u) {
-  core_.parameters.setMinVerticalSpeed(val,u);
-  reset();
+bool Daidalus::setMinVerticalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMinVerticalSpeed(val,u));
 }
 
 /**
  * Sets maximum vertical speed for vertical speed bands to value in internal units [m/s].
  */
-void Daidalus::setMaxVerticalSpeed(double val) {
-  core_.parameters.setMaxVerticalSpeed(val);
-  reset();
+bool Daidalus::setMaxVerticalSpeed(double val) {
+  return reset_or_false(core_.parameters.setMaxVerticalSpeed(val));
 }
 
 /**
  * Sets maximum vertical speed for vertical speed bands to value in specified units [u].
  */
-void Daidalus::setMaxVerticalSpeed(double val, const std::string& u) {
-  core_.parameters.setMaxVerticalSpeed(val,u);
-  reset();
+bool Daidalus::setMaxVerticalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMaxVerticalSpeed(val,u));
 }
 
 /**
  * Sets minimum altitude for altitude bands to value in internal units [m]
  */
-void Daidalus::setMinAltitude(double val) {
-  core_.parameters.setMinAltitude(val);
-  reset();
+bool Daidalus::setMinAltitude(double val) {
+  return reset_or_false(core_.parameters.setMinAltitude(val));
 }
 
 /**
  * Sets minimum altitude for altitude bands to value in specified units [u].
  */
-void Daidalus::setMinAltitude(double val, const std::string& u) {
-  core_.parameters.setMinAltitude(val,u);
-  reset();
+bool Daidalus::setMinAltitude(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMinAltitude(val,u));
 }
 
 /**
  * Sets maximum altitude for altitude bands to value in internal units [m]
  */
-void Daidalus::setMaxAltitude(double val) {
-  core_.parameters.setMaxAltitude(val);
-  reset();
+bool Daidalus::setMaxAltitude(double val) {
+  return reset_or_false(core_.parameters.setMaxAltitude(val));
 }
 
 /**
  * Sets maximum altitude for altitude bands to value in specified units [u].
  */
-void Daidalus::setMaxAltitude(double val, const std::string& u) {
-  core_.parameters.setMaxAltitude(val,u);
-  reset();
+bool Daidalus::setMaxAltitude(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMaxAltitude(val,u));
 }
 
 /**
  * Set horizontal speed in internal units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeHorizontalSpeed(double val) {
-  core_.parameters.setBelowRelativeHorizontalSpeed(val);
-  reset();
+bool Daidalus::setBelowRelativeHorizontalSpeed(double val) {
+  return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val));
 }
 
 /**
  * Set horizontal speed in given units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeHorizontalSpeed(double val,const std::string& u) {
-  core_.parameters.setBelowRelativeHorizontalSpeed(val,u);
-  reset();
+bool Daidalus::setBelowRelativeHorizontalSpeed(double val,const std::string& u) {
+  return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val,u));
 }
 
 /**
  * Set horizontal speed in internal units (above current value) for the
  * computation of relative bands
  */
-void Daidalus::setAboveRelativeHorizontalSpeed(double val) {
-  core_.parameters.setAboveRelativeHorizontalSpeed(val);
-  reset();
+bool Daidalus::setAboveRelativeHorizontalSpeed(double val) {
+  return reset_or_false(core_.parameters.setAboveRelativeHorizontalSpeed(val));
 }
 
 /**
  * Set horizontal speed in given units (above current value) for the
  * computation of relative bands
  */
-void Daidalus::setAboveRelativeHorizontalSpeed(double val, const std::string& u) {
-  core_.parameters.setAboveRelativeHorizontalSpeed(val,u);
-  reset();
+bool Daidalus::setAboveRelativeHorizontalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setAboveRelativeHorizontalSpeed(val,u));
 }
 
 /**
  * Set vertical speed in internal units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeVerticalSpeed(double val) {
-  core_.parameters.setBelowRelativeHorizontalSpeed(val);
-  reset();
+bool Daidalus::setBelowRelativeVerticalSpeed(double val) {
+  return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val));
 }
 
 /**
  * Set vertical speed in given units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeVerticalSpeed(double val, const std::string& u) {
-  core_.parameters.setBelowRelativeVerticalSpeed(val,u);
-  reset();
+bool Daidalus::setBelowRelativeVerticalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setBelowRelativeVerticalSpeed(val,u));
 }
 
 /**
  * Set vertical speed in internal units (above current value) for the
  * computation of relative bands
  */
-void Daidalus::setAboveRelativeVerticalSpeed(double val) {
-  core_.parameters.setAboveRelativeVerticalSpeed(val);
-  reset();
+bool Daidalus::setAboveRelativeVerticalSpeed(double val) {
+  return reset_or_false(core_.parameters.setAboveRelativeVerticalSpeed(val));
 }
 
 /**
  * Set vertical speed in given units (above current value) for the
  * computation of relative bands
  */
-void Daidalus::setAboveRelativeVerticalSpeed(double val, const std::string& u) {
-  core_.parameters.setAboveRelativeVerticalSpeed(val,u);
-  reset();
+bool Daidalus::setAboveRelativeVerticalSpeed(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setAboveRelativeVerticalSpeed(val,u));
 }
 
 /**
  * Set altitude in internal units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeAltitude(double val) {
-  core_.parameters.setBelowRelativeAltitude(val);
-  reset();
+bool Daidalus::setBelowRelativeAltitude(double val) {
+  return reset_or_false(core_.parameters.setBelowRelativeAltitude(val));
 }
 
 /**
  * Set altitude in given units (below current value) for the
  * computation of relative bands
  */
-void Daidalus::setBelowRelativeAltitude(double val, const std::string& u) {
-  core_.parameters.setBelowRelativeAltitude(val,u);
-  reset();
+bool Daidalus::setBelowRelativeAltitude(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setBelowRelativeAltitude(val,u));
 }
 
 /**
  * Set altitude in internal units (above current value) for the
  * computation of relative bands
  */
-void Daidalus::setAboveRelativeAltitude(double val) {
-  core_.parameters.setAboveRelativeAltitude(val);
-  reset();
+bool Daidalus::setAboveRelativeAltitude(double val) {
+  return reset_or_false(core_.parameters.setAboveRelativeAltitude(val));
 }
 
 /**
  * Set altitude in given units (above current value) for the
  * computation of relative bands
  */
-void Daidalus::setAboveRelativeAltitude(double val, const std::string& u) {
-  core_.parameters.setAboveRelativeAltitude(val,u);
-  reset();
+bool Daidalus::setAboveRelativeAltitude(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setAboveRelativeAltitude(val,u));
 }
 
 /**
@@ -1774,337 +1820,296 @@ void Daidalus::disableRelativeAltitude() {
 /**
  * Sets step size for direction bands in internal units [rad].
  */
-void Daidalus::setHorizontalDirectionStep(double val) {
-  core_.parameters.setHorizontalDirectionStep(val);
-  reset();
+bool Daidalus::setHorizontalDirectionStep(double val) {
+  return reset_or_false(core_.parameters.setHorizontalDirectionStep(val));
 }
 
 /**
  * Sets step size for direction bands in specified units [u].
  */
-void Daidalus::setHorizontalDirectionStep(double val, const std::string& u) {
-  core_.parameters.setHorizontalDirectionStep(val,u);
-  reset();
+bool Daidalus::setHorizontalDirectionStep(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setHorizontalDirectionStep(val,u));
 }
 
 /**
  * Sets step size for horizontal speed bands to value in internal units [m/s].
  */
-void Daidalus::setHorizontalSpeedStep(double val) {
-  core_.parameters.setHorizontalSpeedStep(val);
-  reset();
+bool Daidalus::setHorizontalSpeedStep(double val) {
+  return reset_or_false(core_.parameters.setHorizontalSpeedStep(val));
 }
 
 /**
  * Sets step size for horizontal speed bands to value in specified units [u].
  */
-void Daidalus::setHorizontalSpeedStep(double val, const std::string& u) {
-  core_.parameters.setHorizontalSpeedStep(val,u);
-  reset();
+bool Daidalus::setHorizontalSpeedStep(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setHorizontalSpeedStep(val,u));
 }
 
 /**
  * Sets step size for vertical speed bands to value in internal units [m/s].
  */
-void Daidalus::setVerticalSpeedStep(double val) {
-  core_.parameters.setVerticalSpeedStep(val);
-  reset();
+bool Daidalus::setVerticalSpeedStep(double val) {
+  return reset_or_false(core_.parameters.setVerticalSpeedStep(val));
 }
 
 /**
  * Sets step size for vertical speed bands to value in specified units [u].
  */
-void Daidalus::setVerticalSpeedStep(double val, const std::string& u) {
-  core_.parameters.setVerticalSpeedStep(val,u);
-  reset();
+bool Daidalus::setVerticalSpeedStep(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setVerticalSpeedStep(val,u));
 }
 
 /**
  * Sets step size for altitude bands to value in internal units [m]
  */
-void Daidalus::setAltitudeStep(double val) {
-  core_.parameters.setAltitudeStep(val);
-  reset();
+bool Daidalus::setAltitudeStep(double val) {
+  return reset_or_false(core_.parameters.setAltitudeStep(val));
 }
 
 /**
  * Sets step size for altitude bands to value in specified units [u].
  */
-void Daidalus::setAltitudeStep(double val, const std::string& u) {
-  core_.parameters.setAltitudeStep(val,u);
-  reset();
+bool Daidalus::setAltitudeStep(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setAltitudeStep(val,u));
 }
 
 /**
  * Sets horizontal acceleration for horizontal speed bands to value in internal units [m/s^2].
  */
-void Daidalus::setHorizontalAcceleration(double val) {
-  core_.parameters.setHorizontalAcceleration(val);
-  reset();
+bool Daidalus::setHorizontalAcceleration(double val) {
+  return reset_or_false(core_.parameters.setHorizontalAcceleration(val));
 }
 
 /**
  * Sets horizontal acceleration for horizontal speed bands to value in specified units [u].
  */
-void Daidalus::setHorizontalAcceleration(double val, const std::string& u) {
-  core_.parameters.setHorizontalAcceleration(val,u);
-  reset();
+bool Daidalus::setHorizontalAcceleration(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setHorizontalAcceleration(val,u));
 }
 
 /**
  * Sets the constant vertical acceleration for vertical speed and altitude bands
  * to value in internal units [m/s^2]
  */
-void Daidalus::setVerticalAcceleration(double val) {
-  core_.parameters.setVerticalAcceleration(val);
-  reset();
+bool Daidalus::setVerticalAcceleration(double val) {
+  return reset_or_false(core_.parameters.setVerticalAcceleration(val));
 }
 
 /**
  * Sets the constant vertical acceleration for vertical speed and altitude bands
  * to value in specified units [u].
  */
-void Daidalus::setVerticalAcceleration(double val, const std::string& u) {
-  core_.parameters.setVerticalAcceleration(val,u);
-  reset();
+bool Daidalus::setVerticalAcceleration(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setVerticalAcceleration(val,u));
 }
 
 /**
  * Sets turn rate for direction bands to value in internal units [rad/s]. As a side effect, this method
  * resets the bank angle.
  */
-void Daidalus::setTurnRate(double val) {
-  core_.parameters.setTurnRate(val);
-  reset();
+bool Daidalus::setTurnRate(double val) {
+  return reset_or_false(core_.parameters.setTurnRate(val));
 }
 
 /**
  * Sets turn rate for direction bands to value in specified units [u]. As a side effect, this method
  * resets the bank angle.
  */
-void Daidalus::setTurnRate(double val, const std::string& u) {
-  core_.parameters.setTurnRate(val,u);
-  reset();
+bool Daidalus::setTurnRate(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setTurnRate(val,u));
 }
 
 /**
  * Sets bank angle for direction bands to value in internal units [rad]. As a side effect, this method
  * resets the turn rate.
  */
-void Daidalus::setBankAngle(double val) {
-  core_.parameters.setBankAngle(val);
-  reset();
+bool Daidalus::setBankAngle(double val) {
+  return reset_or_false(core_.parameters.setBankAngle(val));
 }
 
 /**
  * Sets bank angle for direction bands to value in specified units [u]. As a side effect, this method
  * resets the turn rate.
  */
-void Daidalus::setBankAngle(double val, const std::string& u) {
-  core_.parameters.setBankAngle(val,u);
-  reset();
+bool Daidalus::setBankAngle(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setBankAngle(val,u));
 }
 
 /**
  * Sets vertical rate for altitude bands to value in internal units [m/s]
  */
-void Daidalus::setVerticalRate(double val) {
-  core_.parameters.setVerticalRate(val);
-  reset();
+bool Daidalus::setVerticalRate(double val) {
+  return reset_or_false(core_.parameters.setVerticalRate(val));
 }
 
 /**
  * Sets vertical rate for altitude bands to value in specified units [u].
  */
-void Daidalus::setVerticalRate(double val, const std::string& u) {
-  core_.parameters.setVerticalRate(val,u);
-  reset();
+bool Daidalus::setVerticalRate(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setVerticalRate(val,u));
 }
 
 /**
  * Set horizontal NMAC distance to value in internal units [m].
  */
-void Daidalus::setHorizontalNMAC(double val) {
-  core_.parameters.setHorizontalNMAC(val);
-  reset();
+bool Daidalus::setHorizontalNMAC(double val) {
+  return reset_or_false(core_.parameters.setHorizontalNMAC(val));
 }
 
 /**
  * Set horizontal NMAC distance to value in specified units [u].
  */
-void Daidalus::setHorizontalNMAC(double val, const std::string& u) {
-  core_.parameters.setHorizontalNMAC(val,u);
-  reset();
+bool Daidalus::setHorizontalNMAC(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setHorizontalNMAC(val,u));
 }
 
 /**
  * Set vertical NMAC distance to value in internal units [m].
  */
-void Daidalus::setVerticalNMAC(double val) {
-  core_.parameters.setVerticalNMAC(val);
-  reset();
+bool Daidalus::setVerticalNMAC(double val) {
+  return reset_or_false(core_.parameters.setVerticalNMAC(val));
 }
 
 /**
  * Set vertical NMAC distance to value in specified units [u].
  */
-void Daidalus::setVerticalNMAC(double val, const std::string& u) {
-  core_.parameters.setVerticalNMAC(val,u);
-  reset();
+bool Daidalus::setVerticalNMAC(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setVerticalNMAC(val,u));
 }
 
 /**
  * Sets recovery stability time in seconds. Recovery bands are computed at time of
  * first conflict-free region plus this time.
  */
-void Daidalus::setRecoveryStabilityTime(double t) {
-  core_.parameters.setRecoveryStabilityTime(t);
-  reset();
+bool Daidalus::setRecoveryStabilityTime(double t) {
+  return reset_or_false(core_.parameters.setRecoveryStabilityTime(t));
 }
 
 /**
  * Sets recovery stability time in specified units. Recovery bands are computed at time of
  * first conflict-free region plus this time.
  */
-void Daidalus::setRecoveryStabilityTime(double t, const std::string& u) {
-  core_.parameters.setRecoveryStabilityTime(t,u);
-  reset();
+bool Daidalus::setRecoveryStabilityTime(double t, const std::string& u) {
+  return reset_or_false(core_.parameters.setRecoveryStabilityTime(t,u));
 }
 
 /**
  * Set hysteresis time to value in seconds.
  */
-void Daidalus::setHysteresisTime(double val) {
-  core_.parameters.setHysteresisTime(val);
-  clearHysteresis();
+bool Daidalus::setHysteresisTime(double val) {
+  return clearHysteresis_or_false(core_.parameters.setHysteresisTime(val));
 }
 
 /**
  * Set hysteresis time to value in specified units [u].
  */
-void Daidalus::setHysteresisTime(double val, const std::string& u) {
-  core_.parameters.setHysteresisTime(val,u);
-  clearHysteresis();
+bool Daidalus::setHysteresisTime(double val, const std::string& u) {
+  return clearHysteresis_or_false(core_.parameters.setHysteresisTime(val,u));
 }
 
 /**
  * Set alerting persistence time to value in seconds.
  */
-void Daidalus::setPersistenceTime(double val) {
-  core_.parameters.setPersistenceTime(val);
-  clearHysteresis();
+bool Daidalus::setPersistenceTime(double val) {
+  return clearHysteresis_or_false(core_.parameters.setPersistenceTime(val));
 }
 
 /**
  * Set alerting persistence time to value in specified units [u].
  */
-void Daidalus::setPersistenceTime(double val, const std::string& u) {
-  core_.parameters.setPersistenceTime(val,u);
-  clearHysteresis();
+bool Daidalus::setPersistenceTime(double val, const std::string& u) {
+  return clearHysteresis_or_false(core_.parameters.setPersistenceTime(val,u));
 }
 
 /**
  * Set persistence for preferred horizontal direction resolution in internal units
  */
-void Daidalus::setPersistencePreferredHorizontalDirectionResolution(double val) {
-  core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val);
-  reset();
+bool Daidalus::setPersistencePreferredHorizontalDirectionResolution(double val) {
+  return reset_or_false(core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val));
 }
 
 /**
  * Set persistence for preferred horizontal direction resolution in given units
  */
-void Daidalus::setPersistencePreferredHorizontalDirectionResolution(double val, const std::string& u) {
-  core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val,u);
-  reset();
+bool Daidalus::setPersistencePreferredHorizontalDirectionResolution(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val,u));
 }
 
 /**
  * Set persistence for preferred horizontal speed resolution in internal units
  */
-void Daidalus::setPersistencePreferredHorizontalSpeedResolution(double val) {
-  core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val);
-  reset();
+bool Daidalus::setPersistencePreferredHorizontalSpeedResolution(double val) {
+  return reset_or_false(core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val));
 }
 
 /**
  * Set persistence for preferred horizontal speed resolution in given units
  */
-void Daidalus::setPersistencePreferredHorizontalSpeedResolution(double val, const std::string& u) {
-  core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val,u);
-  reset();
+bool Daidalus::setPersistencePreferredHorizontalSpeedResolution(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val,u));
 }
 
 /**
  * Set persistence for preferred vertical speed resolution in internal units
  */
-void Daidalus::setPersistencePreferredVerticalSpeedResolution(double val) {
-  core_.parameters.setPersistencePreferredVerticalSpeedResolution(val);
-  reset();
+bool Daidalus::setPersistencePreferredVerticalSpeedResolution(double val) {
+  return reset_or_false(core_.parameters.setPersistencePreferredVerticalSpeedResolution(val));
 }
 
 /**
  * Set persistence for preferred vertical speed resolution in given units
  */
-void Daidalus::setPersistencePreferredVerticalSpeedResolution(double val, const std::string& u) {
-  core_.parameters.setPersistencePreferredVerticalSpeedResolution(val,u);
-  reset();
+bool Daidalus::setPersistencePreferredVerticalSpeedResolution(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setPersistencePreferredVerticalSpeedResolution(val,u));
 }
 
 /**
  * Set persistence for preferred altitude resolution in internal units
  */
-void Daidalus::setPersistencePreferredAltitudeResolution(double val) {
-  core_.parameters.setPersistencePreferredAltitudeResolution(val);
-  reset();
+bool Daidalus::setPersistencePreferredAltitudeResolution(double val) {
+  return reset_or_false(core_.parameters.setPersistencePreferredAltitudeResolution(val));
 }
 
 /**
  * Set persistence for preferred altitude resolution in given units
  */
-void Daidalus::setPersistencePreferredAltitudeResolution(double val, const std::string& u) {
-  core_.parameters.setPersistencePreferredAltitudeResolution(val,u);
-  reset();
+bool Daidalus::setPersistencePreferredAltitudeResolution(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setPersistencePreferredAltitudeResolution(val,u));
 }
 
 /**
  * Set alerting parameters of M of N strategy
  */
-void Daidalus::setAlertingMofN(int m, int n) {
-  core_.parameters.setAlertingMofN(m,n);
-  clearHysteresis();
+bool Daidalus::setAlertingMofN(int m, int n) {
+  return clearHysteresis_or_false(core_.parameters.setAlertingMofN(m,n));
 }
 
 /**
  * Sets minimum horizontal separation for recovery bands in internal units [m].
  */
-void Daidalus::setMinHorizontalRecovery(double val) {
-  core_.parameters.setMinHorizontalRecovery(val);
-  reset();
+bool Daidalus::setMinHorizontalRecovery(double val) {
+  return clearHysteresis_or_false(core_.parameters.setMinHorizontalRecovery(val));
 }
 
 /**
  * Set minimum horizontal separation for recovery bands in specified units [u].
  */
-void Daidalus::setMinHorizontalRecovery(double val, const std::string& u) {
-  core_.parameters.setMinHorizontalRecovery(val,u);
-  reset();
+bool Daidalus::setMinHorizontalRecovery(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMinHorizontalRecovery(val,u));
 }
 
 /**
  * Sets minimum vertical separation for recovery bands in internal units [m].
  */
-void Daidalus::setMinVerticalRecovery(double val) {
-  core_.parameters.setMinVerticalRecovery(val);
-  reset();
+bool Daidalus::setMinVerticalRecovery(double val) {
+  return reset_or_false(core_.parameters.setMinVerticalRecovery(val));
 }
 
 /**
  * Set minimum vertical separation for recovery bands in units
  */
-void Daidalus::setMinVerticalRecovery(double val, const std::string& u) {
-  core_.parameters.setMinVerticalRecovery(val,u);
-  reset();
+bool Daidalus::setMinVerticalRecovery(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setMinVerticalRecovery(val,u));
 }
 
 /**
@@ -2310,9 +2315,8 @@ double Daidalus::getCollisionAvoidanceBandsFactor() const {
 /**
  * @return set factor for computing collision avoidance bands. Factor value is in (0,1]
  */
-void Daidalus::setCollisionAvoidanceBandsFactor(double val) {
-  core_.parameters.setCollisionAvoidanceBandsFactor(val);
-  reset();
+bool Daidalus::setCollisionAvoidanceBandsFactor(double val) {
+  return reset_or_false(core_.parameters.setCollisionAvoidanceBandsFactor(val));
 }
 
 /**
@@ -2325,9 +2329,8 @@ double Daidalus::getHorizontalPositionZScore() const {
 /**
  * @return set z-score (number of standard deviations) for horizontal position (non-negative value)
  */
-void Daidalus::setHorizontalPositionZScore(double val) {
-  core_.parameters.setHorizontalPositionZScore(val);
-  reset();
+bool Daidalus::setHorizontalPositionZScore(double val) {
+  return reset_or_false(core_.parameters.setHorizontalPositionZScore(val));
 }
 
 /**
@@ -2340,9 +2343,8 @@ double Daidalus::getHorizontalVelocityZScoreMin() const {
 /**
  * @return set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
  */
-void Daidalus::setHorizontalVelocityZScoreMin(double val) {
-  core_.parameters.setHorizontalVelocityZScoreMin(val);
-  reset();
+bool Daidalus::setHorizontalVelocityZScoreMin(double val) {
+  return reset_or_false(core_.parameters.setHorizontalVelocityZScoreMin(val));
 }
 
 /**
@@ -2355,9 +2357,8 @@ double Daidalus::getHorizontalVelocityZScoreMax() const {
 /**
  * @return set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
  */
-void Daidalus::setHorizontalVelocityZScoreMax(double val) {
-  core_.parameters.setHorizontalVelocityZScoreMax(val);
-  reset();
+bool Daidalus::setHorizontalVelocityZScoreMax(double val) {
+  return reset_or_false(core_.parameters.setHorizontalVelocityZScoreMax(val));
 }
 
 /**
@@ -2377,17 +2378,15 @@ double Daidalus::getHorizontalVelocityZDistance(const std::string& u) const {
 /**
  * @return Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
  */
-void Daidalus::setHorizontalVelocityZDistance(double val) {
-  core_.parameters.setHorizontalVelocityZDistance(val);
-  reset();
+bool Daidalus::setHorizontalVelocityZDistance(double val) {
+  return reset_or_false(core_.parameters.setHorizontalVelocityZDistance(val));
 }
 
 /**
  * @return Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
  */
-void Daidalus::setHorizontalVelocityZDistance(double val, const std::string& u) {
-  core_.parameters.setHorizontalVelocityZDistance(val,u);
-  reset();
+bool Daidalus::setHorizontalVelocityZDistance(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setHorizontalVelocityZDistance(val,u));
 }
 
 /**
@@ -2400,9 +2399,8 @@ double Daidalus::getVerticalPositionZScore() const {
 /**
  * @return set z-score (number of standard deviations) for vertical position (non-negative value)
  */
-void Daidalus::setVerticalPositionZScore(double val) {
-  core_.parameters.setVerticalPositionZScore(val);
-  reset();
+bool Daidalus::setVerticalPositionZScore(double val) {
+  return reset_or_false(core_.parameters.setVerticalPositionZScore(val));
 }
 
 /**
@@ -2415,9 +2413,8 @@ double Daidalus::getVerticalSpeedZScore() const {
 /**
  * @return set z-score (number of standard deviations) for vertical velocity (non-negative value)
  */
-void Daidalus::setVerticalSpeedZScore(double val) {
-  core_.parameters.setVerticalSpeedZScore(val);
-  reset();
+bool Daidalus::setVerticalSpeedZScore(double val) {
+  return reset_or_false(core_.parameters.setVerticalSpeedZScore(val));
 }
 
 /**
@@ -2443,8 +2440,8 @@ double Daidalus::getHorizontalContourThreshold(const std::string& u) const {
  * the left/right of current aircraft direction. A value of 0 means only conflict contours.
  * A value of pi means all contours.
  */
-void Daidalus::setHorizontalContourThreshold(double val) {
-  core_.parameters.setHorizontalContourThreshold(val);
+bool Daidalus::setHorizontalContourThreshold(double val) {
+  return reset_or_false(core_.parameters.setHorizontalContourThreshold(val));
 }
 
 /**
@@ -2452,8 +2449,8 @@ void Daidalus::setHorizontalContourThreshold(double val) {
  * the left/right of current aircraft direction. A value of 0 means only conflict contours.
  * A value of pi means all contours.
  */
-void Daidalus::setHorizontalContourThreshold(double val, const std::string& u) {
-  core_.parameters.setHorizontalContourThreshold(val,u);
+bool Daidalus::setHorizontalContourThreshold(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setHorizontalContourThreshold(val,u));
 }
 
 /**
@@ -2549,33 +2546,29 @@ const Position& Daidalus::getDTAPosition() const {
 /**
  * Set DAA Terminal Area (DTA) latitude (internal units)
  */
-void Daidalus::setDTALatitude(double lat) {
-  core_.parameters.setDTALatitude(lat);
-  reset();
+bool Daidalus::setDTALatitude(double lat) {
+  return reset_or_false(core_.parameters.setDTALatitude(lat));
 }
 
 /**
  * Set DAA Terminal Area (DTA) latitude in given units
  */
-void Daidalus::setDTALatitude(double lat, const std::string& ulat) {
-  core_.parameters.setDTALatitude(lat,ulat);
-  reset();
+bool Daidalus::setDTALatitude(double lat, const std::string& ulat) {
+  return reset_or_false(core_.parameters.setDTALatitude(lat,ulat));
 }
 
 /**
  * Set DAA Terminal Area (DTA) longitude (internal units)
  */
-void Daidalus::setDTALongitude(double lon) {
-  core_.parameters.setDTALongitude(lon);
-  reset();
+bool Daidalus::setDTALongitude(double lon) {
+  return reset_or_false(core_.parameters.setDTALongitude(lon));
 }
 
 /**
  * Set DAA Terminal Area (DTA) longitude in given units
  */
-void Daidalus::setDTALongitude(double lon, const std::string& ulon) {
-  core_.parameters.setDTALongitude(lon,ulon);
-  reset();
+bool Daidalus::setDTALongitude(double lon, const std::string& ulon) {
+  return reset_or_false(core_.parameters.setDTALongitude(lon,ulon));
 }
 
 /**
@@ -2594,17 +2587,15 @@ double Daidalus::getDTARadius(const std::string& u) const {
 /**
  * Set DAA Terminal Area (DTA) radius (internal units)
  */
-void Daidalus::setDTARadius(double val) {
-  core_.parameters.setDTARadius(val);
-  reset();
+bool Daidalus::setDTARadius(double val) {
+  return reset_or_false(core_.parameters.setDTARadius(val));
 }
 
 /**
  * Set DAA Terminal Area (DTA) radius in given units
  */
-void Daidalus::setDTARadius(double val, const std::string& u) {
-  core_.parameters.setDTARadius(val,u);
-  reset();
+bool Daidalus::setDTARadius(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setDTARadius(val,u));
 }
 
 /**
@@ -2624,17 +2615,15 @@ double Daidalus::getDTAHeight(const std::string& u) const {
 /**
  * Set DAA Terminal Area (DTA) height (internal units)
  */
-void Daidalus::setDTAHeight(double val) {
-  core_.parameters.setDTAHeight(val);
-  reset();
+bool Daidalus::setDTAHeight(double val) {
+  return reset_or_false(core_.parameters.setDTAHeight(val));
 }
 
 /**
  * Set DAA Terminal Area (DTA) height in given units
  */
-void Daidalus::setDTAHeight(double val, const std::string& u) {
-  core_.parameters.setDTAHeight(val,u);
-  reset();
+bool Daidalus::setDTAHeight(double val, const std::string& u) {
+  return reset_or_false(core_.parameters.setDTAHeight(val,u));
 }
 
 /**
@@ -2750,9 +2739,8 @@ BandsRegion::Region Daidalus::getCorrectiveRegion() const {
 /**
  * Set corrective region for calculation of resolution maneuvers and bands saturation.
  */
-void Daidalus::setCorrectiveRegion(BandsRegion::Region val) {
-  core_.parameters.setCorrectiveRegion(val);
-  reset();
+bool Daidalus::setCorrectiveRegion(BandsRegion::Region val) {
+  return reset_or_false(core_.parameters.setCorrectiveRegion(val));
 }
 
 /**
@@ -2823,10 +2811,8 @@ void Daidalus::setDaidalusParameters(const DaidalusParameters& parameters) {
   clearHysteresis();
 }
 
-void Daidalus::setParameterData(const ParameterData& p) {
-  if (core_.parameters.setParameterData(p)) {
-    clearHysteresis();
-  }
+bool Daidalus::setParameterData(const ParameterData& p) {
+  return clearHysteresis_or_false(core_.parameters.setParameterData(p));
 }
 
 const ParameterData Daidalus::getParameterData() {

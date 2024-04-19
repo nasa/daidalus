@@ -101,6 +101,8 @@ private:
   DaidalusAltBands  alt_band_;
 
   void stale_bands();
+  bool reset_or_false(bool val);
+  bool clearHysteresis_or_false(bool val);
 
 public:
   /* Constructors */
@@ -223,7 +225,9 @@ public:
    * into current time. If it's the first aircraft, this aircraft is
    * set as the ownship. If a traffic state with the same id already exists,
 	 * the traffic state is overwritten. If id is ownship's, nothing is done and 
-	 * the value -1 is returned. 
+	 * the value -1 is returned.
+   * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
+	 * -1 is returned.
    * @param id Aircraft's identifier
    * @param pos Aircraft's position
    * @param vel Aircraft's ground velocity
@@ -235,6 +239,8 @@ public:
   /**
    * Add traffic state at current time. If it's the first aircraft, this aircraft is
    * set as the ownship.
+   * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
+	 * -1 is returned.
    * @param id Aircraft's identifier
    * @param pos Aircraft's position
    * @param vel Aircraft's ground velocity
@@ -571,6 +577,26 @@ public:
    * @return lookahead time in specified units [u].
    */
   double getLookaheadTime(const std::string& u) const;
+
+  /** 
+   * @return distance filter in meters.
+   */
+	double getDistanceFilter() const;
+
+  /** 
+   * @return distance filter in specified units [u].
+   */
+	double getDistanceFilter(const std::string& u) const;
+
+  /** 
+   * @return altitude filter in meters.
+   */
+	double getAltitudeFilter() const;
+
+  /** 
+   * @return altitude filter in specified units [u].
+   */
+	double getAltitudeFilter(const std::string& u) const;
 
   /**
    * @return left direction in radians [0 - pi] [rad] from current ownship's direction
@@ -971,178 +997,198 @@ public:
   /**
    * Sets lookahead time in seconds.
    */
-  void setLookaheadTime(double t);
+  bool setLookaheadTime(double t);
 
   /**
    * Set lookahead time to value in specified units [u].
    */
-  void setLookaheadTime(double t, const std::string& u);
+  bool setLookaheadTime(double t, const std::string& u);
 
+  /** 
+   * Set distance filter to value in meters.
+   */
+	bool setDistanceFilter(double val);
+
+  /** 
+   * Set distance filter to value in specified units [u].
+   */
+  bool setDistanceFilter(double val, const std::string& u); 
+  
+  /** 
+   * Set altitude filter to value in meters.
+   */
+	bool setAltitudeFilter(double val);
+
+  /** 
+   * Set altitude filter to value in specified units [u].
+   */
+  bool setAltitudeFilter(double val, const std::string& u); 
+  
   /**
    * Set left direction to value in internal units [rad]. Value is expected to be in [0 - pi]
    */
-  void setLeftHorizontalDirection(double val);
+  bool setLeftHorizontalDirection(double val);
 
   /**
    * Set left direction to value in specified units [u]. Value is expected to be in [0 - pi]
    */
-  void setLeftHorizontalDirection(double val, const std::string& u);
+  bool setLeftHorizontalDirection(double val, const std::string& u);
 
   /**
    * Set right direction to value in internal units [rad]. Value is expected to be in [0 - pi]
    */
-  void setRightHorizontalDirection(double val);
+  bool setRightHorizontalDirection(double val);
 
   /**
    * Set right direction to value in specified units [u]. Value is expected to be in [0 - pi]
    */
-  void setRightHorizontalDirection(double val, const std::string& u);
+  bool setRightHorizontalDirection(double val, const std::string& u);
 
 	/** 
    * Set minimum air speed to value in internal units [m/s].
    * Minimum air speed must be greater or equal than min horizontal speed.
    */
-	void setMinAirSpeed(double val);
+	bool setMinAirSpeed(double val);
 
   /** 
    * Set minimum air speed to value in specified units [u].
    * Minimum air speed must be greater or equal than min horizontal speed.
    */
-	void setMinAirSpeed(double val, const std::string& u);
+	bool setMinAirSpeed(double val, const std::string& u);
   
   /**
    * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
    * Minimum horizontal speed must be non-negative.
    */
-  void setMinHorizontalSpeed(double val);
+  bool setMinHorizontalSpeed(double val);
 
   /**
    * Sets minimum horizontal speed for horizontal speed bands to value in specified units [u].
    * Minimum horizontal speed must be non-negative.
    */
-  void setMinHorizontalSpeed(double val, const std::string& u);
+  bool setMinHorizontalSpeed(double val, const std::string& u);
 
   /**
    * Sets maximum horizontal speed for horizontal speed bands to value in internal units [m/s].
    */
-  void setMaxHorizontalSpeed(double val);
+  bool setMaxHorizontalSpeed(double val);
 
   /**
    * Sets maximum horizontal speed for horizontal speed bands to value in specified units [u].
    */
-  void setMaxHorizontalSpeed(double val, const std::string& u);
+  bool setMaxHorizontalSpeed(double val, const std::string& u);
 
   /**
    * Sets minimum vertical speed for vertical speed bands to value in internal units [m/s].
    */
-  void setMinVerticalSpeed(double val);
+  bool setMinVerticalSpeed(double val);
 
   /**
    * Sets minimum vertical speed for vertical speed bands to value in specified units [u].
    */
-  void setMinVerticalSpeed(double val, const std::string& u);
+  bool setMinVerticalSpeed(double val, const std::string& u);
 
   /**
    * Sets maximum vertical speed for vertical speed bands to value in internal units [m/s].
    */
-  void setMaxVerticalSpeed(double val);
+  bool setMaxVerticalSpeed(double val);
 
   /**
    * Sets maximum vertical speed for vertical speed bands to value in specified units [u].
    */
-  void setMaxVerticalSpeed(double val, const std::string& u);
+  bool setMaxVerticalSpeed(double val, const std::string& u);
 
   /**
    * Sets minimum altitude for altitude bands to value in internal units [m]
    */
-  void setMinAltitude(double val);
+  bool setMinAltitude(double val);
 
   /**
    * Sets minimum altitude for altitude bands to value in specified units [u].
    */
-  void setMinAltitude(double val, const std::string& u);
+  bool setMinAltitude(double val, const std::string& u);
 
   /**
    * Sets maximum altitude for altitude bands to value in internal units [m]
    */
-  void setMaxAltitude(double val);
+  bool setMaxAltitude(double val);
 
   /**
    * Sets maximum altitude for altitude bands to value in specified units [u].
    */
-  void setMaxAltitude(double val, const std::string& u);
+  bool setMaxAltitude(double val, const std::string& u);
 
   /**
    * Set horizontal speed in internal units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeHorizontalSpeed(double val);
+  bool setBelowRelativeHorizontalSpeed(double val);
 
   /**
    * Set horizontal speed in given units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeHorizontalSpeed(double val,const std::string& u);
+  bool setBelowRelativeHorizontalSpeed(double val,const std::string& u);
 
   /**
    * Set horizontal speed in internal units (above current value) for the
    * computation of relative bands
    */
-  void setAboveRelativeHorizontalSpeed(double val);
+  bool setAboveRelativeHorizontalSpeed(double val);
 
   /**
    * Set horizontal speed in given units (above current value) for the
    * computation of relative bands
    */
-  void setAboveRelativeHorizontalSpeed(double val, const std::string& u);
+  bool setAboveRelativeHorizontalSpeed(double val, const std::string& u);
 
   /**
    * Set vertical speed in internal units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeVerticalSpeed(double val);
+  bool setBelowRelativeVerticalSpeed(double val);
 
   /**
    * Set vertical speed in given units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeVerticalSpeed(double val, const std::string& u);
+  bool setBelowRelativeVerticalSpeed(double val, const std::string& u);
 
   /**
    * Set vertical speed in internal units (above current value) for the
    * computation of relative bands
    */
-  void setAboveRelativeVerticalSpeed(double val);
+  bool setAboveRelativeVerticalSpeed(double val);
 
   /**
    * Set vertical speed in given units (above current value) for the
    * computation of relative bands
    */
-  void setAboveRelativeVerticalSpeed(double val, const std::string& u);
+  bool setAboveRelativeVerticalSpeed(double val, const std::string& u);
 
   /**
    * Set altitude in internal units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeAltitude(double val);
+  bool setBelowRelativeAltitude(double val);
 
   /**
    * Set altitude in given units (below current value) for the
    * computation of relative bands
    */
-  void setBelowRelativeAltitude(double val, const std::string& u);
+  bool setBelowRelativeAltitude(double val, const std::string& u);
 
   /**
    * Set altitude in internal units (above current value) for the
    * computation of relative bands
    */
-  void setAboveRelativeAltitude(double val);
+  bool setAboveRelativeAltitude(double val);
 
   /**
    * Set altitude in given units (above current value) for the
    * computation of relative bands
    */
-  void setAboveRelativeAltitude(double val, const std::string& u);
+  bool setAboveRelativeAltitude(double val, const std::string& u);
 
   /**
    * Set below value to min when computing horizontal speed bands
@@ -1192,215 +1238,215 @@ public:
   /**
    * Sets step size for direction bands in internal units [rad].
    */
-  void setHorizontalDirectionStep(double val);
+  bool setHorizontalDirectionStep(double val);
 
   /**
    * Sets step size for direction bands in specified units [u].
    */
-  void setHorizontalDirectionStep(double val, const std::string& u);
+  bool setHorizontalDirectionStep(double val, const std::string& u);
 
   /**
    * Sets step size for horizontal speed bands to value in internal units [m/s].
    */
-  void setHorizontalSpeedStep(double val);
+  bool setHorizontalSpeedStep(double val);
 
   /**
    * Sets step size for horizontal speed bands to value in specified units [u].
    */
-  void setHorizontalSpeedStep(double val, const std::string& u);
+  bool setHorizontalSpeedStep(double val, const std::string& u);
 
   /**
    * Sets step size for vertical speed bands to value in internal units [m/s].
    */
-  void setVerticalSpeedStep(double val);
+  bool setVerticalSpeedStep(double val);
 
   /**
    * Sets step size for vertical speed bands to value in specified units [u].
    */
-  void setVerticalSpeedStep(double val, const std::string& u);
+  bool setVerticalSpeedStep(double val, const std::string& u);
 
   /**
    * Sets step size for altitude bands to value in internal units [m]
    */
-  void setAltitudeStep(double val);
+  bool setAltitudeStep(double val);
 
   /**
    * Sets step size for altitude bands to value in specified units [u].
    */
-  void setAltitudeStep(double val, const std::string& u);
+  bool setAltitudeStep(double val, const std::string& u);
 
   /**
    * Sets horizontal acceleration for horizontal speed bands to value in internal units [m/s^2].
    */
-  void setHorizontalAcceleration(double val);
+  bool setHorizontalAcceleration(double val);
 
   /**
    * Sets horizontal acceleration for horizontal speed bands to value in specified units [u].
    */
-  void setHorizontalAcceleration(double val, const std::string& u);
+  bool setHorizontalAcceleration(double val, const std::string& u);
 
   /**
    * Sets the constant vertical acceleration for vertical speed and altitude bands
    * to value in internal units [m/s^2]
    */
-  void setVerticalAcceleration(double val);
+  bool setVerticalAcceleration(double val);
 
   /**
    * Sets the constant vertical acceleration for vertical speed and altitude bands
    * to value in specified units [u].
    */
-  void setVerticalAcceleration(double val, const std::string& u);
+  bool setVerticalAcceleration(double val, const std::string& u);
 
   /**
    * Sets turn rate for direction bands to value in internal units [rad/s]. As a side effect, this method
    * resets the bank angle.
    */
-  void setTurnRate(double val);
+  bool setTurnRate(double val);
 
   /**
    * Sets turn rate for direction bands to value in specified units [u]. As a side effect, this method
    * resets the bank angle.
    */
-  void setTurnRate(double val, const std::string& u);
+  bool setTurnRate(double val, const std::string& u);
 
   /**
    * Sets bank angle for direction bands to value in internal units [rad]. As a side effect, this method
    * resets the turn rate.
    */
-  void setBankAngle(double val);
+  bool setBankAngle(double val);
 
   /**
    * Sets bank angle for direction bands to value in specified units [u]. As a side effect, this method
    * resets the turn rate.
    */
-  void setBankAngle(double val, const std::string& u);
+  bool setBankAngle(double val, const std::string& u);
 
   /**
    * Sets vertical rate for altitude bands to value in internal units [m/s]
    */
-  void setVerticalRate(double val);
+  bool setVerticalRate(double val);
 
   /**
    * Sets vertical rate for altitude bands to value in specified units [u].
    */
-  void setVerticalRate(double val, const std::string& u);
+  bool setVerticalRate(double val, const std::string& u);
 
   /**
    * Set horizontal NMAC distance to value in internal units [m].
    */
-  void setHorizontalNMAC(double val);
+  bool setHorizontalNMAC(double val);
 
   /**
    * Set horizontal NMAC distance to value in specified units [u].
    */
-  void setHorizontalNMAC(double val, const std::string& u);
+  bool setHorizontalNMAC(double val, const std::string& u);
 
   /**
    * Set vertical NMAC distance to value in internal units [m].
    */
-  void setVerticalNMAC(double val);
+  bool setVerticalNMAC(double val);
 
   /**
    * Set vertical NMAC distance to value in specified units [u].
    */
-  void setVerticalNMAC(double val, const std::string& u);
+  bool setVerticalNMAC(double val, const std::string& u);
 
   /**
    * Sets recovery stability time in seconds. Recovery bands are computed at time of
    * first conflict-free region plus this time.
    */
-  void setRecoveryStabilityTime(double t);
+  bool setRecoveryStabilityTime(double t);
 
   /**
    * Sets recovery stability time in specified units. Recovery bands are computed at time of
    * first conflict-free region plus this time.
    */
-  void setRecoveryStabilityTime(double t, const std::string& u);
+  bool setRecoveryStabilityTime(double t, const std::string& u);
 
   /**
    * Set hysteresis time to value in seconds.
    */
-  void setHysteresisTime(double val);
+  bool setHysteresisTime(double val);
 
   /**
    * Set alerting persistence time to value in seconds.
    */
-  void setPersistenceTime(double val);
+  bool setPersistenceTime(double val);
 
   /**
    * Set alerting persistence time to value in specified units [u].
    */
-  void setPersistenceTime(double val, const std::string& u);
+  bool setPersistenceTime(double val, const std::string& u);
 
   /**
    * Set hysteresis time to value in specified units [u].
    */
-  void setHysteresisTime(double val, const std::string& u);
+  bool setHysteresisTime(double val, const std::string& u);
 
   /**
    * Set persistence for preferred horizontal direction resolution in internal units
    */
-  void setPersistencePreferredHorizontalDirectionResolution(double val);
+  bool setPersistencePreferredHorizontalDirectionResolution(double val);
 
   /**
    * Set persistence for preferred horizontal direction resolution in given units
    */
-  void setPersistencePreferredHorizontalDirectionResolution(double val, const std::string& u);
+  bool setPersistencePreferredHorizontalDirectionResolution(double val, const std::string& u);
 
   /**
    * Set persistence for preferred horizontal speed resolution in internal units
    */
-  void setPersistencePreferredHorizontalSpeedResolution(double val);
+  bool setPersistencePreferredHorizontalSpeedResolution(double val);
 
   /**
    * Set persistence for preferred horizontal speed resolution in given units
    */
-  void setPersistencePreferredHorizontalSpeedResolution(double val, const std::string& u);
+  bool setPersistencePreferredHorizontalSpeedResolution(double val, const std::string& u);
 
   /**
    * Set persistence for preferred vertical speed resolution in internal units
    */
-  void setPersistencePreferredVerticalSpeedResolution(double val);
+  bool setPersistencePreferredVerticalSpeedResolution(double val);
 
   /**
    * Set persistence for preferred vertical speed resolution in given units
    */
-  void setPersistencePreferredVerticalSpeedResolution(double val, const std::string& u);
+  bool setPersistencePreferredVerticalSpeedResolution(double val, const std::string& u);
 
   /**
    * Set persistence for preferred altitude resolution in internal units
    */
-  void setPersistencePreferredAltitudeResolution(double val);
+  bool setPersistencePreferredAltitudeResolution(double val);
 
   /**
    * Set persistence for preferred altitude resolution in given units
    */
-  void setPersistencePreferredAltitudeResolution(double val, const std::string& u);
+  bool setPersistencePreferredAltitudeResolution(double val, const std::string& u);
 
   /**
    * @return Alerting parameter m of "M of N" strategy
    */
-  void setAlertingMofN(int m, int n);
+  bool setAlertingMofN(int m, int n);
 
   /**
    * Sets minimum horizontal separation for recovery bands in internal units [m].
    */
-  void setMinHorizontalRecovery(double val);
+  bool setMinHorizontalRecovery(double val);
 
   /**
    * Set minimum horizontal separation for recovery bands in specified units [u].
    */
-  void setMinHorizontalRecovery(double val, const std::string& u);
+  bool setMinHorizontalRecovery(double val, const std::string& u);
 
   /**
    * Sets minimum vertical separation for recovery bands in internal units [m].
    */
-  void setMinVerticalRecovery(double val);
+  bool setMinVerticalRecovery(double val);
 
   /**
    * Set minimum vertical separation for recovery bands in units
    */
-  void setMinVerticalRecovery(double val, const std::string& u);
+  bool setMinVerticalRecovery(double val, const std::string& u);
 
   /**
    * @return true if repulsive criteria is enabled for conflict bands.
@@ -1540,7 +1586,7 @@ public:
   /**
    * @return set factor for computing collision avoidance bands. Factor value is in (0,1]
    */
-  void setCollisionAvoidanceBandsFactor(double val);
+  bool setCollisionAvoidanceBandsFactor(double val);
 
   /**
    * @return get z-score (number of standard deviations) for horizontal position
@@ -1550,7 +1596,7 @@ public:
   /**
    * @return set z-score (number of standard deviations) for horizontal position (non-negative value)
    */
-  void setHorizontalPositionZScore(double val);
+  bool setHorizontalPositionZScore(double val);
 
   /**
    * @return get min z-score (number of standard deviations) for horizontal velocity
@@ -1560,7 +1606,7 @@ public:
   /**
    * @return set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
    */
-  void setHorizontalVelocityZScoreMin(double val);
+  bool setHorizontalVelocityZScoreMin(double val);
 
   /**
    * @return get max z-score (number of standard deviations) for horizontal velocity
@@ -1570,7 +1616,7 @@ public:
   /**
    * @return set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
    */
-  void setHorizontalVelocityZScoreMax(double val);
+  bool setHorizontalVelocityZScoreMax(double val);
 
   /**
    * @return Distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
@@ -1585,12 +1631,12 @@ public:
   /**
    * @return Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
    */
-  void setHorizontalVelocityZDistance(double val);
+  bool setHorizontalVelocityZDistance(double val);
 
   /**
    * @return Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
    */
-  void setHorizontalVelocityZDistance(double val, const std::string& u);
+  bool setHorizontalVelocityZDistance(double val, const std::string& u);
 
   /**
    * @return get z-score (number of standard deviations) for vertical position
@@ -1600,7 +1646,7 @@ public:
   /**
    * @return set z-score (number of standard deviations) for vertical position (non-negative value)
    */
-  void setVerticalPositionZScore(double val);
+  bool setVerticalPositionZScore(double val);
 
   /**
    * @return get z-score (number of standard deviations) for vertical velocity
@@ -1610,7 +1656,7 @@ public:
   /**
    * @return set z-score (number of standard deviations) for vertical velocity (non-negative value)
    */
-  void setVerticalSpeedZScore(double val);
+  bool setVerticalSpeedZScore(double val);
 
   /**
    * Get horizontal contour threshold, specified in internal units [rad] as an angle to
@@ -1631,14 +1677,14 @@ public:
    * the left/right of current aircraft direction. A value of 0 means only conflict contours.
    * A value of pi means all contours.
    */
-  void setHorizontalContourThreshold(double val);
+  bool setHorizontalContourThreshold(double val);
 
   /**
    * Set horizontal contour threshold, specified in given units [u] [0 - pi] as an angle to
    * the left/right of current aircraft direction. A value of 0 means only conflict contours.
    * A value of pi means all contours.
    */
-  void setHorizontalContourThreshold(double val, const std::string& u);
+  bool setHorizontalContourThreshold(double val, const std::string& u);
 
   /**
    * Return true if DTA logic is active at current time
@@ -1712,22 +1758,22 @@ public:
   /**
    * Set DAA Terminal Area (DTA) latitude (internal units)
    */
-  void setDTALatitude(double lat);
+  bool setDTALatitude(double lat);
 
   /**
    * Set DAA Terminal Area (DTA) latitude in given units
    */
-  void setDTALatitude(double lat, const std::string& ulat);
+  bool setDTALatitude(double lat, const std::string& ulat);
 
   /**
    * Set DAA Terminal Area (DTA) longitude (internal units)
    */
-  void setDTALongitude(double lon);
+  bool setDTALongitude(double lon);
 
   /**
    * Set DAA Terminal Area (DTA) longitude in given units
    */
-  void setDTALongitude(double lon, const std::string& ulon);
+  bool setDTALongitude(double lon, const std::string& ulon);
 
   /**
    * Get DAA Terminal Area (DTA) radius (internal units)
@@ -1742,12 +1788,12 @@ public:
   /**
    * Set DAA Terminal Area (DTA) radius (internal units)
    */
-  void setDTARadius(double val);
+  bool setDTARadius(double val);
 
   /**
    * Set DAA Terminal Area (DTA) radius in given units
    */
-  void setDTARadius(double val, const std::string& u);
+  bool setDTARadius(double val, const std::string& u);
 
   /**
    * Get DAA Terminal Area (DTA) height (internal units)
@@ -1762,12 +1808,12 @@ public:
   /**
    * Set DAA Terminal Area (DTA) height (internal units)
    */
-  void setDTAHeight(double val);
+  bool setDTAHeight(double val);
 
   /**
    * Set DAA Terminal Area (DTA) height in given units
    */
-  void setDTAHeight(double val, const std::string& u);
+  bool setDTAHeight(double val, const std::string& u);
 
   /**
    * Get DAA Terminal Area (DTA) alerter
@@ -1852,7 +1898,7 @@ public:
   /**
    * Set corrective region for calculation of resolution maneuvers and bands saturation.
    */
-  void setCorrectiveRegion(BandsRegion::Region val);
+  bool setCorrectiveRegion(BandsRegion::Region val);
 
   /**
    * @param alerter_idx Indice of an alerter (starting from 1)
@@ -1900,7 +1946,7 @@ public:
    */
   void setDaidalusParameters(const DaidalusParameters& parameters);
 
-  void setParameterData(const ParameterData& p);
+  bool setParameterData(const ParameterData& p);
 
   const ParameterData getParameterData();
 

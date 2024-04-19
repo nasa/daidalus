@@ -384,23 +384,24 @@ public class Daidalus {
 		if (lastTrafficIndex() < 0) {
 			setOwnshipState(id,pos,vel,vel,time);
 			return 0;
-		} else {
-			if ((core_.parameters.getDistanceFilter() <= 0 || core_.ownship.getPosition().distanceH(pos) <= core_.parameters.getDistanceFilter()) &&
-				(core_.parameters.getAltitudeFilter() <= 0 || core_.ownship.getPosition().distanceV(pos) <= core_.parameters.getAltitudeFilter())) {
-				int idx = core_.set_traffic_state(id,pos,vel,time);
-				if (idx >= 0) {
-					++idx;
-					stale_bands();
-				}
-				return idx;
-			} 
-			return -1;
+		} 
+		if ((core_.parameters.getDistanceFilter() <= 0 || core_.ownship.getPosition().distanceH(pos) <= core_.parameters.getDistanceFilter()) &&
+			(core_.parameters.getAltitudeFilter() <= 0 || core_.ownship.getPosition().distanceV(pos) <= core_.parameters.getAltitudeFilter())) {
+			int idx = core_.set_traffic_state(id,pos,vel,time);
+			if (idx >= 0) {
+				++idx;
+				stale_bands();
+			}
+			return idx;
 		}
+		return -1;
 	}
 
 	/**
 	 * Add traffic state at current time. If it's the first aircraft, this aircraft is 
 	 * set as the ownship. 
+	 * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
+	 * -1 is returned.
 	 * @param id Aircraft's identifier
 	 * @param pos Aircraft's position
 	 * @param vel Aircraft's ground velocity

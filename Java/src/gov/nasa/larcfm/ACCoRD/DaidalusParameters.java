@@ -2545,16 +2545,22 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * Set DAA Terminal Area (DTA) radius (internal units)
 		 */ 
 		public boolean setDTARadius(double val) {
-			dta_radius_ = val;
-			return true;
+			if (error.isNonNegative("setDTARadius",val)) {
+				dta_radius_ = val;
+				return true;
+			}
+			return false;
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) radius in given units
 		 */ 
 		public boolean setDTARadius(double val, String u) {
-			units_.put("dta_radius",u);
-			return setDTARadius(Units.from(u,val));
+			if (setDTARadius(Units.from(u,val))) {
+				units_.put("dta_radius",u);
+				return true;
+			}
+			return false;
 		}
 
 		/** 
@@ -2575,16 +2581,22 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		 * Set DAA Terminal Area (DTA) height (internal units)
 		 */ 
 		public boolean setDTAHeight(double val) {
-			dta_height_ = val;
-			return true;
+			if (error.isNonNegative("setDTAHeight",val)) {
+				dta_height_ = val;
+				return true;
+			}
+			return false;
 		}
 
 		/** 
 		 * Set DAA Terminal Area (DTA) height in given units
 		 */ 
 		public boolean setDTAHeight(double val, String u) {
-			units_.put("dta_height",u);
-			return setDTAHeight(Units.from(u,val));
+			if (setDTAHeight(Units.from(u,val))) {
+				units_.put("dta_height",u);
+				return true;
+			}
+			return false;
 		}
 
 		/** 

@@ -21,7 +21,7 @@
 
 namespace larcfm {
 
-const std::string DaidalusParameters::VERSION = "2.0.4";
+const std::string DaidalusParameters::VERSION = "2.0.4a";
 const INT64FM DaidalusParameters::ALMOST_ = PRECISION5;
 bool DaidalusParameters::initialized = false;
 
@@ -39,6 +39,12 @@ DaidalusParameters::DaidalusParameters() : error("DaidalusParameters") {
   // Bands Parameters
   lookahead_time_ = 180.0; // [s]
   units_["lookahead_time"] = "s";
+
+  distance_filter_ = 0.0; // Zero means no filter
+  units_["distance_filter"] = "nmi";
+
+  altitude_filter_ = 0.0; // Zero means no filter
+  units_["altitude_filter"] = "ft";
 
   left_hdir_  = Units::from("deg",180.0);
   units_["left_hdir"] = "deg";
@@ -311,10 +317,37 @@ double DaidalusParameters::getLookaheadTime(const std::string& u) const {
   return Units::to(u,getLookaheadTime());
 }
 
+/** 
+ * @return distance filter in meters.
+ */
+double DaidalusParameters::getDistanceFilter() const {
+  return distance_filter_;
+}
+
+/** 
+ * @return distance filter in specified units [u].
+ */
+double DaidalusParameters::getDistanceFilter(const std::string& u) const {
+  return Units::to(u,getDistanceFilter());
+}
+
+/** 
+ * @return altitude filter in meters.
+ */
+double DaidalusParameters::getAltitudeFilter() const {
+  return altitude_filter_;
+}
+
+/** 
+ * @return altitude filter in specified units [u].
+ */
+double DaidalusParameters::getAltitudeFilter(const std::string& u) const {
+  return Units::to(u,getAltitudeFilter());
+}
+
 double DaidalusParameters::getLeftHorizontalDirection() const {
   return left_hdir_;
 }
-
 
 double DaidalusParameters::getLeftHorizontalDirection(const std::string& u) const {
   return Units::to(u,getLeftHorizontalDirection());
@@ -723,12 +756,54 @@ bool DaidalusParameters::setLookaheadTime(double val, const std::string& u) {
   return false;
 }
 
+/** 
+ * Set distance filter to value in meters.
+ */
+bool DaidalusParameters::setDistanceFilter(double val) {
+  if (error.isNonNegative("setDistanceFilter",val)) {
+    distance_filter_ = val;	
+    return true;
+  }
+  return false;
+}
+
+/** 
+ * Set distance filter to value in specified units [u].
+ */
+bool DaidalusParameters::setDistanceFilter(double val, const std::string& u) {
+  if (setDistanceFilter(Units::from(u,val))) {
+    units_["distance_filter"] = u;
+    return true;
+  }
+  return false;
+}
+
+/** 
+ * Set altitude filter to value in meters.
+ */
+bool DaidalusParameters::setAltitudeFilter(double val) {
+  if (error.isNonNegative("setAltitudeFilter",val)) {
+    altitude_filter_ = val;	
+    return true;
+  }
+  return false;
+}
+
+/** 
+ * Set altitude filter to value in specified units [u].
+ */
+bool DaidalusParameters::setAltitudeFilter(double val, const std::string& u) {
+  if (setAltitudeFilter(Units::from(u,val))) {
+    units_["altitude_filter"] = u;
+    return true;
+  }
+  return false;
+}
 
 bool DaidalusParameters::setLeftHorizontalDirection(double val) {
   left_hdir_ = std::abs(Util::to_pi(val));
   return true;
 }
-
 
 bool DaidalusParameters::setLeftHorizontalDirection(double val, const std::string& u) {
   units_["left_hdir"] = u;
@@ -874,69 +949,75 @@ bool DaidalusParameters::setMaxAltitude(double val, const std::string& u) {
 }
 
 
-void DaidalusParameters::setBelowRelativeHorizontalSpeed(double val) {
+bool DaidalusParameters::setBelowRelativeHorizontalSpeed(double val) {
   below_relative_hs_ = val;
+  return true;
 }
 
 
-void DaidalusParameters::setBelowRelativeHorizontalSpeed(double val,const std::string& u) {
+bool DaidalusParameters::setBelowRelativeHorizontalSpeed(double val,const std::string& u) {
   units_["below_relative_hs"] = u;
-  setBelowRelativeHorizontalSpeed(Units::from(u, val));
+  return setBelowRelativeHorizontalSpeed(Units::from(u, val));
 }
 
 
-void DaidalusParameters::setAboveRelativeHorizontalSpeed(double val) {
+bool DaidalusParameters::setAboveRelativeHorizontalSpeed(double val) {
   above_relative_hs_ = val;
+  return true;
 }
 
 
-void DaidalusParameters::setAboveRelativeHorizontalSpeed(double val, const std::string& u) {
+bool DaidalusParameters::setAboveRelativeHorizontalSpeed(double val, const std::string& u) {
   units_["above_relative_hs"] = u;
-  setAboveRelativeHorizontalSpeed(Units::from(u, val));
+  return setAboveRelativeHorizontalSpeed(Units::from(u, val));
 }
 
 
-void DaidalusParameters::setBelowRelativeVerticalSpeed(double val) {
+bool DaidalusParameters::setBelowRelativeVerticalSpeed(double val) {
   below_relative_vs_ = val;
+  return true;
 }
 
 
-void DaidalusParameters::setBelowRelativeVerticalSpeed(double val, const std::string& u) {
+bool DaidalusParameters::setBelowRelativeVerticalSpeed(double val, const std::string& u) {
   units_["below_relative_vs"] = u;
-  setBelowRelativeVerticalSpeed(Units::from(u, val));
+  return setBelowRelativeVerticalSpeed(Units::from(u, val));
 }
 
 
-void DaidalusParameters::setAboveRelativeVerticalSpeed(double val) {
+bool DaidalusParameters::setAboveRelativeVerticalSpeed(double val) {
   above_relative_vs_ = val;
+  return true;
 }
 
 
-void DaidalusParameters::setAboveRelativeVerticalSpeed(double val, const std::string& u) {
+bool DaidalusParameters::setAboveRelativeVerticalSpeed(double val, const std::string& u) {
   units_["above_relative_vs"] = u;
-  setAboveRelativeVerticalSpeed(Units::from(u, val));
+  return setAboveRelativeVerticalSpeed(Units::from(u, val));
 }
 
 
-void DaidalusParameters::setBelowRelativeAltitude(double val) {
+bool DaidalusParameters::setBelowRelativeAltitude(double val) {
   below_relative_alt_ = val;
+  return true;
 }
 
 
-void DaidalusParameters::setBelowRelativeAltitude(double val, const std::string& u) {
+bool DaidalusParameters::setBelowRelativeAltitude(double val, const std::string& u) {
   units_["below_relative_alt"] = u;
-  setBelowRelativeAltitude(Units::from(u, val));
+  return setBelowRelativeAltitude(Units::from(u, val));
 }
 
 
-void DaidalusParameters::setAboveRelativeAltitude(double val) {
+bool DaidalusParameters::setAboveRelativeAltitude(double val) {
   above_relative_alt_ = val;
+  return true;
 }
 
 
-void DaidalusParameters::setAboveRelativeAltitude(double val, const std::string& u) {
+bool DaidalusParameters::setAboveRelativeAltitude(double val, const std::string& u) {
   units_["above_relative_alt"] = u;
-  setAboveRelativeAltitude(Units::from(u, val));
+  return setAboveRelativeAltitude(Units::from(u, val));
 }
 
 
@@ -1728,32 +1809,33 @@ const Position& DaidalusParameters::getDTAPosition() const {
 /**
  * Set DAA Terminal Area (DTA) latitude (internal units)
  */
-void DaidalusParameters::setDTALatitude(double lat) {
+bool DaidalusParameters::setDTALatitude(double lat) {
   dta_latitude_ = lat;
+  return true;
 }
 
 /**
  * Set DAA Terminal Area (DTA) latitude in given units
  */
-void DaidalusParameters::setDTALatitude(double lat, const std::string& ulat) {
-  setDTALatitude(Units::from(ulat,lat));
+bool DaidalusParameters::setDTALatitude(double lat, const std::string& ulat) {
   units_["dta_latitude"] =  ulat;
-
+  return setDTALatitude(Units::from(ulat,lat));
 }
 
 /**
  * Set DAA Terminal Area (DTA) longitude (internal units)
  */
-void DaidalusParameters::setDTALongitude(double lon) {
+bool DaidalusParameters::setDTALongitude(double lon) {
   dta_longitude_ = lon;
+  return true;
 }
 
 /**
  * Set DAA Terminal Area (DTA) longitude in given units
  */
-void DaidalusParameters::setDTALongitude(double lon, const std::string& ulon) {
-  setDTALongitude(Units::from(ulon,lon));
+bool DaidalusParameters::setDTALongitude(double lon, const std::string& ulon) {
   units_["dta_longitude"] = ulon;
+  return setDTALongitude(Units::from(ulon,lon));
 }
 
 /**
@@ -1773,16 +1855,23 @@ double DaidalusParameters::getDTARadius(const std::string& u) const {
 /**
  * Set DAA Terminal Area (DTA) radius (internal units)
  */
-void DaidalusParameters::setDTARadius(double val) {
-  dta_radius_ = val;
+bool DaidalusParameters::setDTARadius(double val) {
+  if (error.isNonNegative("setDTARadius",val)) {
+    dta_radius_ = val;
+    return true;
+  }
+  return false;
 }
 
 /**
  * Set DAA Terminal Area (DTA) radius in given units
  */
-void DaidalusParameters::setDTARadius(double val, const std::string& u) {
-  setDTARadius(Units::from(u,val));
-  units_["dta_radius"] = u;
+bool DaidalusParameters::setDTARadius(double val, const std::string& u) {
+  if (setDTARadius(Units::from(u,val))) {
+    units_["dta_radius"] = u;
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -1802,16 +1891,23 @@ double DaidalusParameters::getDTAHeight(const std::string& u) const {
 /**
  * Set DAA Terminal Area (DTA) height (internal units)
  */
-void DaidalusParameters::setDTAHeight(double val) {
-  dta_height_ = val;
+bool DaidalusParameters::setDTAHeight(double val) {
+  if (error.isNonNegative("setDTAHeight",val)) {
+    dta_height_ = val;
+    return true;
+  }
+  return false;
 }
 
 /**
  * Set DAA Terminal Area (DTA) height in given units
  */
-void DaidalusParameters::setDTAHeight(double val, const std::string& u) {
-  setDTAHeight(Units::from(u,val));
-  units_["dta_height"] = u;
+bool DaidalusParameters::setDTAHeight(double val, const std::string& u) {
+  if (setDTAHeight(Units::from(u,val))) {
+    units_["dta_height"] = u;
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -2024,6 +2120,8 @@ std::string DaidalusParameters::toPVS() const {
   std::string s = "";
   s+="(# ";
   s+="lookahead_time := "+FmPrecision(lookahead_time_)+", ";
+  s+="distance_filter := "+FmPrecision(distance_filter_)+", ";
+  s+="altitude_filter := "+FmPrecision(altitude_filter_)+", ";
   s+="left_hdir := "+FmPrecision(left_hdir_)+", ";
   s+="right_hdir := "+FmPrecision(right_hdir_)+", ";
   s+="min_airspeed := "+FmPrecision(min_airspeed_)+", ";
@@ -2118,6 +2216,10 @@ void DaidalusParameters::updateParameterData(ParameterData& p) const {
   // Bands Parameters
   p.setInternal("lookahead_time", lookahead_time_, getUnitsOf("lookahead_time"));
   p.updateComment("lookahead_time","Bands Parameters");
+  p.setInternal("distance_filter", distance_filter_, getUnitsOf("distance_filter"));
+  p.updateComment("distance_filter","Traffic aircraft farther than this distance to the ownship are ignored. Zero means no filter");
+  p.setInternal("altitude_filter", altitude_filter_, getUnitsOf("altitude_filter"));
+  p.updateComment("altitude_filter","Traffic aircraft above/below this altitude to the ownship are ignored. Zero means no filter");
   p.setInternal("left_hdir", left_hdir_, getUnitsOf("left_hdir"));
   p.setInternal("right_hdir", right_hdir_, getUnitsOf("right_hdir"));
   p.setInternal("min_airspeed", min_airspeed_, getUnitsOf("min_airspeed"));
@@ -2319,6 +2421,16 @@ bool DaidalusParameters::setParameterData(const ParameterData& p) {
   if (contains(p,"lookahead_time")) {
     setLookaheadTime(getValue(p,"lookahead_time"));
     units_["lookahead_time"] = getUnit(p,"lookahead_time");
+    setit = true;
+  }
+  if (contains(p,"distance_filter")) {
+    setDistanceFilter(getValue(p,"distance_filter"));
+    units_["distance_filter"] = getUnit(p,"distance_filter");
+    setit = true;
+  }
+  if (contains(p,"altitude_filter")) {
+    setAltitudeFilter(getValue(p,"altitude_filter"));
+    units_["altitude_filter"] = getUnit(p,"altitude_filter");
     setit = true;
   }
   if (contains(p,"left_hdir")) {
