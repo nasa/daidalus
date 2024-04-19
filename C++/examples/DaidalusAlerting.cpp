@@ -108,7 +108,7 @@ int main(int argc, char* argv[]) {
     } else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
       ++a;
       std::istringstream(argv[a]) >> precision;
-    } else if ((startsWith(arga,"--out") || startsWith(arga,"-out")) && a+1 < argc) {
+    } else if ((startsWith(arga,"--out") || startsWith(arga,"-out") || arga == "-o") && a+1 < argc) {
       output_file = argv[++a];
     } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
       std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
