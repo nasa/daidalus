@@ -6,6 +6,7 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
+import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
 import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Util;
@@ -838,13 +839,15 @@ public class DaidalusCore {
 		return 0;
 	}
 
-	public String outputStringAircraftStates(boolean internal, boolean header) {
-		String utrk = internal ? "rad" : "deg";
-		String uxy = internal ? "m" : parameters.getUnitsOf("distance_filter");
-		String ualt = internal ? "m" : parameters.getUnitsOf("altitude_filter");
-		String uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
-		String uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
-		return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,header);
+	private String raw_traffic_data() {
+		StringBuffer str = new StringBuffer();
+		str.append(ownship.rawString());
+		str.append("\n");
+		for (int i = 0; i < traffic.size(); ++i) {
+			str.append(traffic.get(i).rawString());
+			str.append("\n");
+		}
+		return str.toString();
 	}
 
 	public String rawString() {
@@ -905,8 +908,8 @@ public class DaidalusCore {
 		s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
 		s += "below_min_as_ = "+special_band_flags_.get_below_min_as()+"\n";
 		s += "wind_vector = "+wind_vector.toString()+"\n";
-		s += "## Ownship and Traffic Relative to Wind\n";
-		s += outputStringAircraftStates(true,false);
+		s += "## Aircraft states relative to wind\n"; 
+		s += raw_traffic_data(); 
 		s += "##\n";
 		return s;
 	}
@@ -917,6 +920,20 @@ public class DaidalusCore {
 		s+="wind_vector = "+wind_vector.toString()+"\n";
 		s+="##\n";
 		return s;
+	}
+
+	public String outputStringAircraftStates(boolean header, Formatter formater) {
+		StringBuffer s = new StringBuffer();
+		if (ownship.isValid()) {
+			if (header) {
+				s.append(TrafficState.formattedHeader(ownship.isLatLon(),formater));
+			}
+			s.append(ownship.formattedTrafficState(formater,current_time));
+			for (TrafficState ac : traffic) {
+				s.append(ac.formattedTrafficState(formater,current_time));
+			}
+		}
+		return s.toString();
 	}
 
 }

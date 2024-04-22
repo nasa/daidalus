@@ -593,11 +593,15 @@
      */
     public String toXYZ(int prec) {
         return "("+f.FmPrecision(Units.to("knot", v_.x),prec)+", "+f.FmPrecision(Units.to("knot", v_.y),prec)+", "+f.FmPrecision(Units.to("fpm", v_.z),prec)+")";
-      }
+    }
 
     public String toXYZ(String xu, String yu, String zu, int prec) {
         return "("+f.FmPrecision(Units.to(xu, v_.x),prec)+", "+f.FmPrecision(Units.to(yu, v_.y),prec)+", "+f.FmPrecision(Units.to(zu, v_.z),prec)+")";
-      }
+    }
+
+    public String toXYZNP(String xu, String yu, String zu, int prec) {
+      return f.FmPrecision(Units.to(xu, v_.x),prec)+", "+f.FmPrecision(Units.to(yu, v_.y),prec)+", "+f.FmPrecision(Units.to(zu, v_.z),prec);
+    }
 
     /**
      * Euclidean vector representation to arbitrary precision, in [knot,knot,fpm]

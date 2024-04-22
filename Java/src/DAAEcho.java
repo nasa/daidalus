@@ -48,6 +48,7 @@ import java.util.Optional;
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
+import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
 import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Pair;
@@ -62,10 +63,7 @@ public class DAAEcho extends DaidalusProcessor {
 
 	static PrintWriter out;
 	static Optional<EuclideanProjection> projection;
-	static final String uh = "nmi";
-	static final String uv = "ft";
-	static final String ugs = "knot";
-	static final String uvs = "fpm";
+	static Formatter formatter;
 
 	public static void main(String[] args) {
 
@@ -150,6 +148,7 @@ public class DAAEcho extends DaidalusProcessor {
 		}   
 		Daidalus daa = new Daidalus();
 		processor.setDaidalusConfig(daa);
+		formatter = new Formatter(daa.getCore().parameters);
 		if (!processor.getConfigurationName().isEmpty()) {
 			out.print(daa.getCore().parameters.toString());
 		} 
@@ -170,17 +169,17 @@ public class DAAEcho extends DaidalusProcessor {
 			Pair<Position,Velocity> own_posvel = Pair.make(ownship.getPosition(),ownship.getGroundVelocity());
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
 			if (iteration == 0) {
-				out.print(TrafficState.formattedHeader(true,"deg",uh,uv,ugs,uvs));
+				out.print(TrafficState.formattedHeader(true,formatter));
 			}
-			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()));
+			out.print(new_own.formattedTrafficState(formatter,daa.getCurrentTime()));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				Pair<Position,Velocity> ac_posvel = Pair.make(ac.getPosition(),ac.getGroundVelocity());
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvel,new_own,projection);
-				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,daa.getCurrentTime()));
+				out.print(new_ac.formattedTrafficState(formatter,daa.getCurrentTime()));
 			}
 		} else {
-			out.print(daa.outputStringAircraftStates(iteration == 0));
+			out.print(daa.getCore().outputStringAircraftStates(iteration == 0,formatter));
 		}
 	}
 

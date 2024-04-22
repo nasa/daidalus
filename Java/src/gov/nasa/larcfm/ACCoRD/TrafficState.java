@@ -6,8 +6,10 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
+import java.util.Arrays;
 import java.util.List;
 
+import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Projection;
@@ -311,69 +313,125 @@ public class TrafficState {
 		return s+"}";
 	}
 
-	public static String formattedHeader(boolean latlon, String utrk, String uxy, String ualt, String ugs, String uvs) {
-		String s1="NAME";
-		String s2="[none]";
+	public static class Formatter {
+		public boolean trkgsvs;
+		public boolean wind;
+		public boolean sum; 
+		public boolean alerter;
+		public boolean internal; 
+		private DaidalusParameters params_;
+
+		public Formatter(DaidalusParameters params) {
+			trkgsvs = true;
+			wind = true;
+			sum = true;
+			alerter = true;
+			internal = false; 
+			params_ = params;
+		}
+
+		public String get_units(String label) {
+			String u = params_.getUnitsOf(label);
+			if (internal) {
+				return Units.getCanonicalUnit(u);
+			} 
+			return u;
+		}
+
+		public void labels_and_units(StringBuffer strlabels, StringBuffer strunits, List<String> labels) {
+			for (String label:labels) {
+				strlabels.append(" ");
+				strlabels.append(label);
+				strunits.append(" [");
+				strunits.append(get_units(label));
+				strunits.append("]");
+			}
+		}
+
+	}	
+
+	public static String formattedHeader(boolean latlon, Formatter formatter) {
+		StringBuffer labels= new StringBuffer();
+		StringBuffer units = new StringBuffer();
+		labels.append("NAME");
+		units.append("[none]");
 		if (latlon) {
-			s1 += " lat lon alt trk gs vs heading airspeed";
-			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
+			formatter.labels_and_units(labels,units,Arrays.asList("lat","lon","alt"));
 		} else {
-			s1 += " sx sy sz trk gs vs heading airspeed";
-			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
+			formatter.labels_and_units(labels,units,Arrays.asList("sx", "sy", "sz"));
 		}
-		s1 += " time alerter";
-		s2 += " [s] [none]";
-		s1 += " s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std";
-		s2 += " ["+uxy+"] ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+ugs+"] ["+ugs+"] ["+ugs+"] ["+uvs+"]";
-		return s1+"\n"+s2+"\n";
+		if (formatter.trkgsvs) {
+			formatter.labels_and_units(labels,units,Arrays.asList("trk","gs","vs"));
+		} else {
+			formatter.labels_and_units(labels,units,Arrays.asList("vx", "vy", "vz"));
+		}
+		if (formatter.wind) {
+			formatter.labels_and_units(labels,units,Arrays.asList("heading","airspeed"));
+		}
+		formatter.labels_and_units(labels,units,Arrays.asList("time"));
+		if (formatter.alerter) {
+			labels.append(" alerter");
+			units.append(" [none]");
+		}
+		if (formatter.sum) { // Sensor Uncertainty Mitigation
+			formatter.labels_and_units(labels,units,Arrays.asList("s_EW_std", "s_NS_std", "s_EN_std", "sz_std",  
+			"v_EW_std", "v_NS_std", "v_EN_std", "vz_std"));
+		}
+		labels.append("\n");
+		labels.append(units.toString());
+		labels.append("\n");
+		return labels.toString();
 	}
 
-	public String formattedHeader(String utrk, String uxy, String ualt, String ugs, String uvs) {
-		return formattedHeader(isLatLon(),utrk, uxy, ualt, ugs, uvs);
-	}
-
-	public String formattedTrafficState(String utrk, String uxy, String ualt, String ugs, String uvs, double time) {
-		String s= getId();
+	public String formattedTrafficState(Formatter formatter, double time) {
+		StringBuffer s = new StringBuffer();
+		s.append(getId());
 		if (pos_.isLatLon()) {
-			s += ", "+pos_.lla().toString("deg","deg",ualt);
+			s.append(", ");
+			s.append(pos_.lla().toString(formatter.get_units("lat"),formatter.get_units("lon"),formatter.get_units("alt")));
 		} else {
-			s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt);
+			s.append(", ");
+			s.append(pos_.vect3().toStringNP(formatter.get_units("sx"),formatter.get_units("sy"),formatter.get_units("sz")));
 		}
-		s += ", "+gvel_.toStringNP(utrk,ugs,uvs);
-		s += ", "+f.FmPrecision(avel_.compassAngle(utrk));
-		s += ", "+f.FmPrecision(avel_.groundSpeed(ugs));
-		s += ", "+f.FmPrecision(time);
-		s += ", "+alerter_;
-		s += ", "+f.FmPrecision(sum_.get_s_EW_std(uxy));
-		s += ", "+f.FmPrecision(sum_.get_s_NS_std(uxy));
-		s += ", "+f.FmPrecision(sum_.get_s_EN_std(uxy));
-		s += ", "+f.FmPrecision(sum_.get_sz_std(ualt));
-		s += ", "+f.FmPrecision(sum_.get_v_EW_std(ugs));
-		s += ", "+f.FmPrecision(sum_.get_v_NS_std(ugs));
-		s += ", "+f.FmPrecision(sum_.get_v_EN_std(ugs));
-		s += ", "+f.FmPrecision(sum_.get_vz_std(uvs));
-		return s+"\n";
-	}
-
-	public static String formattedTrafficList(List<TrafficState> traffic, 
-			String utrk, String uxy, String ualt, String ugs, String uvs, double time) {
-		String s="";
-		for (TrafficState ac : traffic) {
-			s += ac.formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);
+		if (formatter.trkgsvs) {
+			s.append(", ");
+			s.append(gvel_.toStringNP(formatter.get_units("trk"),formatter.get_units("gs"),formatter.get_units("vs")));
+		} else {
+			s.append(", ");
+			s.append(gvel_.toXYZNP(formatter.get_units("vx"),formatter.get_units("vy"),formatter.get_units("vz"),Constants.get_output_precision()));
 		}
-		return s;
-	}
-
-	public String formattedTraffic(List<TrafficState> traffic,
-			String utrk, String uxy, String ualt, String ugs, String uvs, double time,
-			boolean header) {
-		String s="";
-		if (header) {
-			s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
+		if (formatter.wind) {
+			s.append(", ");
+			s.append(f.FmPrecision(avel_.compassAngle(formatter.get_units("heading"))));
+			s.append(", ");
+			s.append(f.FmPrecision(avel_.groundSpeed(formatter.get_units("airspeed"))));
 		}
-		s += formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);
-		s += formattedTrafficList(traffic,utrk,uxy,ualt,ugs,uvs,time);
-		return s;
+		s.append(", ");
+		s.append(f.FmPrecision(time));
+		if (formatter.alerter) {
+			s.append(", ");
+			s.append(f.Fmi(alerter_));
+		}
+		if (formatter.sum) {
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_s_EW_std(formatter.get_units("s_EW_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_s_NS_std(formatter.get_units("s_NS_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_s_EN_std(formatter.get_units("s_EN_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_sz_std(formatter.get_units("sz_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_v_EW_std(formatter.get_units("v_EW_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_v_NS_std(formatter.get_units("v_NS_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_v_EN_std(formatter.get_units("v_EN_std"))));
+			s.append(", ");
+			s.append(f.FmPrecision(sum_.get_vz_std(formatter.get_units("vz_std"))));
+		}
+		s.append("\n");
+		return s.toString();
 	}
 
 	public String toPVS() {
@@ -592,6 +650,10 @@ public class TrafficState {
 
 	public String toString() {
 		return "("+id_+", "+pos_.toString()+", "+avel_.toString()+")";
+	}
+
+	public String rawString() {
+		return "id: "+id_+", sxyz: "+sxyz_.toString()+", vxyz: "+velxyz_.toString();
 	}
 
 }

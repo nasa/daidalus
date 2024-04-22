@@ -53,6 +53,7 @@ import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.ACCoRD.Horizontal;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
+import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
 import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Kinematics;
@@ -73,16 +74,12 @@ public class DAAGenerator {
 	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 
 	static Map<String, Velocity> hcpa_vel = new HashMap<String,Velocity>();
 	static Daidalus daa = new Daidalus();
-	static final String uh = "nmi";
-	static final String uv = "ft";
-	static final String ugs = "knot";
-	static final String uvs = "fpm";
 
 	public static void main(String[] args) {
 
 		// Create an empty Daidalus object
 
-
+		Formatter formatter = new Formatter(daa.getCore().parameters);
 		String input_file = "";
 		String ownship_id = "";
 		List<String> traffic_ids = new ArrayList<String>();		
@@ -282,18 +279,18 @@ public class DAAGenerator {
 			out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
 		}
 		printKeyVals(keyvals,out);
-		out.print(TrafficState.formattedHeader(daalatlon,"deg",uh,uv,ugs,uvs));
+		out.print(TrafficState.formattedHeader(daalatlon,formatter));
 		ParameterData own_param = params.get(daa.getOwnshipState().getId());
 		for (double t = -backward; t <= forward; t++, init++) {
 			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(new_own.formattedTrafficState("deg",uh,uv,ugs,uvs,init));
+			out.print(new_own.formattedTrafficState(formatter,init));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = params.get(ac.getId());
 				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(new_ac.formattedTrafficState("deg",uh,uv,ugs,uvs,init));
+				out.print(new_ac.formattedTrafficState(formatter,init));
 			}
 		}  
 		out.close();

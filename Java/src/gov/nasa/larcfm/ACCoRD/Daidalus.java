@@ -7,6 +7,7 @@
 
 package gov.nasa.larcfm.ACCoRD;
 
+import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
 import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.Position;
@@ -2924,6 +2925,13 @@ public class Daidalus {
 		return core_.parameters.getUnitsOf(key);
 	}
 
+	/** 
+	 * Set string units of parameters keys. Return false if units are not compatible
+	 */
+	public boolean setUnitsOf(String key, String units) {
+		return core_.parameters.setUnitsOf(key, units);
+	}
+
 	/* Utility methods */
 
 	/** 
@@ -4357,11 +4365,8 @@ public class Daidalus {
 	/* Input/Output methods */
 
 	public String outputStringAircraftStates() {
-		return outputStringAircraftStates(true);
-	}
-
-	public String outputStringAircraftStates(boolean header) {
-		return core_.outputStringAircraftStates(false,header);
+		Formatter formatter = new Formatter(core_.parameters);
+		return core_.outputStringAircraftStates(true,formatter);
 	}
 
 	public String rawString() {

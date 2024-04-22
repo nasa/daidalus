@@ -383,6 +383,30 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 			alerters_ = new ArrayList<Alerter>();
 
+			// Units for labels in DAA file
+			units_.put("lat","deg");
+			units_.put("lon", "deg");
+			units_.put("alt",units_.get("step_alt"));
+			units_.put("sx","m");
+			units_.put("sy","m");
+			units_.put("sz","m");
+			units_.put("trk",units_.get("step_hdir"));
+			units_.put("gs",units_.get("step_hs"));
+			units_.put("vs",units_.get("step_vs"));
+			units_.put("vx","m/s");
+			units_.put("vy","m/s");
+			units_.put("vz","m/s");
+			units_.put("heading",units_.get("step_hdir"));
+			units_.put("airspeed",units_.get("step_hs"));
+			units_.put("time","s");
+			units_.put("s_EW_std","m");
+			units_.put("s_NS_std","m");
+			units_.put("s_EN_std","m");
+			units_.put("sz_std","m");
+			units_.put("v_EW_std","m/s");
+			units_.put("v_NS_std","m/s");
+			units_.put("v_EN_std","m/s");
+			units_.put("vz_std","m/s");
 		}
 
 		public DaidalusParameters(DaidalusParameters parameters) {
@@ -3481,7 +3505,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		}
 
 		/** 
-		 * Get string units of parameters key
+		 * Get string units of parameters keys
 		 */
 		public String getUnitsOf(String key) {
 			String u = units_.get(key);
@@ -3495,6 +3519,19 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 				}
 			}
 			return "unspecified";
+		}
+
+		/** 
+		 * Set string units of parameters keys. Return false if units are not compatible
+		 */
+		public boolean setUnitsOf(String key, String units) {
+			String u = units_.get(key);
+			if (u != null) {
+				if (Units.isCompatible(units,u)) {
+					units_.put(key,units);
+				}
+			} 
+			return false;
 		}
 
 		public boolean hasError() {
