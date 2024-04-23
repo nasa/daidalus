@@ -3,7 +3,6 @@ import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Velocity;
-import gov.nasa.larcfm.Util.f;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -15,11 +14,10 @@ import java.util.List;
 public abstract class DaidalusProcessor {
 
 
-	private double from_;
-	private double to_;
-	private double absolute_from_;
-	private double absolute_to_;
-	private double relative_;
+	private int sfrom_; // 0 is absolute, > 0 is from beggining, < 0 is from end
+	private double ufrom_; // from
+	private int sto_; // 0 is absolute, > 0 is from beggining, < 0 is from end
+	private double uto_; // to
 	private StringBuffer options_;
 	private String ownship_;
 	private boolean skip_;
@@ -33,11 +31,10 @@ public abstract class DaidalusProcessor {
 	private Velocity wind_;
 
 	public DaidalusProcessor() {
-		from_ = -1.0;
-		to_ = -1.0;
-		absolute_from_ = -1.0;
-		absolute_to_ = -1.0;
-		relative_ = 0.0;
+		sfrom_ = 1; // From beginning
+		ufrom_ = 0; // 0 (from beginning)
+		sto_ = -1;  // From end
+		uto_ = 0;   // 0 (from end)
 		options_ = new StringBuffer();
 		ownship_ = "";
 		skip_ = true;
@@ -98,41 +95,55 @@ public abstract class DaidalusProcessor {
 		s.append("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n");
 		s.append("  --instantaneous\n\tOverride configuration to do instantaneous bands\n");
 		s.append("  --nohystereis\n\tOverride configuation to disable hysteresis\n");
-		s.append("  --from <t>\n\tStart at time <t>\n");
-		s.append("  --to <t>\n\tEnd at time <t>\n");
-		s.append("  --at [<t> | <t>+<k> | <t>-<k>]\n\tDo times <t>, [<t>,<t>+<k>], or [<t>-<k>,<t>], respectively.\n");
-		s.append("\tFirst time is denoted by +0. Last time is denoted by -0\n");
+		s.append("  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
+		s.append("  --to [<t> | +<t> | -<t>]\n\tEnd at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
+		s.append("  --at [<t> | +<t> | -<t>]\n\tDo time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
 		s.append("  --dontskip\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n");
 		return s.toString();    
 	}
 
-	private void parse_at(String arga) {
-		int k = arga.indexOf("+");
-		if (k == 0) {
-			relative_ = Double.parseDouble(arga)+0.001;
-		} else if (k > 0) {
-			from_ = Double.parseDouble(arga.substring(0,k));
-			relative_ = Double.parseDouble(arga.substring(k));
-		} else {
-			k = arga.indexOf("-");
-			if (k == 0) {
-				relative_ = Double.parseDouble(arga)-0.001;
-			} else if (k > 0) {
-				to_ = Double.parseDouble(arga.substring(0,k));
-				relative_ = Double.parseDouble(arga.substring(k));
+	// from is 1, to is -1, at is 0
+	private void parse_time(int from_to_at,String arga) {
+		if (from_to_at > 0) { // From
+			if (arga.startsWith("+")) {
+				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
+				sfrom_ = 1;
+			} else if (arga.startsWith("-")) {
+				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
+				sfrom_ = -1;
 			} else {
-				k = arga.indexOf("*");
-				if (k > 0) {
-					from_ = Double.parseDouble(arga.substring(0,k));
-					relative_ = Double.parseDouble(arga.substring(k+1));
-					from_ -= relative_;
-					relative_ *= 2;
-				} else {
-					from_ = Double.parseDouble(arga);
-					to_ = from_;
-				}
-			}
-		}
+				ufrom_ = Double.parseDouble(arga);
+				sfrom_ = 0;
+			}	
+		} else if (from_to_at < 0) {  // To
+			if (arga.startsWith("+")) {
+				uto_ = Double.parseDouble(arga.substring(1,arga.length()));
+				sto_ = 1;
+			} else if (arga.startsWith("-")) {
+				uto_ = Double.parseDouble(arga.substring(1,arga.length()));
+				sto_ = -1;
+			} else {
+				uto_ = Double.parseDouble(arga);
+				sto_ = 0;
+			}	
+		} else { // At
+			if (arga.startsWith("+")) {
+				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
+				sfrom_ = 1;
+				uto_ = Double.parseDouble(arga.substring(1,arga.length()));;
+				sto_ = 1;
+			} else if (arga.startsWith("-")) {
+				uto_ = Double.parseDouble(arga.substring(1,arga.length()));
+				sto_ = -1;
+				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));;
+				sfrom_ = -1;
+			} else {
+				ufrom_ = Double.parseDouble(arga);
+				sfrom_ = 0;
+				uto_ = Double.parseDouble(arga);
+				sto_ = 0;
+			}	
+		}			
 	}
 
 	public int processOptions(String[] args, int i) {
@@ -159,11 +170,11 @@ public abstract class DaidalusProcessor {
 			// Use the given configuration, but disable hysteresis
 			no_hyst_ = true;
 		} else if ((arga.equals("--from") || arga.equals("-from")) && a+1 < args.length) {
-			from_ = Double.parseDouble(args[++a]);
+			parse_time(1,args[++a]);
 		} else if ((arga.equals("--to") || arga.equals("-to")) && a+1 < args.length) {
-			to_ = Double.parseDouble(args[++a]);
+			parse_time(-1,args[++a]);
 		} else if ((arga.equals("--at") || arga.equals("-at")) && a+1 < args.length) {
-			parse_at(args[++a]);        
+			parse_time(0,args[++a]);        
 		} else if (arga.startsWith("--dont") || arga.startsWith("-dont")) {
 			skip_ = false;
 		} else {
@@ -203,25 +214,9 @@ public abstract class DaidalusProcessor {
 			if (!conf_.isEmpty()) {
 				name += "_"+getConfigurationName();
 			}
-			double from = getFrom();
-			if (from >= 0) {
-				name += "_"+f.Fm0(from);
-				double to = getTo();
-				if (from < to) {
-					name += "_"+f.Fm0(to);
-				}
-			}
 			name += "."+ext;
 		}
 		return name;
-	}
-
-	public double getFrom() {
-		return absolute_from_ < 0 ? from_ : absolute_from_;
-	}
-
-	public double getTo() {
-		return absolute_to_ < 0 ? to_ : absolute_to_;
 	}
 
 	public void setDaidalusConfig(Daidalus daa) {
@@ -275,8 +270,6 @@ public abstract class DaidalusProcessor {
 	}
 
 	public void processFile(String filename, Daidalus daa) {
-		absolute_from_ = from_;
-		absolute_to_ = to_;
 		DaidalusFileWalker walker = new DaidalusFileWalker(filename); 
 		if (!wind_.isInvalid()) {
 			walker.setWindVelocityTo(wind_);
@@ -287,33 +280,35 @@ public abstract class DaidalusProcessor {
 		if (!traffic_.isEmpty()) {
 			walker.selectTraffic(traffic_);
 		}
-		if (absolute_from_ < 0) {
-			absolute_from_ = walker.firstTime();        
-		}
-		if (absolute_to_ < 0) { 
-			absolute_to_ = walker.lastTime();
-		}
-		if (relative_ > 0) {
-			absolute_to_ = absolute_from_ + relative_;
-		}
-		if (relative_ < 0) {
-			absolute_from_ = absolute_to_ + relative_;
-		}
-		if (skip_) {
-			walker.goToTime(absolute_from_);
+		double absolute_from = walker.firstTime();
+		double absolute_to = walker.lastTime();
+		if (sfrom_ == 0) {
+			absolute_from = ufrom_;
+		} else if (sfrom_ > 0) {
+			absolute_from += ufrom_;
 		} else {
-			walker.goToBeginning();
+			absolute_from = walker.lastTime()-ufrom_;
 		}
-		if (absolute_from_ <= absolute_to_) {
+		if (sto_ == 0) {
+			absolute_to = uto_;
+		} else if (sto_ < 0) {
+			absolute_to -= uto_;
+		} else {
+			absolute_to = walker.firstTime()+uto_;
+		}
+		if (absolute_from <= absolute_to) {
+			if (skip_) {
+				walker.goToTime(absolute_from);
+			}
 			daa.reset();
 			int iteration = 0;
-			while (!walker.atEnd() && walker.getTime() <= absolute_to_) {
+			while (!walker.atEnd() && walker.getTime() <= absolute_to) {
 				walker.readState(daa);
 				if (!daa.hasOwnship()) {
 					System.err.println("** Warning: Ownship not found in file "+filename);
 					return;
 				}			
-				if (daa.getCurrentTime() >= absolute_from_) {
+				if (daa.getCurrentTime() >= absolute_from) {
 					processTime(daa,iteration);
 					++iteration;
 				} else {

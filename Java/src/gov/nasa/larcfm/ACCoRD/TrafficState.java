@@ -653,7 +653,7 @@ public class TrafficState {
 	}
 
 	public String rawString() {
-		return "id: "+id_+", sxyz: "+sxyz_.toString()+", vxyz: "+velxyz_.toString();
+		return "id: "+id_+", sxyz: "+sxyz_.toString()+", vxyz: "+velxyz_.vect3().toString();
 	}
 
 }
