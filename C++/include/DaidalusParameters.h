@@ -164,6 +164,10 @@ private:
    */
   void set_alerters_with_SUM_parameters();
 
+  std::string units_of_daa_key(const std::string& key) const;
+
+  std::string cannonical_key(const std::string& keystr) const;
+
 public:
 
   /**
@@ -1083,7 +1087,15 @@ public:
 
   void setParameters(const ParameterData& p);
 
+  /** 
+   * Get string units of parameters keys
+   */
   std::string getUnitsOf(const std::string& key) const;
+
+  /** 
+   * Set string units of parameters keys. Return false if units are not compatible
+   */
+  bool setUnitsOf(const std::string& keystr, const std::string& units);
 
   bool hasError() const;
 

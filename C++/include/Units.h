@@ -477,9 +477,9 @@ public:
 
 	/** Get the unit conversion factor for the given string unit */
 	static double getFactor(const std::string& unit);
-  /** Determine if the given string is a valid unit
-   * @param unit string representation of a unit
-   * @return true, if this string is known as a unit in the database of units */
+ 	/** Determine if the given string is a valid unit
+  	 * @param unit string representation of a unit
+   	* @return true, if this string is known as a unit in the database of units */
 	static bool isUnit(const std::string& unit);
 
 	/**
@@ -490,6 +490,13 @@ public:
 	 * with any other units.
 	 */
 	static bool isCompatible(const std::string& unit1, const std::string& unit2);
+
+	/**
+	 * Return the internal (factor 1.0) unit compatible with this unit
+	 * @param unit unit to check
+	 * @return unit with factor 1.0 that is compatible with this unit.  In the event the unit is recognized but has no factor 1.0 equivalent, this will return the empty string.
+	 */
+	static std::string getCompatibleInternalUnit(const std::string& unit);
 
 	/** Make a string representation of the value in internal units to the given units */
 	static std::string str(const std::string& symbol, double value);

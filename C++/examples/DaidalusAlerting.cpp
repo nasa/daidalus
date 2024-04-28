@@ -203,8 +203,8 @@ int main(int argc, char* argv[]) {
   }
   int corrective_level = daa.correctiveAlertLevel(1);
   const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
-  std::string uhor = daa.getUnitsOf("min_horizontal_recovery");
-  std::string uver = daa.getUnitsOf("min_vertical_recovery");
+  std::string uhor = daa.getUnitsOf("distance_filter");
+  std::string uver = daa.getUnitsOf("altitude_filter");
   std::string uhs = daa.getUnitsOf("step_hs");
   std::string uvs = daa.getUnitsOf("step_vs");
 
@@ -216,7 +216,7 @@ int main(int argc, char* argv[]) {
   }
   std::string line_units = "[s],,,,";
   if (!daa.isDisabledDTALogic()) {
-    line_units += ",,, [nmi]";
+    line_units += ",,, ["+uhor+"]";
   }
   for (int level=1; level <= max_alert_levels;++level) {
     out << ", Time to Volume of Alert(" << level << ")";
@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
         } else {
           double dh = (daa.isAlertingLogicOwnshipCentric()?
               daa.getOwnshipState():daa.getAircraftStateAt(ac)).getPosition().distanceH(daa.getDTAPosition());
-          out << ", " << FmPrecision(Units::to("nmi",dh));
+          out << ", " << FmPrecision(Units::to(uhor,dh));
         }
       }
       for (int level=1; level <= max_alert_levels; ++level) {

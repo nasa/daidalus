@@ -1955,6 +1955,11 @@ public:
    */
   std::string getUnitsOf(const std::string& key) const;
 
+  /** 
+   * Set string units of parameters keys. Return false if units are not compatible
+   */
+  bool setUnitsOf(const std::string& keystr, const std::string& units);
+
   /* Direction Bands Settings */
 
   /**

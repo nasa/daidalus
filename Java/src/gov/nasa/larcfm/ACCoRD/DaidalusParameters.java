@@ -209,16 +209,16 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		altitude_filter_ = 0.0; // Zero means no filter
 		units_.put("altitude_filter","ft");
 
-		left_hdir_  = Units.from("deg",180.0); 
+		left_hdir_  = Units.from("deg",180.0);
 		units_.put("left_hdir","deg");
 
 		right_hdir_ = Units.from("deg",180.0);
 		units_.put("right_hdir","deg");
 
-		min_airspeed_  = Units.from("knot",10.0);  
+		min_airspeed_  = Units.from("knot",10.0);
 		units_.put("min_airspeed","knot");
-		
-		min_hs_  = Units.from("knot",10.0);  
+
+		min_hs_  = Units.from("knot",10.0);
 		units_.put("min_hs","knot");
 
 		max_hs_  = Units.from("knot",700.0);
@@ -227,16 +227,16 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		min_vs_  = Units.from("fpm",-6000.0);
 		units_.put("min_vs","fpm");
 
-		max_vs_  = Units.from("fpm",6000.0); 
+		max_vs_  = Units.from("fpm",6000.0);
 		units_.put("max_vs","fpm");
 
-		min_alt_ = Units.from("ft",100.0);  
+		min_alt_ = Units.from("ft",100.0);
 		units_.put("min_alt","ft");
 
 		max_alt_ = Units.from("ft",50000.0);
 		units_.put("max_alt","ft");
 
-		// Relative Bands 
+		// Relative Bands
 		below_relative_hs_ = 0.0;
 		units_.put("below_relative_hs","knot");
 
@@ -256,67 +256,67 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		units_.put("above_relative_alt","ft");
 
 		// Kinematic Parameters
-		step_hdir_ = Units.from("deg",1.0); 
+		step_hdir_ = Units.from("deg",1.0);
 		units_.put("step_hdir","deg");
 
-		step_hs_ = Units.from("knot",5.0); 
+		step_hs_ = Units.from("knot",5.0);
 		units_.put("step_hs","knot");
 
-		step_vs_ = Units.from("fpm",100.0); 
+		step_vs_ = Units.from("fpm",100.0);
 		units_.put("step_vs","fpm");
 
-		step_alt_ = Units.from("ft", 100.0); 
+		step_alt_ = Units.from("ft", 100.0);
 		units_.put("step_alt","ft");
 
-		horizontal_accel_ = Units.from("m/s^2",2.0); 
+		horizontal_accel_ = Units.from("m/s^2",2.0);
 		units_.put("horizontal_accel","m/s^2");
 
-		vertical_accel_ = Units.from("G",0.25);    // Section 1.2.3, DAA MOPS V3.6
+		vertical_accel_ = Units.from("G",0.25); // Section 1.2.3, DAA MOPS V3.6
 		units_.put("vertical_accel","G");
 
 		turn_rate_ = Units.from("deg/s",3.0); // Section 1.2.3, DAA MOPS V3.6
 		units_.put("turn_rate","deg/s");
 
-		bank_angle_ = 0.0;    
+		bank_angle_ = 0.0;
 		units_.put("bank_angle","deg");
 
-		vertical_rate_ = Units.from("fpm",500.0);   // Section 1.2.3, DAA MOPS V3.6                     
+		vertical_rate_ = Units.from("fpm",500.0); // Section 1.2.3, DAA MOPS V3.6
 		units_.put("vertical_rate","fpm");
 
 		// Recovery Bands Parameters
-		min_horizontal_recovery_ = 0.0; 
+		min_horizontal_recovery_ = 0.0;
 		units_.put("min_horizontal_recovery","nmi");
 
-		min_vertical_recovery_ = 0.0; 
+		min_vertical_recovery_ = 0.0;
 		units_.put("min_vertical_recovery","ft");
 
-		recovery_hdir_ = true; 
+		recovery_hdir_ = true;
 
-		recovery_hs_ = true; 
+		recovery_hs_ = true;
 
-		recovery_vs_ = true; 
+		recovery_vs_ = true;
 
-		recovery_alt_ = true; 
+		recovery_alt_ = true;
 
 		// Collision Avoidance Bands Parameters
-		ca_bands_ = false; 
+		ca_bands_ = false;
 
 		ca_factor_ = 0.1;
 
-		horizontal_nmac_ = ACCoRDConfig.NMAC_D;      // Defined in RTCA SC-147
+		horizontal_nmac_ = ACCoRDConfig.NMAC_D; // Defined in RTCA SC-147
 		units_.put("horizontal_nmac","ft");
 
-		vertical_nmac_ = ACCoRDConfig.NMAC_H;        // Defined in RTCA SC-147
+		vertical_nmac_ = ACCoRDConfig.NMAC_H; // Defined in RTCA SC-147
 		units_.put("vertical_nmac","ft");
 
 		// Hysteresis and persistence parameters
-		recovery_stability_time_ = 3.0; // [s] 
+		recovery_stability_time_ = 3.0; // [s]
 		units_.put("recovery_stability_time","s");
 
-		hysteresis_time_ = 0.0; // [s] 
+		hysteresis_time_ = 0.0; // [s]
 		units_.put("hysteresis_time","s");
 
-		persistence_time_ = 0.0; // [s] 
+		persistence_time_ = 0.0; // [s]
 		units_.put("persistence_time","s");
 
 		bands_persistence_ = false;
@@ -339,7 +339,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		// Implicit Coordination Parameters
 		conflict_crit_ = false;
 
-		recovery_crit_ = false; 
+		recovery_crit_ = false;
 
 		// SUM parameters
 		h_pos_z_score_ = 0.0;
@@ -381,13 +381,13 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 		corrective_region_ = BandsRegion.NEAR;
 
-		alerters_ = new ArrayList<Alerter>();
+		alerters_ = new ArrayList<>();
 
 	}
 
 	public DaidalusParameters(DaidalusParameters parameters) {
-		units_ = new HashMap<String,String>();
-		alerters_ = new ArrayList<Alerter>(); 
+		units_ = new HashMap<>();
+		alerters_ = new ArrayList<>();
 		copyFrom(parameters);
 	}
 
@@ -403,13 +403,13 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		altitude_filter_ = parameters.altitude_filter_;
 		left_hdir_ = parameters.left_hdir_;
 		right_hdir_ = parameters.right_hdir_;
-		min_airspeed_ = parameters.min_airspeed_;   
-		min_hs_ = parameters.min_hs_;   
-		max_hs_ = parameters.max_hs_;   
-		min_vs_ = parameters.min_vs_;   
-		max_vs_ = parameters.max_vs_;   
-		min_alt_ = parameters.min_alt_; 
-		max_alt_ = parameters.max_alt_; 
+		min_airspeed_ = parameters.min_airspeed_;
+		min_hs_ = parameters.min_hs_;
+		max_hs_ = parameters.max_hs_;
+		min_vs_ = parameters.min_vs_;
+		max_vs_ = parameters.max_vs_;
+		min_alt_ = parameters.min_alt_;
+		max_alt_ = parameters.max_alt_;
 
 		// Relative bands
 		below_relative_hs_ = parameters.below_relative_hs_;
@@ -422,15 +422,15 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		above_relative_alt_ = parameters.above_relative_alt_;
 
 		// Kinematic bands
-		step_hdir_        = parameters.step_hdir_;  
+		step_hdir_        = parameters.step_hdir_;
 		step_hs_          = parameters.step_hs_;
-		step_vs_          = parameters.step_vs_; 
-		step_alt_         = parameters.step_alt_; 
-		horizontal_accel_ = parameters.horizontal_accel_; 
-		vertical_accel_   = parameters.vertical_accel_; 
-		turn_rate_        = parameters.turn_rate_; 
-		bank_angle_       = parameters.bank_angle_; 
-		vertical_rate_    = parameters.vertical_rate_; 
+		step_vs_          = parameters.step_vs_;
+		step_alt_         = parameters.step_alt_;
+		horizontal_accel_ = parameters.horizontal_accel_;
+		vertical_accel_   = parameters.vertical_accel_;
+		turn_rate_        = parameters.turn_rate_;
+		bank_angle_       = parameters.bank_angle_;
+		vertical_rate_    = parameters.vertical_rate_;
 
 		// Recovery bands
 		min_horizontal_recovery_ = parameters.min_horizontal_recovery_;
@@ -447,8 +447,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		vertical_nmac_           = parameters.vertical_nmac_;
 
 		// Hysteresis and persistence parameters
-		recovery_stability_time_    = parameters.recovery_stability_time_; 
-		hysteresis_time_ 			= parameters.hysteresis_time_; 
+		recovery_stability_time_    = parameters.recovery_stability_time_;
+		hysteresis_time_ 			= parameters.hysteresis_time_;
 		persistence_time_           = parameters.persistence_time_;
 		bands_persistence_		    = parameters.bands_persistence_;
 		persistence_preferred_hdir_ = parameters.persistence_preferred_hdir_;
@@ -460,7 +460,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 		// Implicit coordination parameters
 		conflict_crit_           = parameters.conflict_crit_;
-		recovery_crit_           = parameters.recovery_crit_; 
+		recovery_crit_           = parameters.recovery_crit_;
 
 		// SUM
 		h_pos_z_score_           = parameters.h_pos_z_score_;
@@ -471,7 +471,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		v_vel_z_score_           = parameters.v_vel_z_score_;
 
 		// Contours
-		contour_thr_ = parameters.contour_thr_;	
+		contour_thr_ = parameters.contour_thr_;
 
 		// DAA Terminal Area (DTA)
 		dta_logic_ = parameters.dta_logic_;
@@ -3480,61 +3480,74 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		return aliases_;
 	}
 
-	private String units_of_daa_label(String label) {
-		if (label.equals("lat") || label.equals("lon")) {
+	private String units_of_daa_key(String key) {
+		if (key.equals("lat") || key.equals("lon")) {
 			return "deg";
-		} else if (label.equals("alt") || label.equals("sz")) {
+		} else if (key.equals("alt") || key.equals("sz")) {
 			return units_.get("step_alt");
-		} else if (label.equals("sx") || label.equals("sy")) {
+		} else if (key.equals("sx") || key.equals("sy")) {
 			return units_.get("distance_filter");
-		} else if (label.equals("trk") || label.equals("heading")) {
+		} else if (key.equals("trk") || key.equals("heading")) {
 		   	return units_.get("step_hdir");
-		} else if (label.equals("gs") || label.equals("vx") || label.equals("vy")) {
+		} else if (key.equals("gs") || key.equals("vx") || key.equals("vy")) {
 			return units_.get("step_hs");
-		} else if (label.equals("airspeed")) {
+		} else if (key.equals("airspeed")) {
 			return units_.get("min_airspeed");
-		} else if (label.equals("vs") || label.equals("vz")) {
+		} else if (key.equals("vs") || key.equals("vz")) {
 			return units_.get("step_vs");
-		} else if (label.equals("time")) {
+		} else if (key.equals("time")) {
 			return "s";
-		} else if (label.equals("s_EW_std") || label.equals("s_NS_std") || 
-			label.equals("s_EN_std") || label.equals("sz_std")) {
+		} else if (key.equals("s_ew_std") || key.equals("s_ns_std") || 
+			key.equals("s_en_std") || key.equals("sz_std")) {
 			return "m";
-		} else if (label.equals("v_EW_std") || label.equals("v_NS_std") || 
-			label.equals("v_EN_std") || label.equals("vz_std")) {
+		} else if (key.equals("v_ew_std") || key.equals("v_ns_std") || 
+			key.equals("v_en_std") || key.equals("vz_std")) {
 			return "m/s";
 		} else {
 			return "unspecified";
 		}
 	}
 
+	private String cannonical_key(String keystr) {
+		String key = keystr.toLowerCase();
+		for (Entry<String, List<String>> aliases: aliases_.entrySet()) {
+			if (aliases.getValue().contains(key)) {
+				return aliases.getKey();
+			}
+		}
+		return key;
+	}
+
 	/** 
 	 * Get string units of parameters keys
 	 */
-	public String getUnitsOf(String key) {
+	public String getUnitsOf(String keystr) {
+		String key = cannonical_key(keystr);
 		String u = units_.get(key);
 		if (u != null) {
 			return u;
 		} 
-		for (Entry<String, List<String>> aliases: aliases_.entrySet()) {
-			if (aliases.getValue().contains(key)) {
-				u = units_.get(aliases.getKey());
-				return u == null ? "unspecified" : u;
-			}
-		}
-		return units_of_daa_label(key);
+		return units_of_daa_key(key);
 	}
 
 	/** 
 	 * Set string units of parameters keys. Return false if units are not compatible
 	 */
-	public boolean setUnitsOf(String key, String units) {
-		String u = units_.get(key);
-		if (u != null) {
-			if (Units.isCompatible(units,u)) {
+	public boolean setUnitsOf(String keystr, String units) {
+		String key = cannonical_key(keystr);
+		String u = getUnitsOf(key);
+		if (!u.equals("unspecified")) {
+			if (units.equals("internal")) {
+				String internalu = Units.getCompatibleInternalUnit(u);
+				if (!internalu.isEmpty()) {
+					units_.put(key,internalu);
+					return true;
+				}
+			} else if (Units.isCompatible(units,u)) {
 				units_.put(key,units);
+				return true;
 			}
-		} 
+		}
 		return false;
 	}
 

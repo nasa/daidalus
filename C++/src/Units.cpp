@@ -544,8 +544,46 @@ bool Units::isCompatible(const std::string& unit1p, const std::string& unit2p) {
 		return unit2 == "unitless";
 	}
 	return false;
-
 }
+
+/**
+ * Return the internal (factor 1.0) unit compatible with this unit
+ * @param unit unit to check
+ * @return unit with factor 1.0 that is compatible with this unit.  In the event the unit is recognized but has no factor 1.0 equivalent, this will return the empty string.
+ */
+std::string Units::getCompatibleInternalUnit(const std::string& unitp) {
+	const std::string unit = Units::canonical(unitp);
+	if (unit == "unspecified") {
+		return "";
+	}
+	if (unit == "m" || unit == "ft" || unit == "km" || unit == "NM"
+			|| unit == "mi" || unit == "in" || unit == "yard" || unit == "mm") {
+		return  "m";
+	} else if (unit == "ft^2" || unit == "m^2") {
+		return "m^2";
+	} else if (unit == "s" || unit == "min" || unit == "hour" || unit == "ms" || unit == "day") {
+		return "s";
+	} else if (unit == "rad" || unit == "deg") {
+		return "rad";
+	} else if (unit == "rad/s" || unit == "deg/s") {
+		return "rad/s";
+	} else if (unit == "kg" || unit == "slug" || unit == "lbm") {
+		return "kg";
+	} else if (unit == "kph" || unit == "kn" || unit == "fpm"
+			|| unit == "m/s" || unit == "mph" || unit == "ft/s" || unit == "NM/s") {
+		return "m/s";
+	} else if (unit == "m/s^2" || unit == "G" || unit == "ft/s^2") {
+		return "m/s^2";
+	} else if (unit == "N" || unit == "lbf") {
+		return "N";
+	} else if (unit == "atm" || unit == "Pa") {
+		return "Pa";
+	} else if (unit == "unitless") {
+		return "unitless";
+	}
+	return "";
+}
+
 
 // Converts value canonical units to [symbol] units
 double Units::to(const std::string& symbol, double value) {

@@ -2826,6 +2826,13 @@ std::string Daidalus::getUnitsOf(const std::string& key) const {
   return core_.parameters.getUnitsOf(key);
 }
 
+/** 
+ * Set string units of parameters keys. Return false if units are not compatible
+ */
+bool Daidalus::setUnitsOf(const std::string& keystr, const std::string& units) {
+  return core_.parameters.setUnitsOf(keystr,units);
+}
+
 /* Utility methods */
 
 /**

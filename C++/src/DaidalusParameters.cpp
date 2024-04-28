@@ -2772,19 +2772,76 @@ void DaidalusParameters::setParameters(const ParameterData& p) {
   setParameterData(p);
 }
 
-std::string DaidalusParameters::getUnitsOf(const std::string& key) const {
+std::string DaidalusParameters::units_of_daa_key(const std::string& key) const {
+		if (key == "lat" || key == "lon") {
+			return "deg";
+		} else if (key == "alt" || key == "sz") {
+			return units_.at("step_alt");
+		} else if (key == "sx" || key == "sy") {
+			return units_.at("distance_filter");
+		} else if (key == "trk" || key == "heading") {
+		   	return units_.at("step_hdir");
+		} else if (key == "gs" || key == "vx" || key == "vy") {
+			return units_.at("step_hs");
+		} else if (key == "airspeed") {
+			return units_.at("min_airspeed");
+		} else if (key == "vs" || key == "vz") {
+			return units_.at("step_vs");
+		} else if (key == "time") {
+			return "s";
+		} else if (key == "s_ew_std" || key == "s_ns_std" || 
+			key == "s_en_std" || key == "sz_std") {
+			return "m";
+		} else if (key == "v_ew_std" || key == "v_ns_std" || 
+			key == "v_en_std" || key == "vz_std") {
+			return "m/s";
+		} else {
+			return "unspecified";
+		}
+}
+
+std::string DaidalusParameters::cannonical_key(const std::string& keystr) const {
+  std::string key = toLowerCase(keystr);
+  aliasestype::const_iterator aliases_ptr;
+  for (aliases_ptr = getAliases().begin(); aliases_ptr != getAliases().end(); ++aliases_ptr) {
+    if (std::find(aliases_ptr->second.begin(),aliases_ptr->second.end(),key) != aliases_ptr->second.end()) {
+      return aliases_ptr->first;
+    }
+  }
+  return key;
+}
+
+/** 
+ * Get string units of parameters keys
+ */
+std::string DaidalusParameters::getUnitsOf(const std::string& keystr) const {
+  std::string key = cannonical_key(keystr);
   std::map<std::string,std::string>::const_iterator find_ptr = units_.find(key);
   if (find_ptr != units_.end()) {
     return find_ptr->second;
   }
-  aliasestype::const_iterator aliases_ptr;
-  for (aliases_ptr = getAliases().begin(); aliases_ptr != getAliases().end(); ++aliases_ptr) {
-    if (std::find(aliases_ptr->second.begin(),aliases_ptr->second.end(),key) != aliases_ptr->second.end()) {
-      find_ptr = units_.find(aliases_ptr->first);
-      return find_ptr != units_.end() ? find_ptr->second : "unspecified";
+  return units_of_daa_key(key);
+}
+
+/** 
+ * Set string units of parameters keys. Return false if units are not compatible
+ */
+bool DaidalusParameters::setUnitsOf(const std::string& keystr, const std::string& units) {
+  std::string key = cannonical_key(keystr);
+  std::string u = getUnitsOf(key);
+  if (u != "unspecified") {
+    if (units == "internal") {
+      std::string internalu = Units::getCompatibleInternalUnit(u);
+      if (!internalu.empty()) {
+        units_[key] = internalu;
+        return true;
+      }
+    } else if (Units::isCompatible(units,u)) {
+      units_[key] = units;
+      return true;
     }
   }
-  return "unspecified";
+  return false;
 }
 
 bool DaidalusParameters::hasError() const {
