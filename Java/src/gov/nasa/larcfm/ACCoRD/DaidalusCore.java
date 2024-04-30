@@ -925,12 +925,9 @@ public class DaidalusCore {
 	public String outputStringAircraftStates(boolean header, Formatter formater) {
 		StringBuffer s = new StringBuffer();
 		if (ownship.isValid()) {
-			if (header) {
-				s.append(TrafficState.formattedHeader(ownship.isLatLon(),formater));
-			}
-			s.append(ownship.formattedTrafficState(formater,current_time));
+			s.append(ownship.formattedTrafficState(header,formater,current_time));
 			for (TrafficState ac : traffic) {
-				s.append(ac.formattedTrafficState(formater,current_time));
+				s.append(ac.formattedTrafficState(false,formater,current_time));
 			}
 		}
 		return s.toString();

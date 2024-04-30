@@ -2929,7 +2929,7 @@ public class Daidalus {
 	 * Set string units of parameters keys. Return false if units are not compatible
 	 */
 	public boolean setUnitsOf(String key, String units) {
-		return core_.parameters.setUnitsOf(key, units);
+		return core_.parameters.setUnitsOf(key,units);
 	}
 
 	/* Utility methods */

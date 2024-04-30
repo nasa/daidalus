@@ -25,6 +25,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 	private Optional<String> ownship_; // Set ownship to a given value
 	private List<String> traffic_; // Only consider the traffic aircraft in this list
 	private Velocity wind_; // Wind velocity vector
+	private List<String> columns_; // Columns of DAA file
 
 	public DaidalusFileWalker(String filename) {
 		sr_ = new SequenceReader(filename);
@@ -48,6 +49,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 		ownship_ = Optional.empty();
 		traffic_.clear();
 		wind_ = Velocity.INVALID;
+		columns_ = sr_.getExtraColumnList();
 	}
 
 	/** 
@@ -211,24 +213,23 @@ public class DaidalusFileWalker implements ErrorReporter {
 		return i;
 	}
 
-	private static ParameterData extraColumnsToParameters(SequenceReader sr, double time, String ac_name) {
+	private ParameterData extraColumnsToParameters(double time, String ac_name) {
 		ParameterData pd = new ParameterData();
-		List<String> columns = sr.getExtraColumnList();
-		for (String col : columns) {
-			if (sr.hasExtraColumnData(time, ac_name, col)) {
-				String units = sr.getExtraColumnUnits(col);
+		for (String col : columns_) {
+			if (sr_.hasExtraColumnData(time, ac_name, col)) {
+				String units = sr_.getExtraColumnUnits(col);
 				if (units.equals("unitless") || units.equals("unspecified")) {
-					pd.set(col, sr.getExtraColumnString(time, ac_name, col));
+					pd.set(col,sr_.getExtraColumnString(time, ac_name, col));
 				} else {
-					pd.setInternal(col, sr.getExtraColumnValue(time, ac_name, col), units);
+					pd.setInternal(col,sr_.getExtraColumnValue(time, ac_name, col), units);
 				}
 			}
 		}
 		return pd;
 	}
 
-	public static void readExtraColumns(Daidalus daa, SequenceReader sr, int ac_idx, boolean read_wind) {
-		ParameterData pcol = extraColumnsToParameters(sr,daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
+	private void readExtraColumns(Daidalus daa, int ac_idx, boolean read_wind) {
+		ParameterData pcol = extraColumnsToParameters(daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
 		if (pcol.size() > 0) {
 			if (ac_idx == 0) {
 				// Note that daidalus parameters (in column format) and air velocity are ignored for traffic aircraft
@@ -283,6 +284,13 @@ public class DaidalusFileWalker implements ErrorReporter {
 		}
 	}
 
+	public void setUnits(Daidalus daa) {
+		for (String col : columns_) {
+			String units = sr_.getExtraColumnUnits(col);
+			daa.setUnitsOf(col,units);
+		}
+	}
+
 	public void readState(Daidalus daa) {
 		if (p_.size() > 0) {
 			daa.setParameterData(p_);
@@ -303,7 +311,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 			Position so = sr_.getPosition(own);
 			Velocity vo = sr_. getVelocity(own);
 			daa.setOwnshipState(ido,so,vo,getTime());
-			readExtraColumns(daa,sr_,0,wind_.isInvalid());
+			readExtraColumns(daa,0,wind_.isInvalid());
 			if (!wind_.isInvalid() && !wind_.isZero()) {
 				// Override wind
 				daa.setWindVelocityTo(wind_);
@@ -318,7 +326,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 					Velocity va = sr_. getVelocity(ac);
 					// Notice that idx may be different from ac because of traffic
 					int idx=daa.addTrafficState(ida,sa,va);
-					readExtraColumns(daa,sr_,idx,false);
+					readExtraColumns(daa,idx,false);
 				}
 			}
 		}

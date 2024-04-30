@@ -122,8 +122,8 @@ public class DaidalusAlerting extends DaidalusProcessor {
 		}
 		int corrective_level = daa.correctiveAlertLevel(1);
 		detector = daa.getAlerterAt(1).getDetector(corrective_level).get();
-		uhor = daa.getUnitsOf("min_horizontal_recovery");
-		uver = daa.getUnitsOf("min_vertical_recovery");
+		uhor = daa.getUnitsOf("distance_filter");
+		uver = daa.getUnitsOf("altitude_filter");
 		uhs = daa.getUnitsOf("step_hs");
 		uvs = daa.getUnitsOf("step_vs");
 		out.print(" Time, Ownship, Traffic, Alerter, Alert Level");
@@ -132,7 +132,7 @@ public class DaidalusAlerting extends DaidalusProcessor {
 		}
 		String line_units = "[s],,,,";
 		if (!daa.isDisabledDTALogic()) {
-			line_units += ",,, [nmi]";
+			line_units += ",,, ["+uhor+"]";
 		}
 		for (int level=1; level <= max_alert_levels;++level) {
 			out.print(", Time to Volume of Alert("+level+")");
@@ -172,7 +172,7 @@ public class DaidalusAlerting extends DaidalusProcessor {
 				} else {
 					double dh = (daa.isAlertingLogicOwnshipCentric()?
 						daa.getOwnshipState():daa.getAircraftStateAt(ac)).getPosition().distanceH(daa.getDTAPosition());
-					out.print(", "+f.FmPrecision(Units.to("nmi",dh)));
+					out.print(", "+f.FmPrecision(Units.to(uhor,dh)));
 				}
 			}
 			for (int level=1; level <= max_alert_levels; ++level) {

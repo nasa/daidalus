@@ -238,6 +238,7 @@ public class DAAGenerator {
 		} else {
 			walker.goToTime(time);
 		}
+		walker.setUnits(daa);
 		walker.readState(daa);
 		if (!daa.hasOwnship()) {
 			System.err.println("** Error: Ownship not found in file "+input_file);
@@ -279,18 +280,18 @@ public class DAAGenerator {
 			out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
 		}
 		printKeyVals(keyvals,out);
-		out.print(TrafficState.formattedHeader(daalatlon,formatter));
 		ParameterData own_param = params.get(daa.getOwnshipState().getId());
-		for (double t = -backward; t <= forward; t++, init++) {
+		int offset = 0;
+		for (double t = -backward; t <= forward; ++t, ++offset) {
 			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(new_own.formattedTrafficState(formatter,init));
+			out.print(new_own.formattedTrafficState(offset==0,formatter,init+offset));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = params.get(ac.getId());
 				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(new_ac.formattedTrafficState(formatter,init));
+				out.print(new_ac.formattedTrafficState(false,formatter,init+offset));
 			}
 		}  
 		out.close();

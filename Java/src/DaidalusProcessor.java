@@ -9,6 +9,7 @@ import java.io.FilenameFilter;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class DaidalusProcessor {
@@ -28,6 +29,7 @@ public abstract class DaidalusProcessor {
 	private boolean do_inst_;
 	private boolean no_hyst_;
 	private ParameterData params_;
+	private HashMap<String,String> units_;
 	private Velocity wind_;
 
 	public DaidalusProcessor() {
@@ -38,13 +40,14 @@ public abstract class DaidalusProcessor {
 		options_ = new StringBuffer();
 		ownship_ = "";
 		skip_ = true;
-		traffic_ = new ArrayList<String>();
+		traffic_ = new ArrayList<>();
 		conf_ = "";
 		output_file_ = "";
 		precision_ = 6;
 		do_inst_ = false;
 		no_hyst_ = false;
 		params_ = new ParameterData();
+		units_ = new HashMap<>();
 		wind_ = Velocity.INVALID;
 	}
 
@@ -54,7 +57,7 @@ public abstract class DaidalusProcessor {
 	 * (2) all files ending with exts in directories from the original list. 
 	 */
 	public static List<File> getFiles(List<String> names, final List<String> exts) {
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		for (String name : names) {
 			File file = new File(name);
 			if (file.canRead()) {
@@ -86,6 +89,8 @@ public abstract class DaidalusProcessor {
 		s.append("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>\n");
 		s.append("  --<key>='<val>'\n\tOverride configuration value, where <key> is any configuration variable and val is its value\n");
 		s.append("\t(including units, if any), e.g., --lookahead_time='5[min]'\n");
+		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>\n");
+		s.append("\tIf <unit> is not provided, internal units are assumed\n");
 		s.append("  --wind_speed='<val>[uval]'\n\tOverride wind speed to specify val and units, e.g., '40[knot]'\n");
 		s.append("  --wind_to='<val>[deg]'\n\tOverride direction wind is blowing to, val is clockwise from true north in degrees\n");
 		s.append("  --wind_from='<val>[deg]'\n\tOverride direction wind is coming from, val is clockwise from true north in degrees\n");
@@ -158,7 +163,19 @@ public abstract class DaidalusProcessor {
 			output_file_ = args[++a];
 		} else if (arga.startsWith("-") && arga.contains("=")) {
 			String keyval = arga.substring(arga.startsWith("--")?2:1);
-			params_.set(keyval);
+			params_.set(keyval); 
+		} else if ((arga.startsWith("--units") || arga.startsWith("-units")) && a+1 < args.length) {
+			String keys = args[++a];
+			String unit = "internal";
+			int pos = keys.indexOf(":",0);
+			if (pos >= 0) {
+				unit = keys.substring(pos+1);
+				keys = keys.substring(0,pos);
+			}
+			String[] arr_of_keys = keys.split(",");
+	        for (String key : arr_of_keys) {
+				units_.put(key,unit);
+			}
 		} else if ((arga.startsWith("--own") || arga.startsWith("-own")) && a+1 < args.length) { 
 			ownship_ = args[++a];
 		} else if ((arga.startsWith("--traf") || arga.startsWith("-traf")) && a+1 < args.length) { 
@@ -279,6 +296,10 @@ public abstract class DaidalusProcessor {
 		}
 		if (!traffic_.isEmpty()) {
 			walker.selectTraffic(traffic_);
+		}
+		walker.setUnits(daa);
+		for (String key : units_.keySet()) {
+			daa.setUnitsOf(key,units_.get(key));
 		}
 		double absolute_from = walker.firstTime();
 		double absolute_to = walker.lastTime();
