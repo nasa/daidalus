@@ -320,63 +320,63 @@ public class TrafficState {
 		public boolean sum; 
 		public boolean alerter;
 		public boolean internal; 
-		private DaidalusParameters params_;
 
-		public Formatter(DaidalusParameters params) {
+		public Formatter() {
 			sxyz = false;
 			vxyz = false;
 			groundvel = true;
 			sum = true;
 			alerter = true;
 			internal = false; 
-			params_ = params;
 		}
 
-		public String get_units(String label) {
-			String u = params_.getUnitsOf(label);
+		public static final Formatter DefaultFormatter = new Formatter();
+
+		private String get_units(DaidalusParameters params, String label) {
+			String u = params.getUnitsOf(label);
 			if (internal) {
 				return Units.getCompatibleInternalUnit(u);
 			} 
 			return u;
 		}
 
-		public void labels_and_units(StringBuffer strlabels, StringBuffer strunits, List<String> labels) {
+		public void labels_and_units(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, List<String> labels) {
 			for (String label:labels) {
 				strlabels.append(" ");
 				strlabels.append(label);
 				strunits.append(" [");
-				strunits.append(get_units(label));
+				strunits.append(get_units(params,label));
 				strunits.append("]");
 			}
 		}
 
 	}	
 
-	private static String formatted_header(boolean latlon, Formatter formatter) {
+	private static String formatted_header(boolean latlon, DaidalusParameters params, Formatter formatter) {
 		StringBuffer labels= new StringBuffer();
 		StringBuffer units = new StringBuffer();
 		labels.append("NAME");
 		units.append("[none]");
 		if (latlon && !formatter.sxyz) {
-			formatter.labels_and_units(labels,units,Arrays.asList("lat","lon","alt"));
+			formatter.labels_and_units(params,labels,units,Arrays.asList("lat","lon","alt"));
 		} else {
-			formatter.labels_and_units(labels,units,Arrays.asList("sx", "sy", "sz"));
+			formatter.labels_and_units(params,labels,units,Arrays.asList("sx", "sy", "sz"));
 		}
 		if (formatter.vxyz) {
-			formatter.labels_and_units(labels,units,Arrays.asList("vx", "vy", "vz"));
+			formatter.labels_and_units(params,labels,units,Arrays.asList("vx", "vy", "vz"));
 		} else {
-			formatter.labels_and_units(labels,units,Arrays.asList("trk","gs","vs"));
+			formatter.labels_and_units(params,labels,units,Arrays.asList("trk","gs","vs"));
 		}
 		if (formatter.groundvel) {
-			formatter.labels_and_units(labels,units,Arrays.asList("heading","airspeed"));
+			formatter.labels_and_units(params,labels,units,Arrays.asList("heading","airspeed"));
 		}
-		formatter.labels_and_units(labels,units,Arrays.asList("time"));
+		formatter.labels_and_units(params,labels,units,Arrays.asList("time"));
 		if (formatter.alerter) {
 			labels.append(" alerter");
 			units.append(" [none]");
 		}
 		if (formatter.sum) { // Sensor Uncertainty Mitigation
-			formatter.labels_and_units(labels,units,Arrays.asList("s_EW_std", "s_NS_std", "s_EN_std", "sz_std",  
+			formatter.labels_and_units(params,labels,units,Arrays.asList("s_EW_std", "s_NS_std", "s_EN_std", "sz_std",  
 			"v_EW_std", "v_NS_std", "v_EN_std", "vz_std"));
 		}
 		labels.append("\n");
@@ -385,46 +385,46 @@ public class TrafficState {
 		return labels.toString();
 	}
 
-	private String formattedVelocity(Velocity vel, Formatter formatter) {
+	private String formattedVelocity(Velocity vel, DaidalusParameters params, Formatter formatter) {
 		StringBuffer s = new StringBuffer();
 		if (formatter.vxyz) {
 			s.append(", ");
-			s.append(vel.vect3().toStringNP(formatter.get_units("vx"),formatter.get_units("vy"),formatter.get_units("vz")));
+			s.append(vel.vect3().toStringNP(formatter.get_units(params,"vx"),formatter.get_units(params,"vy"),formatter.get_units(params,"vz")));
 		} else {
 			s.append(", ");
-			s.append(vel.toStringNP(formatter.get_units("trk"),formatter.get_units("gs"),formatter.get_units("vs")));
+			s.append(vel.toStringNP(formatter.get_units(params,"trk"),formatter.get_units(params,"gs"),formatter.get_units(params,"vs")));
 		}	
 		return s.toString();
 	}
 
-	public String formattedTrafficState(boolean header, Formatter formatter, double time) {
+	public String formattedTrafficState(boolean header, DaidalusParameters params, Formatter formatter, double time) {
 		StringBuffer s = new StringBuffer();
 		if (header) {
-			s.append(formatted_header(pos_.isLatLon(),formatter));
+			s.append(formatted_header(pos_.isLatLon(),params,formatter));
 		}
 		s.append(getId());
 		boolean print_sxyz = false;
 		if (pos_.isLatLon() && !formatter.sxyz) {
 			s.append(", ");
-			s.append(pos_.lla().toString(formatter.get_units("lat"),formatter.get_units("lon"),formatter.get_units("alt")));
+			s.append(pos_.lla().toString(formatter.get_units(params,"lat"),formatter.get_units(params,"lon"),formatter.get_units(params,"alt")));
 		} else {
 			print_sxyz = true;
 			s.append(", ");
-			s.append(get_s().toStringNP(formatter.get_units("sx"),formatter.get_units("sy"),formatter.get_units("sz")));
+			s.append(get_s().toStringNP(formatter.get_units(params,"sx"),formatter.get_units(params,"sy"),formatter.get_units(params,"sz")));
 		}
 		if (print_sxyz) { // Print projected ground and air velocities as specified
 			Velocity vel = formatter.groundvel ? velxyz_.Add(windVector()) : velxyz_;
-			s.append(formattedVelocity(vel,formatter));
+			s.append(formattedVelocity(vel,params,formatter));
 		} else { // Print unprojected gvel and avel as specified
 			Velocity vel = formatter.groundvel ? gvel_ : avel_;
-			s.append(formattedVelocity(vel,formatter));
+			s.append(formattedVelocity(vel,params,formatter));
 		} 
 		if (formatter.groundvel) {
 			Velocity vel = print_sxyz ? velxyz_ : avel_;
 			s.append(", ");
-			s.append(f.FmPrecision(vel.compassAngle(formatter.get_units("heading"))));
+			s.append(f.FmPrecision(vel.compassAngle(formatter.get_units(params,"heading"))));
 			s.append(", ");
-			s.append(f.FmPrecision(vel.groundSpeed(formatter.get_units("airspeed"))));
+			s.append(f.FmPrecision(vel.groundSpeed(formatter.get_units(params,"airspeed"))));
 		}
 		s.append(", ");
 		s.append(f.FmPrecision(time));
@@ -434,21 +434,21 @@ public class TrafficState {
 		}
 		if (formatter.sum) {
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_s_EW_std(formatter.get_units("s_EW_std"))));
+			s.append(f.FmPrecision(sum_.get_s_EW_std(formatter.get_units(params,"s_EW_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_s_NS_std(formatter.get_units("s_NS_std"))));
+			s.append(f.FmPrecision(sum_.get_s_NS_std(formatter.get_units(params,"s_NS_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_s_EN_std(formatter.get_units("s_EN_std"))));
+			s.append(f.FmPrecision(sum_.get_s_EN_std(formatter.get_units(params,"s_EN_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_sz_std(formatter.get_units("sz_std"))));
+			s.append(f.FmPrecision(sum_.get_sz_std(formatter.get_units(params,"sz_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_v_EW_std(formatter.get_units("v_EW_std"))));
+			s.append(f.FmPrecision(sum_.get_v_EW_std(formatter.get_units(params,"v_EW_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_v_NS_std(formatter.get_units("v_NS_std"))));
+			s.append(f.FmPrecision(sum_.get_v_NS_std(formatter.get_units(params,"v_NS_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_v_EN_std(formatter.get_units("v_EN_std"))));
+			s.append(f.FmPrecision(sum_.get_v_EN_std(formatter.get_units(params,"v_EN_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(sum_.get_vz_std(formatter.get_units("vz_std"))));
+			s.append(f.FmPrecision(sum_.get_vz_std(formatter.get_units(params,"vz_std"))));
 		}
 		s.append("\n");
 		return s.toString();
