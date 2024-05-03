@@ -19,32 +19,28 @@ public class DaidalusBatch extends DaidalusProcessor {
 	static int format = STANDARD; 
 	static PrintWriter out;
 
-	static void printHelpMsg() {
-		System.err.println("Usage:");
-		System.err.println("  DaidalusBatch [<options>] <daa_files>");
-		System.err.println("Run DAIDALUS in batch mode with a given configuration on a list of DAA files. Valid <options> are");
-		System.err.println("  --help\n\tPrint this message");
-		System.err.println("  --verbose\n\tPrint extra information");
-		System.err.println("  --raw\n\tPrint raw information");
-		System.err.println("  --pvs\n\tProduce PVS output format");
-		System.err.println(getHelpString());
-		System.exit(1);
+	public String applicationHelpString() {
+		StringBuffer str = new StringBuffer();
+		str.append("DaidalusBatch [<options>] <daa_files>\n");
+		str.append("Run DAIDALUS in batch mode with a given configuration on a list of DAA files. Valid <options> are:\n");
+		str.append("  --verbose\n\tPrint extra information\n");
+		str.append("  --raw\n\tPrint raw information\n");
+		str.append("  --pvs\n\tProduce PVS output format\n");
+		return str.toString();
 	}
 
 	public static void main(String[] args) {
 		out = new PrintWriter(System.out);
 		DaidalusBatch processor = new DaidalusBatch();
+		processor.ignoreset.add("location");
 		StringBuffer options = new StringBuffer();
-		List<String> file_names = new ArrayList<>();
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
 			if (ap >= 0) {
 				a = ap;
 			} else {
 				String arga = args[a];
-				if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
-					printHelpMsg();
-				} else if (arga.equals("--verbose") || arga.equals("-verbose") || arga.equals("-v")) {
+				if (arga.equals("--verbose") || arga.equals("-verbose") || arga.equals("-v")) {
 					verbose = true;
 					options.append(arga);
 					options.append(" ");
@@ -57,20 +53,14 @@ public class DaidalusBatch extends DaidalusProcessor {
 					options.append(arga);
 					options.append(" ");
 				} else if (arga.startsWith("-")) {
-					System.out.println("Invalid option: "+arga);
+					System.out.println("** Error: Invalid option ("+arga+")");
 					System.exit(1);
-				} else {
-					file_names.add(arga);
-				}
+				} 			
 			}
 		}
 		options.append(processor.getOptionsString());
-		for (String name: file_names) {
-			options.append(name);
-			options.append(" ");
-		}
 		List<String> exts = Arrays.asList("daa","xyz");
-		List<File> input_files = getFiles(file_names,exts);
+		List<File> input_files = processor.getFiles(exts);
 		if (input_files.isEmpty()) {
 			System.err.println("Usage:\n\tDaidalusBatch [<options>] <daa_files>");
 			System.err.println("Try:\n\tDaidalusBatch --help");

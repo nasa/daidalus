@@ -377,7 +377,9 @@ int DaidalusCore::set_traffic_state(const std::string& id, const Position& pos, 
   Position pt = dt == 0 ? pos : pos.linear(vel,dt);
   TrafficState ac = ownship.makeIntruder(id,pt,vel);
   if (ac.isValid()) {
-    ac.applyWindVector(wind_vector);
+    if (!wind_vector.isZero()) {
+      ac.applyWindVector(wind_vector);
+    }
     int idx = find_traffic_state(id);
     if (idx >= 0) {
       traffic[idx]=ac;

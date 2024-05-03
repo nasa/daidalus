@@ -2853,7 +2853,7 @@ public:
 
   std::string rawString() const;
 
-  std::string toString() const;
+  std::string toString(); // Clear mesasges so it cannot be const
 
   std::string outputStringInfo();
 

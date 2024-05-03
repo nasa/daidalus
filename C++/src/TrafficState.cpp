@@ -9,7 +9,7 @@
 #include "Position.h"
 #include "Velocity.h"
 #include "Projection.h"
-#include "Constants.h"
+//#include "Constants.h"
 #include "format.h"
 #include "string_util.h"
 
@@ -143,7 +143,7 @@ int TrafficState::getAlerterIndex() const {
 }
 
 void TrafficState::applyWindVector(const Vect3& wind_vector) {
-  avel_ = Velocity(gvel_.Sub(wind_vector));
+  avel_ = wind_vector.isZero() ? gvel_ : gvel_.Sub(wind_vector);
   applyEuclideanProjection();
 }
 

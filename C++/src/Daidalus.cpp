@@ -4281,7 +4281,7 @@ std::string Daidalus::rawString() const {
   return s;
 }
 
-std::string Daidalus::toString() const {
+std::string Daidalus::toString() { // Clear messages, so it cannot be const
   std::string s = "";
   s = "# Daidalus Object\n";
   s += core_.parameters.toString();

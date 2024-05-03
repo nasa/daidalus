@@ -1,7 +1,13 @@
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
+import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
+import gov.nasa.larcfm.IO.ConfigReader;
+import gov.nasa.larcfm.Util.EuclideanProjection;
+import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.ParameterData;
+import gov.nasa.larcfm.Util.Projection;
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Velocity;
 
 import java.io.File;
@@ -10,7 +16,9 @@ import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class DaidalusProcessor {
 
@@ -28,9 +36,14 @@ public abstract class DaidalusProcessor {
 	private int precision_;
 	private boolean do_inst_;
 	private boolean no_hyst_;
-	private ParameterData params_;
+	private double lat_ = 0.0; // In decimal degrees
+	private double lon_ = 0.0; // In decimal degrees
 	private HashMap<String,String> units_;
-	private Velocity wind_;
+	private HashMap<String,Boolean> format_;
+	private List<String> file_names_ = new ArrayList<>();
+	public Formatter formatter;
+	public  Set<String> ignoreset; // Ignore options
+	public ParameterData parameters;
 
 	public DaidalusProcessor() {
 		sfrom_ = 1; // From beginning
@@ -46,9 +59,43 @@ public abstract class DaidalusProcessor {
 		precision_ = 6;
 		do_inst_ = false;
 		no_hyst_ = false;
-		params_ = new ParameterData();
+		parameters = new ParameterData();
 		units_ = new HashMap<>();
-		wind_ = Velocity.INVALID;
+		format_ = new HashMap<>();
+		lat_  = 0.0;
+		lon_  = 0.0;
+		file_names_ = new ArrayList<>();
+		formatter = new Formatter();
+		ignoreset = new HashSet<>();
+	}
+
+	public Velocity getWind() {
+		double wind_speed =  0.0;
+		double wind_dir = 0.0;
+		if (parameters.contains("wind_speed")) {
+			wind_speed = parameters.getValue("wind_speed");
+			wind_dir = parameters.getValue("wind_to");
+			boolean from_dir = false;
+			if (parameters.contains("wind_from")) {
+				wind_dir = parameters.getValue("wind_from");
+				from_dir = true;
+			}
+			Velocity wind = Velocity.mkTrkGsVs(wind_dir,wind_speed,0.0);
+			if (from_dir) {
+				wind = wind.Neg();
+			}
+			return wind;
+		}
+		return Velocity.INVALID;
+	} 
+
+	public boolean isLocationSet() {
+		return lat_ != 0.0 && lon_ != 0.0;
+	}
+
+	public EuclideanProjection getProjection() {
+		final EuclideanProjection projection = Projection.createProjection(lat_,lon_,0.0);
+		return projection;
 	}
 
 	/** Given a list of names that may include files or directories,
@@ -56,9 +103,9 @@ public abstract class DaidalusProcessor {
 	 * (1) all of the files in the original list and 
 	 * (2) all files ending with exts in directories from the original list. 
 	 */
-	public static List<File> getFiles(List<String> names, final List<String> exts) {
+	public List<File> getFiles(final List<String> exts) {
 		List<File> files = new ArrayList<>();
-		for (String name : names) {
+		for (String name : file_names_) {
 			File file = new File(name);
 			if (file.canRead()) {
 				if (file.isDirectory()) {
@@ -84,26 +131,36 @@ public abstract class DaidalusProcessor {
 		return files;
 	}
 
-	public static String getHelpString() {
+	private String help_string() {
 		StringBuffer s = new StringBuffer();
-		s.append("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>\n");
+		if (!ignoreset.contains("config")) {
+			s.append("  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>\n");
+			s.append("  --instantaneous\n\tOverride configuration to do instantaneous bands\n");
+			s.append("  --nohystereis\n\tOverride configuation to disable hysteresis\n");
+		}
 		s.append("  --<key>='<val>'\n\tOverride configuration value, where <key> is any configuration variable and val is its value\n");
 		s.append("\t(including units, if any), e.g., --lookahead_time='5[min]'\n");
-		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>\n");
-		s.append("\tIf <unit> is not provided, internal units are assumed\n");
-		s.append("  --wind_speed='<val>[uval]'\n\tOverride wind speed to specify val and units, e.g., '40[knot]'\n");
+		s.append("  --wind_speed='<val>[uval]'\n\tOverride wind speed with specified val and units, e.g., '40[knot]'\n");
 		s.append("  --wind_to='<val>[deg]'\n\tOverride direction wind is blowing to, val is clockwise from true north in degrees\n");
 		s.append("  --wind_from='<val>[deg]'\n\tOverride direction wind is coming from, val is clockwise from true north in degrees\n");
+		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>. If <unit> is not provided,\n\tinternal units are assumed\n");
+		s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz,vxyz,groundvel,alerter,sum,internal.\n\tIf Boolean value is not provided, true is assumed\n");
 		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
-		s.append("  --precision <n>\n\tOutput decimal precision\n");
+		s.append("  --precision <n>\n\tOutput numbers with specified decimal precision\n");
 		s.append("  --ownship <id>\n\tSpecify a particular aircraft as ownship\n");
 		s.append("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n");
-		s.append("  --instantaneous\n\tOverride configuration to do instantaneous bands\n");
-		s.append("  --nohystereis\n\tOverride configuation to disable hysteresis\n");
 		s.append("  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
 		s.append("  --to [<t> | +<t> | -<t>]\n\tEnd at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
 		s.append("  --at [<t> | +<t> | -<t>]\n\tDo time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
-		s.append("  --dontskip\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n");
+		if (!ignoreset.contains("dontskip")) {
+			s.append("  --dontskip\n\tWhen using --from <t> or --at <t>, do all times before <t> to keep hysteresis\n");
+		}
+		if (!ignoreset.contains("location")) {
+			s.append("  --latitude <lat>\n\tSet Eucliedean local origin to latitude <lat>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.\n");
+			s.append("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.\n");
+			s.append("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>\n");
+		}
+		s.append("  --help\n\tPrint this message\n");
 		return s.toString();    
 	}
 
@@ -154,16 +211,22 @@ public abstract class DaidalusProcessor {
 	public int processOptions(String[] args, int i) {
 		int a=i;
 		String arga = args[a];
-		if ((arga.startsWith("--conf") || arga.startsWith("-conf")) && a+1 < args.length) {
+		if (!ignoreset.contains("config") && (arga.startsWith("--conf") || arga.startsWith("-conf")) && a+1 < args.length) {
 			// Load configuration file
 			conf_ = args[++a];	
+		} else if (!ignoreset.contains("config") && (arga.startsWith("--inst") || arga.startsWith("-inst"))) {
+			// Use the given configuration, but do instantaneous bands
+			do_inst_ = true;
+		} else if (!ignoreset.contains("config") && (arga.startsWith("--nohys") || arga.startsWith("-nohys"))) {
+			// Use the given configuration, but disable hysteresis
+			no_hyst_ = true;
 		} else if ((arga.startsWith("--prec") || arga.startsWith("-prec") && a+1 < args.length)) {
 			precision_ = Integer.parseInt(args[++a]);
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
 		} else if (arga.startsWith("-") && arga.contains("=")) {
 			String keyval = arga.substring(arga.startsWith("--")?2:1);
-			params_.set(keyval); 
+			parameters.set(keyval); 
 		} else if ((arga.startsWith("--units") || arga.startsWith("-units")) && a+1 < args.length) {
 			String keys = args[++a];
 			String unit = "internal";
@@ -176,24 +239,61 @@ public abstract class DaidalusProcessor {
 	        for (String key : arr_of_keys) {
 				units_.put(key,unit);
 			}
+		} else if ((arga.startsWith("--format") || arga.startsWith("-format")) && a+1 < args.length) {
+			String keys = args[++a];
+			boolean enable = true;
+			int pos = keys.indexOf(":",0);
+			if (pos >= 0) {
+				enable = !keys.substring(pos+1).toLowerCase().equals("false");
+				keys = keys.substring(0,pos);
+			}
+			String[] arr_of_keys = keys.split(",");
+	        for (String key : arr_of_keys) {
+				format_.put(key,enable);
+			}
 		} else if ((arga.startsWith("--own") || arga.startsWith("-own")) && a+1 < args.length) { 
 			ownship_ = args[++a];
 		} else if ((arga.startsWith("--traf") || arga.startsWith("-traf")) && a+1 < args.length) { 
 			traffic_.addAll(Arrays.asList(args[++a].split(",")));
-		} else if (arga.startsWith("--inst") || arga.startsWith("-inst")) {
-			// Use the given configuration, but do instantaneous bands
-			do_inst_ = true;
-		} else if (arga.startsWith("--nohys") || arga.startsWith("-nohys")) {
-			// Use the given configuration, but disable hysteresis
-			no_hyst_ = true;
 		} else if ((arga.equals("--from") || arga.equals("-from")) && a+1 < args.length) {
 			parse_time(1,args[++a]);
 		} else if ((arga.equals("--to") || arga.equals("-to")) && a+1 < args.length) {
 			parse_time(-1,args[++a]);
 		} else if ((arga.equals("--at") || arga.equals("-at")) && a+1 < args.length) {
 			parse_time(0,args[++a]);        
-		} else if (arga.startsWith("--dont") || arga.startsWith("-dont")) {
+		} else if (!ignoreset.contains("dontskip") && (arga.startsWith("--dont") || arga.startsWith("-dont"))) {
 			skip_ = false;
+		} else if (!ignoreset.contains("location") && (arga.startsWith("--lat") || arga.startsWith("-lat")) && a+1 < args.length) {
+			++a;
+			lat_ = Units.from("deg",Double.parseDouble(args[a]));
+		} else if (!ignoreset.contains("location") && (arga.startsWith("--lon") || arga.startsWith("-lon")) && a+1 < args.length) {
+			++a;
+			lon_ = Units.from("deg",Double.parseDouble(args[a]));
+		} else if (!ignoreset.contains("location") && (arga.startsWith("--loc") || arga.startsWith("-loc")) && a+1 < args.length) {	
+			++a;
+			ConfigReader reader = new ConfigReader();
+			reader.open(args[a]);
+			if (reader.hasError()) {
+				System.err.print("** Error: "+reader.getMessage());
+				System.exit(1);
+			}
+			ParameterData platlon = reader.getParameters();
+			if (platlon.contains("lat")) {
+				lat_ = platlon.getValue("lat");
+			}
+			if (platlon.contains("latitude")) {
+				lat_ = platlon.getValue("latitude");
+			}
+			if (platlon.contains("lon")) {
+				lon_ = platlon.getValue("lon");
+			}
+			if (platlon.contains("longitude")) {
+				lon_ = platlon.getValue("longitude");
+			}
+		} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
+			printHelpString();
+		} else if (!arga.startsWith("-")){
+			file_names_.add(arga);
 		} else {
 			return -1;
 		}
@@ -266,41 +366,12 @@ public abstract class DaidalusProcessor {
 		if (no_hyst_) {
 			daa.disableHysteresis();
 		}
-		if (params_.size() > 0) {
-			daa.setParameterData(params_);
-			double wind_speed =  0.0;
-			double wind_dir = 0.0;
-			if (params_.contains("wind_speed")) {
-				wind_speed = params_.getValue("wind_speed");
-				wind_dir = params_.getValue("wind_to");
-				boolean from_dir = false;
-				if (params_.contains("wind_from")) {
-					wind_dir = params_.getValue("wind_from");
-					from_dir = true;
-				}
-				wind_ = Velocity.mkTrkGsVs(wind_dir,wind_speed,0.0);
-				if (from_dir) {
-					wind_ = wind_.Neg();
-				}
-			}
+		if (parameters.size() > 0) {
+			daa.setParameterData(parameters);
 		}
 	}
 
-	public void processFile(String filename, Daidalus daa) {
-		DaidalusFileWalker walker = new DaidalusFileWalker(filename); 
-		if (!wind_.isInvalid()) {
-			walker.setWindVelocityTo(wind_);
-		}
-		if (!ownship_.isEmpty()) {
-			walker.setOwnship(ownship_);
-		}
-		if (!traffic_.isEmpty()) {
-			walker.selectTraffic(traffic_);
-		}
-		walker.setUnits(daa);
-		for (String key : units_.keySet()) {
-			daa.setUnitsOf(key,units_.get(key));
-		}
+	public Interval timeInterval(DaidalusFileWalker walker) {
 		double absolute_from = walker.firstTime();
 		double absolute_to = walker.lastTime();
 		if (sfrom_ == 0) {
@@ -317,19 +388,88 @@ public abstract class DaidalusProcessor {
 		} else {
 			absolute_to = walker.firstTime()+uto_;
 		}
-		if (absolute_from <= absolute_to) {
+		return new Interval(absolute_from,absolute_to);
+	}
+
+	public DaidalusFileWalker makeWalker(String filename, Daidalus daa) {
+		DaidalusFileWalker walker = new DaidalusFileWalker(filename); 
+		Velocity wind = getWind();
+		if (wind.isInvalid()) {
+			walker.setWindVelocityTo(wind);
+		}
+		if (!ownship_.isEmpty()) {
+			walker.setOwnship(ownship_);
+		}
+		if (!traffic_.isEmpty()) {
+			walker.selectTraffic(traffic_);
+		}
+		walker.setFormat(daa,formatter);
+		for (String key : units_.keySet()) {
+			daa.setUnitsOf(key,units_.get(key));
+		}
+		for (String key : format_.keySet()) {
+			if (key.equals("sxyz")) {
+				formatter.sxyz = format_.get(key);
+			} else if (key.equals("vxyz")) {
+				formatter.vxyz = format_.get(key);
+			} else if (key.equals("groundvel")) {
+				formatter.groundvel = format_.get(key);
+			} else if (key.equals("alerter")) {
+				formatter.alerter = format_.get(key);
+			} else if (key.equals("sum")) {
+				formatter.sum = format_.get(key);
+			} else if (key.equals("internal")) {
+				formatter.internal = format_.get(key);
+			}
+		}
+		return walker;
+	}
+
+	public void processFile(String filename, Daidalus daa) {
+		DaidalusFileWalker walker = makeWalker(filename,daa); 
+		Velocity wind = getWind();
+		if (wind.isInvalid()) {
+			walker.setWindVelocityTo(wind);
+		}
+		if (!ownship_.isEmpty()) {
+			walker.setOwnship(ownship_);
+		}
+		if (!traffic_.isEmpty()) {
+			walker.selectTraffic(traffic_);
+		}
+		walker.setFormat(daa,formatter);
+		for (String key : units_.keySet()) {
+			daa.setUnitsOf(key,units_.get(key));
+		}
+		for (String key : format_.keySet()) {
+			if (key.equals("sxyz")) {
+				formatter.sxyz = format_.get(key);
+			} else if (key.equals("vxyz")) {
+				formatter.vxyz = format_.get(key);
+			} else if (key.equals("groundvel")) {
+				formatter.groundvel = format_.get(key);
+			} else if (key.equals("alerter")) {
+				formatter.alerter = format_.get(key);
+			} else if (key.equals("sum")) {
+				formatter.sum = format_.get(key);
+			} else if (key.equals("internal")) {
+				formatter.internal = format_.get(key);
+			}
+		}
+		Interval from_to = timeInterval(walker);
+		if (!from_to.isEmpty()) {
 			if (skip_) {
-				walker.goToTime(absolute_from);
+				walker.goToTime(from_to.low);
 			}
 			daa.reset();
 			int iteration = 0;
-			while (!walker.atEnd() && walker.getTime() <= absolute_to) {
+			while (!walker.atEnd() && walker.getTime() <= from_to.up) {
 				walker.readState(daa);
 				if (!daa.hasOwnship()) {
 					System.err.println("** Warning: Ownship not found in file "+filename);
 					return;
 				}			
-				if (daa.getCurrentTime() >= absolute_from) {
+				if (daa.getCurrentTime() >= from_to.low) {
 					processTime(daa,iteration);
 					++iteration;
 				} else {
@@ -342,6 +482,15 @@ public abstract class DaidalusProcessor {
 			} 
 		}   
 	}
+
+	private void printHelpString() {
+		System.err.print("Usage:\n  ");
+		System.err.print(applicationHelpString());
+		System.err.print(help_string());
+		System.exit(1);
+	}
+
+	abstract public String applicationHelpString();
 
 	abstract public void processTime(Daidalus daa, int iteration);
 

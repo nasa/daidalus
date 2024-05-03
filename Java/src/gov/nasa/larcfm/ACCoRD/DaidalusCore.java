@@ -427,7 +427,9 @@ public class DaidalusCore {
 		Position pt = dt == 0 ? pos : pos.linear(vel,dt);    
 		TrafficState ac = ownship.makeIntruder(id,pt,vel);
 		if (ac.isValid()) {
-			ac.applyWindVector(wind_vector);
+			if (!wind_vector.isZero()) {
+				ac.applyWindVector(wind_vector);
+			}
 			int idx = find_traffic_state(id);
 			if (idx >= 0) {
 				traffic.set(idx,ac);
@@ -925,9 +927,9 @@ public class DaidalusCore {
 	public String outputStringAircraftStates(boolean header, Formatter formater) {
 		StringBuffer s = new StringBuffer();
 		if (ownship.isValid()) {
-			s.append(ownship.formattedTrafficState(header,formater,current_time));
+			s.append(ownship.formattedTrafficState(header,parameters,formater,current_time));
 			for (TrafficState ac : traffic) {
-				s.append(ac.formattedTrafficState(false,formater,current_time));
+				s.append(ac.formattedTrafficState(false,parameters,formater,current_time));
 			}
 		}
 		return s.toString();

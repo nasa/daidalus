@@ -79,7 +79,7 @@ public class DAAGenerator {
 
 		// Create an empty Daidalus object
 
-		Formatter formatter = new Formatter(daa.getCore().parameters);
+		Formatter formatter = new Formatter();
 		String input_file = "";
 		String ownship_id = "";
 		List<String> traffic_ids = new ArrayList<String>();		
@@ -238,7 +238,7 @@ public class DAAGenerator {
 		} else {
 			walker.goToTime(time);
 		}
-		walker.setUnits(daa);
+		walker.setFormat(daa,formatter);
 		walker.readState(daa);
 		if (!daa.hasOwnship()) {
 			System.err.println("** Error: Ownship not found in file "+input_file);
@@ -285,13 +285,13 @@ public class DAAGenerator {
 		for (double t = -backward; t <= forward; ++t, ++offset) {
 			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(new_own.formattedTrafficState(offset==0,formatter,init+offset));
+			out.print(new_own.formattedTrafficState(offset==0,daa.getCore().parameters,formatter,init+offset));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = params.get(ac.getId());
 				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(new_ac.formattedTrafficState(false,formatter,init+offset));
+				out.print(new_ac.formattedTrafficState(false,daa.getCore().parameters,formatter,init+offset));
 			}
 		}  
 		out.close();

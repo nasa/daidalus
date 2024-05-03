@@ -41,7 +41,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,10 +62,18 @@ public class DaidalusAlerting extends DaidalusProcessor {
 	static int max_alert_levels;
 	static Detection3D detector;
 
+	public String applicationHelpString() {
+		StringBuffer str = new StringBuffer();
+		str.append("DaidalusAlerting [<options>] <daa_file>\n");
+		str.append("Run DAIDALUS alerting logic in batch mode with a given configuration on a DAA file.\n");
+		str.append("Valid <options> are:\n");
+		return str.toString();
+	}
+
 	public static void main(String[] args) {
 
 		DaidalusAlerting processor = new DaidalusAlerting();
-		List<String> file_names = new ArrayList<>();
+		processor.ignoreset.add("location");
 		out = new PrintWriter(System.out);
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
@@ -74,19 +81,10 @@ public class DaidalusAlerting extends DaidalusProcessor {
 				a = ap;
 			} else {
 				String arga = args[a];
-				if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
-					System.err.println("Usage:");
-					System.err.println("  DaidalusAlerting [<options>] <daa_file>");
-					System.err.println("Run DAIDALUS alerting logic in batch mode with a given configuration on a DAA file. Valid <options> are");
-					System.err.println("  --help\n\tPrint this message");
-					System.err.println(getHelpString());
+				if (arga.startsWith("-")){
+					System.err.println("** Error: Unknown option ("+arga+")");
 					System.exit(1);
-				} else if (arga.startsWith("-")){
-					System.err.println("** Error: Unknown option "+arga);
-					System.exit(1);
-				} else {
-					file_names.add(arga);
-				}
+				} 			
 			}
 		}
 		Daidalus daa = new Daidalus();
@@ -97,7 +95,7 @@ public class DaidalusAlerting extends DaidalusProcessor {
 			daa.set_DO_365B();			
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
-		List<File> input_files = getFiles(file_names,exts);
+		List<File> input_files = processor.getFiles(exts);
 		if (input_files.size() != 1) {
 			System.err.println("Usage:\n\tDaidalusAlerting [<options>] <daa_file>");
 			System.err.println("Try:\n\tDaidalusAlerting --help");

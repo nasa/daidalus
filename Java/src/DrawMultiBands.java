@@ -41,7 +41,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -54,15 +53,13 @@ import gov.nasa.larcfm.Util.f;
 
 public class DrawMultiBands extends DaidalusProcessor {
 
-	static void printHelpMsg() {
-		System.err.println("Usage:");
-		System.err.println("  DrawMultiBands [<options>] <daa_file>");
-		System.err.println("Generate a file with DAIDALUS guidance bands, given configuration on DAA file.");
-		System.err.println("The generated file can be processed with the Python script drawmultibands.py.");
-		System.err.println("Valid <options> are");
-		System.err.println("  --help\n\tPrint this message");
-		System.err.println(getHelpString());
-		System.exit(1);
+	public String applicationHelpString() {
+		StringBuffer str = new StringBuffer();
+		str.append("DrawMultiBands [<options>] <daa_file>");
+		str.append("Generate a file with DAIDALUS guidance bands, given configuration on DAA file.\n");
+		str.append("The generated file can be processed with the Python script drawmultibands.py.\n");
+		str.append("Valid <options> are:\n");
+		return str.toString();
 	}
 
 	static String region2str(BandsRegion r) {
@@ -93,7 +90,7 @@ public class DrawMultiBands extends DaidalusProcessor {
 
 	public static void main(String[] args) {
 		DrawMultiBands processor = new DrawMultiBands();
-		List<String> file_names = new ArrayList<>();
+		processor.ignoreset.add("location");
 		/* Reading and processing options */
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
@@ -101,14 +98,10 @@ public class DrawMultiBands extends DaidalusProcessor {
 				a = ap;
 			} else {
 				String arga = args[a];
-				if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
-					printHelpMsg();
-				} else if (arga.startsWith("-")) {
+				if (arga.startsWith("-")) {
 					System.err.println("** Error: Invalid option ("+arga+")");
 					System.exit(1);
-				} else {
-					file_names.add(arga);
-				}
+				} 
 			}
 		}
 		Daidalus daa = new Daidalus();
@@ -119,7 +112,7 @@ public class DrawMultiBands extends DaidalusProcessor {
 			daa.set_DO_365B();			
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
-		List<File> input_files = getFiles(file_names,exts);
+		List<File> input_files = processor.getFiles(exts);
 		if (input_files.size() != 1) {
 			System.err.println("Usage:\n\tDrawMultiBands [<options>] <daa_file>");
 			System.err.println("Try:\n\tDrawMultiBands --help");

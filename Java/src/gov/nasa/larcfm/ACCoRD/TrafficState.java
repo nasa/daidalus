@@ -9,7 +9,6 @@ package gov.nasa.larcfm.ACCoRD;
 import java.util.Arrays;
 import java.util.List;
 
-import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Projection;
@@ -219,7 +218,7 @@ public class TrafficState {
 	 * @param wind_vector Wind velocity specified in the TO direction
 	 */
 	public void applyWindVector(Vect3 wind_vector) {
-		avel_ = gvel_.Sub(wind_vector);
+		avel_ = wind_vector.isZero() ? gvel_ : gvel_.Sub(wind_vector);
 		applyEuclideanProjection();
 	}
 

@@ -4365,8 +4365,7 @@ public class Daidalus {
 	/* Input/Output methods */
 
 	public String outputStringAircraftStates() {
-		Formatter formatter = new Formatter(core_.parameters);
-		return core_.outputStringAircraftStates(true,formatter);
+		return core_.outputStringAircraftStates(true,Formatter.DefaultFormatter);
 	}
 
 	public String rawString() {
@@ -4411,7 +4410,7 @@ public class Daidalus {
 		}
 		if (hasMessage()) {
 			s += "###\n";
-			s+= getMessageNoClear();
+			s+= getMessage();
 		}
 		return s;
 	}

@@ -41,38 +41,31 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
-import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
-import gov.nasa.larcfm.IO.ConfigReader;
-import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Pair;
-import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
-import gov.nasa.larcfm.Util.Projection;
-import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 
 public class DAAEcho extends DaidalusProcessor {
 
 	static PrintWriter out;
-	static Optional<EuclideanProjection> projection;
-	static Formatter formatter;
+
+	public String applicationHelpString() {
+		StringBuffer str = new StringBuffer();
+		str.append("DAAEcho [<options>] [<daa_file>]\n");
+		str.append("Print back configuration and DAA file. Valid <options> are:\n");
+		return str.toString();
+	}
 
 	public static void main(String[] args) {
 
 		DAAEcho processor = new DAAEcho();
-		List<String> file_names = new ArrayList<>();
 		out = new PrintWriter(System.out);
-		double lat = 0.0; // In decimal degrees
-		double lon = 0.0; // In decimal degrees
-		boolean xyz2latlon = false;
 
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
@@ -80,56 +73,14 @@ public class DAAEcho extends DaidalusProcessor {
 				a = ap;
 			} else {
 				String arga = args[a];
-				if (arga.startsWith("--lat") || arga.startsWith("-lat")) {
-					++a;
-					lat = Units.from("deg",Double.parseDouble(args[a]));
-					xyz2latlon = true;
-				} else if (arga.startsWith("--lon") || arga.startsWith("-lon")) {
-					++a;
-					lon = Units.from("deg",Double.parseDouble(args[a]));
-					xyz2latlon = true;
-				} else if (arga.startsWith("--loc") || arga.startsWith("-loc")) {	
-				++a;
-				ConfigReader reader = new ConfigReader();
-				reader.open(args[a]);
-				if (reader.hasError()) {
-					System.err.print("** Error: "+reader.getMessage());
+				if (arga.startsWith("-")){
+					System.err.println("** Error: Invalid option ("+arga+")");
 					System.exit(1);
-				}
-				ParameterData platlon = reader.getParameters();
-				xyz2latlon = true;
-				if (platlon.contains("lat")) {
-					lat = platlon.getValue("lat");
-				}
-				if (platlon.contains("latitude")) {
-					lat = platlon.getValue("latitude");
-				}
-				if (platlon.contains("lon")) {
-					lon = platlon.getValue("lon");
-				}
-				if (platlon.contains("longitude")) {
-					lon = platlon.getValue("longitude");
-				}
-			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
-					System.err.println("Usage:");
-					System.err.println("  DAAEcho [<options>] [<daa_file>]");
-					System.err.println("Print back configuration and DAA file. Valid <options> are");
-					System.err.println("  --help\n\tPrint this message");
-					System.err.println("  --latitude <lat>\n\tSet Eucliedean local origin to latitude <lat>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.");
-					System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.");
-					System.err.println("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>");
-					System.err.println(getHelpString());
-					System.exit(1);
-				} else if (arga.startsWith("-")){
-					System.err.println("** Error: Unknown option "+arga);
-					System.exit(1);
-				} else {
-					file_names.add(arga);
-				} 
+				} 			
 			}	
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
-		List<File> input_files = getFiles(file_names,exts);
+		List<File> input_files = processor.getFiles(exts);
 		if (input_files.size() > 1 ||
 			(input_files.isEmpty() && processor.getConfigurationName().isEmpty())) {
 			System.err.println("Usage:\n\tDAAEcho [<options>] <daa_file>");
@@ -148,60 +99,56 @@ public class DAAEcho extends DaidalusProcessor {
 		}   
 		Daidalus daa = new Daidalus();
 		processor.setDaidalusConfig(daa);
-		formatter = new Formatter(daa.getCore().parameters);
 		if (!processor.getConfigurationName().isEmpty()) {
 			out.print(daa.getCore().parameters.toString());
 		} 
 		if (!input_files.isEmpty()) {
 			File file = input_files.get(0);
-			projection = xyz2latlon ? 
-				Optional.of(Projection.createProjection(lat,lon,0.0)) : 
-				Optional.empty();
 			processor.processFile(file.getPath(),daa);
 		}
 		out.close();
 	}
 
 	public void processTime(Daidalus daa, int iteration) {
-		if (!daa.isLatLon() && projection.isPresent()) {
+		if (!daa.isLatLon() && isLocationSet()) {
 			Velocity wind = daa.getWindVelocityTo();
 			TrafficState ownship = daa.getOwnshipState();
 			Pair<Position,Velocity> own_posvel = Pair.make(ownship.getPosition(),ownship.getGroundVelocity());
-			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(new_own.formattedTrafficState(iteration==0,formatter,daa.getCurrentTime()));
+			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind);
+			out.print(new_own.formattedTrafficState(iteration==0,daa.getCore().parameters,formatter,daa.getCurrentTime()));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				Pair<Position,Velocity> ac_posvel = Pair.make(ac.getPosition(),ac.getGroundVelocity());
-				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvel,new_own,projection);
-				out.print(new_ac.formattedTrafficState(false,formatter,daa.getCurrentTime()));
+				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvel,new_own);
+				out.print(new_ac.formattedTrafficState(false,daa.getCore().parameters,formatter,daa.getCurrentTime()));
 			}
 		} else {
 			out.print(daa.getCore().outputStringAircraftStates(iteration == 0,formatter));
 		}
 	}
 
-	static Pair<Position,Velocity> prj_aircraft(Pair<Position,Velocity> posvel, Optional<EuclideanProjection> projection) {
+	Pair<Position,Velocity> prj_aircraft(Pair<Position,Velocity> posvel) {
 		Position pos = posvel.first;
 		Velocity vel = posvel.second;
-		if (projection.isPresent()) {
+		if (isLocationSet()) {
 			Vect3 s = pos.vect3();
 			if (vel.gs() > 0) {
-				vel = projection.get().inverseVelocity(s,vel,true);
+				vel = getProjection().inverseVelocity(s,vel,true);
 			}
-			pos = Position.make(projection.get().inverse(s));
+			pos = Position.make(getProjection().inverse(s));
 		}
 		return new Pair<>(pos,vel);	
 	}
 
-	static TrafficState pp_ownship(String id, Pair<Position,Velocity> posvel, Velocity wind, Optional<EuclideanProjection> projection) {
-		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel, projection);
+	TrafficState pp_ownship(String id, Pair<Position,Velocity> posvel, Velocity wind) {
+		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel);
 		Position pos = prj_posvel.first;
 		Velocity vel = prj_posvel.second;
 		return TrafficState.makeOwnship(id,pos,vel,vel.Sub(wind.vect3()));		
 	}
 
-	static TrafficState pp_traffic(String id, Pair<Position,Velocity> posvel, TrafficState ownship, Optional<EuclideanProjection> projection) {
-		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel, projection);
+	TrafficState pp_traffic(String id, Pair<Position,Velocity> posvel, TrafficState ownship) {
+		Pair<Position,Velocity> prj_posvel = prj_aircraft(posvel);
 		Position pos = prj_posvel.first;
 		Velocity vel = prj_posvel.second;
 		return ownship.makeIntruder(id,pos,vel);

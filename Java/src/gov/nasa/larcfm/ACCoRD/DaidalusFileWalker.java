@@ -6,6 +6,7 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
+import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
 import gov.nasa.larcfm.IO.SequenceReader;
 import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
@@ -284,11 +285,14 @@ public class DaidalusFileWalker implements ErrorReporter {
 		}
 	}
 
-	public void setUnits(Daidalus daa) {
+	public void setFormat(Daidalus daa,Formatter formatter) {
 		for (String col : columns_) {
 			String units = sr_.getExtraColumnUnits(col);
 			daa.setUnitsOf(col,units);
 		}
+		formatter.vxyz = columns_.contains("vx") || columns_.contains("vy");
+		formatter.groundvel = columns_.contains("heading") || columns_.contains("airspeed");
+		formatter.alerter = daa.getCore().parameters.numberOfAlerters() > 1;
 	}
 
 	public void readState(Daidalus daa) {
