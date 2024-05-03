@@ -1,7 +1,7 @@
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
-import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
+import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Interval;
@@ -41,9 +41,9 @@ public abstract class DaidalusProcessor {
 	private HashMap<String,String> units_;
 	private HashMap<String,Boolean> format_;
 	private List<String> file_names_ = new ArrayList<>();
-	public Formatter formatter;
+	public  DAAFormatter formatter;
 	public  Set<String> ignoreset; // Ignore options
-	public ParameterData parameters;
+	public  ParameterData parameters;
 
 	public DaidalusProcessor() {
 		sfrom_ = 1; // From beginning
@@ -65,7 +65,7 @@ public abstract class DaidalusProcessor {
 		lat_  = 0.0;
 		lon_  = 0.0;
 		file_names_ = new ArrayList<>();
-		formatter = new Formatter();
+		formatter = new DAAFormatter();
 		ignoreset = new HashSet<>();
 	}
 

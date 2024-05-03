@@ -6,7 +6,7 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
-import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
+import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Util;
@@ -924,12 +924,12 @@ public class DaidalusCore {
 		return s;
 	}
 
-	public String outputStringAircraftStates(boolean header, Formatter formater) {
+	public String outputStringAircraftStates(boolean header, DAAFormatter formatter) {
 		StringBuffer s = new StringBuffer();
 		if (ownship.isValid()) {
-			s.append(ownship.formattedTrafficState(header,parameters,formater,current_time));
+			s.append(formatter.formattedTrafficState(ownship,header,parameters,current_time));
 			for (TrafficState ac : traffic) {
-				s.append(ac.formattedTrafficState(false,parameters,formater,current_time));
+				s.append(formatter.formattedTrafficState(ac,false,parameters,current_time));
 			}
 		}
 		return s.toString();

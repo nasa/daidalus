@@ -6,7 +6,7 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
-import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
+import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.IO.SequenceReader;
 import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
@@ -285,7 +285,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 		}
 	}
 
-	public void setFormat(Daidalus daa,Formatter formatter) {
+	public void setFormat(Daidalus daa,DAAFormatter formatter) {
 		for (String col : columns_) {
 			String units = sr_.getExtraColumnUnits(col);
 			daa.setUnitsOf(col,units);

@@ -53,7 +53,7 @@ import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.ACCoRD.Horizontal;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
-import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
+import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Kinematics;
@@ -79,7 +79,7 @@ public class DAAGenerator {
 
 		// Create an empty Daidalus object
 
-		Formatter formatter = new Formatter();
+		DAAFormatter formatter = new DAAFormatter();
 		String input_file = "";
 		String ownship_id = "";
 		List<String> traffic_ids = new ArrayList<String>();		
@@ -285,13 +285,13 @@ public class DAAGenerator {
 		for (double t = -backward; t <= forward; ++t, ++offset) {
 			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(new_own.formattedTrafficState(offset==0,daa.getCore().parameters,formatter,init+offset));
+			out.print(formatter.formattedTrafficState(new_own,offset==0,daa.getCore().parameters,init+offset));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = params.get(ac.getId());
 				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(new_ac.formattedTrafficState(false,daa.getCore().parameters,formatter,init+offset));
+				out.print(formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,init+offset));
 			}
 		}  
 		out.close();

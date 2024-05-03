@@ -115,12 +115,12 @@ public class DAAEcho extends DaidalusProcessor {
 			TrafficState ownship = daa.getOwnshipState();
 			Pair<Position,Velocity> own_posvel = Pair.make(ownship.getPosition(),ownship.getGroundVelocity());
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind);
-			out.print(new_own.formattedTrafficState(iteration==0,daa.getCore().parameters,formatter,daa.getCurrentTime()));
+			out.print(formatter.formattedTrafficState(new_own,iteration==0,daa.getCore().parameters,daa.getCurrentTime()));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				Pair<Position,Velocity> ac_posvel = Pair.make(ac.getPosition(),ac.getGroundVelocity());
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvel,new_own);
-				out.print(new_ac.formattedTrafficState(false,daa.getCore().parameters,formatter,daa.getCurrentTime()));
+				out.print(formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,daa.getCurrentTime()));
 			}
 		} else {
 			out.print(daa.getCore().outputStringAircraftStates(iteration == 0,formatter));

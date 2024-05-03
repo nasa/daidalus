@@ -7,7 +7,7 @@
 
 package gov.nasa.larcfm.ACCoRD;
 
-import gov.nasa.larcfm.ACCoRD.TrafficState.Formatter;
+import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.Position;
@@ -4365,7 +4365,7 @@ public class Daidalus {
 	/* Input/Output methods */
 
 	public String outputStringAircraftStates() {
-		return core_.outputStringAircraftStates(true,Formatter.DefaultFormatter);
+		return core_.outputStringAircraftStates(true,DAAFormatter.DefaultDAAFormatter);
 	}
 
 	public String rawString() {
