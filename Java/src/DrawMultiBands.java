@@ -47,6 +47,7 @@ import java.util.List;
 
 import gov.nasa.larcfm.ACCoRD.BandsRegion;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
+import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
@@ -73,24 +74,25 @@ public class DrawMultiBands extends DaidalusProcessor {
 		}
 	}
 
-	static String hs_units;
-	static String vs_units;
-	static String alt_units;
-	static String scenario;
-	static Hashtable<String,String> alerting_times;
-	static String str_to;
-	static String str_trko;
-	static String str_gso;
-	static String str_vso;
-	static String str_alto;
-	static String str_trk;
-	static String str_gs;
-	static String str_vs;
-	static String str_alt;
+	String hs_units;
+	String vs_units;
+	String alt_units;
+	String scenario;
+	Hashtable<String,String> alerting_times;
+	String str_to;
+	String str_trko;
+	String str_gso;
+	String str_vso;
+	String str_alto;
+	String str_trk;
+	String str_gs;
+	String str_vs;
+	String str_alt;
+	PrintWriter out;
 
 	public static void main(String[] args) {
 		DrawMultiBands processor = new DrawMultiBands();
-		processor.ignoreset.add("location");
+		processor.ignoreset.addAll(Arrays.asList("location","format"));
 		/* Reading and processing options */
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
@@ -104,13 +106,10 @@ public class DrawMultiBands extends DaidalusProcessor {
 				} 
 			}
 		}
-		Daidalus daa = new Daidalus();
-		processor.setDaidalusConfig(daa);
-		if (daa.numberOfAlerters()==0) {
-			// If no alerter has been configured, configure alerters as in 
-			// DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
-			daa.set_DO_365B();			
-		}
+		if (processor.getConfigurationName().isEmpty()) {
+			System.err.println("** Error: DAA configuration isn't specified. Use option --config");
+			System.exit(1);
+		}				
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
 		if (input_files.size() != 1) {
@@ -120,59 +119,36 @@ public class DrawMultiBands extends DaidalusProcessor {
 		}
 		File file = input_files.get(0);
 		String base_name = input_files.get(0).getName();
-		scenario = base_name.substring(0,base_name.lastIndexOf('.'));
-		String output_file = processor.getOutputFileNameOr(scenario,"draw");
+		processor.scenario = base_name.substring(0,base_name.lastIndexOf('.'));
+		String output_file = processor.getOutputFileNameOr(processor.scenario,"draw");
 		try {
-			PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+			processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 			System.out.println("Writing file "+output_file+", which can be processed with the Python script drawmultibands.py");
-			hs_units = daa.getUnitsOf("step_hs");
-			vs_units = daa.getUnitsOf("step_vs");
-			alt_units = daa.getUnitsOf("step_alt");
-			out.println("# This file can be processed with the Python script drawmultibands.py");
-			out.println("Scenario:"+scenario);    
-			str_to = "";
-			str_trko = "";
-			str_gso = "";
-			str_vso = "";
-			str_alto = "";
-			str_trk = "";
-			str_gs = "";
-			str_vs = "";
-			str_alt = "";
-			// Hashtable per aircraft to list of times per alert level
-			alerting_times = new Hashtable<String,String>(); 
-			processor.processFile(file.getPath(), daa);
-			out.println("Ownship:"+daa.getOwnshipState().getId());
-			out.println("# Bands Encoding");
-			out.println("# NONE = "+region2str(BandsRegion.NONE));
-			out.println("# FAR = "+region2str(BandsRegion.FAR));
-			out.println("# MID = "+region2str(BandsRegion.MID));
-			out.println("# NEAR = "+region2str(BandsRegion.NEAR));
-			out.println("# RECOVERY = "+region2str(BandsRegion.RECOVERY));
-			out.println("MinMaxGs:"+daa.getMinHorizontalSpeed(hs_units)+" "+
-					daa.getMaxHorizontalSpeed(hs_units)+":"+hs_units);
-			out.println("MinMaxVs:"+daa.getMinVerticalSpeed(vs_units)+" "+
-					daa.getMaxVerticalSpeed(vs_units)+":"+vs_units);
-			out.println("MinMaxAlt:"+daa.getMinAltitude(alt_units)+" "+
-					daa.getMaxAltitude(alt_units)+":"+alt_units);
-			out.print(str_trk);
-			out.print(str_gs);
-			out.print(str_vs);
-			out.print(str_alt);		
-			out.println("MostSevereAlertLevel:"+daa.mostSevereAlertLevel(1));
-			for (String key: alerting_times.keySet()) {
-				out.println(alerting_times.get(key));
-			}
-			out.println("Times:"+str_to);
-			out.println("OwnTrk:"+str_trko);
-			out.println("OwnGs:"+str_gso);
-			out.println("OwnVs:"+str_vso);
-			out.println("OwnAlt:"+str_alto);
-			out.close();
+			processor.processFile(file.getPath());
+			processor.out.close();
 		} catch (Exception e) {
 			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
+	}
+
+	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
+		hs_units = daa.getUnitsOf("step_hs");
+		vs_units = daa.getUnitsOf("step_vs");
+		alt_units = daa.getUnitsOf("step_alt");
+		out.println("# This file can be processed with the Python script drawmultibands.py");
+		out.println("Scenario:"+scenario);    
+		str_to = "";
+		str_trko = "";
+		str_gso = "";
+		str_vso = "";
+		str_alto = "";
+		str_trk = "";
+		str_gs = "";
+		str_vs = "";
+		str_alt = "";
+		// Hashtable per aircraft to list of times per alert level
+		alerting_times = new Hashtable<String,String>(); 
 	}
 
 	public void processTime(Daidalus daa, int iteration) {
@@ -219,4 +195,34 @@ public class DrawMultiBands extends DaidalusProcessor {
 		}
 		str_alt += "\n";
 	}
+
+	public void endProcess(DaidalusFileWalker walker,Daidalus daa) {
+		out.println("Ownship:"+daa.getOwnshipState().getId());
+		out.println("# Bands Encoding");
+		out.println("# NONE = "+region2str(BandsRegion.NONE));
+		out.println("# FAR = "+region2str(BandsRegion.FAR));
+		out.println("# MID = "+region2str(BandsRegion.MID));
+		out.println("# NEAR = "+region2str(BandsRegion.NEAR));
+		out.println("# RECOVERY = "+region2str(BandsRegion.RECOVERY));
+		out.println("MinMaxGs:"+daa.getMinHorizontalSpeed(hs_units)+" "+
+				daa.getMaxHorizontalSpeed(hs_units)+":"+hs_units);
+		out.println("MinMaxVs:"+daa.getMinVerticalSpeed(vs_units)+" "+
+				daa.getMaxVerticalSpeed(vs_units)+":"+vs_units);
+		out.println("MinMaxAlt:"+daa.getMinAltitude(alt_units)+" "+
+				daa.getMaxAltitude(alt_units)+":"+alt_units);
+		out.print(str_trk);
+		out.print(str_gs);
+		out.print(str_vs);
+		out.print(str_alt);		
+		out.println("MostSevereAlertLevel:"+daa.mostSevereAlertLevel(1));
+		for (String key: alerting_times.keySet()) {
+			out.println(alerting_times.get(key));
+		}
+		out.println("Times:"+str_to);
+		out.println("OwnTrk:"+str_trko);
+		out.println("OwnGs:"+str_gso);
+		out.println("OwnVs:"+str_vso);
+		out.println("OwnAlt:"+str_alto);
+	}
+
 }

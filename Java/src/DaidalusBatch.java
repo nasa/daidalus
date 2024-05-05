@@ -6,6 +6,7 @@
  */
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
+import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 
 import java.io.*;
 import java.util.*;
@@ -14,10 +15,12 @@ public class DaidalusBatch extends DaidalusProcessor {
 
 	static final int STANDARD = 0;
 	static final int PVS = 1;
-	static boolean verbose = false;
-	static boolean raw = false;
-	static int format = STANDARD; 
-	static PrintWriter out;
+	boolean verbose = false;
+	boolean raw = false;
+	int format = STANDARD; 
+	PrintWriter out;
+	StringBuffer options;
+	boolean init = true;
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();
@@ -30,10 +33,10 @@ public class DaidalusBatch extends DaidalusProcessor {
 	}
 
 	public static void main(String[] args) {
-		out = new PrintWriter(System.out);
 		DaidalusBatch processor = new DaidalusBatch();
-		processor.ignoreset.add("location");
-		StringBuffer options = new StringBuffer();
+		processor.out = new PrintWriter(System.out);
+		processor.ignoreset.addAll(Arrays.asList("location","format"));
+		processor.options = new StringBuffer();
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
 			if (ap >= 0) {
@@ -41,24 +44,28 @@ public class DaidalusBatch extends DaidalusProcessor {
 			} else {
 				String arga = args[a];
 				if (arga.equals("--verbose") || arga.equals("-verbose") || arga.equals("-v")) {
-					verbose = true;
-					options.append(arga);
-					options.append(" ");
+					processor.verbose = true;
+					processor.options.append(arga);
+					processor.options.append(" ");
 				} else if (arga.equals("--raw") || arga.equals("-raw")) {
-					raw = true;
-					options.append(arga);
-					options.append(" ");
+					processor.raw = true;
+					processor.options.append(arga);
+					processor.options.append(" ");
 				} else if (arga.equals("--pvs") || arga.equals("-pvs")) {
-					format = PVS;
-					options.append(arga);
-					options.append(" ");
+					processor.format = PVS;
+					processor.options.append(arga);
+					processor.options.append(" ");
 				} else if (arga.startsWith("-")) {
 					System.out.println("** Error: Invalid option ("+arga+")");
 					System.exit(1);
 				} 			
 			}
 		}
-		options.append(processor.getOptionsString());
+		if (processor.getConfigurationName().isEmpty()) {
+			System.err.println("** Error: DAA configuration isn't specified. Use option --config");
+			System.exit(1);
+		}		
+		processor.options.append(processor.getOptionsString());
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
 		if (input_files.isEmpty()) {
@@ -69,47 +76,51 @@ public class DaidalusBatch extends DaidalusProcessor {
 		try {
 			String output = processor.getOutputFile();
 			if (!output.isEmpty()) {
-				out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
+				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
 			}
 		} catch (Exception e) {
-			System.out.println("** Error: "+e);
+			System.out.println("** Error: "+e.getMessage());
 			System.exit(1);
 		}   
-		Daidalus daa = new Daidalus();
-		processor.setDaidalusConfig(daa);
-		switch (format) {
-		case STANDARD:
-			if (verbose) {
-				out.println("# "+Daidalus.release());
-				out.println("# Options: "+options);
-				out.println("#\n"+daa.toString()+"#\n");
-			}
-			break;
-		case PVS:
-			out.println("%%% "+Daidalus.release());
-			out.println("%%% Options: "+options);
-			break;
-		default:
-			break;
-		}
 		for (File file:input_files) {
 			String filename = file.getPath();
+			processor.processFile(filename);
+		}
+		processor.out.close();
+
+	}//main
+
+	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
+		if (init) {
+			init = false;
 			switch (format) {
 			case STANDARD:
-				out.println("# File: "+filename);
+				if (verbose) {
+					out.println("# "+Daidalus.release());
+					out.println("# Options: "+options);
+					out.println("#\n"+daa.toString()+"#\n");
+				}
 				break;
 			case PVS:
-				out.println("%%% File:\n"+filename);
-				out.println("%%% Parameters:\n"+daa.getCore().parameters.toPVS());
+				out.println("%%% "+Daidalus.release());
+				out.println("%%% Options: "+options);
 				break;
 			default:
 				break;
 			}
-			processor.processFile(filename,daa);
 		}
-		out.close();
-
-	}//main
+		switch (format) {
+		case STANDARD:
+			out.println("# File: "+walker.getFileName());
+			break;
+		case PVS:
+			out.println("%%% File:\n"+walker.getFileName());
+			out.println("%%% Parameters:\n"+daa.getCore().parameters.toPVS());
+			break;
+		default:
+			break;
+		}	
+	}
 
 	public void processTime(Daidalus daa, int iteration) {
 		switch (format) {
@@ -124,7 +135,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 			break;
 		default:
 			break;
-		}
+		}	
 	}
 
 }

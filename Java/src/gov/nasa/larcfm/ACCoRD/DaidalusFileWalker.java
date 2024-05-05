@@ -4,9 +4,9 @@
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
+
 package gov.nasa.larcfm.ACCoRD;
 
-import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.IO.SequenceReader;
 import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
@@ -19,6 +19,7 @@ import java.util.Optional;
 
 public class DaidalusFileWalker implements ErrorReporter {
 
+	private String filename_;
 	private SequenceReader sr_;
 	private ParameterData p_;
 	private List<Double> times_;
@@ -29,14 +30,20 @@ public class DaidalusFileWalker implements ErrorReporter {
 	private List<String> columns_; // Columns of DAA file
 
 	public DaidalusFileWalker(String filename) {
+		filename_ = filename;
 		sr_ = new SequenceReader(filename);
 		traffic_ = new ArrayList<>();
 		init();
 	}
 
 	public void resetInputFile(String filename) {
+		filename_ = filename;
 		sr_ = new SequenceReader(filename);
 		init();
+	}
+
+	public String getFileName() {
+		return filename_;
 	}
 
 	private void init() {
@@ -285,14 +292,21 @@ public class DaidalusFileWalker implements ErrorReporter {
 		}
 	}
 
-	public void setFormat(Daidalus daa,DAAFormatter formatter) {
+	public void setDAAFormat(DAAFormatter formatter) {
+		formatter.sxyz = columns_.contains("sx") || columns_.contains("sy");
+		formatter.vxyz = columns_.contains("vx") || columns_.contains("vy");
+		formatter.groundvel = columns_.contains("heading") || columns_.contains("airspeed");
+		formatter.alerter = columns_.contains("alerter");
+		formatter.sum = columns_.contains("s_EW_std") || columns_.contains("s_NS_std") || columns_.contains("s_EN_std") 
+			|| columns_.contains("sz_std") || columns_.contains("v_EW_std") || columns_.contains("v_NS_std") 
+			|| columns_.contains("v_EN_std") || columns_.contains("vz_std");
+	}
+
+	public void setDAAUnits(Daidalus daa) {
 		for (String col : columns_) {
 			String units = sr_.getExtraColumnUnits(col);
 			daa.setUnitsOf(col,units);
 		}
-		formatter.vxyz = columns_.contains("vx") || columns_.contains("vy");
-		formatter.groundvel = columns_.contains("heading") || columns_.contains("airspeed");
-		formatter.alerter = daa.getCore().parameters.numberOfAlerters() > 1;
 	}
 
 	public void readState(Daidalus daa) {

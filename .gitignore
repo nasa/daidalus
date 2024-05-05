@@ -13,6 +13,7 @@
 *.txt
 *.draw
 *.tmp
+old/
 tmp/
 mold/
 tests/

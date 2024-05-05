@@ -1391,7 +1391,7 @@ computes alerting and DAA metrics in a comma separated value
 (CSV) format, for given encounter and 
 configuration files. For example,
 ```
-$ <DAIDALUS_DIR>/Java/DaidalusAlerting --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
+$ <DAIDALUS_DIR>/Java/DaidalusAlerting --config Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
 Generating CSV file H1.csv 
 ```
 generates the file `H1.csv` with  alerting information computed by DAIDALUS 
@@ -1407,7 +1407,7 @@ runs DAIDALUS on a given encounter using a specified configuration and
 prints time-step by time-step alerting and banding information
 computed by DAIDALUS. For example,
 ```
-$ <DAIDALUS_DIR>/Java/DaidalusBatch --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa
+$ <DAIDALUS_DIR>/Java/DaidalusBatch --config Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa
 
 ```
 runs DAIDALUS on the encounter [`H1.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H1.daa)
@@ -1420,7 +1420,7 @@ The program `DrawMultiBands`, which is available in
 produces guidance and alerting 
 information in a graphical form. For example, 
 ```
-<DAIDALUS_DIR>/Java/DrawMultiBands --conf Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
+<DAIDALUS_DIR>/Java/DrawMultiBands --config Configurations/DO_365B_no_SUM.conf Scenarios/H1.daa 
 Writing file H1.draw, which can be processed with the Python script drawmultibands.py 
 ```
 produces the file `H1.draw`, which can be processed with the Python 

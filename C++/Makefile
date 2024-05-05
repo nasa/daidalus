@@ -29,10 +29,10 @@ examples:
 	@echo "./DaidalusExample"
 	@echo
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DaidalusAlerting --config ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo
 	@echo "** To run DaidalusBatch type, e.g.,"
-	@echo "./DaidalusBatch --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DaidalusBatch --config ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo
 
 doc:
@@ -50,9 +50,9 @@ mold: examples
 	./DaidalusExample --config nom_b --verbose > ../Regression/C++/DaidalusExample-nom_b.out
 	./DaidalusExample --config cd3d --verbose > ../Regression/C++/DaidalusExample-cd3d.out
 	./DaidalusExample --config tcasii --verbose > ../Regression/C++/DaidalusExample-tcasii.out
-	./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf --out ../Regression/C++/DaidalusqAlerting-no_sum.csv ../Scenarios/H1.daa 
-	./DaidalusAlerting --conf ../Configurations/DO_365B_SUM.conf --out ../Regression/C++/DaidalusAlerting-sum.csv ../Scenarios/H1_SUM.daa 
-	./DaidalusBatch --conf ../Configurations/DO_365B_no_SUM.conf --out ../Regression/C++/DaidalusBatch-no_sum.out ../Scenarios/H1.daa 
-	./DaidalusBatch --conf ../Configurations/DO_365B_SUM.conf --out ../Regression/C++/DaidalusBatch-sum.out ../Scenarios/H1_SUM.daa 
+	./DaidalusAlerting --config ../Configurations/DO_365B_no_SUM.conf --out ../Regression/C++/DaidalusqAlerting-no_sum.csv ../Scenarios/H1.daa 
+	./DaidalusAlerting --config ../Configurations/DO_365B_SUM.conf --out ../Regression/C++/DaidalusAlerting-sum.csv ../Scenarios/H1_SUM.daa 
+	./DaidalusBatch --config ../Configurations/DO_365B_no_SUM.conf --out ../Regression/C++/DaidalusBatch-no_sum.out ../Scenarios/H1.daa 
+	./DaidalusBatch --config ../Configurations/DO_365B_SUM.conf --out ../Regression/C++/DaidalusBatch-sum.out ../Scenarios/H1_SUM.daa 
 
 .PHONY: all lib examples doc configs

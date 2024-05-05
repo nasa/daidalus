@@ -47,6 +47,7 @@ import java.util.List;
 import gov.nasa.larcfm.ACCoRD.Alerter;
 import gov.nasa.larcfm.ACCoRD.ConflictData;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
+import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.Detection3D;
 import gov.nasa.larcfm.ACCoRD.WCV_tvar;
 import gov.nasa.larcfm.Util.Units;
@@ -54,13 +55,13 @@ import gov.nasa.larcfm.Util.f;
 
 public class DaidalusAlerting extends DaidalusProcessor {
 
-	static PrintWriter out;
-	static String uhor;
-	static String uver;
-	static String uhs;
-	static String uvs;
-	static int max_alert_levels;
-	static Detection3D detector;
+	PrintWriter out;
+	String uhor;
+	String uver;
+    String uhs;
+	String uvs;
+	int max_alert_levels;
+	Detection3D detector;
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();
@@ -73,8 +74,8 @@ public class DaidalusAlerting extends DaidalusProcessor {
 	public static void main(String[] args) {
 
 		DaidalusAlerting processor = new DaidalusAlerting();
-		processor.ignoreset.add("location");
-		out = new PrintWriter(System.out);
+		processor.ignoreset.addAll(Arrays.asList("location","format"));
+		processor.out = new PrintWriter(System.out);
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
 			if (ap >= 0) {
@@ -87,12 +88,9 @@ public class DaidalusAlerting extends DaidalusProcessor {
 				} 			
 			}
 		}
-		Daidalus daa = new Daidalus();
-		processor.setDaidalusConfig(daa);
-		if (daa.numberOfAlerters()==0) {
-			// If no alerter has been configured, configure alerters as in 
-			// DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
-			daa.set_DO_365B();			
+		if (processor.getConfigurationName().isEmpty()) {
+			System.err.println("** Error: DAA configuration isn't specified. Use option --config");
+			System.exit(1);
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
@@ -106,16 +104,21 @@ public class DaidalusAlerting extends DaidalusProcessor {
 		String scenario = base_name.substring(0,base_name.lastIndexOf('.'));
 		String output_file = processor.getOutputFileNameOr(scenario,"csv");
 		try {
-			out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+			processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 		} catch (Exception e) {
 			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
 		System.err.println("Processing DAIDALUS file "+file.getPath());
 		System.err.println("Generating CSV file "+output_file);
+		processor.processFile(file.getPath());
+		processor.out.close();
+	}
+
+	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
 		max_alert_levels = daa.maxNumberOfAlertLevels();
 		if (max_alert_levels <= 0) {
-			System.err.println("** Error: Maximum alert level is 0. It appears that no alerter are configured");
+			System.err.println("** Error: Maximum alert level is 0. It appears that no alerter is configured");
 			System.exit(1);
 		}
 		int corrective_level = daa.correctiveAlertLevel(1);
@@ -144,8 +147,6 @@ public class DaidalusAlerting extends DaidalusProcessor {
 		}
 		out.println();
 		out.println(line_units);
-		processor.processFile(file.getPath(),daa);
-		out.close();
 	}
 
 	public void processTime(Daidalus daa, int iteration) {
@@ -205,4 +206,3 @@ public class DaidalusAlerting extends DaidalusProcessor {
 	}
 
 }
-

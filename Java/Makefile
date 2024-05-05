@@ -26,13 +26,13 @@ examples:
 	@echo "./DaidalusExample"
 	@echo
 	@echo "** To run DaidalusAlerting type, e.g.,"
-	@echo "./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DaidalusAlerting --config ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo
 	@echo "** To run DaidalusBatch type, e.g.,"
-	@echo "./DaidalusBatch --conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DaidalusBatch --config ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo
 	@echo "** To run DrawMultiBands, first type, e.g.,"
-	@echo "./DrawMultiBands -conf ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
+	@echo "./DrawMultiBands --config ../Configurations/DO_365B_no_SUM.conf ../Scenarios/H1.daa"
 	@echo "** and then type, e.g.,"
 	@echo "../Scripts/drawmultibands.py H1_DO_365B_no_SUM.draw"
 	@echo
@@ -49,9 +49,9 @@ mold: examples
 	./DaidalusExample --config nom_b --verbose > ../Regression/Java/DaidalusExample-nom_b.out
 	./DaidalusExample --config cd3d --verbose > ../Regression/Java/DaidalusExample-cd3d.out
 	./DaidalusExample --config tcasii --verbose > ../Regression/Java/DaidalusExample-tcasii.out
-	./DaidalusAlerting --conf ../Configurations/DO_365B_no_SUM.conf --out ../Regression/Java/DaidalusqAlerting-no_sum.csv ../Scenarios/H1.daa 
-	./DaidalusAlerting --conf ../Configurations/DO_365B_SUM.conf --out ../Regression/Java/DaidalusAlerting-sum.csv ../Scenarios/H1_SUM.daa 
-	./DaidalusBatch --conf ../Configurations/DO_365B_no_SUM.conf --out ../Regression/Java/DaidalusBatch-no_sum.out ../Scenarios/H1.daa 
-	./DaidalusBatch --conf ../Configurations/DO_365B_SUM.conf --out ../Regression/Java/DaidalusBatch-sum.out ../Scenarios/H1_SUM.daa 
+	./DaidalusAlerting --config ../Configurations/DO_365B_no_SUM.conf --out ../Regression/Java/DaidalusqAlerting-no_sum.csv ../Scenarios/H1.daa 
+	./DaidalusAlerting --config ../Configurations/DO_365B_SUM.conf --out ../Regression/Java/DaidalusAlerting-sum.csv ../Scenarios/H1_SUM.daa 
+	./DaidalusBatch --config ../Configurations/DO_365B_no_SUM.conf --out ../Regression/Java/DaidalusBatch-no_sum.out ../Scenarios/H1.daa 
+	./DaidalusBatch --config ../Configurations/DO_365B_SUM.conf --out ../Regression/Java/DaidalusBatch-sum.out ../Scenarios/H1_SUM.daa 
 
 .PHONY: all example lib doc configs

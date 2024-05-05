@@ -238,7 +238,8 @@ public class DAAGenerator {
 		} else {
 			walker.goToTime(time);
 		}
-		walker.setFormat(daa,formatter);
+		walker.setDAAUnits(daa);
+		walker.setDAAFormat(formatter);
 		walker.readState(daa);
 		if (!daa.hasOwnship()) {
 			System.err.println("** Error: Ownship not found in file "+input_file);

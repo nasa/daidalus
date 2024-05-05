@@ -22,7 +22,7 @@ import java.util.Set;
 
 public abstract class DaidalusProcessor {
 
-
+	private static final int DEFAULT_PRECISION = 6;
 	private int sfrom_; // 0 is absolute, > 0 is from beggining, < 0 is from end
 	private double ufrom_; // from
 	private int sto_; // 0 is absolute, > 0 is from beggining, < 0 is from end
@@ -33,15 +33,15 @@ public abstract class DaidalusProcessor {
 	private List<String> traffic_;
 	private String conf_ = "";
 	private String output_file_;
-	private int precision_;
 	private boolean do_inst_;
 	private boolean no_hyst_;
 	private double lat_ = 0.0; // In decimal degrees
 	private double lon_ = 0.0; // In decimal degrees
 	private HashMap<String,String> units_;
 	private HashMap<String,Boolean> format_;
+	private int precision_;
+	private boolean trailing_zeros_;
 	private List<String> file_names_ = new ArrayList<>();
-	public  DAAFormatter formatter;
 	public  Set<String> ignoreset; // Ignore options
 	public  ParameterData parameters;
 
@@ -56,7 +56,6 @@ public abstract class DaidalusProcessor {
 		traffic_ = new ArrayList<>();
 		conf_ = "";
 		output_file_ = "";
-		precision_ = 6;
 		do_inst_ = false;
 		no_hyst_ = false;
 		parameters = new ParameterData();
@@ -64,9 +63,11 @@ public abstract class DaidalusProcessor {
 		format_ = new HashMap<>();
 		lat_  = 0.0;
 		lon_  = 0.0;
+		precision_ = DEFAULT_PRECISION;
+		trailing_zeros_ = false;
 		file_names_ = new ArrayList<>();
-		formatter = new DAAFormatter();
 		ignoreset = new HashSet<>();
+		DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 	}
 
 	public Velocity getWind() {
@@ -144,9 +145,12 @@ public abstract class DaidalusProcessor {
 		s.append("  --wind_to='<val>[deg]'\n\tOverride direction wind is blowing to, val is clockwise from true north in degrees\n");
 		s.append("  --wind_from='<val>[deg]'\n\tOverride direction wind is coming from, val is clockwise from true north in degrees\n");
 		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>. If <unit> is not provided,\n\tinternal units are assumed\n");
-		s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz,vxyz,groundvel,alerter,sum,internal.\n\tIf Boolean value is not provided, true is assumed\n");
+		if (!ignoreset.contains("format")) {
+			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, sum,\n\tand internal. If Boolean value is not provided, true is assumed\n");
+		}
 		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
 		s.append("  --precision <n>\n\tOutput numbers with specified decimal precision\n");
+		s.append("  --trailingzeros\n\tOutput numbers with trailing zeros\n");
 		s.append("  --ownship <id>\n\tSpecify a particular aircraft as ownship\n");
 		s.append("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n");
 		s.append("  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
@@ -166,46 +170,51 @@ public abstract class DaidalusProcessor {
 
 	// from is 1, to is -1, at is 0
 	private void parse_time(int from_to_at,String arga) {
-		if (from_to_at > 0) { // From
-			if (arga.startsWith("+")) {
-				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
-				sfrom_ = 1;
-			} else if (arga.startsWith("-")) {
-				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
-				sfrom_ = -1;
-			} else {
-				ufrom_ = Double.parseDouble(arga);
-				sfrom_ = 0;
-			}	
-		} else if (from_to_at < 0) {  // To
-			if (arga.startsWith("+")) {
-				uto_ = Double.parseDouble(arga.substring(1,arga.length()));
-				sto_ = 1;
-			} else if (arga.startsWith("-")) {
-				uto_ = Double.parseDouble(arga.substring(1,arga.length()));
-				sto_ = -1;
-			} else {
-				uto_ = Double.parseDouble(arga);
-				sto_ = 0;
-			}	
-		} else { // At
-			if (arga.startsWith("+")) {
-				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
-				sfrom_ = 1;
-				uto_ = Double.parseDouble(arga.substring(1,arga.length()));;
-				sto_ = 1;
-			} else if (arga.startsWith("-")) {
-				uto_ = Double.parseDouble(arga.substring(1,arga.length()));
-				sto_ = -1;
-				ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));;
-				sfrom_ = -1;
-			} else {
-				ufrom_ = Double.parseDouble(arga);
-				sfrom_ = 0;
-				uto_ = Double.parseDouble(arga);
-				sto_ = 0;
-			}	
-		}			
+		try {
+			if (from_to_at > 0) { // From
+				if (arga.startsWith("+")) {
+					ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
+					sfrom_ = 1;
+				} else if (arga.startsWith("-")) {
+					ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
+					sfrom_ = -1;
+				} else {
+					ufrom_ = Double.parseDouble(arga);
+					sfrom_ = 0;
+				}	
+			} else if (from_to_at < 0) {  // To
+				if (arga.startsWith("+")) {
+					uto_ = Double.parseDouble(arga.substring(1,arga.length()));
+					sto_ = 1;
+				} else if (arga.startsWith("-")) {
+					uto_ = Double.parseDouble(arga.substring(1,arga.length()));
+					sto_ = -1;
+				} else {
+					uto_ = Double.parseDouble(arga);
+					sto_ = 0;
+				}	
+			} else { // At
+				if (arga.startsWith("+")) {
+					ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));
+					sfrom_ = 1;
+					uto_ = Double.parseDouble(arga.substring(1,arga.length()));;
+					sto_ = 1;
+				} else if (arga.startsWith("-")) {
+					uto_ = Double.parseDouble(arga.substring(1,arga.length()));
+					sto_ = -1;
+					ufrom_ = Double.parseDouble(arga.substring(1,arga.length()));;
+					sfrom_ = -1;
+				} else {
+					ufrom_ = Double.parseDouble(arga);
+					sfrom_ = 0;
+					uto_ = Double.parseDouble(arga);
+					sto_ = 0;
+				}	
+			}
+		} catch (NumberFormatException e) {
+			System.err.println("** Error: "+arga+" is not a valid time specification");
+			System.exit(1);
+		}		
 	}
 
 	public int processOptions(String[] args, int i) {
@@ -221,7 +230,16 @@ public abstract class DaidalusProcessor {
 			// Use the given configuration, but disable hysteresis
 			no_hyst_ = true;
 		} else if ((arga.startsWith("--prec") || arga.startsWith("-prec") && a+1 < args.length)) {
-			precision_ = Integer.parseInt(args[++a]);
+			try {
+				precision_ = Integer.parseInt(args[++a]);
+				DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
+			} catch (NumberFormatException e) {
+				System.err.println("** Error: "+args[a]+" is not a valid number");
+				System.exit(1);
+			}
+		} else if ((arga.startsWith("--trail") || arga.startsWith("-trail"))) {
+			trailing_zeros_ = true;
+			DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
 		} else if (arga.startsWith("-") && arga.contains("=")) {
@@ -239,7 +257,7 @@ public abstract class DaidalusProcessor {
 	        for (String key : arr_of_keys) {
 				units_.put(key,unit);
 			}
-		} else if ((arga.startsWith("--format") || arga.startsWith("-format")) && a+1 < args.length) {
+		} else if (!ignoreset.contains("format") && (arga.startsWith("--format") || arga.startsWith("-format")) && a+1 < args.length) {
 			String keys = args[++a];
 			boolean enable = true;
 			int pos = keys.indexOf(":",0);
@@ -265,10 +283,20 @@ public abstract class DaidalusProcessor {
 			skip_ = false;
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--lat") || arga.startsWith("-lat")) && a+1 < args.length) {
 			++a;
-			lat_ = Units.from("deg",Double.parseDouble(args[a]));
+			try {
+				lat_ = Units.from("deg",Double.parseDouble(args[a]));
+			} catch (NumberFormatException e) {
+				System.err.println("** Error: "+args[a]+" is not a valide number");
+				System.exit(1);
+			}
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--lon") || arga.startsWith("-lon")) && a+1 < args.length) {
 			++a;
-			lon_ = Units.from("deg",Double.parseDouble(args[a]));
+			try {
+				lon_ = Units.from("deg",Double.parseDouble(args[a]));
+			} catch (NumberFormatException e) {
+				System.err.println("** Error: "+args[a]+" is not a valide number");
+				System.exit(1);
+			}
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--loc") || arga.startsWith("-loc")) && a+1 < args.length) {	
 			++a;
 			ConfigReader reader = new ConfigReader();
@@ -336,41 +364,6 @@ public abstract class DaidalusProcessor {
 		return name;
 	}
 
-	public void setDaidalusConfig(Daidalus daa) {
-		DaidalusParameters.setDefaultOutputPrecision(precision_);
-		if (conf_.equals("sum")) {
-			// Configure DAIDALUS as in DO-365B, with SUM. This is the default.
-			daa.set_DO_365B(true,true);
-		} else if (conf_.equals("no_sum")) {
-			// Configure DAIDALUS as in DO-365B, without SUM
-			daa.set_DO_365B(true,false);
-		} else if (conf_.equals("nom_a")) {
-			// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
-			daa.set_Buffered_WC_DO_365(false);
-		} else if (conf_.equals("nom_b")) {
-			// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
-			daa.set_Buffered_WC_DO_365(true);
-		} else if (conf_.equals("cd3d")) {
-			// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
-			daa.set_CD3D();
-		} else if (conf_.equals("tcasii")) {
-			// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
-			daa.set_TCASII();
-		} else if (!conf_.isEmpty() && !daa.loadFromFile(conf_)) {
-				System.err.println("** Error: Configuration file "+conf_+" not found");
-				System.exit(1);
-		}
-		if (do_inst_) {
-			daa.setInstantaneousBands();
-		}
-		if (no_hyst_) {
-			daa.disableHysteresis();
-		}
-		if (parameters.size() > 0) {
-			daa.setParameterData(parameters);
-		}
-	}
-
 	public Interval timeInterval(DaidalusFileWalker walker) {
 		double absolute_from = walker.firstTime();
 		double absolute_to = walker.lastTime();
@@ -391,7 +384,77 @@ public abstract class DaidalusProcessor {
 		return new Interval(absolute_from,absolute_to);
 	}
 
-	public DaidalusFileWalker makeWalker(String filename, Daidalus daa) {
+	public Daidalus getDaidalus() {
+		Daidalus daa = new Daidalus();
+		if (conf_.equals("sum")) {
+			// Configure DAIDALUS as in DO-365B, with SUM. This is the default.
+			daa.set_DO_365B(true,true);
+		} else if (conf_.equals("no_sum")) {
+			// Configure DAIDALUS as in DO-365B, without SUM
+			daa.set_DO_365B(true,false);
+		} else if (conf_.equals("nom_a")) {
+			// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
+			daa.set_Buffered_WC_DO_365(false);
+		} else if (conf_.equals("nom_b")) {
+			// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
+			daa.set_Buffered_WC_DO_365(true);
+		} else if (conf_.equals("cd3d")) {
+			// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
+			daa.set_CD3D();
+		} else if (conf_.equals("tcasii")) {
+			// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
+			daa.set_TCASII();
+		} else if (!conf_.isEmpty() && !daa.loadFromFile(conf_)) {
+				System.err.println("** Error: DAA configuration file "+conf_+" not found");
+				System.exit(1);
+		}
+		if (do_inst_) {
+			daa.setInstantaneousBands();
+		}
+		if (no_hyst_) {
+			daa.disableHysteresis();
+		}
+		if (parameters.size() > 0) {
+			daa.setParameterData(parameters);
+		}
+		return daa;
+	}
+
+	public void setDaidalusUnits(Daidalus daa) {
+		for (String key : units_.keySet()) {
+			daa.setUnitsOf(key,units_.get(key));
+		}
+	}
+
+	public Daidalus getDaidalus(DaidalusFileWalker walker) {
+		Daidalus daa = getDaidalus();
+		walker.setDAAUnits(daa);
+		setDaidalusUnits(daa);
+		return daa;
+	}
+
+	public DAAFormatter getDAAFormatter(DaidalusFileWalker walker) {
+		DAAFormatter formatter = new DAAFormatter();
+		walker.setDAAFormat(formatter);
+		for (String key : format_.keySet()) {
+			if (key.equals("sxyz")) {
+				formatter.sxyz = format_.get(key);
+			} else if (key.equals("vxyz")) {
+				formatter.vxyz = format_.get(key);
+			} else if (key.equals("groundvel")) {
+				formatter.groundvel = format_.get(key);
+			} else if (key.equals("alerter")) {
+				formatter.alerter = format_.get(key);
+			} else if (key.equals("sum")) {
+				formatter.sum = format_.get(key);
+			} else if (key.equals("internal")) {
+				formatter.internal = format_.get(key);
+			} 		
+		}
+		return formatter;
+	}
+
+	public DaidalusFileWalker getDAAWalker(String filename) {
 		DaidalusFileWalker walker = new DaidalusFileWalker(filename); 
 		Velocity wind = getWind();
 		if (wind.isInvalid()) {
@@ -403,59 +466,10 @@ public abstract class DaidalusProcessor {
 		if (!traffic_.isEmpty()) {
 			walker.selectTraffic(traffic_);
 		}
-		walker.setFormat(daa,formatter);
-		for (String key : units_.keySet()) {
-			daa.setUnitsOf(key,units_.get(key));
-		}
-		for (String key : format_.keySet()) {
-			if (key.equals("sxyz")) {
-				formatter.sxyz = format_.get(key);
-			} else if (key.equals("vxyz")) {
-				formatter.vxyz = format_.get(key);
-			} else if (key.equals("groundvel")) {
-				formatter.groundvel = format_.get(key);
-			} else if (key.equals("alerter")) {
-				formatter.alerter = format_.get(key);
-			} else if (key.equals("sum")) {
-				formatter.sum = format_.get(key);
-			} else if (key.equals("internal")) {
-				formatter.internal = format_.get(key);
-			}
-		}
 		return walker;
 	}
 
-	public void processFile(String filename, Daidalus daa) {
-		DaidalusFileWalker walker = makeWalker(filename,daa); 
-		Velocity wind = getWind();
-		if (wind.isInvalid()) {
-			walker.setWindVelocityTo(wind);
-		}
-		if (!ownship_.isEmpty()) {
-			walker.setOwnship(ownship_);
-		}
-		if (!traffic_.isEmpty()) {
-			walker.selectTraffic(traffic_);
-		}
-		walker.setFormat(daa,formatter);
-		for (String key : units_.keySet()) {
-			daa.setUnitsOf(key,units_.get(key));
-		}
-		for (String key : format_.keySet()) {
-			if (key.equals("sxyz")) {
-				formatter.sxyz = format_.get(key);
-			} else if (key.equals("vxyz")) {
-				formatter.vxyz = format_.get(key);
-			} else if (key.equals("groundvel")) {
-				formatter.groundvel = format_.get(key);
-			} else if (key.equals("alerter")) {
-				formatter.alerter = format_.get(key);
-			} else if (key.equals("sum")) {
-				formatter.sum = format_.get(key);
-			} else if (key.equals("internal")) {
-				formatter.internal = format_.get(key);
-			}
-		}
+	public void go(DaidalusFileWalker walker, Daidalus daa) {
 		Interval from_to = timeInterval(walker);
 		if (!from_to.isEmpty()) {
 			if (skip_) {
@@ -466,7 +480,7 @@ public abstract class DaidalusProcessor {
 			while (!walker.atEnd() && walker.getTime() <= from_to.up) {
 				walker.readState(daa);
 				if (!daa.hasOwnship()) {
-					System.err.println("** Warning: Ownship not found in file "+filename);
+					System.err.println("** Warning: Ownship not found in file "+walker.getFileName());
 					return;
 				}			
 				if (daa.getCurrentTime() >= from_to.low) {
@@ -480,7 +494,15 @@ public abstract class DaidalusProcessor {
 					daa.forceVerticalSpeedBandsComputation();
 				}
 			} 
-		}   
+		}
+	}
+
+	public void processFile(String filename) {
+		DaidalusFileWalker walker = getDAAWalker(filename); 
+		Daidalus daa = getDaidalus(walker);
+		beginProcess(walker,daa);
+		go(walker,daa);
+		endProcess(walker,daa);
 	}
 
 	private void printHelpString() {
@@ -493,5 +515,9 @@ public abstract class DaidalusProcessor {
 	abstract public String applicationHelpString();
 
 	abstract public void processTime(Daidalus daa, int iteration);
+
+	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {}
+
+	public void endProcess(DaidalusFileWalker walker,Daidalus daa) {}
 
 }

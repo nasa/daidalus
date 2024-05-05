@@ -44,7 +44,9 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
+import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
 import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.Position;
@@ -53,7 +55,8 @@ import gov.nasa.larcfm.Util.Velocity;
 
 public class DAAEcho extends DaidalusProcessor {
 
-	static PrintWriter out;
+	PrintWriter  out;
+	DAAFormatter formatter;
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();
@@ -65,7 +68,8 @@ public class DAAEcho extends DaidalusProcessor {
 	public static void main(String[] args) {
 
 		DAAEcho processor = new DAAEcho();
-		out = new PrintWriter(System.out);
+		processor.ignoreset.add("dontskip");
+		processor.out = new PrintWriter(System.out);
 
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
@@ -90,23 +94,30 @@ public class DAAEcho extends DaidalusProcessor {
 		try {
 			String output_file = processor.getOutputFile();
 			if (!output_file.isEmpty()) {
-				out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 				System.err.println("Writing "+output_file);
 			}
 		} catch (Exception e) {
 			System.out.println("** Error: "+e);
 			System.exit(1);
 		}   
-		Daidalus daa = new Daidalus();
-		processor.setDaidalusConfig(daa);
-		if (!processor.getConfigurationName().isEmpty()) {
+
+		if (input_files.isEmpty()) {
+			Daidalus daa = processor.getDaidalus();
+			processor.setDaidalusUnits(daa);
+			processor.out.print(daa.getCore().parameters.toString());
+		} else {
+			File file = input_files.get(0);
+			processor.processFile(file.getPath());
+		}
+		processor.out.close();
+	}
+
+	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
+		formatter = getDAAFormatter(walker);
+		if (!getConfigurationName().isEmpty()) {
 			out.print(daa.getCore().parameters.toString());
 		} 
-		if (!input_files.isEmpty()) {
-			File file = input_files.get(0);
-			processor.processFile(file.getPath(),daa);
-		}
-		out.close();
 	}
 
 	public void processTime(Daidalus daa, int iteration) {

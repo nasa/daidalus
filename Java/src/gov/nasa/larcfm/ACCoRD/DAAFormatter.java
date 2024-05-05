@@ -152,4 +152,9 @@ public class DAAFormatter {
 		return s.toString();
 	}
 
+    public String toString() {
+        return "sxyz: "+sxyz+", vxyz: "+vxyz+", groundvel: "+groundvel+
+            ", alerter: "+alerter+", sum: "+sum+", internal: "+internal;
+    }
+
 }
