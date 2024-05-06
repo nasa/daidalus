@@ -44,7 +44,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
-import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
@@ -56,7 +55,6 @@ import gov.nasa.larcfm.Util.Velocity;
 public class DAAEcho extends DaidalusProcessor {
 
 	PrintWriter  out;
-	DAAFormatter formatter;
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();
@@ -92,7 +90,7 @@ public class DAAEcho extends DaidalusProcessor {
 			System.exit(1);
 		}
 		try {
-			String output_file = processor.getOutputFile();
+			String output_file = processor.getOutputFileName();
 			if (!output_file.isEmpty()) {
 				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 				System.err.println("Writing "+output_file);
@@ -101,7 +99,6 @@ public class DAAEcho extends DaidalusProcessor {
 			System.out.println("** Error: "+e);
 			System.exit(1);
 		}   
-
 		if (input_files.isEmpty()) {
 			Daidalus daa = processor.getDaidalus();
 			processor.setDaidalusUnits(daa);
@@ -114,7 +111,6 @@ public class DAAEcho extends DaidalusProcessor {
 	}
 
 	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
-		formatter = getDAAFormatter(walker);
 		if (!getConfigurationName().isEmpty()) {
 			out.print(daa.getCore().parameters.toString());
 		} 

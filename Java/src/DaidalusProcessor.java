@@ -27,7 +27,6 @@ public abstract class DaidalusProcessor {
 	private double ufrom_; // from
 	private int sto_; // 0 is absolute, > 0 is from beggining, < 0 is from end
 	private double uto_; // to
-	private StringBuffer options_;
 	private String ownship_;
 	private boolean skip_;
 	private List<String> traffic_;
@@ -44,13 +43,14 @@ public abstract class DaidalusProcessor {
 	private List<String> file_names_ = new ArrayList<>();
 	public  Set<String> ignoreset; // Ignore options
 	public  ParameterData parameters;
+	public  DAAFormatter formatter;
+	public  StringBuffer options;
 
 	public DaidalusProcessor() {
 		sfrom_ = 1; // From beginning
 		ufrom_ = 0; // 0 (from beginning)
 		sto_ = -1;  // From end
 		uto_ = 0;   // 0 (from end)
-		options_ = new StringBuffer();
 		ownship_ = "";
 		skip_ = true;
 		traffic_ = new ArrayList<>();
@@ -67,6 +67,8 @@ public abstract class DaidalusProcessor {
 		trailing_zeros_ = false;
 		file_names_ = new ArrayList<>();
 		ignoreset = new HashSet<>();
+		formatter = new DAAFormatter();
+		options = new StringBuffer();
 		DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 	}
 
@@ -139,11 +141,13 @@ public abstract class DaidalusProcessor {
 			s.append("  --instantaneous\n\tOverride configuration to do instantaneous bands\n");
 			s.append("  --nohystereis\n\tOverride configuation to disable hysteresis\n");
 		}
-		s.append("  --<key>='<val>'\n\tOverride configuration value, where <key> is any configuration variable and val is its value\n");
-		s.append("\t(including units, if any), e.g., --lookahead_time='5[min]'\n");
-		s.append("  --wind_speed='<val>[uval]'\n\tOverride wind speed with specified val and units, e.g., '40[knot]'\n");
-		s.append("  --wind_to='<val>[deg]'\n\tOverride direction wind is blowing to, val is clockwise from true north in degrees\n");
-		s.append("  --wind_from='<val>[deg]'\n\tOverride direction wind is coming from, val is clockwise from true north in degrees\n");
+		if (!ignoreset.contains("keys")) {
+			s.append("  --<key>='<val>'\n\tOverride configuration value, where <key> is any configuration variable and val is its value\n");
+			s.append("\t(including units, if any), e.g., --lookahead_time='5[min]'\n");
+			s.append("  --wind_speed='<val>[uval]'\n\tOverride wind speed with specified val and units, e.g., '40[knot]'\n");
+			s.append("  --wind_to='<val>[deg]'\n\tOverride direction wind is blowing to, val is clockwise from true north in degrees\n");
+			s.append("  --wind_from='<val>[deg]'\n\tOverride direction wind is coming from, val is clockwise from true north in degrees\n");
+		}
 		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>. If <unit> is not provided,\n\tinternal units are assumed\n");
 		if (!ignoreset.contains("format")) {
 			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, sum,\n\tand internal. If Boolean value is not provided, true is assumed\n");
@@ -242,7 +246,7 @@ public abstract class DaidalusProcessor {
 			DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
-		} else if (arga.startsWith("-") && arga.contains("=")) {
+		} else if (!ignoreset.contains("keys") && arga.startsWith("-") && arga.contains("=")) {
 			String keyval = arga.substring(arga.startsWith("--")?2:1);
 			parameters.set(keyval); 
 		} else if ((arga.startsWith("--units") || arga.startsWith("-units")) && a+1 < args.length) {
@@ -325,20 +329,18 @@ public abstract class DaidalusProcessor {
 		} else {
 			return -1;
 		}
-		options_.append(arga);
-		options_.append(" ");
-		if (a > i) {
-			options_.append(args[a]);
-			options_.append(" ");
+		if (arga.startsWith("-")) {
+			options.append(arga);
+			options.append(" ");
+			if (a > i) {
+				options.append(args[a]);
+				options.append(" ");
+			}
 		}
 		return a;
 	}
 
-	public String getOptionsString() {
-		return options_.toString();
-	}
-
-	public String getOutputFile() {
+	public String getOutputFileName() {
 		return output_file_;
 	}
 
@@ -433,8 +435,7 @@ public abstract class DaidalusProcessor {
 		return daa;
 	}
 
-	public DAAFormatter getDAAFormatter(DaidalusFileWalker walker) {
-		DAAFormatter formatter = new DAAFormatter();
+	public void setDAAFormatter(DaidalusFileWalker walker) {
 		walker.setDAAFormat(formatter);
 		for (String key : format_.keySet()) {
 			if (key.equals("sxyz")) {
@@ -451,7 +452,6 @@ public abstract class DaidalusProcessor {
 				formatter.internal = format_.get(key);
 			} 		
 		}
-		return formatter;
 	}
 
 	public DaidalusFileWalker getDAAWalker(String filename) {
@@ -466,6 +466,11 @@ public abstract class DaidalusProcessor {
 		if (!traffic_.isEmpty()) {
 			walker.selectTraffic(traffic_);
 		}
+		if (walker.atEnd()) {
+			System.err.println("** Error: File "+filename+" doesn't appear to be a DAA file");
+			System.exit(1);
+		}
+		setDAAFormatter(walker);
 		return walker;
 	}
 

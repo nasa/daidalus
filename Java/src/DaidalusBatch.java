@@ -19,7 +19,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 	boolean raw = false;
 	int format = STANDARD; 
 	PrintWriter out;
-	StringBuffer options;
 	boolean init = true;
 
 	public String applicationHelpString() {
@@ -36,7 +35,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 		DaidalusBatch processor = new DaidalusBatch();
 		processor.out = new PrintWriter(System.out);
 		processor.ignoreset.addAll(Arrays.asList("location","format"));
-		processor.options = new StringBuffer();
 		for (int a=0;a < args.length; ++a) {
 			int ap = processor.processOptions(args,a);
 			if (ap >= 0) {
@@ -65,7 +63,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 			System.err.println("** Error: DAA configuration isn't specified. Use option --config");
 			System.exit(1);
 		}		
-		processor.options.append(processor.getOptionsString());
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
 		if (input_files.isEmpty()) {
@@ -74,7 +71,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 			System.exit(1);
 		} 
 		try {
-			String output = processor.getOutputFile();
+			String output = processor.getOutputFileName();
 			if (!output.isEmpty()) {
 				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
 			}

@@ -11,4 +11,5 @@ Crossing:
 
 HeadOn:
 	../Java/DAAGenerator --backward 100 --forward 20 --loc NY.loc H0.txt
+	../Java/DAAGenerator --backward 100 --forward 20 H0.txt
 

@@ -50,207 +50,123 @@ import java.util.Optional;
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
-import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
 import gov.nasa.larcfm.ACCoRD.Horizontal;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
-import gov.nasa.larcfm.ACCoRD.DAAFormatter;
-import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Kinematics;
 import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.ProjectedKinematics;
-import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
-public class DAAGenerator {
+public class DAAGenerator extends DaidalusProcessor {
 
 	// Keyed by aircraft id
-	static Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 
-	static Map<String, Velocity> hcpa_vel = new HashMap<String,Velocity>();
-	static Daidalus daa = new Daidalus();
+	Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 
+	Map<String, Velocity> hcpa_vel = new HashMap<String,Velocity>();
+
+	public String applicationHelpString() {
+		StringBuffer str = new StringBuffer();
+		str.append("DAAGenerator [<options>] <daa_file>\n");
+		str.append("Valid <options> are:\n");
+		str.append("  --time <t>\n\tUse states at time <t> in <daa_file> for generation of new scenario. By default, <t> is the first time in <daa_file>\n");
+		str.append("  --init <i>\n\tUse time <i> as initial time of the generated scenario. By default, <i> is 0\n");
+		str.append("  --backward <b>\n\tProject <b> seconds backward from states at time <t> in <daa_file>\n");
+		str.append("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>\n");
+		str.append("  --[<id>@]<key>=<val>\n\tSet key <key> to value <val> in givent units for aircraft <id>. If <id> is not provided,\n");
+		str.append("\t\tthe ownship is assumed. The list of valid keys are provided below.\n");
+		str.append("\t--horizontal_accel='-0.1[G]'\n");
+		str.append("\t--vertical_accel='0.1[G]'\n");
+		str.append("\t--turn_rate='3[deg/s]'\n");
+		str.append("\t\tPositive (resp., negative) turn_rate  is a clowckwise (resp., counter-clockwise) turn\n");
+		str.append("\t--bank_angle='30[deg]'\n");
+		str.append("\t\tPositive (resp., negative) bank  is a clowckwise (resp., counter-clockwise) turn\n");
+		str.append("\t\tOnly one of --turn_rate or --bank_angle can be specified\n");
+		str.append("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requires either positive horizontal acceleration\n");
+		str.append("\t\tfor climbing or negative horizontal acceleration for descending.\n");
+		str.append("\t--wind_speed='40[kn]'\n");
+		str.append("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north\n");
+		str.append("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north\n");
+		str.append("\t--hcpa_with=<acid>\n\t\tModify ground speed so that the current state is the horizontal CPA between <id> and <acid>\n");
+		return str.toString();
+	}
 
 	public static void main(String[] args) {
 
-		// Create an empty Daidalus object
-
-		DAAFormatter formatter = new DAAFormatter();
-		String input_file = "";
-		String ownship_id = "";
-		List<String> traffic_ids = new ArrayList<String>();		
+		DAAGenerator processor = new DAAGenerator();
+		processor.ignoreset.addAll(Arrays.asList("config","dontskip","keys"));
 		PrintWriter out = new PrintWriter(System.out);
-		int precision = 6; 
 		int backward = 0; // In seconds
 		int forward = 0;  // In seconds
 		double time = 0.0;  // In seconds
 		double init = 0.0;
-		String output = "";
-		double lat = 0.0; // In decimal degrees
-		double lon = 0.0; // In decimal degrees
-		boolean xyz2latlon = false;
-		String options = "";
 		List<String> keyvals = new ArrayList<String>();
 		for (int a=0;a < args.length; ++a) {
-			String arga = args[a];
-			options += " "+arga;
-			if (arga.startsWith("--prec") || arga.startsWith("-prec")) {
-				++a;
-				precision = Integer.parseInt(args[a]);
-				options += " "+args[a];
-			} else if (arga.startsWith("-") && arga.contains("=")) {
-				String idkeyval = arga.substring(arga.startsWith("--")?2:1);
-				keyvals.add(idkeyval);
-			} else if ((arga.startsWith("--own") || arga.startsWith("-own")) && a+1 < args.length) { 
-				++a;
-				ownship_id = args[a];
-				options += " "+args[a];
-			} else if ((arga.startsWith("--traf") || arga.startsWith("-traf")) && a+1 < args.length) { 
-				++a;
-				traffic_ids.addAll(Arrays.asList(args[a].split(",")));
-				options += " "+args[a];
-			} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) { 
-				++a;
-				output = args[a];
-				options += " "+args[a];
-			} else if (arga.equals("--time") || arga.equals("-time") || arga.equals("-t")) {
-				++a;
-				time = Math.abs(Double.parseDouble(args[a]));
-				options += " "+args[a];
-			} else if (arga.startsWith("--back") || arga.startsWith("-back") || arga.equals("-b")) {
-				++a;
-				backward = Math.abs(Integer.parseInt(args[a]));
-				options += " "+args[a];
-			} else if (arga.startsWith("--for") || arga.startsWith("-for") || arga.equals("-f")) {
-				++a;
-				forward = Math.abs(Integer.parseInt(args[a]));
-				options += " "+args[a];
-			} else if (arga.startsWith("--init") || arga.startsWith("-init")) {
-				++a;
-				init = Math.abs(Integer.parseInt(args[a]));
-				options += " "+args[a];
-			} else if (arga.startsWith("--lat") || arga.startsWith("-lat")) {
-				++a;
-				lat = Units.from("deg",Double.parseDouble(args[a]));
-				options += " "+args[a];
-				xyz2latlon = true;
-			} else if (arga.startsWith("--lon") || arga.startsWith("-lon")) {
-				++a;
-				lon = Units.from("deg",Double.parseDouble(args[a]));
-				options += " "+args[a];
-				xyz2latlon = true;
-			} else if (arga.startsWith("--loc") || arga.startsWith("-loc")) {	
-				++a;
-				options += " "+args[a];
-				ConfigReader reader = new ConfigReader();
-				reader.open(args[a]);
-				if (reader.hasError()) {
-					System.err.print("** Error: "+reader.getMessage());
-					System.exit(1);
-				}
-				ParameterData platlon = reader.getParameters();
-				xyz2latlon = true;
-				if (platlon.contains("lat")) {
-					lat = platlon.getValue("lat");
-				}
-				if (platlon.contains("latitude")) {
-					lat = platlon.getValue("latitude");
-				}
-				if (platlon.contains("lon")) {
-					lon = platlon.getValue("lon");
-				}
-				if (platlon.contains("longitude")) {
-					lon = platlon.getValue("longitude");
-				}
-			} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
-				System.err.println("Usage:");
-				System.err.println("  DAAGenerator [<options>] <daa_file>");
-				System.err.println("Valid <options> are");
-				System.err.println("  --help\n\tPrint this message");
-				System.err.println("  --output <output_file>\n\tOutput information to <output_file>");
-				System.err.println("  --precision <n>\n\tOutput decimal precision to <n>");
-				System.err.println("  --ownship <id>\n\tSpecify <id> as ownship");
-				System.err.println("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic");
-				System.err.println("  --time <t>\n\tUse states at time <t> in <daa_file> for generation of new scenario. By default, <t> is the first time in <daa_file>");
-				System.err.println("  --init <i>\n\tUse time <i> as initial time of the generated scenario. By default, <i> is 0");
-				System.err.println("  --backward <b>\n\tProject <b> seconds backward from states at time <t> in <daa_file>");
-				System.err.println("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>");
-				System.err.println("  --latitude <lat>\n\tSet Euclidean local origin to latitude <lat>, in decimal degrees");
-				System.err.println("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees");
-				System.err.println("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>");
-				System.err.println("  --[<id>@]<key>=<val>\n\tSet key <key> to value <val> in givent units for aircraft <id>. If <id> is not provided,");
-				System.err.println("\t\tthe ownship is assumed. The list of valid keys are provided below.");
-				System.err.println("\t--horizontal_accel='-0.1[G]'");
-				System.err.println("\t--vertical_accel='0.1[G]'");
-				System.err.println("\t--turn_rate='3[deg/s]'");
-				System.err.println("\t\tPositive (resp., negative) turn_rate  is a clowckwise (resp., counter-clockwise) turn");
-				System.err.println("\t--bank_angle='30[deg]'");
-				System.err.println("\t\tPositive (resp., negative) bank  is a clowckwise (resp., counter-clockwise) turn");
-				System.err.println("\t\tOnly one of --turn_rate or --bank_angle can be specified");
-				System.err.println("\t--slope='10[deg]'\n\t\tClimb/descend at given slope. This option requires either positive horizontal acceleration");
-				System.err.println("\t\tfor climbing or negative horizontal acceleration for descending.");
-				System.err.println("\t--wind_speed='40[kn]'");
-				System.err.println("\t--wind_to='90[deg]'\n\t\tDirection wind is blowing to, clockwise from true north");
-				System.err.println("\t--wind_from='90[deg]'\n\t\tDirection wind is coming from, clockwise from true north");
-				System.err.println("\t--hcpa_with=<acid>\n\t\tModify ground speed so that the current state is the horizontal CPA between <id> and <acid>");
-				System.exit(0);
-			} else if (arga.startsWith("-")){
-				System.err.println("** Error: Unknown option "+arga);
-				System.exit(1);
+			int ap = processor.processOptions(args,a);
+			if (ap >= 0) {
+				a = ap;
 			} else {
-				if (input_file.isEmpty()) {
-					input_file = arga;
-				} else {
-					System.err.println("Usage:  DAAGenerator [<options>] <daa_file>");
-					System.err.println("Try: DAAGenerator --help");
-					System.exit(1);					
-				}
+				String arga = args[a];
+				processor.options.append(arga);
+				processor.options.append(" ");
+				if (arga.startsWith("-") && arga.contains("=")) {
+					String idkeyval = arga.substring(arga.startsWith("--")?2:1);
+					keyvals.add(idkeyval);
+				} else try {
+						if ((arga.equals("--time") || arga.equals("-time") || arga.equals("-t")) && a+1 < args.length) {
+							time = Math.abs(Double.parseDouble(args[++a]));
+						} else if (arga.startsWith("--back") || arga.startsWith("-back") || arga.equals("-b")) {
+							backward = Math.abs(Integer.parseInt(args[++a]));
+						} else if (arga.startsWith("--for") || arga.startsWith("-for") || arga.equals("-f")) {
+							forward = Math.abs(Integer.parseInt(args[++a]));
+						} else if (arga.startsWith("--init") || arga.startsWith("-init")) {
+							init = Math.abs(Integer.parseInt(args[++a]));
+						} else if (arga.startsWith("-")){
+							System.err.println("** Error: Invalid option ("+arga+")");
+							System.exit(1);
+						} 
+						processor.options.append(args[a]);
+						processor.options.append(" ");		
+				} catch (NumberFormatException e) {
+					System.err.println("** Error: "+args[a]+" is not a valid number");
+					System.exit(1);
+				}	
 			}
 		}
-		if (input_file.isEmpty()) {
-			System.err.println("Usage:  DAAGenerator [<options>] <daa_file>");
-			System.err.println("Try: DAAGenerator --help");
-			System.exit(1);		
-		}
-		File file = new File(input_file);
-		if (!file.exists() || !file.canRead()) {
-			System.err.println("** Error: File "+input_file+" cannot be read");
+		List<String> exts = Arrays.asList("daa","xyz");
+		List<File> input_files = processor.getFiles(exts);
+		if (input_files.size() != 1) {
+			System.err.println("Usage:\n\tDAAGenerator [<options>] <daa_file>");
+			System.err.println("Try:\n\tDAAGenerator --help");
 			System.exit(1);
 		}
-		DaidalusParameters.setDefaultOutputPrecision(precision);
-		DaidalusFileWalker walker = new DaidalusFileWalker(input_file);
-		if (walker.atEnd()) {
-			System.err.println("** Error: File "+input_file+" doesn't appear to be a daa file");
-			System.exit(1);
-		}
-		if (!ownship_id.isEmpty()) {
-			walker.setOwnship(ownship_id);
-		}
-		if (!traffic_ids.isEmpty()) {
-			walker.selectTraffic(traffic_ids);
-		}
+		File file = input_files.get(0);
+		DaidalusFileWalker walker = processor.getDAAWalker(file.getPath()); 
+		Daidalus daa = processor.getDaidalus(walker);
+
+		//beginProcess(walker,daa);
+		//go(walker,daa);
+		//endProcess(walker,daa);
+
 		if (time == 0.0) {
 			walker.goToBeginning();
 		} else {
 			walker.goToTime(time);
 		}
-		walker.setDAAUnits(daa);
-		walker.setDAAFormat(formatter);
 		walker.readState(daa);
-		if (!daa.hasOwnship()) {
-			System.err.println("** Error: Ownship not found in file "+input_file);
-			System.exit(1);
-		}
-		Optional<EuclideanProjection> projection = xyz2latlon ? Optional.of(Projection.createProjection(lat,lon,0.0)) : Optional.empty();
+
+		boolean xyz2latlon = processor.isLocationSet();
+		Optional<EuclideanProjection> projection = xyz2latlon ? Optional.of(processor.getProjection()) : Optional.empty();
 		TrafficState ownship = daa.getOwnshipState();
 		boolean daalatlon = ownship.isLatLon() || xyz2latlon;
 		try {
 			String output_file = "";
-			if (output.isEmpty()) {
+			if (processor.getOutputFileName().isEmpty()) {
 				String ext = ".";
 				if (daalatlon) {
 					ext += "daa";
@@ -266,7 +182,7 @@ public class DAAGenerator {
 				}
 				output_file += ext;
 			} else {
-				output_file += output;
+				output_file += processor.getOutputFileName();
 			}
 			out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 			System.err.println("Writing "+output_file);
@@ -274,31 +190,31 @@ public class DAAGenerator {
 			System.err.println("** Error: "+e);
 			System.exit(1);
 		}
-		out.println("## DAAGenerator"+options);
-		setKeyVals(keyvals);
-		Velocity wind = getWindFromOwnship();
+		out.println("## DAAGenerator "+processor.options+file.getName());
+		processor.setKeyVals(daa,keyvals);
+		Velocity wind = processor.getWindFromOwnship(daa);
 		if (!wind.isZero()) {				
 			out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
 		}
-		printKeyVals(keyvals,out);
-		ParameterData own_param = params.get(daa.getOwnshipState().getId());
+		processor.printKeyVals(keyvals,out);
+		ParameterData own_param = processor.params.get(daa.getOwnshipState().getId());
 		int offset = 0;
 		for (double t = -backward; t <= forward; ++t, ++offset) {
-			Pair<Position,Velocity> own_posvel = move(ownship,own_param,t);
+			Pair<Position,Velocity> own_posvel = processor.move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(formatter.formattedTrafficState(new_own,offset==0,daa.getCore().parameters,init+offset));
+			out.print(processor.formatter.formattedTrafficState(new_own,offset==0,daa.getCore().parameters,init+offset));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
-				ParameterData ac_param = params.get(ac.getId());
-				Pair<Position,Velocity> ac_posvelhor = move(ac,ac_param,t);
+				ParameterData ac_param = processor.params.get(ac.getId());
+				Pair<Position,Velocity> ac_posvelhor = processor.move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,init+offset));
+				out.print(processor.formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,init+offset));
 			}
 		}  
 		out.close();
 	}
 
-	static void setKeyVals(List<String> keyvals) {
+	void setKeyVals(Daidalus daa, List<String> keyvals) {
 		TrafficState ownship = daa.getOwnshipState();
 		for (String idkeyval : keyvals) {
 			int idpos = idkeyval.indexOf("@"); 
@@ -393,7 +309,7 @@ public class DAAGenerator {
 		}
 	}
 
-	static void printKeyVals(List<String> keyvals, PrintWriter out) {
+	void printKeyVals(List<String> keyvals, PrintWriter out) {
 		for (Map.Entry<String,ParameterData> mapelement : params.entrySet()) {
 			String acid = mapelement.getKey();
 			ParameterData param = mapelement.getValue();
@@ -416,7 +332,7 @@ public class DAAGenerator {
 		}
 	}
 
-	static Velocity getWindFromOwnship() {
+	Velocity getWindFromOwnship(Daidalus daa) {
 		ParameterData param = params.get(daa.getOwnshipState().getId());
 		if (param != null) {
 			double wind_speed = param.getValue("wind_speed");
@@ -430,7 +346,7 @@ public class DAAGenerator {
 		return daa.getWindVelocityTo();
 	}
 
-	static Pair<Position,Velocity> move(TrafficState ac, ParameterData param, double offset) {
+	Pair<Position,Velocity> move(TrafficState ac, ParameterData param, double offset) {
 		Position pos = ac.getPosition();
 		Velocity vel = hcpa_vel.getOrDefault(ac.getId(),ac.getGroundVelocity());
 		double horizontal_accel = 0.0;
@@ -482,6 +398,10 @@ public class DAAGenerator {
 		return ownship.makeIntruder(id,pos,vel);
 	}
 
+	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {}
 
+	public void processTime(Daidalus daa, int iteration) {}
+
+	public void endProcess(DaidalusFileWalker walker,Daidalus daa) {}
 }
 
