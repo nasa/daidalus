@@ -1,0 +1,273 @@
+#!/usr/bin/env bash
+
+pushd () {
+    command pushd "$@" > /dev/null
+}
+
+popd () {
+    command popd "$@" > /dev/null
+}
+
+usage() {
+    echo
+    echo "Usage: $0 [<options>] <sce1>..<scen>
+Run test on scenarios <sce1>..<scen>. Scenario <scei> can be a DAA file or a directory containing DAA files.
+Valid <options> are
+-h|--help			: Print this message
+-J|--Java			: Select Java's DAIDALUS
+-C|--C++			: Select C++'s DAIDALUS
+-t|--test	      	  	: Run test
+-d|--diff		    	: Run diff
+-r|--rootdir <dir>		: Set DAIDALUS root directory to <dir>. This directory is exptected to have
+	  			  Java, C++, Configurations, and Scenarios sub-directories
+-c|--conf <confile>		: Use configuration file <confile>
+--ignore=<str1>:..:<strn>	: Ignore differences in lines matching <str1>, ..., or <strn>
+--extension=<ext1>:..:<extn>	: Run extensions <ext1>, ..., and <extn>, where <exti> is one of out, csv, or pvs
+-v|--verbose			: Print OK and FAILURES (without this option, it only prints FAILURES)
+"
+    exit 1 
+}
+
+JAVALANG=
+CPPLANG=
+TEST=
+DIFF=
+CONFILE=
+EXTENSIONS=
+IGNORESTR=
+
+while [ $# -gt 0 ]
+do
+    case $1 in
+	-h|--help)
+	    usage;;
+	-J|--Java)
+	    JAVALANG="Java";;
+	-C|--C++)
+	    CPPLANG="C++";;
+	-t|--test)
+	    TEST="test";;
+	-d|--diff)
+	    DIFF="diff";;
+	-c|--conf*)
+	    shift
+	    CONFILE=$1;;
+	--ignore=*)
+	    arr=(${1//=/ })
+	    ignores=${arr[1]}
+	    for ignore in ${ignores//:/ }; do
+		if [ "${ignore}" ]; then
+		    IGNORESTR="${IGNORESTR} -I ${ignore}"
+		fi
+	    done;;
+	--extension=*)
+            arr=(${1//=/ })
+            extensions=${arr[1]}
+	    EXTENSIONS="${EXTENSIONS} ${extensions//:/ }";;
+	-r|--root*)
+	    shift
+            DIR=$1;;
+	-v|--verbose)
+	    VERBOSE=yes;;
+	-*)
+	    echo "Error: option $1 is not valid. Use --help"
+	    exit 1;;
+	*)
+	    break;;
+    esac
+    shift
+done
+
+SCENARIOS="$@"
+
+if [ -z "$EXTENSIONS" ]; then
+    EXTENSIONS="out"
+fi
+
+if [ -z "${JAVALANG}" -a -z "${CPPLANG}" ]; then
+    echo "Error: Expecting options --Java | --C++ (or --help)"
+    exit 1
+fi
+
+if [ -z "${TEST}" -a -z "${DIFF}" ]; then
+    echo "Error: Expecting options --test | ---diff (or --help)"
+    exit 1
+fi
+
+if [ -z "${DIR}" ]; then
+    DIR="."
+#   DIR=$( cd "$(dirname "$0")" ; pwd -P )
+fi
+
+GOLDIR=${DIR}/gold/current
+CONFDIR=${DIR}/Configurations
+SCEDIR=${DIR}/Scenarios
+
+if [ -z "${CONFILE}" ]; then
+    echo "Error: Expecting option --conf <confile> (or --help), where <confile> is one of"
+    ls $DIR/Configurations
+    exit 1
+fi   
+
+if [ -z "${SCENARIOS}" ]; then
+    echo "Error: Expecting at least one scenario. Try one of:"
+    cd ${SCEDIR};ls 
+    exit 1
+fi
+
+CNFG=`basename ${CONFILE}`
+CNFG=${CNFG%.*}
+
+if [ "${TEST}" ]; then
+    if [ "${CNFG}" = "${CONFILE}" ]; then
+	if [ -f ${CONFDIR}/${CNFG}.txt ]; then
+	    CONFILE=${CONFDIR}/${CNFG}.txt
+	else
+	    CONFILE=${CONFDIR}/${CNFG}.conf
+	fi
+    fi
+    if [ ! -f ${CONFILE} ]; then
+	echo "Error: DAA configuration file ${CONFILE} not found. Try one of"
+	ls $DIR/Configurations
+	exit 1
+    fi
+fi
+
+if [ "${DIFF}" ]; then
+    if [ ! -d ${GOLDIR} ]; then
+	echo "Error: DAA's gold directory ${GOLDIR} not found"
+	exit 1
+    fi
+fi
+
+check_daidalus() {
+    local lang=$1
+    local moldir=${DIR}/${lang}/mold
+    if [ -z "${lang}" ]; then
+	return 0
+    elif [ ! -d "${DIR}/${lang}" ]; then
+	echo "Error: DAIDALUS's language directory ${DIR}/${lang} not found"
+	exit 1
+    elif [ "${DIFF}" -a ! -d ${moldir} ]; then
+	echo "Error: DAA's mold directory ${moldir} not found"
+	exit 1
+    else
+	local progs="Batch Alerting"
+	for prog in ${progs}; do
+	    if [ ! -f "${DIR}/${lang}/Daidalus${prog}" ]; then
+		echo "Error: Program ${DIR}/${lang}/Daidalus${prog} not found"
+		exit 1
+	    fi
+	done
+    fi
+    if [ "${TEST}" ]; then
+	if [ ! -d ${moldir} ]; then
+	    echo "Making directory ${moldir}"
+	    mkdir ${moldir}
+	fi
+	if [ ! -d ${moldir}/${CNFG} ]; then
+	    echo "Making directory ${moldir}/${CNFG}"
+	    mkdir ${moldir}/${CNFG}
+	fi
+	for scenario in ${SCENARIOS}; do
+	    if [ -d ${SCEDIR}/${scenario} ]; then
+		if [ ! -d ${moldir}/${CNFG}/${scenario} ]; then
+		    echo "Making directory ${moldir}/${CNFG}/${scenario}"
+		    mkdir ${moldir}/${CNFG}/${scenario}
+		fi
+	    fi
+	done
+
+    fi
+}
+
+check_daidalus ${JAVALANG}
+check_daidalus ${CPPLANG}
+
+do_test() {
+    local lang=$1
+    local scenario=$2
+    local moldir=${DIR}/${lang}/mold
+    for ext in ${EXTENSIONS}; do
+	local opt=
+	local prog="Batch"
+	if [ ${ext} = "out" ]; then
+	    opt="-v"
+	elif [ ${ext} = "pvs" ]; then
+	    opt="-pvs"
+	elif [ ${ext} = "csv" ]; then
+	    prog="Alerting"
+	fi
+	local files="";
+	if [ -f ${SCEDIR}/$scenario ]; then
+	    files="${scenario}"
+	elif [ -d ${SCEDIR}/$scenario ]; then
+	    pushd ${SCEDIR}
+	    files=`ls ${scenario}/*.txt`
+	    popd
+	fi
+	for file in $files; do
+	    local input="${SCEDIR}/${file}"
+	    local output=`basename ${file}`
+	    output=${output%.*}
+	    if [ -d "${SCEDIR}/${scenario}" ]; then
+		output="${CNFG}/${scenario}/${output}.${ext}"
+	    else
+		output="${CNFG}/${output}.${ext}"
+	    fi
+	    local options="${opt} -config ${CONFILE} -o ${moldir}/${output} ${input}"
+	    echo "./Daidalus$prog ${options}"
+	    $DIR/${lang}/Daidalus$prog ${options}
+	done
+    done
+}
+
+do_diff() {
+    local lang=$1
+    local scenario=$2
+    local moldir=${DIR}/${lang}/mold
+    for ext in ${EXTENSIONS}; do
+        local files=
+        if [ -f ${SCEDIR}/$scenario ]; then
+            files=`basename $scenario`
+            files=${files%.*}
+	    files="${CNFG}/${files}.${ext}"
+        elif [ -d ${SCEDIR}/$scenario ]; then
+	    pushd ${GOLDIR}
+	    files=`ls ${CNFG}/${scenario}/*.out`
+	    popd
+        fi
+	for file in $files; do
+	    local msg="${lang} ${file}"
+	    if [ ! -f "${GOLDIR}/${file}" ]; then
+		printf "[\033[31mFAIL\e[0m]: Gold file ${GOLDIR}/${file} not found\n"
+	    elif [ ! -f "${moldir}/${file}" ]; then
+		printf "[\033[31mFAIL\e[0m]: Mold file ${moldir}/${file} not found\n"
+	    else
+		local verbose=""
+		if [ "$VERBOSE" ]; then
+		    verbose="[\e[92mOK\e[0m]: ${msg}\n"
+		fi
+		(diff -w -I '#.*' -I '%.*' ${IGNORESTR} ${GOLDIR}/${file} ${moldir}/${file} > /dev/null 2>&1 && printf "${verbose}") || (printf "[\033[31mFAIL\e[0m]: ${msg} -- "; echo "diff -w -I '#.*' -I '%.*' ${IGNORESTR} ${GOLDIR}/${file} ${moldir}/${file}")
+	    fi
+	done
+    done
+}
+
+start_time=`date +%s`
+langs="${JAVALANG} ${CPPLANG}"
+for scenario in ${SCENARIOS}; do
+    if [ ! -e "${SCEDIR}/${scenario}" ]; then
+	echo "Error: DAA scenario ${scenario} not found in ${SCEDIR}"
+    fi
+    for lang in ${langs}; do
+	if [ "${TEST}" ]; then
+	    do_test ${lang} ${scenario}
+	fi
+	if [ "${DIFF}" ]; then
+	    do_diff ${lang} ${scenario}
+	fi
+    done
+done
+end_time=`date +%s`
+echo "Execution time was `expr $end_time - $start_time` s."
