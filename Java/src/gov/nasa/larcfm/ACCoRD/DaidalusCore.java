@@ -6,7 +6,6 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
-import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Util;

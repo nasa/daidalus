@@ -24,6 +24,7 @@
 #include <cmath>
 
 #include "HysteresisData.h"
+#include "DAAFormatter.h"
 
 namespace larcfm {
 
@@ -256,6 +257,8 @@ private:
    */
   void conflict_aircraft(int conflict_region);
 
+  std::string raw_traffic_data() const; 
+
 public:
   /**
    * Requires 0 <= conflict_region < CONFICT_BANDS
@@ -290,7 +293,7 @@ public:
 
   TrafficState recovery_ac();
 
-  std::string outputStringAircraftStates(bool internal, bool header) const;
+  std::string outputStringAircraftStates(bool header, const DAAFormatter& formatter) const;
 
   std::string rawString() const;
 

@@ -452,9 +452,6 @@ public abstract class DaidalusProcessor {
 				formatter.internal = format_.get(key);
 			} 		
 		}
-		if (!walker.getWindVelocityTo().isInvalid()) {
-			formatter.groundvel = true;
-		}
 	}
 
 	public DaidalusFileWalker getDAAWalker(String filename) {

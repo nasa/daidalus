@@ -9,7 +9,6 @@
 #include "Position.h"
 #include "Velocity.h"
 #include "Projection.h"
-//#include "Constants.h"
 #include "format.h"
 #include "string_util.h"
 
@@ -224,71 +223,6 @@ std::string TrafficState::listToString(const std::vector<std::string>& traffic) 
   return s+"}";
 }
 
-std::string TrafficState::formattedHeader(bool latlon, const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs) {
-  std::string s1="NAME";
-  std::string s2="[none]";
-  if (latlon) {
-			s1 += " lat lon alt trk gs vs heading airspeed";
-			s2 += " [deg] [deg] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
-  } else {
-			s1 += " sx sy sz trk gs vs heading airspeed";
-			s2 += " ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+utrk+"] ["+ugs+"] ["+uvs+"] ["+utrk+"] ["+ugs+"]";
-  }
-  s1 += " time alerter";
-  s2 += " [s] [none]";
-  s1 += " s_EW_std s_NS_std s_EN_std sz_std v_EW_std v_NS_std v_EN_std vz_std";
-  s2 += " ["+uxy+"] ["+uxy+"] ["+uxy+"] ["+ualt+"] ["+ugs+"] ["+ugs+"] ["+ugs+"] ["+uvs+"]";
-  return s1+"\n"+s2+"\n";
-}
-
-std::string TrafficState::formattedHeader(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs) const {
-  return formattedHeader(isLatLon(),utrk, uxy, ualt, ugs, uvs);
-}
-
-std::string TrafficState::formattedTrafficState(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time) const {
-  std::string s= getId();
-  if (pos_.isLatLon()) {
-    s += ", "+pos_.lla().toString("deg","deg",ualt);
-  } else {
-    s += ", "+pos_.vect3().toStringNP(uxy,uxy,ualt);
-  }
-  s += ", "+gvel_.toStringNP(utrk,ugs,uvs); 
-		s += ", "+FmPrecision(avel_.compassAngle(utrk));
-		s += ", "+FmPrecision(avel_.groundSpeed(ugs));
-  s += ", "+FmPrecision(time); 
-  s += ", "+Fmi(alerter_);
-  s += ", "+FmPrecision(sum_.get_s_EW_std(uxy));
-  s += ", "+FmPrecision(sum_.get_s_NS_std(uxy));
-  s += ", "+FmPrecision(sum_.get_s_EN_std(uxy));
-  s += ", "+FmPrecision(sum_.get_sz_std(ualt));
-  s += ", "+FmPrecision(sum_.get_v_EW_std(ugs));
-  s += ", "+FmPrecision(sum_.get_v_NS_std(ugs));
-  s += ", "+FmPrecision(sum_.get_v_EN_std(ugs));
-  s += ", "+FmPrecision(sum_.get_vz_std(uvs));
-  return s+"\n";
-}
-
-std::string TrafficState::formattedTrafficList(const std::vector<TrafficState>& traffic,
-    const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time) {
-  std::string s = "";
-  for (nat i=0; i < traffic.size(); ++i) {
-    TrafficState ac = traffic[i];
-    s += ac.formattedTrafficState(utrk,uxy, ualt, ugs, uvs, time);
-  }
-  return s;
-}
-
-std::string TrafficState::formattedTraffic(const std::vector<TrafficState>& traffic,
-    const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string&  ugs, const std::string& uvs, double time, bool header) const {
-  std::string s = "";
-  if (header) {
-    s += formattedHeader(utrk,uxy,ualt,ugs,uvs);
-  }
-  s += formattedTrafficState(utrk,uxy,ualt,ugs,uvs,time);
-  s += formattedTrafficList(traffic,utrk,uxy,ualt,ugs,uvs,time);
-  return s;
-}
-
 std::string TrafficState::toPVS() const {
   return "(# id:= \"" + id_ + "\", s:= "+get_s().toPVS()+
       ", v:= "+get_v().toPVS()+
@@ -459,6 +393,10 @@ bool TrafficState::sameId(const TrafficState& ac) const {
 
 std::string TrafficState::toString() const {
   return "("+id_+", "+pos_.toString()+", "+avel_.toString()+")";
+}
+
+std::string TrafficState::rawString() const {
+  return "id: "+id_+", sxyz: "+sxyz_.toString()+", vxyz: "+velxyz_.vect3().toString();
 }
 
 }

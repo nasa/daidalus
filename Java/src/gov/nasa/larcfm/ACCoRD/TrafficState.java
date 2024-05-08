@@ -6,7 +6,6 @@
  */
 package gov.nasa.larcfm.ACCoRD;
 
-import java.util.Arrays;
 import java.util.List;
 
 import gov.nasa.larcfm.Util.EuclideanProjection;

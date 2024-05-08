@@ -2849,7 +2849,7 @@ public:
 
   /* Input/Output methods */
 
-  std::string outputStringAircraftStates(bool header=true) const;
+  std::string outputStringAircraftStates() const;
 
   std::string rawString() const;
 

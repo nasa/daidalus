@@ -794,24 +794,15 @@ int DaidalusCore::raw_alert_level(const Alerter& alerter, const TrafficState& in
   return 0;
 }
 
-std::string DaidalusCore::outputStringAircraftStates(bool internal, bool header) const {
-  std::string ualt = internal ? "m" : parameters.getUnitsOf("step_alt");
-  std::string uhs = internal ? "m/s" : parameters.getUnitsOf("step_hs");
-  std::string uvs = internal ? "m/s" : parameters.getUnitsOf("step_vs");
-  std::string uxy = "m";
-  std::string utrk = "deg";
-  if (!internal) {
-    if (Units::isCompatible(uhs,"knot")) {
-      uxy = "nmi";
-    } else if (Units::isCompatible(uhs,"fpm")) {
-      uxy = "ft";
-    } else if (Units::isCompatible(uhs,"kph")) {
-      uxy = "km";
-    }
-  } else {
-    utrk="rad";
+std::string DaidalusCore::raw_traffic_data() const {
+  std::stringstream str;
+  str << ownship.rawString();
+  str << "\n";
+  for (int i = 0; i < traffic.size(); ++i) {
+    str << traffic[i].rawString();
+    str << "\n";
   }
-  return ownship.formattedTraffic(traffic,utrk,uxy,ualt,uhs,uvs,current_time,header);
+  return str.str();
 }
 
 std::string DaidalusCore::rawString() const {
@@ -876,8 +867,8 @@ std::string DaidalusCore::rawString() const {
   s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
 	s += "below_min_as_ = "+Fmb(special_band_flags_.get_below_min_as())+"\n";
   s += "wind_vector = "+wind_vector.toString()+"\n";
-  s += "## Ownship and Traffic Relative to Wind\n";
-  s += outputStringAircraftStates(true,false);
+  s += "## Aircraft states relative to wind\n"; 
+	s += raw_traffic_data(); 
   s += "##\n";
   return s;
 }
@@ -888,6 +879,19 @@ std::string DaidalusCore::toString() const {
   s+="wind_vector = "+wind_vector.toString()+"\n";
   s+="##\n";
   return s;
+}
+
+std::string DaidalusCore::outputStringAircraftStates(bool header, const DAAFormatter& formatter) const {
+		std::stringstream s;
+		if (ownship.isValid()) {
+			s << formatter.formattedTrafficState(ownship,header,parameters,current_time);
+      for (std::vector<TrafficState>::const_iterator traffic_it = traffic.begin();
+            traffic_it != traffic.end(); ++traffic_it) {
+        const TrafficState& ac = (*traffic_it);
+				s << formatter.formattedTrafficState(ac,false,parameters,current_time);
+			}
+		}
+		return s.str();
 }
 
 }

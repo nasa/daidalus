@@ -135,10 +135,6 @@ public class DaidalusFileWalker implements ErrorReporter {
 		wind_ = Velocity.INVALID;
 	}
 
-	public Velocity getWindVelocityTo() {
-		return wind_;
-	}
-
 	/**
 	 * Returns the name of the traffic aircraft. An empty list 
 	 * @return
@@ -304,6 +300,9 @@ public class DaidalusFileWalker implements ErrorReporter {
 		formatter.sum = columns_.contains("s_EW_std") || columns_.contains("s_NS_std") || columns_.contains("s_EN_std") 
 			|| columns_.contains("sz_std") || columns_.contains("v_EW_std") || columns_.contains("v_NS_std") 
 			|| columns_.contains("v_EN_std") || columns_.contains("vz_std");
+		if (!wind_.isInvalid()) {
+			formatter.groundvel = true;
+		}
 	}
 
 	public void setDAAUnits(Daidalus daa) {

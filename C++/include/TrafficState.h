@@ -169,18 +169,6 @@ public:
 
   static std::string listToString(const std::vector<std::string>& traffic);
 
-  static std::string formattedHeader(bool latlon, const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs);
-
-  std::string formattedHeader(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs) const;
-
-  std::string formattedTrafficState(const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time) const;
-
-  static std::string formattedTrafficList(const std::vector<TrafficState>& traffic,
-      const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time);
-
-  std::string formattedTraffic(const std::vector<TrafficState>& traffic,
-      const std::string& utrk, const std::string& uxy, const std::string& ualt, const std::string& ugs, const std::string& uvs, double time, bool header) const;
-
   std::string toPVS() const;
 
   std::string listToPVSAircraftList(const std::vector<TrafficState>& traffic) const;
@@ -309,6 +297,8 @@ public:
   bool sameId(const TrafficState& ac) const;
 
   std::string toString() const;
+
+  std::string rawString() const;
 
 };
 }
