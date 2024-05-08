@@ -427,9 +427,6 @@ public class DaidalusCore {
 		Position pt = dt == 0 ? pos : pos.linear(vel,dt);    
 		TrafficState ac = ownship.makeIntruder(id,pt,vel);
 		if (ac.isValid()) {
-			if (!wind_vector.isZero()) {
-				ac.applyWindVector(wind_vector);
-			}
 			int idx = find_traffic_state(id);
 			if (idx >= 0) {
 				traffic.set(idx,ac);

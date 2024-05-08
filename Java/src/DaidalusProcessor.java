@@ -93,7 +93,7 @@ public abstract class DaidalusProcessor {
 	} 
 
 	public boolean isLocationSet() {
-		return lat_ != 0.0 && lon_ != 0.0;
+		return lat_ != 0.0 || lon_ != 0.0;
 	}
 
 	public EuclideanProjection getProjection() {
@@ -452,12 +452,19 @@ public abstract class DaidalusProcessor {
 				formatter.internal = format_.get(key);
 			} 		
 		}
+		if (!walker.getWindVelocityTo().isInvalid()) {
+			formatter.groundvel = true;
+		}
 	}
 
 	public DaidalusFileWalker getDAAWalker(String filename) {
 		DaidalusFileWalker walker = new DaidalusFileWalker(filename); 
+		if (walker.atEnd()) {
+			System.err.println("** Error: File "+filename+" doesn't appear to be a DAA file");
+			System.exit(1);
+		}
 		Velocity wind = getWind();
-		if (wind.isInvalid()) {
+		if (!wind.isInvalid()) {
 			walker.setWindVelocityTo(wind);
 		}
 		if (!ownship_.isEmpty()) {
@@ -465,10 +472,6 @@ public abstract class DaidalusProcessor {
 		}
 		if (!traffic_.isEmpty()) {
 			walker.selectTraffic(traffic_);
-		}
-		if (walker.atEnd()) {
-			System.err.println("** Error: File "+filename+" doesn't appear to be a DAA file");
-			System.exit(1);
 		}
 		setDAAFormatter(walker);
 		return walker;

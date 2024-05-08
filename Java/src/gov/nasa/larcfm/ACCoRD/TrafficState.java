@@ -77,19 +77,19 @@ public class TrafficState {
 	 * @param vel Aircraft's ground velocity
 	 * @param eprj Euclidean projection
 	 */
-	private TrafficState(String id, Position pos, Velocity vel, EuclideanProjection eprj,int alerter) {
+	private TrafficState(String id, Position pos, Velocity vel, Vect3 wind, EuclideanProjection eprj,int alerter) {
 		id_ = id;
 		pos_ = pos;
 		gvel_ = vel;
-		avel_ = vel;
+		avel_ = wind.isZero() ? vel : vel.Sub(wind);
 		if (pos.isLatLon()) {
 			sxyz_ = eprj.project(pos);
 			posxyz_ = Position.make(sxyz_);
-			velxyz_ = eprj.projectVelocity(pos,vel);
+			velxyz_ = eprj.projectVelocity(pos,avel_);
 		} else {
 			posxyz_ = pos;
 			sxyz_ = pos.vect3();
-			velxyz_ = vel;
+			velxyz_ = avel_;
 		}  
 		eprj_ = eprj;
 		alerter_ = alerter;
@@ -195,7 +195,7 @@ public class TrafficState {
 		if (isLatLon() != pos.isLatLon()) { 
 			return INVALID;
 		}
-		return new TrafficState(id,pos,vel,eprj_,1);
+		return new TrafficState(id,pos,vel,windVector(),eprj_,1);
 	}
 
 	/**

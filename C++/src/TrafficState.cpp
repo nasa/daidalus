@@ -46,21 +46,22 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
                                     sxyz_(pos.vect3()),
                                     velxyz_(airvel) {}
 
-TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel, const EuclideanProjection& eprj, int alerter) :
+TrafficState::TrafficState(const std::string& id, const Position& pos, const Velocity& vel, const Vect3& wind, 
+                          const EuclideanProjection& eprj, int alerter) :
                                     id_(id),
                                     pos_(pos),
                                     gvel_(vel),
-                                    avel_(vel),
+                                    avel_(wind.isZero()? vel : vel.Sub(wind)),
                                     eprj_(eprj),
                                     alerter_(alerter) {
   if (pos.isLatLon()) {
     sxyz_ = eprj.project(pos);
     posxyz_ = Position(sxyz_);
-    velxyz_ = eprj.projectVelocity(pos,vel);
+    velxyz_ = eprj.projectVelocity(pos,avel_);
   } else {
     posxyz_ = pos;
     sxyz_ = pos.vect3();
-    velxyz_ = vel;
+    velxyz_ = avel_;
   }
 }
 
@@ -131,7 +132,7 @@ TrafficState TrafficState::makeIntruder(const std::string& id, const Position& p
   if (pos_.isLatLon() != pos.isLatLon()) {
     return INVALID();
   }
-  return TrafficState(id, pos, vel, eprj_, 1);
+  return TrafficState(id,pos,vel,windVector(),eprj_,1);
 }
 
 void TrafficState::setAlerterIndex(int alerter) {

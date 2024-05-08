@@ -135,6 +135,10 @@ public class DaidalusFileWalker implements ErrorReporter {
 		wind_ = Velocity.INVALID;
 	}
 
+	public Velocity getWindVelocityTo() {
+		return wind_;
+	}
+
 	/**
 	 * Returns the name of the traffic aircraft. An empty list 
 	 * @return

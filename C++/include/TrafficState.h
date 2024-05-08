@@ -73,7 +73,7 @@ private:
    * @param vel Aircraft's ground velocity
    * @param eprj Euclidean projection
    */
-  TrafficState(const std::string& id, const Position& pos, const Velocity& vel,
+  TrafficState(const std::string& id, const Position& pos, const Velocity& vel, const Vect3& wind,
       const EuclideanProjection& eprj,int alerter);
 
   /**

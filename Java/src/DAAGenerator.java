@@ -193,7 +193,8 @@ public class DAAGenerator extends DaidalusProcessor {
 		out.println("## DAAGenerator "+processor.options+file.getName());
 		processor.setKeyVals(daa,keyvals);
 		Velocity wind = processor.getWindFromOwnship(daa);
-		if (!wind.isZero()) {				
+		if (!wind.isZero()) {	
+			processor.formatter.groundvel = true;			
 			out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
 		}
 		processor.printKeyVals(keyvals,out);

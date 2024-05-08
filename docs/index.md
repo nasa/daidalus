@@ -1291,7 +1291,7 @@ and an encounter file `name.daa` such as
 encounter file may list multiple aircraft; the first one is considered
 to be the ownship. Aircraft states can also be given in local Euclidean
 coordinates, e.g.,
-[`H0_0_120.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). The
+[`H0_0_120a.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120a.xyz). The
 extensions `.daa` and `.xyz` for geodesic vs Euclidean coordinates, respectively, is
 just a convention. 
 
@@ -1349,12 +1349,12 @@ the file
 specifies, in local Euclidean coordinates, a head-on encounter with a closest approach of 0.5
 [nmi]. The command 
 ```
-$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 H0.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --out H0_0_120a.xyz  H0.txt
 ```
 linearly projects the aircraft states at time 0, from [`H0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0.txt), 100 seconds
 backward and 20 seconds forward in time, and generates the encounter
 file
-[`H0_0_120.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.xyz). Since
+[`H0_0_120a.xyz`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120a.xyz). Since
 the input is in local Euclidean coordinates, the output scenario is
 also in Euclidean coordinates. However, for convenience, the output
 scenario can be generated in geodesic coordinates if a latitude and
