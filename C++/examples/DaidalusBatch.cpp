@@ -23,183 +23,118 @@ public:
 	bool verbose;
 	bool raw;
 	int format;
+	bool init;
 	std::ostream* out;
 
-	DaidalusBatch() {
-		verbose = false;
-		raw = false;
-		format = STANDARD;
-		out = &std::cout;
+	DaidalusBatch() : verbose(false), raw(false), format(STANDARD), init(true), out(&std::cout) {}
+
+	std::string applicationHelpString() const {
+		std::stringstream str;
+		str << "DaidalusBatch [<options>] <daa_files>" << std::endl;
+		str << "Run DAIDALUS in batch mode with a given configuration on a list of DAA files. Valid <options> are:" << std::endl;
+		str << "  --verbose\n\tPrint extra information" << std::endl;
+		str << "  --raw\n\tPrint raw information" << std::endl;
+		str << "  --pvs\n\tProduce PVS output format" << std::endl;
+		return str.str();
 	}
 
-	static void printHelpMsg() {
-		std::cout << "Usage:" << std::endl;
-		std::cout << "  DaidalusBatch [<options>] <daa_files>" << std::endl;
-		std::cout << "Run DAIDALUS in batch mode with a given configuration on a list of DAA files. Valid <options> are" << std::endl;
-		std::cout << "  --help\n\tPrint this message" << std::endl;
-		std::cout << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
-		std::cout << "  --out <file>\n\tOutput information to <file>" << std::endl;
-		std::cout << "  --verbose\n\tPrint extra information" << std::endl;
-		std::cout << "  --raw\n\tPrint raw information" << std::endl;
-		std::cout << "  --pvs\n\tProduce PVS output format" << std::endl;
-		std::cout << "  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"" << std::endl;
-		std::cout << "  --precision <n>\n\tOutput decimal precision" << std::endl;
-	    std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
-		std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;		
-		std::cout << getHelpString() << std::endl;
-		exit(1);
-	}
-
-	void printOutput(Daidalus& daa) {
+	void beginProcess(DaidalusFileWalker& walker,Daidalus& daa) {
+		if (init) {
+			init = false;
+			switch (format) {
+			case STANDARD:
+				if (verbose) {
+					*out << "# " << Daidalus::release() << std::endl;
+					*out << "# Options: " << options.str() << std::endl;
+					*out << "#\n" << daa.toString() << "#\n" << std::endl;
+				}
+				break;
+			case PVS:
+				*out << "%%% " << Daidalus::release() << std::endl;
+				*out << "%%% Options: " << options.str() << std::endl;
+				break;
+			default:
+				break;
+			}
+		}
 		switch (format) {
 		case STANDARD:
-			(*out) << daa.outputString();
+			*out << "# File: " << walker.getFileName() << std::endl;
+			break;
+		case PVS:
+			*out << "%%% File:\n" << walker.getFileName() << std::endl;
+			*out << "%%% Parameters:\n" << daa.getCore().parameters.toPVS() << std::endl;
+			break;
+		default:
+			break;
+		}	
+	}
+
+	void processTime(Daidalus& daa, int iteration) {
+		switch (format) {
+		case STANDARD:
+			*out << daa.outputString();
 			if (raw) {
-				(*out) << daa.rawString();
+				*out << daa.rawString();
 			}
 			break;
 		case PVS:
-			(*out) << daa.toPVS(false);
+			*out << daa.toPVS(false);
 			break;
 		}
-	}
-
-	void processTime(Daidalus& daa, const std::string& filename) {
-		printOutput(daa);
 	}
 
 };
 
 int main(int argc, const char* argv[]) {
-	DaidalusBatch walker;
-	int a;
-	std::string config = "";
-	std::string output = "";
-	std::string options = "";
-	ParameterData params;
-	int precision = 6;
-	bool do_inst = false;
-	bool no_hyst = false;
-	for (a=1;a < argc && argv[a][0]=='-'; ++a) {
-		std::string arga = argv[a];
-		options += arga + " ";
-		if (walker.processOptions(argv,argc,a)) {
-			++a;
-			options += walker.getOptionsString();
-		} else if (arga == "--help" || arga == "-help" || arga == "-h") {
-			DaidalusBatch::printHelpMsg();
-		} else if (startsWith(arga,"--conf") || startsWith(arga,"-conf") || arga == "-c") {
-			config = argv[++a];
-			arga = argv[a];
-			options += arga + " ";
-		} else if (startsWith(arga,"--out") || startsWith(arga,"-out") || arga == "-o") {
-			output = argv[++a];
-		} else if (arga == "--verbose" || arga == "-verbose" || arga == "-v") {
-			walker.verbose = true;
-		} else if (arga == "--raw" || arga == "-raw" || arga == "-r") {
-			walker.raw = true;
-		} else if (arga == "--pvs" || arga == "-pvs") {
-			walker.format = PVS;
-		} else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
-			++a;
-			std::istringstream(argv[a]) >> precision;
-			options += arga+" ";
-		} else if (startsWith(arga,"--inst") || startsWith(arga,"-inst")) {
-			// Use the given configuration, but do instantaneous bands
-			do_inst = true;
-		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
-			// Use the given configuration, but disable hysteresis
-			no_hyst = true;
-		} else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
-			std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
-			params.set(keyval);
-		} else if (argv[a][0] == '-') {
-			std::cout << "Invalid option: " << arga << std::endl;
-			exit(0);
-		}
-	}
-	std::vector<std::string> txtFiles = std::vector<std::string>();
-	for (;a < argc; ++a) {
-		std::string arga(argv[a]);
-		txtFiles.push_back(arga);
-	}
-	if (txtFiles.empty()) {
-		walker.printHelpMsg();
-	}
-	std::ofstream fout;
-	if (output != "") {
-		fout.open(output.c_str());
-		walker.out = &fout;
-	}
-	DaidalusParameters::setDefaultOutputPrecision(precision);
-	Daidalus daa;
-	if (config == "") {
-		// Configure alerters as in DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
-		daa.set_DO_365B();
-	} else if (!daa.loadFromFile(config)) {
-		if (config == "no_sum") {
-			// Configure DAIDALUS as in DO-365B, without SUM
-			daa.set_DO_365B(true,false);
-		} else if (config == "nom_a") {
-			// Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
-			daa.set_Buffered_WC_DO_365(false);
-		} else if (config == "nom_b") {
-			// Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
-			daa.set_Buffered_WC_DO_365(true);
-		} else if (config == "cd3d") {
-			// Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
-			daa.set_CD3D();
-		} else if (config == "tcasii") {
-			// Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
-			daa.set_TCASII();
+	DaidalusBatch processor;
+	processor.ignoreset.insert("location");
+	processor.ignoreset.insert("format");
+	for (int a=1;a < argc; ++a) {
+		int ap = processor.processOptions(argv,argc,a);
+		if (ap >= 0) {
+			a = ap;
 		} else {
-			std::cerr << "** Error: File " << config << " not found" << std::endl;
-			exit(1);
+			std::string arga = argv[a];
+			if (arga == "--verbose" || arga == "-verbose" || arga == "-v") {
+				processor.verbose = true;
+				processor.options << arga << " ";
+			} else if (arga == "--raw" || arga == "-raw") {
+				processor.raw = true;
+				processor.options << arga << " ";
+			} else if (arga == "--pvs" || arga == "-pvs") {
+				processor.format = PVS;
+				processor.options << arga << " ";
+			} else if (startsWith(arga,"-")) {
+				std::cerr << "** Error: Invalid option (" << arga << ")" << std::endl;
+				exit(1);
+			} 			
 		}
 	}
-	if (params.size() > 0) {
-		daa.setParameterData(params);
+	if (processor.getConfigurationName().empty()) {
+		std::cerr << "** Error: DAA configuration isn't specified. Use option --config" << std::endl;
+		exit(1);
+	}		
+	const std::vector<std::string>& input_files = processor.getFileNames();
+	if (input_files.empty()) {
+		std::cerr << "Usage:\n\tDaidalusBatch [<options>] <daa_files>" << std::endl;
+		std::cerr << "Try:\n\tDaidalusBatch --help" << std::endl;
+		exit(1);
+	} 
+	std::ofstream fout;
+	const std::string& output = processor.getOutputFileName();
+	if (!output.empty()) {
+		fout.open(output.c_str());
+		processor.out = &fout;
 	}
-	if (do_inst) {
-    	daa.setInstantaneousBands();
-  	}
-  	if (no_hyst) {
-    	daa.disableHysteresis();
-  	}
-	switch (walker.format) {
-	case STANDARD:
-		if (walker.verbose) {
-			(*walker.out) << "# " << Daidalus::release() << std::endl;
-			(*walker.out) << "# Options: " << options << std::endl;
-			(*walker.out) << "#\n" << daa.toString() << "#\n" << std::endl;
-		}
-		break;
-	case PVS:
-		(*walker.out) << "%%% " << Daidalus::release() << std::endl;
-		(*walker.out) << "%%% Options: " << options << std::endl;
-		break;
-	default:
-		break;
+	for (std::vector<std::string>::const_iterator files_it = input_files.begin();
+		files_it != input_files.end(); ++files_it) {
+		const std::string& filename = *files_it;
+		processor.processFile(filename);
 	}
-	for (unsigned int i=0; i < txtFiles.size(); ++i) {
-		std::string filename(txtFiles[i]);
-		switch (walker.format) {
-		case STANDARD:
-			(*walker.out) << "# File: "<< filename << std::endl;
-			break;
-		case PVS:
-			(*walker.out) << "%%% File:\n" << filename << std::endl;
-			(*walker.out) << "%%% Parameters:\n" << daa.getCore().parameters.toPVS() << std::endl;
-			break;
-		default:
-			break;
-		}
-		walker.processFile(filename,daa);
-	}
-	if (output != "") {
+	if (!output.empty()) {
 		fout.close();
 	}
-
 }//main
 
 

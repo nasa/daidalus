@@ -1,6 +1,6 @@
 SCENARIOS=H1.daa H1_W.daa H0_0_120.daa H0_0_120a.xyz C0_0_120.daa C1_0_120.daa C1_0_120_W.daa 
-DIFFOPTIONS=-I none
-IGNORE=--ignore=none
+DIFFOPTIONS= #-I none
+IGNORE= #--ignore=none
 
 all:
 	@echo "make mold | gold | diff [-e IGNORE=<ignorestr>] [-e DIFFOPTIONS=<diffoptions>] | java | cpp"

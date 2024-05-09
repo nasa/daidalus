@@ -15,6 +15,7 @@ import java.io.FilenameFilter;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -30,12 +31,12 @@ public abstract class DaidalusProcessor {
 	private String ownship_;
 	private boolean skip_;
 	private List<String> traffic_;
-	private String conf_ = "";
+	private String conf_;
 	private String output_file_;
 	private boolean do_inst_;
 	private boolean no_hyst_;
-	private double lat_ = 0.0; // In decimal degrees
-	private double lon_ = 0.0; // In decimal degrees
+	private double lat_; // In decimal degrees
+	private double lon_; // In decimal degrees
 	private HashMap<String,String> units_;
 	private HashMap<String,Boolean> format_;
 	private int precision_;
@@ -48,9 +49,9 @@ public abstract class DaidalusProcessor {
 
 	public DaidalusProcessor() {
 		sfrom_ = 1; // From beginning
-		ufrom_ = 0; // 0 (from beginning)
+		ufrom_ = 0.0; // 0 (from beginning)
 		sto_ = -1;  // From end
-		uto_ = 0;   // 0 (from end)
+		uto_ = 0.0;   // 0 (from end)
 		ownship_ = "";
 		skip_ = true;
 		traffic_ = new ArrayList<>();
@@ -97,8 +98,7 @@ public abstract class DaidalusProcessor {
 	}
 
 	public EuclideanProjection getProjection() {
-		final EuclideanProjection projection = Projection.createProjection(lat_,lon_,0.0);
-		return projection;
+		return Projection.createProjection(lat_,lon_,0.0);
 	}
 
 	/** Given a list of names that may include files or directories,
@@ -233,7 +233,7 @@ public abstract class DaidalusProcessor {
 		} else if (!ignoreset.contains("config") && (arga.startsWith("--nohys") || arga.startsWith("-nohys"))) {
 			// Use the given configuration, but disable hysteresis
 			no_hyst_ = true;
-		} else if ((arga.startsWith("--prec") || arga.startsWith("-prec") && a+1 < args.length)) {
+		} else if ((arga.startsWith("--prec") || arga.startsWith("-prec")) && a+1 < args.length) {
 			try {
 				precision_ = Integer.parseInt(args[++a]);
 				DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
@@ -241,7 +241,7 @@ public abstract class DaidalusProcessor {
 				System.err.println("** Error: "+args[a]+" is not a valid number");
 				System.exit(1);
 			}
-		} else if ((arga.startsWith("--trail") || arga.startsWith("-trail"))) {
+		} else if (arga.startsWith("--trail") || arga.startsWith("-trail")) {
 			trailing_zeros_ = true;
 			DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
@@ -290,7 +290,7 @@ public abstract class DaidalusProcessor {
 			try {
 				lat_ = Units.from("deg",Double.parseDouble(args[a]));
 			} catch (NumberFormatException e) {
-				System.err.println("** Error: "+args[a]+" is not a valide number");
+				System.err.println("** Error: "+args[a]+" is not a valid latitude");
 				System.exit(1);
 			}
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--lon") || arga.startsWith("-lon")) && a+1 < args.length) {
@@ -298,7 +298,7 @@ public abstract class DaidalusProcessor {
 			try {
 				lon_ = Units.from("deg",Double.parseDouble(args[a]));
 			} catch (NumberFormatException e) {
-				System.err.println("** Error: "+args[a]+" is not a valide number");
+				System.err.println("** Error: "+args[a]+" is not a valid longitude");
 				System.exit(1);
 			}
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--loc") || arga.startsWith("-loc")) && a+1 < args.length) {	
@@ -323,7 +323,7 @@ public abstract class DaidalusProcessor {
 				lon_ = platlon.getValue("longitude");
 			}
 		} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
-			printHelpString();
+			print_help_string();
 		} else if (!arga.startsWith("-")){
 			file_names_.add(arga);
 		} else {
@@ -423,8 +423,8 @@ public abstract class DaidalusProcessor {
 	}
 
 	public void setDaidalusUnits(Daidalus daa) {
-		for (String key : units_.keySet()) {
-			daa.setUnitsOf(key,units_.get(key));
+		for (Map.Entry<String,String> entry : units_.entrySet()) {
+			daa.setUnitsOf(entry.getKey(),entry.getValue());
 		}
 	}
 
@@ -437,19 +437,21 @@ public abstract class DaidalusProcessor {
 
 	public void setDAAFormatter(DaidalusFileWalker walker) {
 		walker.setDAAFormat(formatter);
-		for (String key : format_.keySet()) {
+		for (Map.Entry<String,Boolean> entry : format_.entrySet()) {
+			String key = entry.getKey();
+			boolean bval = entry.getValue();
 			if (key.equals("sxyz")) {
-				formatter.sxyz = format_.get(key);
+				formatter.sxyz = bval;
 			} else if (key.equals("vxyz")) {
-				formatter.vxyz = format_.get(key);
+				formatter.vxyz = bval;
 			} else if (key.equals("groundvel")) {
-				formatter.groundvel = format_.get(key);
+				formatter.groundvel = bval;
 			} else if (key.equals("alerter")) {
-				formatter.alerter = format_.get(key);
+				formatter.alerter = bval;
 			} else if (key.equals("sum")) {
-				formatter.sum = format_.get(key);
+				formatter.sum = bval;
 			} else if (key.equals("internal")) {
-				formatter.internal = format_.get(key);
+				formatter.internal = bval;
 			} 		
 		}
 	}
@@ -510,7 +512,7 @@ public abstract class DaidalusProcessor {
 		endProcess(walker,daa);
 	}
 
-	private void printHelpString() {
+	private void print_help_string() {
 		System.err.print("Usage:\n  ");
 		System.err.print(applicationHelpString());
 		System.err.print(help_string());

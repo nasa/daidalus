@@ -31,11 +31,8 @@ namespace larcfm {
         for (std::vector<std::string>::const_iterator labels_it = labels.begin();
                 labels_it != labels.end(); ++labels_it) {
             const std::string& label = (*labels_it);
-            strlabels << " ";
-            strlabels << label;
-            strunits << " [";
-            strunits << get_units(params,label);
-            strunits << "]";
+            strlabels << " " << label;
+            strunits << " [" << get_units(params,label) << "]";
         }
     }
 
@@ -74,20 +71,16 @@ namespace larcfm {
 			    "v_EW_std", "v_NS_std", "v_EN_std", "vz_std" };
 			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
 		}
-		labels << "\n";
-		labels << units.str();
-		labels << "\n";
+		labels << std::endl << units.str() << std::endl;
 		return labels.str();
 	}
 
     std::string DAAFormatter::formattedVelocity(const Velocity& vel, const DaidalusParameters& params) const {
 		std::stringstream s;
 		if (vxyz) {
-			s << ", ";
-			s << vel.vect3().toStringNP(get_units(params,"vx"),get_units(params,"vy"),get_units(params,"vz"));
+			s << ", " << vel.vect3().toStringNP(get_units(params,"vx"),get_units(params,"vy"),get_units(params,"vz"));
 		} else {
-			s << ", ";
-			s << vel.toStringNP(get_units(params,"trk"),get_units(params,"gs"),get_units(params,"vs"));
+			s << ", " << vel.toStringNP(get_units(params,"trk"),get_units(params,"gs"),get_units(params,"vs"));
 		}	
 		return s.str();
 	}
@@ -101,12 +94,10 @@ namespace larcfm {
 		s << ac.getId();
 		bool print_sxyz = false;
 		if (ac.getPosition().isLatLon() && !sxyz) {
-			s << ", ";
-			s << ac.getPosition().lla().toString(get_units(params,"lat"),get_units(params,"lon"),get_units(params,"alt"));
+			s << ", " << ac.getPosition().lla().toString(get_units(params,"lat"),get_units(params,"lon"),get_units(params,"alt"));
 		} else {
 			print_sxyz = true;
-			s << ", ";
-			s << ac.get_s().toStringNP(get_units(params,"sx"),get_units(params,"sy"),get_units(params,"sz"));
+			s << ", " << ac.get_s().toStringNP(get_units(params,"sx"),get_units(params,"sy"),get_units(params,"sz"));
 		}
 		if (print_sxyz) { // Print projected ground and air velocities as specified
 			Velocity vel = groundvel ? ac.velocityXYZ().Add(ac.windVector()) : ac.velocityXYZ();
@@ -117,34 +108,21 @@ namespace larcfm {
 		} 
 		if (groundvel) {
 			Velocity vel = print_sxyz ? ac.velocityXYZ() : ac.getAirVelocity();
-			s << ", ";
-			s << FmPrecision(vel.compassAngle(get_units(params,"heading")));
-			s << ", ";
-			s << FmPrecision(vel.groundSpeed(get_units(params,"airspeed")));
+			s << ", " << FmPrecision(vel.compassAngle(get_units(params,"heading"))) << ", " << FmPrecision(vel.groundSpeed(get_units(params,"airspeed")));
 		}
-		s << ", ";
-		s << FmPrecision(time);
+		s << ", " << FmPrecision(time);
 		if (alerter) {
-			s << ", ";
-			s << Fmi(ac.getAlerterIndex());
+			s << ", " << Fmi(ac.getAlerterIndex());
 		}
 		if (sum) {
-			s << ", ";
-			s << FmPrecision(ac.sum().get_s_EW_std(get_units(params,"s_EW_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_s_NS_std(get_units(params,"s_NS_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_s_EN_std(get_units(params,"s_EN_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_sz_std(get_units(params,"sz_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_v_EW_std(get_units(params,"v_EW_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_v_NS_std(get_units(params,"v_NS_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_v_EN_std(get_units(params,"v_EN_std")));
-			s << ", ";
-			s << FmPrecision(ac.sum().get_vz_std(get_units(params,"vz_std")));
+			s << ", " << FmPrecision(ac.sum().get_s_EW_std(get_units(params,"s_EW_std")))
+				<< ", " << FmPrecision(ac.sum().get_s_NS_std(get_units(params,"s_NS_std")))
+				<< ", " << FmPrecision(ac.sum().get_s_EN_std(get_units(params,"s_EN_std")))
+				<< ", " << FmPrecision(ac.sum().get_sz_std(get_units(params,"sz_std")))
+				<< ", " << FmPrecision(ac.sum().get_v_EW_std(get_units(params,"v_EW_std")))
+				<< ", " << FmPrecision(ac.sum().get_v_NS_std(get_units(params,"v_NS_std")))
+				<< ", " << FmPrecision(ac.sum().get_v_EN_std(get_units(params,"v_EN_std")))
+				<< ", " << FmPrecision(ac.sum().get_vz_std(get_units(params,"vz_std")));
 		}
 		s << "\n";
 		return s.str();

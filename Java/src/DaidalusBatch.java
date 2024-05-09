@@ -84,7 +84,6 @@ public class DaidalusBatch extends DaidalusProcessor {
 			processor.processFile(filename);
 		}
 		processor.out.close();
-
 	}//main
 
 	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
@@ -94,13 +93,13 @@ public class DaidalusBatch extends DaidalusProcessor {
 			case STANDARD:
 				if (verbose) {
 					out.println("# "+Daidalus.release());
-					out.println("# Options: "+options);
+					out.println("# Options: "+options.toString());
 					out.println("#\n"+daa.toString()+"#\n");
 				}
 				break;
 			case PVS:
 				out.println("%%% "+Daidalus.release());
-				out.println("%%% Options: "+options);
+				out.println("%%% Options: "+options.toString());
 				break;
 			default:
 				break;
