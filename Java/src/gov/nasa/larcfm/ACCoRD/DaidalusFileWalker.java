@@ -293,13 +293,26 @@ public class DaidalusFileWalker implements ErrorReporter {
 	}
 
 	public void setDAAFormat(DAAFormatter formatter) {
-		formatter.sxyz = columns_.contains("sx") || columns_.contains("sy");
-		formatter.vxyz = columns_.contains("vx") || columns_.contains("vy");
-		formatter.groundvel = columns_.contains("heading") || columns_.contains("airspeed");
-		formatter.alerter = columns_.contains("alerter");
-		formatter.sum = columns_.contains("s_EW_std") || columns_.contains("s_NS_std") || columns_.contains("s_EN_std") 
-			|| columns_.contains("sz_std") || columns_.contains("v_EW_std") || columns_.contains("v_NS_std") 
-			|| columns_.contains("v_EN_std") || columns_.contains("vz_std");
+		formatter.sxyz = false;
+		formatter.vxyz = false;
+		formatter.groundvel = false;
+		formatter.alerter = false;
+		formatter.sum = false;
+		for (String col : columns_) {
+			if ( col.equals("sx") || col.equals("sy") ) {
+			  	formatter.sxyz = true;
+			} else if ( col.equals("vx") || col.equals("vy") ) {
+			  	formatter.vxyz = true;
+			} else if ( col.equals("heading") || col.equals("airspeed") ) {
+			  	formatter.groundvel = true;
+			} else if ( col.equals("alerter") ) {
+				formatter.alerter = true;
+			} else if ( col.equals("s_EW_std") || col.equals("s_NS_std") || col.equals("s_EN_std")
+					|| col.equals("sz_std") || col.equals("v_EW_std") || col.equals("v_NS_std")
+					|| col.equals("v_EN_std") || col.equals("vz_std") ) {
+				formatter.sum = true;
+			}
+		}
 		if (!wind_.isInvalid()) {
 			formatter.groundvel = true;
 		}
@@ -347,7 +360,9 @@ public class DaidalusFileWalker implements ErrorReporter {
 					Velocity va = sr_. getVelocity(ac);
 					// Notice that idx may be different from ac because of traffic
 					int idx=daa.addTrafficState(ida,sa,va);
-					readExtraColumns(daa,idx,false);
+					if (idx >= 0) {
+						readExtraColumns(daa,idx,false);
+					}
 				}
 			}
 		}

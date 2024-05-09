@@ -14,11 +14,12 @@
 
 namespace larcfm {
 
-DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) : sr_(SequenceReader(filename)) {
+DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) : filename_(filename), sr_(SequenceReader(filename)) {
   init();
 }
 
 void DaidalusFileWalker::resetInputFile(const std::string& filename) {
+  filename_ = filename;
   sr_ = SequenceReader(filename);
   init();
 }
@@ -33,6 +34,7 @@ void DaidalusFileWalker::init() {
   ownship_.clear();
   traffic_.clear();
   wind_ = Velocity::INVALID();
+  columns_ = sr_.getExtraColumnList();
 }
 
 /**
@@ -129,7 +131,7 @@ int DaidalusFileWalker::getIndex() const {
 }
 
 double DaidalusFileWalker::getTime() const {
-  if (0 <= index_ && (unsigned int)index_ < times_.size()) {
+  if (0 <= index_ && index_ < times_.size()) {
     return times_[index_];
   } else {
     return NaN;
@@ -141,7 +143,7 @@ bool DaidalusFileWalker::atBeginning() const {
 }
 
 bool DaidalusFileWalker::atEnd() const {
-  return index_ >=0 && (unsigned int)index_ == times_.size();
+  return index_ >=0 && index_ == times_.size();
 }
 
 bool DaidalusFileWalker::goToTime(double t) {
@@ -149,7 +151,7 @@ bool DaidalusFileWalker::goToTime(double t) {
 }
 
 bool DaidalusFileWalker::goToTimeStep(int i) {
-  if (0 <= i && (unsigned int)i < times_.size()) {
+  if (0 <= i && i < times_.size()) {
     index_ = i;
     sr_.setActive(times_[index_]);
     return true;
@@ -182,7 +184,7 @@ int DaidalusFileWalker::indexOfTime(double t) const {
   int i = -1;
   if (t >= firstTime() && t <= lastTime()) {
     i = 0;
-    for (; (unsigned int)i < times_.size()-1; ++i) {
+    for (; i < times_.size()-1; ++i) {
       if (t >= times_[i] && t < times_[i+1]) {
         break;
       }
@@ -191,17 +193,15 @@ int DaidalusFileWalker::indexOfTime(double t) const {
   return i;
 }
 
-ParameterData DaidalusFileWalker::extraColumnsToParameters(const SequenceReader& sr, double time, const std::string& ac_name) {
+ParameterData DaidalusFileWalker::extraColumnsToParameters(double time, const std::string& ac_name) {
   ParameterData pd;
-  std::vector<std::string> columns = sr.getExtraColumnList();
-  std::vector<std::string>::const_iterator col_ptr;
-  for (col_ptr = columns.begin(); col_ptr != columns.end(); ++col_ptr) {
-    if (sr.hasExtraColumnData(time, ac_name,*col_ptr)) {
-      std::string units = sr.getExtraColumnUnits(*col_ptr);
+  for (std::vector<std::string>::const_iterator col_ptr = columns_.begin(); col_ptr != columns_.end(); ++col_ptr) {
+    if (sr_.hasExtraColumnData(time, ac_name,*col_ptr)) {
+      std::string units = sr_.getExtraColumnUnits(*col_ptr);
       if (units == "unitless" || units == "unspecified") {
-        pd.set(*col_ptr, sr.getExtraColumnString(time,ac_name,*col_ptr));
+        pd.set(*col_ptr, sr_.getExtraColumnString(time,ac_name,*col_ptr));
       } else {
-        pd.setInternal(*col_ptr, sr.getExtraColumnValue(time, ac_name,*col_ptr), units);
+        pd.setInternal(*col_ptr,sr_.getExtraColumnValue(time, ac_name,*col_ptr), units);
       }
     }
   }
@@ -209,8 +209,8 @@ ParameterData DaidalusFileWalker::extraColumnsToParameters(const SequenceReader&
 }
 
 
-void DaidalusFileWalker::readExtraColumns(Daidalus& daa, const SequenceReader& sr, int ac_idx, bool read_wind) {
-  ParameterData pcol = extraColumnsToParameters(sr,daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
+void DaidalusFileWalker::readExtraColumns(Daidalus& daa, int ac_idx, bool read_wind) {
+  ParameterData pcol = extraColumnsToParameters(daa.getCurrentTime(),daa.getAircraftStateAt(ac_idx).getId());
   if (pcol.size() > 0) {
 		if (ac_idx == 0) {
 			// Note that daidalus parameters (in column format) and air velocity are ignored for traffic aircraft
@@ -265,6 +265,36 @@ void DaidalusFileWalker::readExtraColumns(Daidalus& daa, const SequenceReader& s
   }
 }
 
+void DaidalusFileWalker::setDAAFormat(DAAFormatter& formatter) const {
+  for (std::vector<std::string>::const_iterator col_ptr = columns_.begin(); col_ptr != columns_.end(); ++col_ptr) {
+    const std::string& col = *col_ptr;
+    if ( col == "sx" || col == "sy" ) {
+      formatter.sxyz = true;
+    } else if ( col == "vx" || col == "vy" ) {
+      formatter.vxyz = true;
+    } else if ( col == "heading" || col == "airspeed" ) {
+      formatter.groundvel = true;
+    } else if ( col == "alerter") {
+      formatter.alerter = true;
+    } else if ( col == "s_EW_std" || col == "s_NS_std" || col == "s_EN_std" 
+      || col == "sz_std" || col == "v_EW_std" || col == "v_NS_std" 
+      || col == "v_EN_std" || col == "vz_std") {
+        formatter.sum = true;
+    }
+  }
+  if (!wind_.isInvalid()) {
+    formatter.groundvel = true;
+  }
+}
+
+void DaidalusFileWalker::setDAAUnits(Daidalus& daa) const {
+  for (std::vector<std::string>::const_iterator col_ptr = columns_.begin(); col_ptr != columns_.end(); ++col_ptr) {
+    const std::string& col = *col_ptr;
+		std::string units = sr_.getExtraColumnUnits(col);
+		daa.setUnitsOf(col,units);
+	}
+}
+
 void DaidalusFileWalker::readState(Daidalus& daa) {
   if (p_.size() > 0) {
     daa.setParameterData(p_);
@@ -285,7 +315,7 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
     Position so = sr_.getPosition(own);
     Velocity vo = sr_. getVelocity(own);
     daa.setOwnshipState(ido,so,vo,getTime());
-    readExtraColumns(daa,sr_,0,wind_.isInvalid());
+    readExtraColumns(daa,0,wind_.isInvalid());
     if (!wind_.isInvalid() && !wind_.isZero()) {
 				// Override wind
 				daa.setWindVelocityTo(wind_);
@@ -299,8 +329,11 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
           std::find(traffic_.begin(),traffic_.end(),ida) != traffic_.end()) {
         Position sa = sr_.getPosition(ac);
         Velocity va = sr_. getVelocity(ac);
-        daa.addTrafficState(ida,sa,va);
-        readExtraColumns(daa,sr_,ac,false);
+        // Notice that idx may be different from ac because of traffic
+        int idx=daa.addTrafficState(ida,sa,va);
+        if (idx >= 0) {
+          readExtraColumns(daa,idx,false);
+        }
       }
     }
   }

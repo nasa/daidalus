@@ -22,6 +22,7 @@ namespace larcfm {
 
 class DaidalusFileWalker : public ErrorReporter {
 private:
+  std::string filename_;
   SequenceReader sr_;
   ParameterData p_;
   std::vector<double> times_;
@@ -29,6 +30,7 @@ private:
   std::string ownship_; // Set ownship to a given value
   std::vector<std::string> traffic_; // Only consider the traffic aircraft
   Velocity wind_; // Wind velocity vector
+  std::vector<std::string> columns_; // Columns of DAA file
 
 public:
   explicit DaidalusFileWalker(const std::string& filename);
@@ -38,9 +40,13 @@ public:
 private:
   void init();
 
-  static ParameterData extraColumnsToParameters(const SequenceReader& sr, double time, const std::string& ac_name);
+  ParameterData extraColumnsToParameters(double time, const std::string& ac_name);
+
+  void readExtraColumns(Daidalus& daa, int ac_idx, bool read_wind);
 
 public:
+
+  const std::string& getFileName() const { return filename_; } 
 
   /**
    * By default ownship is the first aircraft in the daa file.
@@ -123,9 +129,12 @@ public:
 
   int indexOfTime(double t) const;
 
-  static void readExtraColumns(Daidalus& daa, const SequenceReader& sr, int ac_idx, bool read_wind);
+  void setDAAFormat(DAAFormatter& formatter) const;
+
+  void setDAAUnits(Daidalus& daa) const;
 
   void readState(Daidalus& daa);
+
   bool hasError() const;
 
   bool hasMessage() const;
