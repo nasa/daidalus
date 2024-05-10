@@ -3,6 +3,8 @@ all:
 
 scenarios: Crossing HeadOn
 
+LANG=Java
+
 Crossing:
 	../Java/DAAGenerator --backward 120 C0.txt
 	../Java/DAAGenerator -backward 100 -forward 20 --loc NY.loc C1.txt
@@ -12,4 +14,4 @@ Crossing:
 HeadOn:
 	../Java/DAAGenerator --backward 100 --forward 20 --loc NY.loc H0.txt
 	../Java/DAAGenerator --backward 100 --forward 20 -o H0_0_120a.xyz H0.txt
-	../Java/DAAEcho --prec 15 --out H1_W.daa --wind_speed='15[kn]' --wind_to='45[deg]' H1.daa
+	../$(LANG)/DAAEcho --out H1_W.daa --wind_speed='15[kn]' --wind_to='45[deg]' H1.daa

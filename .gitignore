@@ -8,11 +8,15 @@
 *.mold
 *.pyc
 *.bak
-*.csv
-*.out
 *.txt
 *.draw
 *.tmp
+Java/*.out
+Java/*.csv
+C++/*.out
+C++/*.csv
+Scenarios/*.out
+Scenarios/*.csv
 old/
 tmp/
 mold/
@@ -28,3 +32,4 @@ C++/*.pdf
 C++/DaidalusExample
 C++/DaidalusAlerting
 C++/DaidalusBatch
+C++/DAAEcho

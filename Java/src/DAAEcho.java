@@ -123,11 +123,23 @@ public class DAAEcho extends DAABatchProcessor {
 			TrafficState ownship = daa.getOwnshipState();
 			Pair<Position,Velocity> own_posvel = Pair.make(ownship.getPosition(),ownship.getGroundVelocity());
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind);
+			if (formatter.alerter) {
+				new_own.setAlerterIndex(ownship.getAlerterIndex());
+			}
+			if (formatter.sum) {
+				new_own.setSUM(ownship.sum());
+			}
 			out.print(formatter.formattedTrafficState(new_own,iteration==0,daa.getCore().parameters,daa.getCurrentTime()));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				Pair<Position,Velocity> ac_posvel = Pair.make(ac.getPosition(),ac.getGroundVelocity());
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvel,new_own);
+				if (formatter.alerter) {
+					new_ac.setAlerterIndex(ac.getAlerterIndex());
+				}
+				if (formatter.sum) {
+					new_ac.setSUM(ac.sum());
+				}
 				out.print(formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,daa.getCurrentTime()));
 			}
 		} else {

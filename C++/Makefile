@@ -24,6 +24,7 @@ examples:
 	$(CXX) -o DaidalusExample $(CXXFLAGS) examples/DaidalusExample.cpp lib/$(RELEASE).a
 	$(CXX) -o DaidalusAlerting $(CXXFLAGS) examples/DaidalusAlerting.cpp lib/$(RELEASE).a
 	$(CXX) -o DaidalusBatch $(CXXFLAGS) examples/DaidalusBatch.cpp lib/$(RELEASE).a
+	$(CXX) -o DAAEcho $(CXXFLAGS) examples/DAAEcho.cpp lib/$(RELEASE).a
 	@echo
 	@echo "** To run DaidalusExample type:"
 	@echo "./DaidalusExample"

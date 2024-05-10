@@ -7,7 +7,6 @@
 
 package gov.nasa.larcfm.ACCoRD;
 
-import gov.nasa.larcfm.ACCoRD.DAAFormatter;
 import gov.nasa.larcfm.Util.Constants;
 import gov.nasa.larcfm.Util.ErrorLog;
 import gov.nasa.larcfm.Util.Position;

@@ -483,6 +483,13 @@ public class TrafficState {
 	}
 
 	/**
+	 * Set SUM (Sensor Uncertainty Mitigation) data
+	 */
+	public void setSUM(SUMData sum) {
+		sum_ = new SUMData(sum);	
+	}
+
+	/**
 	 * s_EW_std: East/West position standard deviation in internal units
 	 * s_NS_std: North/South position standard deviation in internal units
 	 * s_EN_std: East/North position standard deviation in internal units

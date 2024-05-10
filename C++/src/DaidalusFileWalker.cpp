@@ -266,6 +266,11 @@ void DaidalusFileWalker::readExtraColumns(Daidalus& daa, int ac_idx, bool read_w
 }
 
 void DaidalusFileWalker::setDAAFormat(DAAFormatter& formatter) const {
+  formatter.sxyz = false;
+  formatter.vxyz = false;
+  formatter.groundvel = false;
+  formatter.alerter = false;
+  formatter.sum = false;
   for (std::vector<std::string>::const_iterator col_ptr = columns_.begin(); col_ptr != columns_.end(); ++col_ptr) {
     const std::string& col = *col_ptr;
     if ( col == "sx" || col == "sy" ) {
