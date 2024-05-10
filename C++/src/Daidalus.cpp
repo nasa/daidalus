@@ -226,7 +226,7 @@ void Daidalus::set_TCASII() {
  * Return release version string
  */
 std::string Daidalus::release() {
-  return "DAIDALUS++ V-"+DaidalusParameters::VERSION+
+  return "DAIDALUS++-v"+DaidalusParameters::VERSION+
       "-FormalATM-"+Constants::version;
 }
 

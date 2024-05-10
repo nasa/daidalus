@@ -293,7 +293,7 @@ public class Daidalus {
 	 * Return release version string
 	 */
 	public static String release() {
-		return "DAIDALUSj V-"+DaidalusParameters.VERSION+"-FormalATM-"+Constants.version; 
+		return "DAIDALUSj-v"+DaidalusParameters.VERSION+"-FormalATM-"+Constants.version; 
 	}
 
 	/* Ownship and Traffic Setting */

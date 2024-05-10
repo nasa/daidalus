@@ -14,9 +14,9 @@ if [ ! -d ${lang}/mold ]; then
     exit 1
 fi
 
-dir=`pwd`
-commit=`git rev-parse --short HEAD`
-goldname="${commit}"
+version=`../Java/DAAEcho --version`
+release=${version/DAIDALUSj-/}
+goldname=${release/-FormalATM*/}
 
 echo "Making $goldname..."
 read -p "Are you sure you want to continue? <y/N> " prompt
