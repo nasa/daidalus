@@ -12,3 +12,4 @@ useStlAlgorithm:src/SequenceReader.cpp
 useStlAlgorithm:include/DaidalusParameters.h
 missingInclude:include/Util.h
 unusedFunction
+uselessCallsSubstr

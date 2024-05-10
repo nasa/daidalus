@@ -103,7 +103,7 @@ namespace larcfm {
   void setProjectionType(ProjectionType t) {  }
 
 
-  ProjectionType getProjectionTypeFromString(std::string s) {
+  ProjectionType getProjectionTypeFromString(const std::string& s) {
 	  return Projection::getProjectionTypeFromString(s);
   }
 

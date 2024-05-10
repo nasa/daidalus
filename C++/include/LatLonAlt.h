@@ -168,7 +168,7 @@ public:
 	 * @param alt_unit units of altitude
 	 * @return new LatLonAlt object
 	 */
-	static const LatLonAlt make(double lat, std::string lat_unit, double lon, std::string lon_unit, double alt, std::string alt_unit);
+	static const LatLonAlt make(double lat, const std::string& lat_unit, double lon, const std::string& lon_unit, double alt, const std::string& alt_unit);
 
 
 	/**

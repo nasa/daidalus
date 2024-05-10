@@ -26,7 +26,7 @@ Vect3::Vect3(double xx, double yy, double zz) : v2_(xx,yy), z_(zz) {}
 
 Vect3::Vect3(const Vect2&v, double vz) : v2_(v),z_(vz) {}
 
-Vect3 Vect3::makeXYZ(double x, std::string ux, double y, std::string uy, double z, std::string uz) {
+Vect3 Vect3::makeXYZ(double x, const std::string& ux, double y, const std::string& uy, double z, const std::string& uz) {
 	return Vect3(Units::from(ux,x),Units::from(uy,y),Units::from(uz,z));
 }
 

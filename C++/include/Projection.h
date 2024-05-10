@@ -189,7 +189,7 @@ class Projection {
     * \deprecated {Use Projection:: version.}
     * Given a string representation of a ProjectionType, return the ProjectionType
     */
-   ProjectionType getProjectionTypeFromString(std::string s);
+   ProjectionType getProjectionTypeFromString(const std::string& s);
 
    /**
     * \deprecated {Use Projection:: version.}

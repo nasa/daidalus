@@ -278,7 +278,7 @@ double TCASTable::getLevelAltitudeLowerBound(int sl) const {
  * Note this is an open bound (sl is valid for altitudes strictly greater than the return value)
  * This returns a negative value if an invalid level is input.
  */
-double TCASTable::getLevelAltitudeLowerBound(int sl, std::string u) const {
+double TCASTable::getLevelAltitudeLowerBound(int sl, const std::string& u) const {
   return Units::to(u,getLevelAltitudeLowerBound(sl));
 }
 
@@ -303,7 +303,7 @@ double TCASTable::getLevelAltitudeUpperBound(int sl) const {
  * Note this is a closed bound (sl is valid for altitudes less than or equal to the return value)
  * This returns a negative value if an invalid level is input.
  */
-double TCASTable::getLevelAltitudeUpperBound(int sl, std::string u) const {
+double TCASTable::getLevelAltitudeUpperBound(int sl, const std::string& u) const {
   return Units::to(u,getLevelAltitudeUpperBound(sl));
 }
 
@@ -377,7 +377,7 @@ double TCASTable::getDMOD(int sl) const  {
  * Returns DMOD for sensitivity level sl in u units.
  * This returns a negative value if an invalid level is input.
  */
-double TCASTable::getDMOD(int sl, std::string u) const  {
+double TCASTable::getDMOD(int sl, const std::string& u) const  {
   return Units::to(u,getDMOD(sl));
 }
 
@@ -396,7 +396,7 @@ double TCASTable::getZTHR(int sl) const  {
  * Returns Z threshold for sensitivity level sl in u units.
  * This returns a negative value if an invalid level is input.
  */
-double TCASTable::getZTHR(int sl,std::string u) const  {
+double TCASTable::getZTHR(int sl, const std::string& u) const  {
   return Units::to(u,getZTHR(sl));
 }
 
@@ -415,7 +415,7 @@ double TCASTable::getHMD(int sl) const  {
  * Returns HMD for sensitivity level sl in u units.
  * This returns a negative value if an invalid level is input.
  */
-double TCASTable::getHMD(int sl, std::string u) const  {
+double TCASTable::getHMD(int sl, const std::string& u) const  {
   return Units::to(u,getHMD(sl));
 }
 
@@ -433,7 +433,7 @@ bool TCASTable::setTAU(int sl, double val) {
 /** Modify the value of Tau Threshold for a given sensitivity level
  * Parameter val is given in given units. Val is >= 0
  */
-void TCASTable::setTAU(int sl, double val, std::string u) {
+void TCASTable::setTAU(int sl, double val, const std::string& u) {
   if (setTAU(sl,Units::from(u,val))) {
     units_["TCAS_TAU"]=u;
   }
@@ -453,7 +453,7 @@ bool TCASTable::setTCOA(int sl, double val) {
 /** Modify the value of TCOA Threshold for a given sensitivity level
  * Parameter val is given in given units. Val is >= 0
  */
-void TCASTable::setTCOA(int sl, double val, std::string u) {
+void TCASTable::setTCOA(int sl, double val, const std::string& u) {
   if (setTCOA(sl,Units::from(u,val))) {
     units_["TCAS_TCOA"]=u;
   }
@@ -473,7 +473,7 @@ bool TCASTable::setDMOD(int sl, double val) {
 /** Modify the value of DMOD for a given sensitivity level
  * Parameter val is given in u units. Val is >= 0.
  */
-void TCASTable::setDMOD(int sl, double val, std::string u) {
+void TCASTable::setDMOD(int sl, double val, const std::string& u) {
   if (setDMOD(sl,Units::from(u,val))) {
     units_["TCAS_DMOD"]=u;
   }
@@ -493,7 +493,7 @@ bool TCASTable::setZTHR(int sl, double val) {
 /** Modify the value of ZTHR for a given sensitivity level
  * Parameter val is given in u units. Val is >= 0.
  */
-void TCASTable::setZTHR(int sl, double val, std::string u) {
+void TCASTable::setZTHR(int sl, double val, const std::string& u) {
   if (setZTHR(sl,Units::from(u,val))) {
     units_["TCAS_ZTHR"]=u;
   }
@@ -515,7 +515,7 @@ bool TCASTable::setHMD(int sl, double val) {
  * Modify the value of HMD for a given sensitivity level
  * Parameter val is given in u units. Val is >= 0.
  */
-void TCASTable::setHMD(int sl, double val, std::string u) {
+void TCASTable::setHMD(int sl, double val,const std::string& u) {
   if (setHMD(sl,Units::from(u,val))) {
     units_["TCAS_HMD"]=u;
   }
@@ -553,7 +553,7 @@ int TCASTable::addSensitivityLevel() {
  * Add value 0 to DMOD,HMD,ZTHR,TAUMOD,TCOA
  * Either returns new sensitivity level or 0 (if requires is false)
  */
-int TCASTable::addSensitivityLevel(double alt,std::string u) {
+int TCASTable::addSensitivityLevel(double alt, const std::string& u) {
   int sl=addSensitivityLevel(Units::from(u,alt));
   if (sl > 0) {
     units_["TCAS_level"]=u;

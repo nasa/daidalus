@@ -378,7 +378,7 @@ public:
 	 * @param u units
 	 * @return new velocity
 	 */
-	Velocity mkTrk(double trk, std::string u) const;
+	Velocity mkTrk(double trk, const std::string& u) const;
 
 	/**
 	 * New velocity from existing velocity, changing only the ground speed
@@ -393,7 +393,7 @@ public:
 	 * @param u units
 	 * @return new velocity
 	 */
-	Velocity mkGs(double gs, std::string u) const;
+	Velocity mkGs(double gs, const std::string& u) const;
 
 	/**
 	 * New velocity from existing velocity, changing only the vertical speed
@@ -408,7 +408,7 @@ public:
 	 * @param u units
 	 * @return new velocity
 	 */
-	Velocity mkVs(double vs, std::string u) const;
+	Velocity mkVs(double vs, const std::string& u) const;
 
 	/**
 	 * If the z component of the velocity vector is smaller than the threshold, return a new vector with this component set to 0.

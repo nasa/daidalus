@@ -72,11 +72,9 @@ public abstract class DAABatchProcessor {
 	}
 
 	public Velocity getWind() {
-		double wind_speed =  0.0;
-		double wind_dir = 0.0;
 		if (parameters.contains("wind_speed")) {
-			wind_speed = parameters.getValue("wind_speed");
-			wind_dir = parameters.getValue("wind_to");
+			double wind_speed = parameters.getValue("wind_speed");
+			double wind_dir = parameters.getValue("wind_to");
 			boolean from_dir = false;
 			if (parameters.contains("wind_from")) {
 				wind_dir = parameters.getValue("wind_from");

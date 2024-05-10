@@ -291,7 +291,7 @@ int DaidalusParameters::addAlerter(const Alerter& alerter) {
 /** This method is needed because WCV_TAUMOD_SUM doesn't require the
  *  user to initialize SUM parameters, which may be specified globally.
  */
-void DaidalusParameters::set_alerter_with_SUM_parameters(Alerter& alerter) {
+void DaidalusParameters::set_alerter_with_SUM_parameters(const Alerter& alerter) {
   for (int level=1; level <= alerter.mostSevereAlertLevel(); ++level) {
     const Detection3D& det = alerter.getDetector(level);
     if (det.isValid() && larcfm::equals(det.getSimpleClassName(),"WCV_TAUMOD_SUM")) {

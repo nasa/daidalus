@@ -62,7 +62,7 @@ Position Position::mkLatLonAlt(double lat, double lon, double alt) {
 	return Position(LatLonAlt::mk(lat,lon,alt));
 }
 
-Position Position::makeLatLonAlt(double lat, std::string lat_unit, double lon, std::string lon_unit, double alt, std::string alt_unit) {
+Position Position::makeLatLonAlt(double lat, const std::string& lat_unit, double lon, const std::string& lon_unit, double alt, const std::string& alt_unit) {
 	return Position(LatLonAlt::make(lat, lat_unit, lon, lon_unit, alt, alt_unit));
 }
 
@@ -70,7 +70,7 @@ Position Position::mkXYZ(double x, double y, double z) {
 	return Position(x,y,z);
 }
 
-Position Position::makeXYZ(double x, std::string x_unit, double y, std::string y_unit, double z, std::string z_unit) {
+Position Position::makeXYZ(double x, const std::string& x_unit, double y, const std::string& y_unit, double z, const std::string& z_unit) {
 	return Position(Units::from(x_unit, x), Units::from(y_unit, y), Units::from(z_unit,z));
 }
 

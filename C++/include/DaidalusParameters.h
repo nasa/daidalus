@@ -157,7 +157,7 @@ private:
   /** This method is needed because WCV_TAUMOD_SUM doesn't require the
    *  user to initialize SUM parameters, which may be specified globally.
    */
-  void set_alerter_with_SUM_parameters(Alerter& alerter) ;
+  void set_alerter_with_SUM_parameters(const Alerter& alerter) ;
 
   /** This method is needed because WCV_TAUMOD_SUM doesn't require the
    *  user to initialize SUM parameters, which may be specified globally.

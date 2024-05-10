@@ -174,7 +174,7 @@ public:
    * Note this is an open bound (sl is valid for altitudes strictly greater than the return value)
    * This returns a negative value if an invalid level is input.
    */
-  double getLevelAltitudeLowerBound(int sl, std::string u) const;
+  double getLevelAltitudeLowerBound(int sl, const std::string& u) const;
 
   /**
    * Returns altitude upper bound for a given sensitivity level sl, in internal units.
@@ -188,7 +188,7 @@ public:
    * Note this is a closed bound (sl is valid for altitudes less than or equal to the return value)
    * This returns a negative value if an invalid level is input.
    */
-  double getLevelAltitudeUpperBound(int sl, std::string u) const;
+  double getLevelAltitudeUpperBound(int sl, const std::string& u) const;
 
 private:
   void setTCASIILevels();
@@ -221,7 +221,7 @@ public:
    * Returns DMOD for sensitivity level sl in u units.
    * This returns a negative value if an invalid level is input.
    */
-  double getDMOD(int sl, std::string u) const;
+  double getDMOD(int sl, const std::string& u) const;
 
   /**
    * Returns Z threshold for sensitivity level sl in internal units.
@@ -233,7 +233,7 @@ public:
    * Returns Z threshold for sensitivity level sl in u units.
    * This returns a negative value if an invalid level is input.
    */
-  double getZTHR(int sl,std::string u) const;
+  double getZTHR(int sl,const std::string& u) const;
 
   /**
    * Returns HMD for sensitivity level sl in internal units.
@@ -245,7 +245,7 @@ public:
    * Returns HMD for sensitivity level sl in u units.
    * This returns a negative value if an invalid level is input.
    */
-  double getHMD(int sl, std::string u) const;
+  double getHMD(int sl, const std::string& u) const;
 
   /** Modify the value of Tau Threshold for a given sensitivity level
    * Parameter val is given in seconds. Val is >= 0. Return true is value was set.
@@ -255,7 +255,7 @@ public:
   /** Modify the value of Tau Threshold for a given sensitivity level
    * Parameter val is given in given units. Val is >= 0
    */
-  void setTAU(int sl, double val, std::string u);
+  void setTAU(int sl, double val, const std::string& u);
 
   /** Modify the value of TCOA Threshold for a given sensitivity level
    * Parameter val is given in seconds. Val is >= 0. Return true is value was set.
@@ -265,7 +265,7 @@ public:
   /** Modify the value of TCOA Threshold for a given sensitivity level
    * Parameter val is given in given units. Val is >= 0
    */
-  void setTCOA(int sl, double val, std::string u);
+  void setTCOA(int sl, double val, const std::string& u);
 
   /** Modify the value of DMOD for a given sensitivity level
    * Parameter val is given in internal units. Val is >= 0. Return true is value was set.
@@ -275,7 +275,7 @@ public:
   /** Modify the value of DMOD for a given sensitivity level
    * Parameter val is given in u units. Val is >= 0.
    */
-  void setDMOD(int sl, double val, std::string u);
+  void setDMOD(int sl, double val, const std::string& u);
 
   /** Modify the value of ZTHR for a given sensitivity level
    * Parameter val is given in internal units. Val is >= 0. Return true is value was set.
@@ -285,7 +285,7 @@ public:
   /** Modify the value of ZTHR for a given sensitivity level
    * Parameter val is given in u units. Val is >= 0.
    */
-  void setZTHR(int sl, double val, std::string u);
+  void setZTHR(int sl, double val, const std::string& u);
 
   /**
    * Modify the value of HMD for a given sensitivity level
@@ -298,7 +298,7 @@ public:
    * Modify the value of HMD for a given sensitivity level
    * Parameter val is given in u units. Val is >= 0.
    */
-  void setHMD(int sl, double val, std::string u);
+  void setHMD(int sl, double val, const std::string& u);
 
   /**
    * Add sensitivity level with upper bound altitude alt (in internal units).
@@ -321,7 +321,7 @@ public:
    * Add value 0 to DMOD,HMD,ZTHR,TAUMOD,TCOA
    * Either returns new sensitivity level or 0 (if requires is false)
    */
-  int addSensitivityLevel(double alt,std::string u);
+  int addSensitivityLevel(double alt, const std::string& u);
 
   void setHMDFilter(bool flag);
 

@@ -84,7 +84,7 @@ public:
 	 * @param alt_unit units of altitude
 	 * @return new position
 	 */
-	static Position makeLatLonAlt(double lat, std::string lat_unit, double lon, std::string lon_unit, double alt, std::string alt_unit);
+	static Position makeLatLonAlt(double lat, const std::string& lat_unit, double lon, const std::string& lon_unit, double alt, const std::string& alt_unit);
 
 	/**
 	 * Creates a new lat/lon position with coordinates (<code>lat</code>,<code>lon</code>,<code>alt</code>).
@@ -118,7 +118,7 @@ public:
 	 * @param z_unit units of z coordinate
 	 * @return new position
 	 */
-	static Position makeXYZ(double x, std::string x_unit, double y, std::string y_unit, double z, std::string z_unit);
+	static Position makeXYZ(double x, const std::string& x_unit, double y, const std::string& y_unit, double z, const std::string& z_unit);
 
 	/** Construct a new Position object from a LatLonAlt object. The position will be a Lat/Lon position. 
 	 * 

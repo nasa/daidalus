@@ -101,8 +101,8 @@ const LatLonAlt LatLonAlt::make(double lat, double lon, double alt){
 			Units::from("ft", alt));
 }
 
-const LatLonAlt LatLonAlt::make(double lat, std::string lat_unit, double lon, std::string lon_unit,
-		double alt, std::string alt_unit) {
+const LatLonAlt LatLonAlt::make(double lat, const std::string& lat_unit, double lon, const std::string& lon_unit,
+		double alt, const std::string& alt_unit) {
 	return LatLonAlt(Units::from(lat_unit, lat),
 			Units::from(lon_unit, lon),
 			Units::from(alt_unit, alt));

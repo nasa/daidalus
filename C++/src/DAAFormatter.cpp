@@ -43,33 +43,33 @@ namespace larcfm {
 		labels << "NAME";
 		units << "[none]";
 		if (latlon && !sxyz) {
-            char const *array[] = { "lat","lon","alt" };
-			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+            char const *arraylla[] = { "lat","lon","alt" };
+			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraylla),std::end(arraylla)));
 		} else {
-            char const *array[] = { "sx", "sy", "sz" };
-			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+            char const *arraysxyz[] = { "sx", "sy", "sz" };
+			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraysxyz),std::end(arraysxyz)));
 		}
 		if (vxyz) {
-            char const *array[] = { "vx", "vy", "vz" };
-			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+            char const *arrayvxyz[] = { "vx", "vy", "vz" };
+			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arrayvxyz),std::end(arrayvxyz)));
 		} else {
-            char const *array[] = { "trk","gs","vs" };
-			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+            char const *arraytrkgsvs[] = { "trk","gs","vs" };
+			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraytrkgsvs),std::end(arraytrkgsvs)));
 		}
 		if (groundvel) {
-            char const *array[] = { "heading","airspeed" };
-			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+            char const *arraygvel[] = { "heading","airspeed" };
+			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraygvel),std::end(arraygvel)));
 		}
-        char const *array[] = { "time" };
-		labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+        char const *arraytime[] = { "time" };
+		labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraytime),std::end(arraytime)));
 		if (alerter) {
 			labels << " alerter";
 			units << " [none]";
 		}
 		if (sum) { // Sensor Uncertainty Mitigation
-            char const *array[] = { "s_EW_std", "s_NS_std", "s_EN_std", "sz_std",  
+            char const *arraysum[] = { "s_EW_std", "s_NS_std", "s_EN_std", "sz_std",  
 			    "v_EW_std", "v_NS_std", "v_EN_std", "vz_std" };
-			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(array),std::end(array)));
+			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraysum),std::end(arraysum)));
 		}
 		labels << std::endl << units.str() << std::endl;
 		return labels.str();

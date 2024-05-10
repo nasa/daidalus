@@ -82,7 +82,7 @@ public:
 	 * @param uz Units z
 	 * @return a new vector
 	 */
-	static Vect3 makeXYZ(double x, std::string ux, double y, std::string uy, double z, std::string uz);
+	static Vect3 makeXYZ(double x, const std::string& ux, double y, const std::string& uy, double z, const std::string& uz);
 
 	/**
 	 * Creates a new vector with coordinates (<code>x</code>,<code>y</code>,<code>z</code>) in internal units.

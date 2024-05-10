@@ -211,7 +211,7 @@ Velocity Velocity::mkTrk(double trk) const {
  * @param u units
  * @return new velocity
  */
-Velocity Velocity::mkTrk(double trk, std::string u) const {
+Velocity Velocity::mkTrk(double trk, const std::string& u) const {
 	return mkTrk(Units::from(u,trk));
 }
 
@@ -237,7 +237,7 @@ Velocity Velocity::mkGs(double ags) const {
  * @param u unit
  * @return
  */
-Velocity Velocity::mkGs(double ags, std::string u) const {
+Velocity Velocity::mkGs(double ags, const std::string& u) const {
 	return mkGs(Units::from(u,ags));
 }
 
@@ -257,7 +257,7 @@ Velocity Velocity::mkVs(double vs) const {
  * @param u units
  * @return
  */
-Velocity Velocity::mkVs(double vs, std::string u) const {
+Velocity Velocity::mkVs(double vs, const std::string& u) const {
 	return mkVs(Units::from(u,vs));
 }
 
