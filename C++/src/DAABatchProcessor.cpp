@@ -93,6 +93,7 @@ std::string DAABatchProcessor::help_string() const {
 		s << "  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates." << std::endl;
 		s << "  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>" << std::endl;
 	}
+	s << "  --version\n\tPrint DAIDALUS version and exit" << std::endl;
 	s << "  --help\n\tPrint this message" << std::endl;
 	return s.str();    
 }
@@ -254,6 +255,9 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 		}
 	} else if (arga == "--help" || arga == "-help" || arga == "-h") {
 		print_help_string();
+	} else if (arga == "--version" || arga == "-version") {
+		std::cout << Daidalus::release() << std::endl;
+		exit(0);
 	} else if (!startsWith(arga,"-")){
 		file_names_.push_back(arga);
 	} else {

@@ -166,6 +166,7 @@ public abstract class DAABatchProcessor {
 			s.append("  --longitude <lon>\n\tSet Euclidean local origin to longitude <lon>, in decimal degrees.\n\tIgnore if <daa_file> is in Geodesic coordinates.\n");
 			s.append("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>\n");
 		}
+		s.append("  --version\n\tPrint DAIDALUS version and exit\n");
 		s.append("  --help\n\tPrint this message\n");
 		return s.toString();    
 	}
@@ -322,6 +323,9 @@ public abstract class DAABatchProcessor {
 			}
 		} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
 			print_help_string();
+		} else if (arga.equals("--version") || arga.equals("-version")) {
+			System.out.println(Daidalus.release());
+			System.exit(0);
 		} else if (!arga.startsWith("-")){
 			file_names_.add(arga);
 		} else {
