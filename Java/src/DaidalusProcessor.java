@@ -8,6 +8,7 @@ import gov.nasa.larcfm.Util.Interval;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Projection;
 import gov.nasa.larcfm.Util.Units;
+import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.Velocity;
 
 import java.io.File;
@@ -345,13 +346,7 @@ public abstract class DaidalusProcessor {
 	}
 
 	public String getConfigurationName() {
-		if (conf_.isEmpty()) {
-			return conf_;
-		} else {
-			String conf = ""+FileSystems.getDefault().getPath(conf_).getFileName();				
-			conf = conf.contains(".") ? conf.substring(0,conf.lastIndexOf('.')) : conf;
-			return conf;
-		}
+		return Util.base_filename(conf_,false);
 	}
 
 	public String getOutputFileNameOr(String prefix, String ext) {
@@ -361,7 +356,7 @@ public abstract class DaidalusProcessor {
 			if (!conf_.isEmpty()) {
 				name += "_"+getConfigurationName();
 			}
-			name += "."+ext;
+			name += ext;
 		}
 		return name;
 	}

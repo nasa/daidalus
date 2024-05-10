@@ -63,7 +63,7 @@ public:
 
 	const std::string& getOutputFileName() const { return output_file_; }
 
-	const std::string& getConfigurationName() const { return conf_; }
+	std::string getConfigurationName() const;
 
 	std::string getOutputFileNameOr(const std::string& prefix, const std::string& ext) const;
 

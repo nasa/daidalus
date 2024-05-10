@@ -6,10 +6,10 @@
  */
 
 #include "Daidalus.h"
+#include "DaidalusProcessor.h"
 
 #include <iostream>
 #include <fstream>
-#include "DaidalusProcessor.h"
 
 using namespace larcfm;
 
@@ -26,7 +26,9 @@ public:
 	bool init;
 	std::ostream* out;
 
-	DaidalusBatch() : verbose(false), raw(false), format(STANDARD), init(true), out(&std::cout) {}
+	DaidalusBatch() : 
+		verbose(false), raw(false), format(STANDARD), 
+		init(true), out(&std::cout) {}
 
 	std::string applicationHelpString() const {
 		std::stringstream str;
@@ -121,8 +123,8 @@ int main(int argc, const char* argv[]) {
 		std::cerr << "Try:\n\tDaidalusBatch --help" << std::endl;
 		exit(1);
 	} 
-	std::ofstream fout;
 	const std::string& output = processor.getOutputFileName();
+	std::ofstream fout;
 	if (!output.empty()) {
 		fout.open(output.c_str());
 		processor.out = &fout;

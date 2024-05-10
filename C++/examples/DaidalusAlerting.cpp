@@ -44,250 +44,162 @@ TERMINATION OF THIS AGREEMENT.
  **/
 
 #include "Daidalus.h"
+#include "DaidalusProcessor.h"
 #include "WCV_tvar.h"
-#include "DaidalusFileWalker.h"
 
 using namespace larcfm;
 
-int main(int argc, char* argv[]) {
+class DaidalusAlerting : public DaidalusProcessor {
 
-  // Declare an empty Daidalus object
-  Daidalus daa;
+public:
 
-  std::string input_file = "";
-  std::string output_file = "";
-  std::string ownship = "";
-  std::vector<std::string> traffic;
+	std::ostream* out;
 
+  DaidalusAlerting(): out(&std::cout) {}
 
-  ParameterData params;
-  std::string conf = "";
-  int precision = 6;
-	bool do_inst = false;
-	bool no_hyst = false;
+  std::string applicationHelpString() const {
+		std::stringstream str;
+		str << "DaidalusAlerting [<options>] <daa_file>" << std::endl;
+		str << "Run DAIDALUS alerting logic in batch mode with a given configuration on a DAA file." << std::endl;
+		str << "Valid <options> are:" << std::endl;
+		return str.str();
+	}
 
-  for (int a=1;a < argc; ++a) {
-    std::string arga = argv[a];
-    if ((startsWith(arga,"--conf") || startsWith(arga,"-conf"))  && a+1 < argc) {
-      // Load configuration file
-      arga = argv[++a];
-      std::string base_filename = arga.substr(arga.find_last_of("/\\") + 1);
-      conf = base_filename.substr(0,base_filename.find_last_of('.'));
-      if (!daa.loadFromFile(arga)) {
-        if (arga == "sum") {
-          // Configure DAIDALUS as in DO-365B, with SUM. This is the default.
-          daa.set_DO_365B(true,true);
-          conf = "sum";
-        } else if (arga == "no_sum") {
-          // Configure DAIDALUS as in DO-365B, without SUM
-          daa.set_DO_365B(true,false);
-          conf = "no_sum";
-        } else if (arga == "nom_a") {
-          // Configure DAIDALUS to Nominal A: Buffered DWC, Kinematic Bands, Turn Rate 1.5 [deg/s]
-          daa.set_Buffered_WC_DO_365(false);
-          conf = "nom_a";
-        } else if (arga == "nom_b") {
-          // Configure DAIDALUS to Nominal B: Buffered DWS, Kinematic Bands, Turn Rate 3.0 [deg/s]
-          daa.set_Buffered_WC_DO_365(true);
-          conf = "nom_b";
-        } else if (arga == "cd3d") {
-          // Configure DAIDALUS to CD3D parameters: Cylinder (5nmi,1000ft), Instantaneous Bands, Only Corrective Volume
-          daa.set_CD3D();
-          conf = "cd3d";
-        } else if (arga == "tcasii") {
-          // Configure DAIDALUS to ideal TCASII logic: TA is Preventive Volume and RA is Corrective One
-          daa.set_TCASII();
-          conf = "tcasii";
-        } else {
-          std::cerr << "** Error: File " << arga << " not found" << std::endl;
-          exit(1);
-        }
-      } else {
-        std::cerr << "Loading configuration file " << arga << std::endl;
-      }
-    } else if (startsWith(arga,"--prec") || startsWith(arga,"-prec")) {
-      ++a;
-      std::istringstream(argv[a]) >> precision;
-    } else if ((startsWith(arga,"--out") || startsWith(arga,"-out") || arga == "-o") && a+1 < argc) {
-      output_file = argv[++a];
-    } else if (startsWith(arga,"-") && arga.find('=') != std::string::npos) {
-      std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
-      params.set(keyval);
-    } else if ((startsWith(arga,"--own") || startsWith(arga,"-own")) && a+1 < argc) {
-      ++a;
-      ownship = argv[a];
-    } else if ((startsWith(arga,"--traf") || startsWith(arga,"-traf")) && a+1 < argc) {
-      ++a;
-      std::vector<std::string> s = split(arga,",");
-      traffic.insert(traffic.end(),s.begin(),s.end());
-    } else if (startsWith(arga,"--inst") || startsWith(arga,"-inst")) {
-			// Use the given configuration, but do instantaneous bands
-			do_inst = true;
-		} else if (startsWith(arga,"--nohys") || startsWith(arga,"-nohys")) {
-			// Use the given configuration, but disable hysteresis
-			no_hyst = true;
-		} else if (arga == "--help" || arga == "-help" || arga == "-h") {
-      std::cerr << "Usage:" << std::endl;
-      std::cerr << "  DaidalusAlerting [<options>] <daa_file>" << std::endl;
-     	std::cerr << "Run DAIDALUS alerting logic in batch mode with a given configuration on a DAA file. Valid <options> are" << std::endl;
-      std::cerr << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
-      std::cerr << "  --<key>=<val>\n\t<key> is any configuration variable and val is its value (including units, if any), e.g., --lookahead_time=\"5[min]\"" << std::endl;
-      std::cerr << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
-      std::cerr << "  --echo\n\tEcho configuration and traffic list in standard outoput" << std::endl;
-      std::cerr << "  --precision <n>\n\tOutput decimal precision" << std::endl;
-      std::cerr << "  --ownship <id>\n\tSpecify a particular aircraft as ownship" << std::endl;
-      std::cerr << "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic" << std::endl;
-      std::cerr << "  --instantaneous\n\tOverride configuration to do instantaneous bands" << std::endl;
-			std::cerr << "  --nohystereis\n\tOverride configuation to disable hysteresis" << std::endl;
-      std::cerr << "  --help\n\tPrint this message" << std::endl;
-      exit(0);
-    } else if (startsWith(arga,"-")){
-      std::cerr << "** Error: Unknown option " << arga << std::endl;
-      exit(1);
-    } else if (input_file == "") {
-      input_file = arga;
-    } else {
-      std::cerr << "** Error: Only one input file can be provided (" << arga << ")" << std::endl;
-      exit(1);
+	void beginProcess(DaidalusFileWalker& walker,Daidalus& daa) {
+    int max_alert_levels = daa.maxNumberOfAlertLevels();
+    if (max_alert_levels <= 0) {
+			std::cerr << "** Error: Maximum alert level is 0. It appears that no alerter is configured" << std::endl;
+			exit(1);
     }
-  }
-  if (daa.numberOfAlerters()==0) {
-    // If no alerter has been configured, configure alerters as in
-    // DO_365B Phase I, Phase II, and Non-Cooperative, with SUM
-    daa.set_DO_365B();
-  }
-  if (params.size() > 0) {
-    daa.setParameterData(params);
-  }
-  if (do_inst) {
-    daa.setInstantaneousBands();
-  }
-  if (no_hyst) {
-    daa.disableHysteresis();
-  }
-  if (input_file == "") {
-      std::cerr << "** Error: One input file must be provided" << std::endl;
-      exit(1);
-  }
-  std::ifstream file(input_file.c_str());
-  if (!file.good()) {
-    std::cerr << "** Error: File " << input_file << " cannot be read" << std::endl;
-    exit(1);
-  }
-  file.close();
-  std::string name = input_file.substr(input_file.find_last_of("/\\") + 1);
-  std::string scenario = name.substr(0,name.find_last_of("."));
-  if (output_file == "") {
-    output_file = scenario;
-    if (conf != "") {
-      output_file += "_"+conf;
+    int corrective_level = daa.correctiveAlertLevel(1);
+    const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
+    std::string uhor = daa.getUnitsOf("distance_filter");
+    std::string uver = daa.getUnitsOf("altitude_filter");
+    std::string uhs = daa.getUnitsOf("step_hs");
+    std::string uvs = daa.getUnitsOf("step_vs");
+
+    *out << " Time, Ownship, Traffic, Alerter, Alert Level";
+    if (!daa.isDisabledDTALogic()) {
+      *out << ", DTA Active, DTA Guidance, Distance to DTA";
     }
-    output_file += ".csv";
+    std::string line_units = "[s],,,,";
+    if (!daa.isDisabledDTALogic()) {
+      line_units += ",,, ["+uhor+"]";
+    }
+    for (int level=1; level <= max_alert_levels;++level) {
+      *out << ", Time to Volume of Alert(" << level << ")";
+      line_units += ", [s]";
+    }
+    *out << ", Horizontal Separation, Vertical Separation, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
+    line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
+    if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
+      *out << ", Projected TAUMOD (WCV*)";
+      line_units += ", [s]";
+    }
+    *out << std::endl;
+    *out << line_units << std::endl;
   }
 
-  DaidalusParameters::setDefaultOutputPrecision(precision);
-  std::cerr << "Processing DAIDALUS file " << input_file << std::endl;
-  std::cerr << "Generating CSV file " << output_file << std::endl;
-  DaidalusFileWalker walker(input_file);
-
-  if (ownship != "") {
-    walker.setOwnship(ownship);
-  }
-  if (!traffic.empty()) {
-    walker.selectTraffic(traffic);
-  }
-
-  int max_alert_levels = daa.maxNumberOfAlertLevels();
-  if (max_alert_levels <= 0) {
-    return 0;
-  }
-  int corrective_level = daa.correctiveAlertLevel(1);
-  const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
-  std::string uhor = daa.getUnitsOf("distance_filter");
-  std::string uver = daa.getUnitsOf("altitude_filter");
-  std::string uhs = daa.getUnitsOf("step_hs");
-  std::string uvs = daa.getUnitsOf("step_vs");
-
-  std::ofstream out(output_file.c_str(), std::ios_base::out);
-
-  out << " Time, Ownship, Traffic, Alerter, Alert Level";
-  if (!daa.isDisabledDTALogic()) {
-    out << ", DTA Active, DTA Guidance, Distance to DTA";
-  }
-  std::string line_units = "[s],,,,";
-  if (!daa.isDisabledDTALogic()) {
-    line_units += ",,, ["+uhor+"]";
-  }
-  for (int level=1; level <= max_alert_levels;++level) {
-    out << ", Time to Volume of Alert(" << level << ")";
-    line_units += ", [s]";
-  }
-  out << ", Horizontal Separation, Vertical Separation, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
-  line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
-  if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
-    out << ", Projected TAUMOD (WCV*)";
-    line_units += ", [s]";
-  }
-  out << std::endl;
-  out << line_units << std::endl;
-
-  while (!walker.atEnd()) {
-    walker.readState(daa);
-    // At this point, daa has the state information of ownhsip and traffic for a given time
+  void processTime(Daidalus& daa, int iteration) {
+    int max_alert_levels = daa.maxNumberOfAlertLevels();
+    std::string uhor = daa.getUnitsOf("distance_filter");
+    std::string uver = daa.getUnitsOf("altitude_filter");
+    std::string uhs = daa.getUnitsOf("step_hs");
+    std::string uvs = daa.getUnitsOf("step_vs");
     for (int ac=1; ac <= daa.lastTrafficIndex(); ++ac) {
       int alerter_idx = daa.alerterIndexBasedOnAlertingLogic(ac);
       const Alerter& alerter = daa.getAlerterAt(alerter_idx);
       if (!alerter.isValid()) {
         continue;
       }
-      out << FmPrecision(daa.getCurrentTime());
-      out << ", " << daa.getOwnshipState().getId();
-      out << ", " << daa.getAircraftStateAt(ac).getId();
-      out << ", " << alerter_idx;
+      *out << FmPrecision(daa.getCurrentTime());
+      *out << ", " << daa.getOwnshipState().getId();
+      *out << ", " << daa.getAircraftStateAt(ac).getId();
+      *out << ", " << alerter_idx;
       int alert = daa.alertLevel(ac);
-      out << ", " << Fmi(alert);
+      *out << ", " << Fmi(alert);
       if (!daa.isDisabledDTALogic()) {
-        out << ", " << Fmb(daa.isActiveDTALogic());
-        out << ", " << (daa.isActiveDTASpecialManeuverGuidance() ?
+        *out << ", " << Fmb(daa.isActiveDTALogic());
+        *out << ", " << (daa.isActiveDTASpecialManeuverGuidance() ?
                 (daa.isEnabledDTALogicWithHorizontalDirRecovery() ? "Departing" : "Landing") :
                     "");
         if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
-          out << ", ";
+          *out << ", ";
         } else {
           double dh = (daa.isAlertingLogicOwnshipCentric()?
               daa.getOwnshipState():daa.getAircraftStateAt(ac)).getPosition().distanceH(daa.getDTAPosition());
-          out << ", " << FmPrecision(Units::to(uhor,dh));
+          *out << ", " << FmPrecision(Units::to(uhor,dh));
         }
       }
       for (int level=1; level <= max_alert_levels; ++level) {
-        out << ", ";
+        *out << ", ";
         if (level <= alerter.mostSevereAlertLevel()) {
           ConflictData det = daa.violationOfAlertThresholds(ac,level);
-          out << FmPrecision(det.getTimeIn());
+          *out << FmPrecision(det.getTimeIn());
         }
       }
-      out << ", " << FmPrecision(daa.currentHorizontalSeparation(ac,uhor));
-      out << ", " << FmPrecision(daa.currentVerticalSeparation(ac,uver));
-      out << ", " << FmPrecision(daa.horizontalClosureRate(ac,uhs));
-      out << ", " << FmPrecision(daa.verticalClosureRate(ac,uvs));
-      out << ", " << FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor));
-      out << ", " << FmPrecision(daa.predictedVerticalMissDistance(ac,uver));
-      out << ", " << FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac));
-      out << ", " << FmPrecision(daa.distanceAtHorizontalClosestPointOfApproach(ac,uhor));
+      *out << ", " << FmPrecision(daa.currentHorizontalSeparation(ac,uhor));
+      *out << ", " << FmPrecision(daa.currentVerticalSeparation(ac,uver));
+      *out << ", " << FmPrecision(daa.horizontalClosureRate(ac,uhs));
+      *out << ", " << FmPrecision(daa.verticalClosureRate(ac,uvs));
+      *out << ", " << FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor));
+      *out << ", " << FmPrecision(daa.predictedVerticalMissDistance(ac,uver));
+      *out << ", " << FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac));
+      *out << ", " << FmPrecision(daa.distanceAtHorizontalClosestPointOfApproach(ac,uhor));
       double tcoa = daa.timeToCoAltitude(ac);
-      out << ", ";
+      *out << ", ";
       if (tcoa >= 0) {
-        out << FmPrecision(tcoa);
+        *out << FmPrecision(tcoa);
       }
-      out << ", ";
+      *out << ", ";
+      int corrective_level = daa.correctiveAlertLevel(1);
+      const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
       if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
         double tau_mod  = daa.modifiedTau(ac,((WCV_tvar&)detector).getDTHR());
         if (tau_mod >= 0) {
-          out << FmPrecision(tau_mod);
+          *out << FmPrecision(tau_mod);
         }
       }
-      out << std::endl;
+      *out << std::endl;
     }
   }
-  out.close();
+
+};
+
+int main(int argc, const char* argv[]) {
+ 		DaidalusAlerting processor;
+		processor.ignoreset.insert("location");
+    processor.ignoreset.insert("format");
+		for (int a=1; a < argc; ++a) {
+			int ap = processor.processOptions(argv,argc,a);
+			if (ap >= 0) {
+				a = ap;
+			} else {
+				std::string arga = argv[a];
+				if (startsWith(arga,"-")){
+					std::cerr << "** Error: Unknown option (" << arga << ")" << std::endl;
+					exit(1);
+				} 			
+			}
+		}
+		if (processor.getConfigurationName().empty()) {
+			std::cerr << "** Error: DAA configuration isn't specified. Use option --config" << std::endl;
+			exit(1);
+		}
+		const std::vector<std::string>& input_files = processor.getFileNames();
+		if (input_files.size() != 1) {
+			std::cerr << "Usage:\n\tDaidalusAlerting [<options>] <daa_file>" << std::endl;
+			std::cerr << "Try:\n\tDaidalusAlerting --help" << std::endl;
+			exit(1);
+		}
+    const std::string& input_file = input_files[0];
+		std::string scenario = base_filename(input_file,false);
+		std::string output_file = processor.getOutputFileNameOr(scenario,".csv");
+    std::ofstream fout;
+    fout.open(output_file.c_str());
+		processor.out = &fout;
+    std::cerr << "Processing DAIDALUS file " << input_file << std::endl;
+    std::cerr << "Generating CSV file " << output_file << std::endl;
+    processor.processFile(input_file);
+    fout.close();
 }

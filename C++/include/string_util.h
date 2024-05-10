@@ -88,6 +88,15 @@ namespace larcfm {
   /** parse a string into an integer */
   int parseInt(const std::string& str);
 
+  /** simple dir name of a path with trailing separator */
+  std::string dir_filename(const std::string& path);
+
+  /** simple base name of a path with or without extension (ext) */
+  std::string base_filename(const std::string& path, bool ext=true);
+
+  /** simple extension of a path (include ".") */
+  std::string ext_filename(const std::string& path);
+
 }
 
 #endif // STRING_UTIL_H

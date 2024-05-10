@@ -268,6 +268,10 @@ int DaidalusProcessor::processOptions(const char* args[], const int argc, const 
 	return a;
 }
 
+std::string DaidalusProcessor::getConfigurationName() const {
+	return base_filename(conf_,false);	
+}
+
 std::string DaidalusProcessor::getOutputFileNameOr(const std::string& prefix, const std::string& ext) const {
 	std::string name = output_file_;
 	if (output_file_.empty()) {
@@ -275,7 +279,7 @@ std::string DaidalusProcessor::getOutputFileNameOr(const std::string& prefix, co
 		if (!conf_.empty()) {
 			name += "_"+getConfigurationName();
 		}
-		name += "."+ext;
+		name += ext;
 	}
 	return name;
 }

@@ -56,12 +56,6 @@ import gov.nasa.larcfm.Util.f;
 public class DaidalusAlerting extends DaidalusProcessor {
 
 	PrintWriter out;
-	String uhor;
-	String uver;
-    String uhs;
-	String uvs;
-	int max_alert_levels;
-	Detection3D detector;
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();
@@ -102,7 +96,7 @@ public class DaidalusAlerting extends DaidalusProcessor {
 		File file = input_files.get(0);
 		String base_name = input_files.get(0).getName();
 		String scenario = base_name.substring(0,base_name.lastIndexOf('.'));
-		String output_file = processor.getOutputFileNameOr(scenario,"csv");
+		String output_file = processor.getOutputFileNameOr(scenario,".csv");
 		try {
 			processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
 		} catch (Exception e) {
@@ -116,17 +110,17 @@ public class DaidalusAlerting extends DaidalusProcessor {
 	}
 
 	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {
-		max_alert_levels = daa.maxNumberOfAlertLevels();
+		int max_alert_levels = daa.maxNumberOfAlertLevels();
 		if (max_alert_levels <= 0) {
 			System.err.println("** Error: Maximum alert level is 0. It appears that no alerter is configured");
 			System.exit(1);
 		}
 		int corrective_level = daa.correctiveAlertLevel(1);
-		detector = daa.getAlerterAt(1).getDetector(corrective_level).get();
-		uhor = daa.getUnitsOf("distance_filter");
-		uver = daa.getUnitsOf("altitude_filter");
-		uhs = daa.getUnitsOf("step_hs");
-		uvs = daa.getUnitsOf("step_vs");
+		Detection3D detector = daa.getAlerterAt(1).getDetector(corrective_level).get();
+		String uhor = daa.getUnitsOf("distance_filter");
+		String uver = daa.getUnitsOf("altitude_filter");
+		String uhs = daa.getUnitsOf("step_hs");
+		String uvs = daa.getUnitsOf("step_vs");
 		out.print(" Time, Ownship, Traffic, Alerter, Alert Level");
 		if (!daa.isDisabledDTALogic()) {
 			out.print(", DTA Active, DTA Guidance, Distance to DTA");
@@ -150,6 +144,11 @@ public class DaidalusAlerting extends DaidalusProcessor {
 	}
 
 	public void processTime(Daidalus daa, int iteration) {
+		int max_alert_levels = daa.maxNumberOfAlertLevels();
+		String uhor = daa.getUnitsOf("distance_filter");
+		String uver = daa.getUnitsOf("altitude_filter");
+		String uhs = daa.getUnitsOf("step_hs");
+		String uvs = daa.getUnitsOf("step_vs");
 		for (int ac=1; ac <= daa.lastTrafficIndex(); ++ac) {
 			int alerter_idx = daa.alerterIndexBasedOnAlertingLogic(ac);
 			Alerter alerter = daa.getAlerterAt(alerter_idx);
@@ -195,6 +194,8 @@ public class DaidalusAlerting extends DaidalusProcessor {
 				out.print(f.FmPrecision(tcoa));
 			}
 			out.print(", ");
+			int corrective_level = daa.correctiveAlertLevel(1);
+			Detection3D detector = daa.getAlerterAt(1).getDetector(corrective_level).get();
 			if (detector instanceof WCV_tvar) {
 				double tau_mod  = daa.modifiedTau(ac,((WCV_tvar)detector).getDTHR());
 				if (tau_mod >= 0) {

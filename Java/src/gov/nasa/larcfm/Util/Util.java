@@ -15,6 +15,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.File;
 
 /** A broad collection of utility functions */
 public final class Util {
@@ -1178,6 +1179,47 @@ public final class Util {
 	 */
 	public static boolean relErrorTest(double testValue, double baseValue, double acceptibleError) {
 		return ((Math.abs(testValue-baseValue) / baseValue) < acceptibleError);
+	}
+
+	/** dir name of a path */
+	public static String dir_filename(String path) {
+		if (path.isEmpty()) {
+			return path;
+		}
+		File file = new File(path);
+		String dir = file.getParent();
+		return dir == null ? "" : dir.isEmpty() || dir.equals(File.separator) ? dir : dir+File.separator;
+	}
+
+	/** simple base name of a path with or without extension (ext) */
+	public static String base_filename(String path, boolean ext) {
+		if (path.isEmpty()) {
+			return path;
+		}
+		File file = new File(path);
+		String base = file.getName();
+		if (ext) {
+			return base;
+		} else {
+			int pos = base.lastIndexOf(".");
+			return pos == -1 ? base : base.substring(0,pos);  
+		}
+	}
+
+	/** simple base name of a path with or without extension (ext) */
+	public static String base_filename(String path) {
+		return base_filename(path,true);
+	}
+
+	/** simple extension of a path (including ".") */
+	public static String ext_filename(String path) {
+		if (path.isEmpty()) {
+			return path;
+		}
+		File file = new File(path);
+		String base = file.getName();
+		int pos = base.lastIndexOf(".");
+		return pos == -1 ? "" : base.substring(pos);
 	}
 
 } // Util.java

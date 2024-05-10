@@ -308,4 +308,38 @@ bool matches(const string& s, const string& rgx_str) {
 		return value;
 	}
 
+ 	/** simple dir name of a path including folder separator */
+  	std::string dir_filename(const std::string& path) {
+		if (path.empty()) {
+			return path;
+		}
+		int pos = path.find_last_of("/\\");
+		return pos == std::string::npos ? "" : path.substr(0,pos+1);
+  	}
+
+	/** simple base name of a path with or without extension (ext) */
+  	std::string base_filename(const std::string& path, bool ext) {
+		if (path.empty()) {
+			return path;
+		}
+    	int pos = path.find_last_of("/\\");
+    	std::string base = pos == std::string::npos ? path : path.substr(pos+1);
+    	if (ext) {
+			return base;
+		} else {
+      		pos = base.find_last_of(".");
+      		return pos == std::string::npos ? base : base.substr(0,pos);  
+   		}
+	}
+
+	/** simple extension of a path (including ".") */
+  	std::string ext_filename(const std::string& path) {
+		if (path.empty()) {
+			return path;
+		}
+    	std::string base = base_filename(path,true);
+		int pos = base.find_last_of(".");
+		return pos == std::string::npos ? "" : base.substr(pos);
+  	}
+
 }

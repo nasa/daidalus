@@ -7,6 +7,7 @@
 
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
+import gov.nasa.larcfm.Util.Util;
 
 import java.io.*;
 import java.util.*;
@@ -31,7 +32,7 @@ public class DaidalusBatch extends DaidalusProcessor {
 		return str.toString();
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) {	
 		DaidalusBatch processor = new DaidalusBatch();
 		processor.out = new PrintWriter(System.out);
 		processor.ignoreset.addAll(Arrays.asList("location","format"));
