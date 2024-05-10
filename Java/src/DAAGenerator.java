@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import gov.nasa.larcfm.ACCoRD.DAABatchProcessor;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.Horizontal;
@@ -64,7 +65,7 @@ import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 import gov.nasa.larcfm.Util.f;
 
-public class DAAGenerator extends DaidalusProcessor {
+public class DAAGenerator extends DAABatchProcessor {
 
 	// Keyed by aircraft id
 	Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 

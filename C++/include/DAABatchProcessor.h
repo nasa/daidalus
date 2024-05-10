@@ -1,21 +1,21 @@
 /*
- * DaidalusProcessor.h
+ * DAABatchProcessor.h
  *
  *  Created on: Aug 14, 2015
  *      Author: cmunoz
  */
 
-#ifndef DAIDALUSPROCESSOR_H_
-#define DAIDALUSPROCESSOR_H_
+#ifndef DAABATCHPROCESSOR_H_
+#define DAABATCHPROCESSOR_H_
 
 #include "Daidalus.h"
 #include "DaidalusFileWalker.h"
 
 #include <vector>
 
-using namespace larcfm;
+namespace larcfm {
 
-class DaidalusProcessor {
+class DAABatchProcessor {
 private:
 	static const int DEFAULT_PRECISION;
 	int sfrom_; // 0 is absolute, > 0 is from beggining, < 0 is from end
@@ -48,8 +48,8 @@ public:
 	DAAFormatter formatter;
 	std::stringstream options;	
 
-	DaidalusProcessor();
-	virtual ~DaidalusProcessor() {}
+	DAABatchProcessor();
+	virtual ~DAABatchProcessor() {}
 
 	Velocity getWind() const;
 
@@ -93,4 +93,6 @@ public:
 
 };
 
-#endif /* DAIDALUSPROCESSOR_H_ */
+}
+
+#endif /* DAABATCHPROCESSOR_H_ */

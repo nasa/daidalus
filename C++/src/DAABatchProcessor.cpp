@@ -1,15 +1,15 @@
-#include "DaidalusProcessor.h"
+#include "DAABatchProcessor.h"
 #include "Position.h"
 #include "SequenceReader.h"
 #include "Velocity.h"
 #include "Util.h"
 #include "string_util.h"
 
-using namespace larcfm;
+namespace larcfm {
 
-const int DaidalusProcessor::DEFAULT_PRECISION=6;
+const int DAABatchProcessor::DEFAULT_PRECISION=6;
 
-DaidalusProcessor::DaidalusProcessor() :
+DAABatchProcessor::DAABatchProcessor() :
 	sfrom_(1), // From beginning
 	ufrom_(0.0),  // 0 (from beginning)
 	sto_(-1),   // From end
@@ -27,7 +27,7 @@ DaidalusProcessor::DaidalusProcessor() :
 	DaidalusParameters::setDefaultOutputPrecision(precision_,trailing_zeros_);
 }
 
-Velocity DaidalusProcessor::getWind() const {
+Velocity DAABatchProcessor::getWind() const {
 	double wind_speed =  0.0;
 	double wind_dir = 0.0;
 	if (parameters.contains("wind_speed")) {
@@ -47,19 +47,19 @@ Velocity DaidalusProcessor::getWind() const {
 	return Velocity::INVALID();
 } 
 
-bool DaidalusProcessor::isLocationSet() const {
+bool DAABatchProcessor::isLocationSet() const {
 	return lat_ != 0.0 || lon_ != 0.0;
 }
 
-EuclideanProjection DaidalusProcessor::getProjection() const {
+EuclideanProjection DAABatchProcessor::getProjection() const {
 	return Projection::createProjection(lat_,lon_,0.0);
 }
 
-bool DaidalusProcessor::disabled_option(const std::string& str) const {
+bool DAABatchProcessor::disabled_option(const std::string& str) const {
 	return ignoreset.find(str) != ignoreset.end();
 }
 
-std::string DaidalusProcessor::help_string() const {
+std::string DAABatchProcessor::help_string() const {
 	std::stringstream s;
 	if (!disabled_option("config")) {
 		s << "  --config <configuration-file> | no_sum | nom_a | nom_b | cd3d | tcasii\n\tLoad <configuration-file>" << std::endl;
@@ -102,7 +102,7 @@ double parse_double(std::string str) {
 }
 
 // from is 1, to is -1, at is 0
-void DaidalusProcessor::parse_time(int from_to_at, const std::string& arga) {
+void DAABatchProcessor::parse_time(int from_to_at, const std::string& arga) {
 	if (from_to_at > 0) { // From
 		if (startsWith(arga,"+")) {
 			ufrom_ = parse_double(arga.substr(1,arga.length()));
@@ -149,7 +149,7 @@ void DaidalusProcessor::parse_time(int from_to_at, const std::string& arga) {
 	}		
 }
 
-int DaidalusProcessor::processOptions(const char* args[], const int argc, const int i) {
+int DAABatchProcessor::processOptions(const char* args[], const int argc, const int i) {
 	int a=i;
 	std::string arga = args[a];
 	if (!disabled_option("config") && (startsWith(arga,"--conf") || startsWith(arga,"-conf")) && a+1 < argc) {
@@ -268,11 +268,11 @@ int DaidalusProcessor::processOptions(const char* args[], const int argc, const 
 	return a;
 }
 
-std::string DaidalusProcessor::getConfigurationName() const {
+std::string DAABatchProcessor::getConfigurationName() const {
 	return base_filename(conf_,false);	
 }
 
-std::string DaidalusProcessor::getOutputFileNameOr(const std::string& prefix, const std::string& ext) const {
+std::string DAABatchProcessor::getOutputFileNameOr(const std::string& prefix, const std::string& ext) const {
 	std::string name = output_file_;
 	if (output_file_.empty()) {
 		name = prefix;
@@ -284,7 +284,7 @@ std::string DaidalusProcessor::getOutputFileNameOr(const std::string& prefix, co
 	return name;
 }
 
-Interval DaidalusProcessor::timeInterval(const DaidalusFileWalker& walker) const {
+Interval DAABatchProcessor::timeInterval(const DaidalusFileWalker& walker) const {
 	double absolute_from = walker.firstTime();
 	double absolute_to = walker.lastTime();
 	if (sfrom_ == 0) {
@@ -304,7 +304,7 @@ Interval DaidalusProcessor::timeInterval(const DaidalusFileWalker& walker) const
 	return Interval(absolute_from,absolute_to);
 }
 
-Daidalus DaidalusProcessor::getDaidalus() const {
+Daidalus DAABatchProcessor::getDaidalus() const {
 	Daidalus daa;
 	if (conf_  == "sum") {
 		// Configure DAIDALUS as in DO-365B, with SUM. This is the default.
@@ -340,7 +340,7 @@ Daidalus DaidalusProcessor::getDaidalus() const {
 	return daa;
 }
 
-void DaidalusProcessor::setDaidalusUnits(Daidalus& daa) const {
+void DAABatchProcessor::setDaidalusUnits(Daidalus& daa) const {
 	for (std::map<std::string,std::string>::const_iterator units_it = units_.begin();
 		units_it != units_.end(); ++ units_it) {
 		const std::string& key = units_it->first;
@@ -349,14 +349,14 @@ void DaidalusProcessor::setDaidalusUnits(Daidalus& daa) const {
 	}
 }
 
-Daidalus DaidalusProcessor::getDaidalus(const DaidalusFileWalker& walker) const {
+Daidalus DAABatchProcessor::getDaidalus(const DaidalusFileWalker& walker) const {
 	Daidalus daa = getDaidalus();
 	walker.setDAAUnits(daa);
 	setDaidalusUnits(daa);
 	return daa;
 }
 
-void DaidalusProcessor::setDAAFormatter(const DaidalusFileWalker& walker) {
+void DAABatchProcessor::setDAAFormatter(const DaidalusFileWalker& walker) {
 	walker.setDAAFormat(formatter);
 	for (std::map<std::string,bool>::const_iterator format_it = format_.begin();
 		format_it != format_.end(); ++ format_it) {
@@ -378,7 +378,7 @@ void DaidalusProcessor::setDAAFormatter(const DaidalusFileWalker& walker) {
 	}
 }
 
-DaidalusFileWalker DaidalusProcessor::getDAAWalker(const std::string& filename) {
+DaidalusFileWalker DAABatchProcessor::getDAAWalker(const std::string& filename) {
 	DaidalusFileWalker walker = DaidalusFileWalker(filename); 
 	if (walker.atEnd()) {
 		std::cerr << "** Error: File " << filename << " doesn't appear to be a DAA file" << std::endl;
@@ -398,7 +398,7 @@ DaidalusFileWalker DaidalusProcessor::getDAAWalker(const std::string& filename) 
 	return walker;
 }
 
-void DaidalusProcessor::go(DaidalusFileWalker& walker, Daidalus& daa) {
+void DAABatchProcessor::go(DaidalusFileWalker& walker, Daidalus& daa) {
 	Interval from_to = timeInterval(walker);
 	if (!from_to.isEmpty()) {
 		if (skip_) {
@@ -426,7 +426,7 @@ void DaidalusProcessor::go(DaidalusFileWalker& walker, Daidalus& daa) {
 	}
 }
 
-void DaidalusProcessor::processFile(const std::string& filename) {
+void DAABatchProcessor::processFile(const std::string& filename) {
 	DaidalusFileWalker walker = getDAAWalker(filename); 
 	Daidalus daa = getDaidalus(walker);
 	beginProcess(walker,daa);
@@ -434,9 +434,11 @@ void DaidalusProcessor::processFile(const std::string& filename) {
 	endProcess(walker,daa);
 }
 
-void DaidalusProcessor::print_help_string() const {
+void DAABatchProcessor::print_help_string() const {
 	std::cerr << "Usage:\n  ";
 	std::cerr << applicationHelpString();
 	std::cerr << help_string();
 	exit(1);
+}
+
 }

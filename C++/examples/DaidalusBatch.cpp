@@ -6,7 +6,7 @@
  */
 
 #include "Daidalus.h"
-#include "DaidalusProcessor.h"
+#include "DAABatchProcessor.h"
 
 #include <iostream>
 #include <fstream>
@@ -16,7 +16,7 @@ using namespace larcfm;
 const int STANDARD = 0;
 const int PVS = 1;
 
-class DaidalusBatch : public DaidalusProcessor {
+class DaidalusBatch : public DAABatchProcessor {
 
 public:
 

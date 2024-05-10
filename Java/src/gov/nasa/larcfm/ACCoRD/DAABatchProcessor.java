@@ -1,7 +1,5 @@
-import gov.nasa.larcfm.ACCoRD.Daidalus;
-import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
-import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
-import gov.nasa.larcfm.ACCoRD.DAAFormatter;
+package gov.nasa.larcfm.ACCoRD;
+
 import gov.nasa.larcfm.IO.ConfigReader;
 import gov.nasa.larcfm.Util.EuclideanProjection;
 import gov.nasa.larcfm.Util.Interval;
@@ -13,7 +11,6 @@ import gov.nasa.larcfm.Util.Velocity;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -22,7 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class DaidalusProcessor {
+public abstract class DAABatchProcessor {
 
 	private static final int DEFAULT_PRECISION = 6;
 	private int sfrom_; // 0 is absolute, > 0 is from beggining, < 0 is from end
@@ -48,7 +45,7 @@ public abstract class DaidalusProcessor {
 	public  DAAFormatter formatter;
 	public  StringBuffer options;
 
-	public DaidalusProcessor() {
+	public DAABatchProcessor() {
 		sfrom_ = 1; // From beginning
 		ufrom_ = 0.0; // 0 (from beginning)
 		sto_ = -1;  // From end

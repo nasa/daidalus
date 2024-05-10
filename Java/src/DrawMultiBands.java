@@ -46,13 +46,14 @@ import java.util.Hashtable;
 import java.util.List;
 
 import gov.nasa.larcfm.ACCoRD.BandsRegion;
+import gov.nasa.larcfm.ACCoRD.DAABatchProcessor;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
 
-public class DrawMultiBands extends DaidalusProcessor {
+public class DrawMultiBands extends DAABatchProcessor {
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();

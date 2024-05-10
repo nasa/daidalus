@@ -44,12 +44,12 @@ TERMINATION OF THIS AGREEMENT.
  **/
 
 #include "Daidalus.h"
-#include "DaidalusProcessor.h"
+#include "DAABatchProcessor.h"
 #include "WCV_tvar.h"
 
 using namespace larcfm;
 
-class DaidalusAlerting : public DaidalusProcessor {
+class DaidalusAlerting : public DAABatchProcessor {
 
 public:
 

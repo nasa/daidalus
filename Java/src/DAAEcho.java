@@ -44,6 +44,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import gov.nasa.larcfm.ACCoRD.DAABatchProcessor;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.TrafficState;
@@ -52,7 +53,7 @@ import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
 
-public class DAAEcho extends DaidalusProcessor {
+public class DAAEcho extends DAABatchProcessor {
 
 	PrintWriter  out;
 

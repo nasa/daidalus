@@ -46,6 +46,7 @@ import java.util.List;
 
 import gov.nasa.larcfm.ACCoRD.Alerter;
 import gov.nasa.larcfm.ACCoRD.ConflictData;
+import gov.nasa.larcfm.ACCoRD.DAABatchProcessor;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.Detection3D;
@@ -53,7 +54,7 @@ import gov.nasa.larcfm.ACCoRD.WCV_tvar;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.f;
 
-public class DaidalusAlerting extends DaidalusProcessor {
+public class DaidalusAlerting extends DAABatchProcessor {
 
 	PrintWriter out;
 

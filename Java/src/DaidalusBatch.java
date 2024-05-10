@@ -5,14 +5,14 @@
  * Rights Reserved.
  */
 
+import gov.nasa.larcfm.ACCoRD.DAABatchProcessor;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
-import gov.nasa.larcfm.Util.Util;
 
 import java.io.*;
 import java.util.*;
 
-public class DaidalusBatch extends DaidalusProcessor {  
+public class DaidalusBatch extends DAABatchProcessor {  
 
 	static final int STANDARD = 0;
 	static final int PVS = 1;
