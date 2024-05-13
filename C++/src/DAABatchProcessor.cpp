@@ -188,7 +188,7 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 	} else if (!disabled_option("format") && (startsWith(arga,"--format") || startsWith(arga,"-format")) && a+1 < argc) {
 		std::string keys = args[++a];
 		bool enable = true;
-		int pos = keys.find(":");
+		size_t pos = keys.find(":");
 		if (pos != std::string::npos) {
 			enable = toLowerCase(keys.substr(pos+1)) != "false";
 			keys = keys.substr(0,pos);
