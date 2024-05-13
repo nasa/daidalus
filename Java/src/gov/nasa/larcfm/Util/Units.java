@@ -991,7 +991,7 @@ public final class Units {
 			addSimilarUnit("fpm", "ft/min");
 			addSimilarUnit("foot_per_minute", "ft/min");
 			addSimilarUnit("feet_per_minute", "ft/min");
-			addUnit("NM/s",nautical_mile_per_second);
+			addUnit("NM/s",nautical_mile_per_second, "m/s");
 			addSimilarUnit("nmi/s", "NM/s");
 			addSimilarUnit("nautical_mile_per_second","NM/s");
 			addSimilarUnit("nmi/s", "NM/s");
@@ -1487,12 +1487,10 @@ public final class Units {
 			throws UnitException {
 		UnitPair p1 = getUnitPair(unit1);
 		UnitPair p2 = getUnitPair(unit2);
-
 		if (unit1.equals("unspecified") || unit2.equals("unspecified")) {
 			return true;
 		}
-
-		return p1.compatible == p2.compatible;
+		return p1.compatible.equals(p2.compatible);
 	}
 
 	/**
