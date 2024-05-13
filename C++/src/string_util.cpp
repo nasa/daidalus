@@ -313,7 +313,7 @@ bool matches(const string& s, const string& rgx_str) {
 		if (path.empty()) {
 			return path;
 		}
-		int pos = path.find_last_of("/\\");
+		size_t pos = path.find_last_of("/\\");
 		return pos == std::string::npos ? "" : path.substr(0,pos+1);
   	}
 
@@ -322,7 +322,7 @@ bool matches(const string& s, const string& rgx_str) {
 		if (path.empty()) {
 			return path;
 		}
-    	int pos = path.find_last_of("/\\");
+    	size_t pos = path.find_last_of("/\\");
     	std::string base = pos == std::string::npos ? path : path.substr(pos+1);
     	if (ext) {
 			return base;
@@ -338,7 +338,7 @@ bool matches(const string& s, const string& rgx_str) {
 			return path;
 		}
     	std::string base = base_filename(path,true);
-		int pos = base.find_last_of(".");
+		size_t pos = base.find_last_of(".");
 		return pos == std::string::npos ? "" : base.substr(pos);
   	}
 

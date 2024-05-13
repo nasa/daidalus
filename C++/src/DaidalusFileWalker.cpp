@@ -131,7 +131,7 @@ int DaidalusFileWalker::getIndex() const {
 }
 
 double DaidalusFileWalker::getTime() const {
-  if (0 <= index_ && index_ < times_.size()) {
+  if (0 <= index_ && index_ < static_cast<int>(times_.size())) {
     return times_[index_];
   } else {
     return NaN;
@@ -143,7 +143,7 @@ bool DaidalusFileWalker::atBeginning() const {
 }
 
 bool DaidalusFileWalker::atEnd() const {
-  return index_ >=0 && index_ == times_.size();
+  return index_ >=0 && index_ == static_cast<int>(times_.size());
 }
 
 bool DaidalusFileWalker::goToTime(double t) {
@@ -151,7 +151,7 @@ bool DaidalusFileWalker::goToTime(double t) {
 }
 
 bool DaidalusFileWalker::goToTimeStep(int i) {
-  if (0 <= i && i < times_.size()) {
+  if (0 <= i && i < static_cast<int>(times_.size())) {
     index_ = i;
     sr_.setActive(times_[index_]);
     return true;
@@ -184,7 +184,7 @@ int DaidalusFileWalker::indexOfTime(double t) const {
   int i = -1;
   if (t >= firstTime() && t <= lastTime()) {
     i = 0;
-    for (; i < times_.size()-1; ++i) {
+    for (; i < static_cast<int>(times_.size())-1; ++i) {
       if (t >= times_[i] && t < times_[i+1]) {
         break;
       }

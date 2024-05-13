@@ -798,9 +798,10 @@ std::string DaidalusCore::raw_traffic_data() const {
   std::stringstream str;
   str << ownship.rawString();
   str << "\n";
-  for (int i = 0; i < traffic.size(); ++i) {
-    str << traffic[i].rawString();
-    str << "\n";
+  for (std::vector<TrafficState>::const_iterator traffic_it = traffic.begin();
+    traffic_it != traffic.end(); ++traffic_it) {
+      str << (*traffic_it).rawString();
+      str << "\n";
   }
   return str.str();
 }

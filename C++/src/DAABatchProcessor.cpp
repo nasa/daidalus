@@ -174,7 +174,7 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 	} else if ((startsWith(arga,"--units") || startsWith(arga,"-units")) && a+1 < argc) {
 		std::string keys = args[++a];
 		std::string unit = "internal";
-		int pos = keys.find(":");
+		const size_t pos = keys.find(":");
 		if (pos != std::string::npos) {
 			unit = keys.substr(pos+1);
 			keys = keys.substr(0,pos);
