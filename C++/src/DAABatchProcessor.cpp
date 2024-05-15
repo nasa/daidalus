@@ -343,6 +343,9 @@ Daidalus DAABatchProcessor::getDaidalus() const {
 }
 
 void DAABatchProcessor::setDaidalusUnits(Daidalus& daa) const {
+	if (isLocationSet()) {
+		daa.setUnitsOf("alt",daa.getUnitsOf("sz"));
+	}
 	for (std::map<std::string,std::string>::const_iterator units_it = units_.begin();
 		units_it != units_.end(); ++ units_it) {
 		const std::string& key = units_it->first;

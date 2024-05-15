@@ -417,6 +417,9 @@ public abstract class DAABatchProcessor {
 	}
 
 	public void setDaidalusUnits(Daidalus daa) {
+		if (isLocationSet()) {
+			daa.setUnitsOf("alt",daa.getUnitsOf("sz"));
+		}
 		for (Map.Entry<String,String> entry : units_.entrySet()) {
 			daa.setUnitsOf(entry.getKey(),entry.getValue());
 		}
