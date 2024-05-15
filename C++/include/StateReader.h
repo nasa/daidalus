@@ -178,6 +178,11 @@ public:
 	std::vector<std::string> getExtraColumnList() const;
 
 	/**
+	 * Return a list of all user-defined columns in this reader.
+	 */
+	std::vector<std::string> getColumnList() const;
+
+	/**
 	 * Return the units for a given column.  If no units were specified, then return "unspecified".  If the column name was not found, return the empty string.
 	 * @param colname name of the column in question.
 	 */

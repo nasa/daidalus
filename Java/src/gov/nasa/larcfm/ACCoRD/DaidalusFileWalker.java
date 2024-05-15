@@ -57,7 +57,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 		ownship_ = Optional.empty();
 		traffic_.clear();
 		wind_ = Velocity.INVALID;
-		columns_ = sr_.getExtraColumnList();
+		columns_ = sr_.getColumnList(); 
 	}
 
 	/** 

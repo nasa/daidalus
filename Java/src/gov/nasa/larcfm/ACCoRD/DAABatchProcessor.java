@@ -431,6 +431,9 @@ public abstract class DAABatchProcessor {
 
 	public void setDAAFormatter(DaidalusFileWalker walker) {
 		walker.setDAAFormat(formatter);
+		if (isLocationSet()) {
+			formatter.sxyz = false;
+		}
 		for (Map.Entry<String,Boolean> entry : format_.entrySet()) {
 			String key = entry.getKey();
 			boolean bval = entry.getValue();

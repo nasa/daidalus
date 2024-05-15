@@ -395,6 +395,17 @@ public class StateReader implements ParameterProvider, ParameterReader, ErrorRep
 			return "";
 		}
 	}
+
+	/**
+	 * Return a list of all user-defined columns in this reader.
+	 */
+	public List<String> getColumnList() {
+		List<String> names = new ArrayList<>();
+		for (int i = 0; i < head.size(); i++) {
+			names.add(input.getHeading(head.get(i)));
+		}
+		return names;
+	}
 	
 	/**
 	 * Return true if the given aircraft has data for the indicated column.

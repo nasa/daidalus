@@ -385,6 +385,17 @@ namespace larcfm {
 	}
 
 	/**
+	 * Return a list of all user-defined columns in this reader.
+	 */
+	std::vector<std::string> StateReader::getColumnList() const {
+		std::vector<std::string> names;
+		for (int i = 0; i < (int) head.size(); i++) {
+			names.push_back(input.getHeading(head[i]));
+		}
+		return names;
+	}
+
+	/**
 	 * Return the units for a given column.  If no units were specified, then return "unspecified".  If the column name was not found, return the empty string.
 	 * @param colname name of the column in question.
 	 */

@@ -360,6 +360,9 @@ Daidalus DAABatchProcessor::getDaidalus(const DaidalusFileWalker& walker) const 
 
 void DAABatchProcessor::setDAAFormatter(const DaidalusFileWalker& walker) {
 	walker.setDAAFormat(formatter);
+	if (isLocationSet()) {
+		formatter.sxyz = false;
+	}
 	for (std::map<std::string,bool>::const_iterator format_it = format_.begin();
 		format_it != format_.end(); ++ format_it) {
 		const std::string& key = format_it->first;

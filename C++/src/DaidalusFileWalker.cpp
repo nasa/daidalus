@@ -34,7 +34,7 @@ void DaidalusFileWalker::init() {
   ownship_.clear();
   traffic_.clear();
   wind_ = Velocity::INVALID();
-  columns_ = sr_.getExtraColumnList();
+  columns_ = sr_.getColumnList();
 }
 
 /**
