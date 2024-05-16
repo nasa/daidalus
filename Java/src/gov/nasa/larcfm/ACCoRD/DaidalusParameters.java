@@ -36,6 +36,13 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	public static final String VERSION = "2.0.4a";
 	public static final long ALMOST_ = Util.PRECISION5;
 
+	/**
+	 * This variable overrides the unit returned by the method getUnitsOf so that it returns 
+	 * internal units (SI) instead of the specified unit in the DaidalusParameter object. 
+	 * Setting the value to false disables the overriding.
+	 */
+	public static boolean OverrideUnitsWithSI = false; 
+
 	static {
 		Constants.set_output_precision(10);
 		Constants.set_trailing_zeros(false);
@@ -197,7 +204,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	/* NOTE: By default, no alert levels are configured */
 	public DaidalusParameters() {
 
-		units_ = new HashMap<String,String>(); //
+		units_ = new HashMap<String,String>(); 
 
 		// Bands Parameters
 		lookahead_time_ = 180.0; // [s]
@@ -3524,10 +3531,13 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	public String getUnitsOf(String keystr) {
 		String key = cannonical_key(keystr);
 		String u = units_.get(key);
-		if (u != null) {
+		if (u == null) {
+			u = units_of_daa_key(key);
+		}
+		if (u.equals("unspecified") || !OverrideUnitsWithSI) {
 			return u;
-		} 
-		return units_of_daa_key(key);
+		}
+		return Units.getCompatibleInternalUnit(u);
 	}
 
 	/** 

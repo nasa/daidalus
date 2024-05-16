@@ -19,8 +19,6 @@ public class DAAFormatter {
     public boolean groundvel;
     public boolean sum; 
     public boolean alerter;
-    public boolean internal; 
-	public boolean degrees;
 
     public DAAFormatter() {
         sxyz = false;
@@ -28,32 +26,19 @@ public class DAAFormatter {
         groundvel = true;
         sum = true;
         alerter = true;
-        internal = false; 
-		degrees = false;
     }
 
     public static final DAAFormatter DefaultDAAFormatter = new DAAFormatter();
 
-    private String get_units(DaidalusParameters params, String label) {
-        String u = params.getUnitsOf(label);
-		if (Units.isCompatible(u,"rad") && degrees) {
-			return "deg";
-		}
-        if (internal) {
-            return Units.getCompatibleInternalUnit(u);
-        } 
-        return u;
-    }
-
-	private void label_and_unit(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, String label) {
+	private static void label_and_unit(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, String label) {
 		strlabels.append(" ");
 		strlabels.append(label);
 		strunits.append(" [");
-		strunits.append(get_units(params,label));
+		strunits.append(params.getUnitsOf(label));
 		strunits.append("]");
     }
 
-    private void labels_and_units(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, List<String> labels) {
+    private static void labels_and_units(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, List<String> labels) {
         for (String label:labels) {
            label_and_unit(params, strlabels, strunits, label);
         }
@@ -96,10 +81,10 @@ public class DAAFormatter {
 		StringBuffer s = new StringBuffer();
 		if (vxyz) {
 			s.append(", ");
-			s.append(vel.vect3().toStringNP(get_units(params,"vx"),get_units(params,"vy"),get_units(params,"vz")));
+			s.append(vel.vect3().toStringNP(params.getUnitsOf("vx"),params.getUnitsOf("vy"),params.getUnitsOf("vz")));
 		} else {
 			s.append(", ");
-			s.append(vel.toStringNP(get_units(params,"trk"),get_units(params,"gs"),get_units(params,"vs")));
+			s.append(vel.toStringNP(params.getUnitsOf("trk"),params.getUnitsOf("gs"),params.getUnitsOf("vs")));
 		}	
 		return s.toString();
 	}
@@ -113,11 +98,11 @@ public class DAAFormatter {
 		boolean print_sxyz = false;
 		if (ac.getPosition().isLatLon() && !sxyz) {
 			s.append(", ");
-			s.append(ac.getPosition().lla().toString(get_units(params,"lat"),get_units(params,"lon"),get_units(params,"alt")));
+			s.append(ac.getPosition().lla().toString(params.getUnitsOf("lat"),params.getUnitsOf("lon"),params.getUnitsOf("alt")));
 		} else {
 			print_sxyz = true;
 			s.append(", ");
-			s.append(ac.get_s().toStringNP(get_units(params,"sx"),get_units(params,"sy"),get_units(params,"sz")));
+			s.append(ac.get_s().toStringNP(params.getUnitsOf("sx"),params.getUnitsOf("sy"),params.getUnitsOf("sz")));
 		}
 		if (print_sxyz) { // Print projected ground and air velocities as specified
 			Velocity vel = groundvel ? ac.velocityXYZ().Add(ac.windVector()) : ac.velocityXYZ();
@@ -129,33 +114,33 @@ public class DAAFormatter {
 		if (groundvel) {
 			Velocity vel = print_sxyz ? ac.velocityXYZ() : ac.getAirVelocity();
 			s.append(", ");
-			s.append(f.FmPrecision(vel.compassAngle(get_units(params,"heading"))));
+			s.append(f.FmPrecision(vel.compassAngle(params.getUnitsOf("heading"))));
 			s.append(", ");
-			s.append(f.FmPrecision(vel.groundSpeed(get_units(params,"airspeed"))));
+			s.append(f.FmPrecision(vel.groundSpeed(params.getUnitsOf("airspeed"))));
 		}
 		s.append(", ");
-		s.append(f.FmPrecision(Units.to(get_units(params,"time"),time)));
+		s.append(f.FmPrecision(Units.to(params.getUnitsOf("time"),time)));
 		if (alerter) {
 			s.append(", ");
 			s.append(f.Fmi(ac.getAlerterIndex()));
 		}
 		if (sum) {
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_s_EW_std(get_units(params,"s_EW_std"))));
+			s.append(f.FmPrecision(ac.sum().get_s_EW_std(params.getUnitsOf("s_EW_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_s_NS_std(get_units(params,"s_NS_std"))));
+			s.append(f.FmPrecision(ac.sum().get_s_NS_std(params.getUnitsOf("s_NS_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_s_EN_std(get_units(params,"s_EN_std"))));
+			s.append(f.FmPrecision(ac.sum().get_s_EN_std(params.getUnitsOf("s_EN_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_sz_std(get_units(params,"sz_std"))));
+			s.append(f.FmPrecision(ac.sum().get_sz_std(params.getUnitsOf("sz_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_v_EW_std(get_units(params,"v_EW_std"))));
+			s.append(f.FmPrecision(ac.sum().get_v_EW_std(params.getUnitsOf("v_EW_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_v_NS_std(get_units(params,"v_NS_std"))));
+			s.append(f.FmPrecision(ac.sum().get_v_NS_std(params.getUnitsOf("v_NS_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_v_EN_std(get_units(params,"v_EN_std"))));
+			s.append(f.FmPrecision(ac.sum().get_v_EN_std(params.getUnitsOf("v_EN_std"))));
 			s.append(", ");
-			s.append(f.FmPrecision(ac.sum().get_vz_std(get_units(params,"vz_std"))));
+			s.append(f.FmPrecision(ac.sum().get_vz_std(params.getUnitsOf("vz_std"))));
 		}
 		s.append("\n");
 		return s.toString();
@@ -172,16 +157,12 @@ public class DAAFormatter {
 			alerter = bval;
 		} else if (key.equals("sum")) {
 			sum = bval;
-		} else if (key.equals("internal")) {
-			internal = bval;
-		} else if (key.equals("degrees")) {
-			degrees = bval;
-		} 		
+		} 	
 	}
 
     public String toString() {
         return "sxyz: "+sxyz+", vxyz: "+vxyz+", groundvel: "+groundvel+
-            ", alerter: "+alerter+", sum: "+sum+", internal: "+internal+", degrees: "+degrees;
+            ", alerter: "+alerter+", sum: "+sum;
     }
 
 }

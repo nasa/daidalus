@@ -146,12 +146,13 @@ public abstract class DAABatchProcessor {
 		}
 		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>. If <unit> is not provided,\n\tinternal units are assumed\n");
 		if (!ignoreset.contains("format")) {
-			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, sum,\n");
-			s.append("\tinternal, and degrees. If Boolean value is not provided, true is assumed\n");
+			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, and sum,\n");
+			s.append("\tIf Boolean value is not provided, true is assumed\n");
 		}
-		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
+		s.append(" --SI\n\tPrint values in SI units\n");
 		s.append("  --precision <n>\n\tOutput numbers with specified decimal precision\n");
 		s.append("  --trailingzeros\n\tOutput numbers with trailing zeros\n");
+		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
 		s.append("  --ownship <id>\n\tSpecify a particular aircraft as ownship\n");
 		s.append("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n");
 		s.append("  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
@@ -242,6 +243,8 @@ public abstract class DAABatchProcessor {
 		} else if (arga.startsWith("--trail") || arga.startsWith("-trail")) {
 			trailing_zeros_ = true;
 			DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
+		} else if (arga.startsWith("--SI") || arga.startsWith("-SI")) {
+			DaidalusParameters.OverrideUnitsWithSI = true;
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
 		} else if (!ignoreset.contains("keys") && arga.startsWith("-") && arga.contains("=")) {
