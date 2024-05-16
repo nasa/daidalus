@@ -38,6 +38,9 @@ private:
     void labels_and_units(const DaidalusParameters& params, std::stringstream& strlabels, 
         std::stringstream& strunits, const std::vector<std::string>& labels) const;
 
+    void label_and_unit(const DaidalusParameters& params, std::stringstream& strlabels, 
+        std::stringstream& strunits, const std::string& label) const;
+
     std::string formatted_header(const bool latlon, const DaidalusParameters& params) const;
 
     std::string formattedVelocity(const Velocity& vel, const DaidalusParameters& params) const;

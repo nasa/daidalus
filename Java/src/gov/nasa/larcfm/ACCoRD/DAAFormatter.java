@@ -20,6 +20,7 @@ public class DAAFormatter {
     public boolean sum; 
     public boolean alerter;
     public boolean internal; 
+	public boolean degrees;
 
     public DAAFormatter() {
         sxyz = false;
@@ -28,25 +29,33 @@ public class DAAFormatter {
         sum = true;
         alerter = true;
         internal = false; 
+		degrees = false;
     }
 
     public static final DAAFormatter DefaultDAAFormatter = new DAAFormatter();
 
     private String get_units(DaidalusParameters params, String label) {
         String u = params.getUnitsOf(label);
+		if (Units.isCompatible(u,"rad") && degrees) {
+			return "deg";
+		}
         if (internal) {
             return Units.getCompatibleInternalUnit(u);
         } 
         return u;
     }
 
+	private void label_and_unit(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, String label) {
+		strlabels.append(" ");
+		strlabels.append(label);
+		strunits.append(" [");
+		strunits.append(get_units(params,label));
+		strunits.append("]");
+    }
+
     private void labels_and_units(DaidalusParameters params, StringBuffer strlabels, StringBuffer strunits, List<String> labels) {
         for (String label:labels) {
-            strlabels.append(" ");
-            strlabels.append(label);
-            strunits.append(" [");
-            strunits.append(get_units(params,label));
-            strunits.append("]");
+           label_and_unit(params, strlabels, strunits, label);
         }
     }
 
@@ -68,7 +77,7 @@ public class DAAFormatter {
 		if (groundvel) {
 			labels_and_units(params,labels,units,Arrays.asList("heading","airspeed"));
 		}
-		labels_and_units(params,labels,units,Arrays.asList("time"));
+		label_and_unit(params,labels,units,"time");
 		if (alerter) {
 			labels.append(" alerter");
 			units.append(" [none]");
@@ -125,7 +134,7 @@ public class DAAFormatter {
 			s.append(f.FmPrecision(vel.groundSpeed(get_units(params,"airspeed"))));
 		}
 		s.append(", ");
-		s.append(f.FmPrecision(time));
+		s.append(f.FmPrecision(Units.to(get_units(params,"time"),time)));
 		if (alerter) {
 			s.append(", ");
 			s.append(f.Fmi(ac.getAlerterIndex()));
@@ -152,9 +161,27 @@ public class DAAFormatter {
 		return s.toString();
 	}
 
+	public void setKeyVal(String key, boolean bval) {
+		if (key.equals("sxyz")) {
+			sxyz = bval;
+		} else if (key.equals("vxyz")) {
+			vxyz = bval;
+		} else if (key.equals("groundvel")) {
+			groundvel = bval;
+		} else if (key.equals("alerter")) {
+			alerter = bval;
+		} else if (key.equals("sum")) {
+			sum = bval;
+		} else if (key.equals("internal")) {
+			internal = bval;
+		} else if (key.equals("degrees")) {
+			degrees = bval;
+		} 		
+	}
+
     public String toString() {
         return "sxyz: "+sxyz+", vxyz: "+vxyz+", groundvel: "+groundvel+
-            ", alerter: "+alerter+", sum: "+sum+", internal: "+internal;
+            ", alerter: "+alerter+", sum: "+sum+", internal: "+internal+", degrees: "+degrees;
     }
 
 }

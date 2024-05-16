@@ -25,14 +25,19 @@ namespace larcfm {
         return u;
     }
 
+    void DAAFormatter::label_and_unit(const DaidalusParameters& params, std::stringstream&  strlabels, 
+        std::stringstream&  strunits, const std::string& label) const {
+		strlabels << " " << label;
+		strunits << " [" << get_units(params,label) << "]";
+    }
+
     void DAAFormatter::labels_and_units(const DaidalusParameters& params, std::stringstream&  strlabels, 
         std::stringstream&  strunits, const std::vector<std::string>& labels) const {
 
         for (std::vector<std::string>::const_iterator labels_it = labels.begin();
                 labels_it != labels.end(); ++labels_it) {
             const std::string& label = (*labels_it);
-            strlabels << " " << label;
-            strunits << " [" << get_units(params,label) << "]";
+           	label_and_unit(params,strlabels,strunits,label);
         }
     }
 
@@ -60,8 +65,7 @@ namespace larcfm {
             char const *arraygvel[] = { "heading","airspeed" };
 			labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraygvel),std::end(arraygvel)));
 		}
-        char const *arraytime[] = { "time" };
-		labels_and_units(params,labels,units,std::vector<std::string>(std::begin(arraytime),std::end(arraytime)));
+		label_and_unit(params,labels,units,"time");
 		if (alerter) {
 			labels << " alerter";
 			units << " [none]";
@@ -110,7 +114,7 @@ namespace larcfm {
 			Velocity vel = print_sxyz ? ac.velocityXYZ() : ac.getAirVelocity();
 			s << ", " << FmPrecision(vel.compassAngle(get_units(params,"heading"))) << ", " << FmPrecision(vel.groundSpeed(get_units(params,"airspeed")));
 		}
-		s << ", " << FmPrecision(time);
+		s << ", " << FmPrecision(Units::to(get_units(params,"time"),time));
 		if (alerter) {
 			s << ", " << Fmi(ac.getAlerterIndex());
 		}

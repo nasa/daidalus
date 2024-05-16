@@ -146,7 +146,8 @@ public abstract class DAABatchProcessor {
 		}
 		s.append("  --units <key1>,..,<keyn>:<unit>\n\tOverride the units of keys <key1>,..,<keyn> to <unit>. If <unit> is not provided,\n\tinternal units are assumed\n");
 		if (!ignoreset.contains("format")) {
-			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, sum,\n\tand internal. If Boolean value is not provided, true is assumed\n");
+			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, sum,\n");
+			s.append("\tinternal, and degrees. If Boolean value is not provided, true is assumed\n");
 		}
 		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
 		s.append("  --precision <n>\n\tOutput numbers with specified decimal precision\n");
@@ -440,19 +441,7 @@ public abstract class DAABatchProcessor {
 		for (Map.Entry<String,Boolean> entry : format_.entrySet()) {
 			String key = entry.getKey();
 			boolean bval = entry.getValue();
-			if (key.equals("sxyz")) {
-				formatter.sxyz = bval;
-			} else if (key.equals("vxyz")) {
-				formatter.vxyz = bval;
-			} else if (key.equals("groundvel")) {
-				formatter.groundvel = bval;
-			} else if (key.equals("alerter")) {
-				formatter.alerter = bval;
-			} else if (key.equals("sum")) {
-				formatter.sum = bval;
-			} else if (key.equals("internal")) {
-				formatter.internal = bval;
-			} 		
+			formatter.setKeyVal(key,bval);
 		}
 	}
 
