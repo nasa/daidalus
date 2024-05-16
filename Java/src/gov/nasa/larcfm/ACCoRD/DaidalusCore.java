@@ -259,8 +259,8 @@ public class DaidalusCore {
 					dta_status = 1; //Inside DTA and special bands enabled
 				}
 			}
-			special_band_flags_.set_dta_status(dta_status);
-			special_band_flags_.set_below_min_as(below_min_as_hysteresis_current_value());
+			special_band_flags_.dta_status = dta_status;
+			special_band_flags_.below_min_as = below_min_as_hysteresis_current_value();
 			refresh_mua_eps();
 			cache_ = 1;
 		} 
@@ -902,9 +902,9 @@ public class DaidalusCore {
 		} else {
 			s += "\n";
 		}
-		s += "dta_status_ = "+special_band_flags_.get_dta_status()+"\n";
+		s += "dta_status_ = "+special_band_flags_.dta_status+"\n";
 		s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
-		s += "below_min_as_ = "+special_band_flags_.get_below_min_as()+"\n";
+		s += "below_min_as_ = "+special_band_flags_.below_min_as+"\n";
 		s += "wind_vector = "+wind_vector.toString()+"\n";
 		s += "## Aircraft states relative to wind\n"; 
 		s += raw_traffic_data(); 

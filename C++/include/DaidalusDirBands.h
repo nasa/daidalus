@@ -24,11 +24,15 @@ class DaidalusDirBands : public DaidalusRealBands {
 private:
 
 	/** 
-	 * Set to true if instantanous bands are used below min air speed 
+	 * 0: Special guidance logic when speed is below min airspeed is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
 	 */
-	bool inst_below_min_as;
+	int below_min_as_;
 
   Velocity ownship_vel(const DaidalusParameters& parameters, const TrafficState& ownship) const;
+
+	double ownship_gs(const DaidalusParameters& parameters,const TrafficState& ownship) const;
 
 public:
   DaidalusDirBands();

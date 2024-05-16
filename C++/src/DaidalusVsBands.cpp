@@ -47,7 +47,7 @@ double DaidalusVsBands::get_max_rel(const DaidalusParameters& parameters) const 
 }
 
 void DaidalusVsBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
-  if (special_flags.get_dta_status() > 0.0) {
+  if (special_flags.dta_status > 0) {
     set_min_max_rel(0,-1);
   }
 }

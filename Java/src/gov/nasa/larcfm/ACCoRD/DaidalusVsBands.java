@@ -50,7 +50,7 @@ public class DaidalusVsBands extends DaidalusRealBands {
 	}
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {	
-		if (special_flags.get_dta_status() > 0.0) { 
+		if (special_flags.dta_status > 0) { 
 			set_min_max_rel(0,-1);
 		}
 	}

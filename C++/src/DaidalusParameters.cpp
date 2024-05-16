@@ -1926,20 +1926,20 @@ void DaidalusParameters::setDTAAlerter(int alerter) {
 
 /**
  * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
- * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+ * 0: Special guidance logic when speed is below min airspeed is disabled
  * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
  * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-*/
+ */
 int DaidalusParameters::getHorizontalDirBandsBelowMinAirspeed() const {
   return hdir_bands_below_min_as_;
 }
 
 /**
  * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
- * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+ * 0: Special guidance logic when speed is below min airspeed is disabled
  * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
  * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-*/
+ */
 void DaidalusParameters::setHorizontalDirBandsBelowMinAirspeed(int val) {
   hdir_bands_below_min_as_ = val;
 }

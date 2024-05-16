@@ -17,9 +17,11 @@ import gov.nasa.larcfm.Util.Velocity;
 public class DaidalusDirBands extends DaidalusRealBands {
 
 	/** 
-	 * Set to true if instantanous bands are used below min air speed 
+	 * 0: Special guidance logic when speed is below min airspeed is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
 	 */
-	private boolean inst_below_min_as;
+	private int below_min_as_;
 
 	// min/max is left/right relative to ownship's direction
 	public DaidalusDirBands() {
@@ -55,15 +57,19 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public boolean saturate_corrective_bands(DaidalusParameters parameters, SpecialBandFlags special_flags) {
-		return special_flags.get_dta_status() > 0.0 && parameters.getDTALogic() < 0.0;
+		return special_flags.dta_status > 0 && parameters.getDTALogic() < 0;
 	}
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {
-		inst_below_min_as = special_flags.get_below_min_as() && parameters.getHorizontalDirBandsBelowMinAirspeed() > 0;
+		if (special_flags.below_min_as) {
+			below_min_as_ = parameters.getHorizontalDirBandsBelowMinAirspeed();
+		} else {
+			below_min_as_ = 0;
+		}
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {
-		return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || inst_below_min_as;
+		return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || below_min_as_ > 0;
 	}
 
 	public double own_val(TrafficState ownship) {
@@ -71,7 +77,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public double time_step(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
+		double gso = ownship_gs(parameters,ownship);
 		double omega = parameters.getTurnRate() == 0.0 ? Kinematics.turnRate(gso,parameters.getBankAngle()) : parameters.getTurnRate();
 		if (omega == 0.0) {
 			return 0.0;
@@ -80,9 +86,14 @@ public class DaidalusDirBands extends DaidalusRealBands {
 		}
 	}
 
+	private double ownship_gs(DaidalusParameters parameters, TrafficState ownship) {
+		double gso = below_min_as_ == 0 ? ownship.velocityXYZ().gs() : 
+			Util.max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs());
+		return  Util.max(parameters.getHorizontalSpeedStep(),gso);
+	}
+
 	private Velocity ownship_vel(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = Util.max(parameters.getHorizontalSpeedStep(),Util.max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs()));
-		return ownship.velocityXYZ().mkGs(gso);
+		return ownship.velocityXYZ().mkGs(ownship_gs(parameters,ownship));
 	}
 
 	public Pair<Vect3, Vect3> trajectory(DaidalusParameters parameters, TrafficState ownship, double time, boolean dir, int target_step, boolean instantaneous) {  
@@ -108,7 +119,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 
 	public String rawString() {
 		String s = super.rawString();
-		s += "inst_below_min_as = "+inst_below_min_as+"\n";
+		s += "below_min_as_ = "+below_min_as_+"\n";
 		return s;
 	}
 

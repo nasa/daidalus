@@ -130,10 +130,10 @@ private:
 
 	/**
 	 * Horizontal Direction Bands Logic When Below Min Airspeed: 
-	 * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-	 */
+   * 0: Special guidance logic when speed is below min airspeed is disabled
+   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
+   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+   */
 	int hdir_bands_below_min_as_;
 
   // Alerting logic
@@ -916,18 +916,18 @@ public:
 
   /**
    * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+   * 0: Special guidance logic when speed is below min airspeed is disabled
    * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
    * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-	*/
+   */
   int getHorizontalDirBandsBelowMinAirspeed() const;
 
   /**
    * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
+   * 0: Special guidance logic when speed is below min airspeed is disabled
    * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
    * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-	*/
+   */
   void setHorizontalDirBandsBelowMinAirspeed(int val);
 
   /**
