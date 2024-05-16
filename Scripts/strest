@@ -23,6 +23,7 @@ Valid <options> are
 -c|--conf <confile>		: Use configuration file <confile>
 --ignore=<str1>:..:<strn>	: Ignore differences in lines matching <str1>, ..., or <strn>
 --extension=<ext1>:..:<extn>	: Run extensions <ext1>, ..., and <extn>, where <exti> is one of out, csv, or pvs
+--options <opts>		: Pass options <opts> to DaidalusBatch/DaidalusAlerting
 -v|--verbose			: Print OK and FAILURES (without this option, it only prints FAILURES)
 "
     exit 1 
@@ -35,6 +36,7 @@ DIFF=
 CONFILE=
 EXTENSIONS=
 IGNORESTR=
+OPTIONS=
 
 while [ $# -gt 0 ]
 do
@@ -67,6 +69,9 @@ do
 	-r|--root*)
 	    shift
             DIR=$1;;
+	--options)
+	    shift
+            OPTIONS=$1;;
 	-v|--verbose)
 	    VERBOSE=yes;;
 	-*)
@@ -215,7 +220,7 @@ do_test() {
 	    else
 		output="${CNFG}/${output}.${ext}"
 	    fi
-	    local options="${opt} -config ${CONFILE} -o ${moldir}/${output} ${input}"
+	    local options="${opt} ${OPTIONS} --config ${CONFILE} -o ${moldir}/${output} ${input}"
 	    echo "./Daidalus$prog ${options}"
 	    $DIR/${lang}/Daidalus$prog ${options}
 	done
