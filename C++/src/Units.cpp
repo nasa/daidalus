@@ -248,6 +248,7 @@ const double Units::ft = Units::getFactor("ft");
 const double Units::mm = Units::getFactor("mm");
 
 const double Units::s = Units::getFactor("s");
+const double Units::sec = Units::getFactor("sec");
 const double Units::min = Units::getFactor("min");
 const double Units::hour = Units::getFactor("hour");
 const double Units::day = Units::getFactor("day");
@@ -431,7 +432,7 @@ const std::string Units::canonical(const std::string& unit) {
 	if (unit == "ft^2")
 		return unit;
 
-	if (unit == "s")
+	if (unit == "s" || unit == "sec")
 		return "s";
 	if (unit == "min" || unit == "minute" || unit == "minutes")
 		return "min";
@@ -522,8 +523,8 @@ bool Units::isCompatible(const std::string& unit1p, const std::string& unit2p) {
 				|| unit2 == "mi" || unit2 == "in" || unit2 == "yard" || unit2 == "mm";
 	} else if (unit1 == "ft^2" || unit1 == "m^2") {
 		return unit2 == "ft^2" || unit2 == "m^2";
-	} else if (unit1 == "s" || unit1 == "min" || unit1 == "hour" || unit1 == "ms" || unit1 == "day") {
-		return unit2 == "s" || unit2 == "min" || unit2 == "hour" || unit2 == "ms" || unit2 == "day";
+	} else if (unit1 == "s" || unit1 == "sec" || unit1 == "min" || unit1 == "hour" || unit1 == "ms" || unit1 == "day") {
+		return unit2 == "s" || unit2 == "sec" || unit2 == "min" || unit2 == "hour" || unit2 == "ms" || unit2 == "day";
 	} else if (unit1 == "rad" || unit1 == "deg") {
 		return unit2 == "rad" || unit2 == "deg";
 	} else if (unit1 == "rad/s" || unit1 == "deg/s") {
@@ -561,7 +562,7 @@ std::string Units::getCompatibleInternalUnit(const std::string& unitp) {
 		return  "m";
 	} else if (unit == "ft^2" || unit == "m^2") {
 		return "m^2";
-	} else if (unit == "s" || unit == "min" || unit == "hour" || unit == "ms" || unit == "day") {
+	} else if (unit == "s" || unit == "sec" || unit == "min" || unit == "hour" || unit == "ms" || unit == "day") {
 		return "s";
 	} else if (unit == "rad" || unit == "deg") {
 		return "rad";

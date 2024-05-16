@@ -410,6 +410,8 @@ public final class Units {
 	public static final double second;
 	/** second, base unit of time (SI and US) */
 	public static final double s;
+	/** second, base unit of time (SI and US) */
+	public static final double sec;
 
 	/** base unit of distance (SI) */
 	public static final double meter;
@@ -566,6 +568,7 @@ public final class Units {
 		meter = metre;
 		m = metre;
 		s = second;
+		sec = second;
 		ft = foot;
 		kg = kilogram;
 		lbm = pound_mass;
@@ -891,6 +894,7 @@ public final class Units {
 			addUnit("min", min, "s");
 			addUnit("h", hour, "s");
 			addSimilarUnit("second", "s");
+			addSimilarUnit("sec","s");
 			addSimilarUnit("minute", "min");
 			addSimilarUnit("hour", "h");
 			addSimilarUnit("hr", "h");
