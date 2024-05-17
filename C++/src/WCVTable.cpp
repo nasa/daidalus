@@ -9,6 +9,7 @@
 #include "WCVTable.h"
 #include "format.h"
 #include "ParameterData.h"
+#include "DaidalusParameters.h"
 
 namespace larcfm {
 
@@ -203,7 +204,7 @@ std::string WCVTable::getUnits(const std::string& key) const {
   if (got == units_.end()) {
     return "unspecified";
   }
-  return got->second;
+  return DaidalusParameters::get_overriden_unit(got->second);
 }
 
 bool WCVTable::equals(const WCVTable& t) const {

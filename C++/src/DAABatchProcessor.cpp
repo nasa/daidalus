@@ -75,9 +75,10 @@ std::string DAABatchProcessor::help_string() const {
 	if (!disabled_option("format")) {
 		s << "  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, sum,\n\tand internal. If Boolean value is not provided, true is assumed" << std::endl;
 	}
-	s << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
+	s << "  --SI[~angle][~distance][~speed][~acceleration][~time]\n\tOverride units with SI [except angles/angular rates, distances, speeds, accelerations, or times]" << std::endl;
 	s << "  --precision <n>\n\tOutput numbers with specified decimal precision" << std::endl;
 	s << "  --trailingzeros\n\tOutput numbers with trailing zeros" << std::endl;
+	s << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
 	s << "  --ownship <id>\n\tSpecify a particular aircraft as ownship" << std::endl;
 	s << "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic" << std::endl;
 	s << "  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively" << std::endl;
@@ -94,10 +95,6 @@ std::string DAABatchProcessor::help_string() const {
 	s << "  --version\n\tPrint DAIDALUS version and exit" << std::endl;
 	s << "  --help\n\tPrint this message" << std::endl;
 	return s.str();    
-}
-
-double parse_double(const std::string& str) {
-	return Util::is_double(str) ? Util::parse_double(str) : NAN;
 }
 
 // from is 1, to is -1, at is 0
@@ -148,6 +145,92 @@ void DAABatchProcessor::parse_time(int from_to_at, const std::string& arga) {
 	}		
 }
 
+void DAABatchProcessor::parse_no_SI(const std::string& no_sis) {
+	bool si[] = {true,true,true,true,true}; // angle, distance, speed, acceleration, and time
+	std::vector<std::string> arr_of_nosis = split(no_sis,"~");
+	for (std::vector<std::string>::const_iterator arr_of_nosis_it = arr_of_nosis.begin();
+		arr_of_nosis_it != arr_of_nosis.end();++arr_of_nosis_it) {
+		const std::string& nosi = *arr_of_nosis_it;
+		if (nosi == "angle") {
+			si[0] = false;
+		} else if (nosi == "distance") {
+			si[1] = false;
+		} else if (nosi == "speed") {
+			si[2] = false;
+		} else if (nosi == "acceleration") {
+			si[3] = false;
+		} else if (nosi == "time") {
+			si[4] = false;
+		}
+	}
+	DaidalusParameters::overrideUnitsWithSI(si[0],si[1],si[2],si[3],si[4]);
+}
+
+void DAABatchProcessor::parse_units(const std::string& keys) {
+	std::string unit = "internal";
+	const size_t pos = keys.find(":");
+	std::string nkeys = keys;
+	if (pos != std::string::npos) {
+		unit = keys.substr(pos+1);
+		nkeys = keys.substr(0,pos);
+	}
+	std::vector<std::string> arr_of_keys = split(nkeys,",");
+	for (std::vector<std::string>::const_iterator arr_of_keys_it = arr_of_keys.begin();
+		arr_of_keys_it != arr_of_keys.end(); ++arr_of_keys_it) {
+		const std::string& key = *arr_of_keys_it;
+		units_[key]=unit;
+	}
+}
+
+void DAABatchProcessor::parse_format(const std::string& keys) {
+	bool enable = true;
+	size_t pos = keys.find(":");
+	std::string nkeys = keys;
+	if (pos != std::string::npos) {
+		enable = toLowerCase(keys.substr(pos+1)) != "false";
+		nkeys = keys.substr(0,pos);
+	}
+	std::vector<std::string> arr_of_keys = split(nkeys,",");
+	for (std::vector<std::string>::const_iterator arr_of_keys_it = arr_of_keys.begin();
+		arr_of_keys_it != arr_of_keys.end(); ++arr_of_keys_it) {
+		const std::string& key = *arr_of_keys_it;
+		format_[key] = enable;
+	}
+}
+
+void DAABatchProcessor::parse_location(const std::string& arga) {
+	StateReader reader;
+	reader.open(arga);
+	if (reader.hasError()) {
+		std::cerr << "** Error: " << reader.getMessage() << std::endl;
+		exit(1);
+	}
+	ParameterData platlon = reader.getParameters();
+	if (platlon.contains("lat")) {
+		lat_ = platlon.getValue("lat");
+	}
+	if (platlon.contains("latitude")) {
+		lat_ = platlon.getValue("latitude");
+	}
+	if (platlon.contains("lon")) {
+		lon_ = platlon.getValue("lon");
+	}
+	if (platlon.contains("longitude")) {
+		lon_ = platlon.getValue("longitude");
+	}
+}
+
+double DAABatchProcessor::parse_double(const std::string& arga, const std::string& units) {
+	if (Util::is_double(arga)) {
+		double val = Util::parse_double(arga);
+		return units.empty() ? val : Units::from(units,val);
+	} else {
+		std::cerr << "** Error: " << arga << " is not a valid number" << std::endl;
+		exit(1);
+	} 
+	return 0.0;
+}
+
 int DAABatchProcessor::processOptions(const char* args[], const int argc, const int i) {
 	int a=i;
 	std::string arga = args[a];
@@ -166,39 +249,17 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 	} else if (startsWith(arga,"--trail") || startsWith(arga,"-trail")) {
 		trailing_zeros_ = true;
 		DaidalusParameters::setDefaultOutputPrecision(precision_,trailing_zeros_);
+	} else if (startsWith(arga,"--SI") || startsWith(arga,"-SI")) {
+		parse_no_SI(arga.substr(startsWith(arga,"--")?4:3));
 	} else if ((startsWith(arga,"--out") || startsWith(arga,"-out") || arga == "-o") && a+1 < argc) {
 		output_file_ = args[++a];
 	} else if (!disabled_option("keys") && startsWith(arga,"-") && contains(arga,"=")) {
 		std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
 		parameters.set(keyval); 
 	} else if ((startsWith(arga,"--units") || startsWith(arga,"-units")) && a+1 < argc) {
-		std::string keys = args[++a];
-		std::string unit = "internal";
-		const size_t pos = keys.find(":");
-		if (pos != std::string::npos) {
-			unit = keys.substr(pos+1);
-			keys = keys.substr(0,pos);
-		}
-		std::vector<std::string> arr_of_keys = split(keys,",");
-		for (std::vector<std::string>::const_iterator arr_of_keys_it = arr_of_keys.begin();
-			arr_of_keys_it != arr_of_keys.end(); ++arr_of_keys_it) {
-			const std::string& key = *arr_of_keys_it;
-			units_[key]=unit;
-		}
+		parse_units(args[++a]);
 	} else if (!disabled_option("format") && (startsWith(arga,"--format") || startsWith(arga,"-format")) && a+1 < argc) {
-		std::string keys = args[++a];
-		bool enable = true;
-		size_t pos = keys.find(":");
-		if (pos != std::string::npos) {
-			enable = toLowerCase(keys.substr(pos+1)) != "false";
-			keys = keys.substr(0,pos);
-		}
-		std::vector<std::string> arr_of_keys = split(keys,",");
-		for (std::vector<std::string>::const_iterator arr_of_keys_it = arr_of_keys.begin();
-			arr_of_keys_it != arr_of_keys.end(); ++arr_of_keys_it) {
-			const std::string& key = *arr_of_keys_it;
-			format_[key] = enable;
-		}
+		parse_format(args[++a]);
 	} else if ((startsWith(arga,"--own") || startsWith(arga,"-own")) && a+1 < argc) { 
 		ownship_ = args[++a];
 	} else if ((startsWith(arga,"--traf") || startsWith(arga,"-traf")) && a+1 < argc) { 
@@ -213,44 +274,11 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 	} else if (!disabled_option("dontskip") && (startsWith(arga,"--dont") || startsWith(arga,"-dont"))) {
 		skip_ = false;
 	} else if (!disabled_option("location") && (startsWith(arga,"--lat") || startsWith(arga,"-lat")) && a+1 < argc) {
-		++a;
-		lat_ = parse_double(args[a]);
-		if (ISNAN(lat_)) {
-			std::cerr << "** Error: " << args[a] << " is not a valid latitude" << std::endl;
-			exit(1);
-		} else {
-			lat_ = Units::from("deg",lat_);
-		}
+		lat_ = parse_double(args[++a],"deg");
 	} else if (!disabled_option("location") && (startsWith(arga,"--lon") || startsWith(arga,"-lon")) && a+1 < argc) {
-		++a;
-		lon_ = parse_double(args[a]);
-		if (ISNAN(lon_)) {
-			std::cerr << "** Error: " << args[a] << " is not a valid longitude" << std::endl;
-			exit(1);
-		} else {
-			lon_ = Units::from("deg",lon_);
-		}
+		lon_ = parse_double(args[++a],"deg");
 	} else if (!disabled_option("location") && (startsWith(arga,"--loc") || startsWith(arga,"-loc")) && a+1 < argc) {	
-		++a;
-		StateReader reader;
-		reader.open(args[a]);
-		if (reader.hasError()) {
-			std::cerr << "** Error: " << reader.getMessage() << std::endl;
-			exit(1);
-		}
-		ParameterData platlon = reader.getParameters();
-		if (platlon.contains("lat")) {
-			lat_ = platlon.getValue("lat");
-		}
-		if (platlon.contains("latitude")) {
-			lat_ = platlon.getValue("latitude");
-		}
-		if (platlon.contains("lon")) {
-			lon_ = platlon.getValue("lon");
-		}
-		if (platlon.contains("longitude")) {
-			lon_ = platlon.getValue("longitude");
-		}
+		parse_location(args[++a]);
 	} else if (arga == "--help" || arga == "-help" || arga == "-h") {
 		print_help_string();
 	} else if (arga == "--version" || arga == "-version") {
@@ -370,19 +398,7 @@ void DAABatchProcessor::setDAAFormatter(const DaidalusFileWalker& walker) {
 		format_it != format_.end(); ++ format_it) {
 		const std::string& key = format_it->first;
 		bool bval = format_it->second;
-		if (key  == "sxyz") {
-			formatter.sxyz = bval;
-		} else if (key  == "vxyz") {
-			formatter.vxyz = bval;
-		} else if (key  == "groundvel") {
-			formatter.groundvel = bval;
-		} else if (key  == "alerter") {
-			formatter.alerter = bval;
-		} else if (key  == "sum") {
-			formatter.sum = bval;
-		} else if (key  == "internal") {
-			formatter.internal = bval;
-		} 		
+		formatter.setKeyVal(key,bval);
 	}
 }
 

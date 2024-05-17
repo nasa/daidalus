@@ -22,6 +22,18 @@ class DaidalusParameters : public ErrorReporter, public ParameterAcceptor {
 
 private:
 
+	/**
+	 * This variable overrides the unit returned by the method getUnitsOf so that it returns 
+	 * internal units (SI) instead of the specified unit in the DaidalusParameter object.
+	 * Index 0: angle or angular rate
+	 * Index 1: distance
+	 * Index 2: speed
+	 * Index 3: acceleration
+	 * Index 4: time 
+	 * Setting the value of an index to false disables the overriding.
+	 */
+	static bool SI_[];
+
   std::vector<Alerter> alerters_;
 
   ErrorLog error;
@@ -175,6 +187,12 @@ public:
    */
   static const std::string VERSION;
   static const INT64FM ALMOST_;
+
+  static void overrideUnitsWithSI(bool angle, bool distance, bool speed, bool acceleration, bool time);
+
+  static void overrideUnitsWithSI();
+
+  static std::string get_overriden_unit(const std::string& units);
 
   /**
    * The following method set default output precision and enable/disable trailing zeros.

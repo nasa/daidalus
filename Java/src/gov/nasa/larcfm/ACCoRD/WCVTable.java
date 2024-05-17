@@ -287,7 +287,7 @@ public class WCVTable implements ParameterTable {
 		if (u == null) {
 			return "unspecified";
 		}
-		return u;
+		return DaidalusParameters.get_overriden_unit(u);
 	}
 
 	public String toString() {

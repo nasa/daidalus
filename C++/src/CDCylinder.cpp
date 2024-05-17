@@ -85,7 +85,7 @@ std::string CDCylinder::getUnits(const std::string& key) const {
   if (got == units_.end()) {
     return "unspecified";
   }
-  return got->second;
+  return DaidalusParameters::get_overriden_unit(got->second);
 }
 
 double CDCylinder::getHorizontalSeparation() const {

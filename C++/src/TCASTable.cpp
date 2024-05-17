@@ -664,11 +664,11 @@ ParameterData TCASTable::getParameters() const {
 }
 
 std::string TCASTable::getUnits(const std::string& key) const {
-  std::string u = units_.at(key);
-  if (larcfm::equals(u, "")) {
+  std::map<std::string,std::string>::const_iterator got = units_.find(key);
+  if (got == units_.end()) {
     return "unspecified";
   }
-  return u;
+  return DaidalusParameters::get_overriden_unit(got->second);
 }
 
 void TCASTable::updateParameterData(ParameterData& p) const {

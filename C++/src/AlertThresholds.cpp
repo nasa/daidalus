@@ -4,6 +4,8 @@
  * is claimed in the United States under Title 17, U.S.Code. All Other
  * Rights Reserved.
  */
+
+#include "DaidalusParameters.h"
 #include "AlertThresholds.h"
 #include "Vect3.h"
 #include "Util.h"
@@ -411,7 +413,7 @@ std::string AlertThresholds::getUnits(const std::string& key) const {
   if (got == units_.end()) {
     return "unspecified";
   }
-  return got->second;
+  return DaidalusParameters::get_overriden_unit(got->second);
 }
 
 }

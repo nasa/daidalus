@@ -41,6 +41,11 @@ private:
 	void parse_time(int from_to_at, const std::string& arga);
 	void print_help_string() const;
 	bool disabled_option(const std::string& str) const;
+	void parse_no_SI(const std::string& no_sis);
+	void parse_units(const std::string& keys);
+	void parse_format(const std::string& keys);
+	void parse_location(const std::string& arga);
+	static double parse_double(const std::string& arga, const std::string& units = "");
 
 public:
 	std::set<std::string> ignoreset; // Ignore options

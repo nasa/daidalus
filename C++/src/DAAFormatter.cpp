@@ -10,29 +10,21 @@
 namespace larcfm {
 
 
-    DAAFormatter::DAAFormatter(): sxyz(false), vxyz(false), groundvel(true), sum(true), alerter(true), internal(false) {}
+    DAAFormatter::DAAFormatter(): sxyz(false), vxyz(false), groundvel(true), sum(true), alerter(true) {}
 
     const DAAFormatter& DAAFormatter::DefaultDAAFormatter() {
     	const static DAAFormatter formatter;
     	return formatter;
     }
 
-    std::string DAAFormatter::get_units(const DaidalusParameters& params, const std::string& label) const {
-        std::string u = params.getUnitsOf(label);
-        if (internal) {
-            return Units::getCompatibleInternalUnit(u);
-        } 
-        return u;
-    }
-
     void DAAFormatter::label_and_unit(const DaidalusParameters& params, std::stringstream&  strlabels, 
-        std::stringstream&  strunits, const std::string& label) const {
+        std::stringstream&  strunits, const std::string& label) {
 		strlabels << " " << label;
-		strunits << " [" << get_units(params,label) << "]";
+		strunits << " [" << params.getUnitsOf(label) << "]";
     }
 
     void DAAFormatter::labels_and_units(const DaidalusParameters& params, std::stringstream&  strlabels, 
-        std::stringstream&  strunits, const std::vector<std::string>& labels) const {
+        std::stringstream&  strunits, const std::vector<std::string>& labels) {
 
         for (std::vector<std::string>::const_iterator labels_it = labels.begin();
                 labels_it != labels.end(); ++labels_it) {
@@ -82,9 +74,9 @@ namespace larcfm {
     std::string DAAFormatter::formattedVelocity(const Velocity& vel, const DaidalusParameters& params) const {
 		std::stringstream s;
 		if (vxyz) {
-			s << ", " << vel.vect3().toStringNP(get_units(params,"vx"),get_units(params,"vy"),get_units(params,"vz"));
+			s << ", " << vel.vect3().toStringNP(params.getUnitsOf("vx"),params.getUnitsOf("vy"),params.getUnitsOf("vz"));
 		} else {
-			s << ", " << vel.toStringNP(get_units(params,"trk"),get_units(params,"gs"),get_units(params,"vs"));
+			s << ", " << vel.toStringNP(params.getUnitsOf("trk"),params.getUnitsOf("gs"),params.getUnitsOf("vs"));
 		}	
 		return s.str();
 	}
@@ -98,10 +90,10 @@ namespace larcfm {
 		s << ac.getId();
 		bool print_sxyz = false;
 		if (ac.getPosition().isLatLon() && !sxyz) {
-			s << ", " << ac.getPosition().lla().toString(get_units(params,"lat"),get_units(params,"lon"),get_units(params,"alt"));
+			s << ", " << ac.getPosition().lla().toString(params.getUnitsOf("lat"),params.getUnitsOf("lon"),params.getUnitsOf("alt"));
 		} else {
 			print_sxyz = true;
-			s << ", " << ac.get_s().toStringNP(get_units(params,"sx"),get_units(params,"sy"),get_units(params,"sz"));
+			s << ", " << ac.get_s().toStringNP(params.getUnitsOf("sx"),params.getUnitsOf("sy"),params.getUnitsOf("sz"));
 		}
 		if (print_sxyz) { // Print projected ground and air velocities as specified
 			Velocity vel = groundvel ? ac.velocityXYZ().Add(ac.windVector()) : ac.velocityXYZ();
@@ -112,30 +104,44 @@ namespace larcfm {
 		} 
 		if (groundvel) {
 			Velocity vel = print_sxyz ? ac.velocityXYZ() : ac.getAirVelocity();
-			s << ", " << FmPrecision(vel.compassAngle(get_units(params,"heading"))) << ", " << FmPrecision(vel.groundSpeed(get_units(params,"airspeed")));
+			s << ", " << FmPrecision(vel.compassAngle(params.getUnitsOf("heading"))) << ", " << FmPrecision(vel.groundSpeed(params.getUnitsOf("airspeed")));
 		}
-		s << ", " << FmPrecision(Units::to(get_units(params,"time"),time));
+		s << ", " << FmPrecision(Units::to(params.getUnitsOf("time"),time));
 		if (alerter) {
 			s << ", " << Fmi(ac.getAlerterIndex());
 		}
 		if (sum) {
-			s << ", " << FmPrecision(ac.sum().get_s_EW_std(get_units(params,"s_EW_std")))
-				<< ", " << FmPrecision(ac.sum().get_s_NS_std(get_units(params,"s_NS_std")))
-				<< ", " << FmPrecision(ac.sum().get_s_EN_std(get_units(params,"s_EN_std")))
-				<< ", " << FmPrecision(ac.sum().get_sz_std(get_units(params,"sz_std")))
-				<< ", " << FmPrecision(ac.sum().get_v_EW_std(get_units(params,"v_EW_std")))
-				<< ", " << FmPrecision(ac.sum().get_v_NS_std(get_units(params,"v_NS_std")))
-				<< ", " << FmPrecision(ac.sum().get_v_EN_std(get_units(params,"v_EN_std")))
-				<< ", " << FmPrecision(ac.sum().get_vz_std(get_units(params,"vz_std")));
+			s << ", " << FmPrecision(ac.sum().get_s_EW_std(params.getUnitsOf("s_EW_std")))
+				<< ", " << FmPrecision(ac.sum().get_s_NS_std(params.getUnitsOf("s_NS_std")))
+				<< ", " << FmPrecision(ac.sum().get_s_EN_std(params.getUnitsOf("s_EN_std")))
+				<< ", " << FmPrecision(ac.sum().get_sz_std(params.getUnitsOf("sz_std")))
+				<< ", " << FmPrecision(ac.sum().get_v_EW_std(params.getUnitsOf("v_EW_std")))
+				<< ", " << FmPrecision(ac.sum().get_v_NS_std(params.getUnitsOf("v_NS_std")))
+				<< ", " << FmPrecision(ac.sum().get_v_EN_std(params.getUnitsOf("v_EN_std")))
+				<< ", " << FmPrecision(ac.sum().get_vz_std(params.getUnitsOf("vz_std")));
 		}
 		s << "\n";
 		return s.str();
 	}
 
+	void DAAFormatter::setKeyVal(const std::string& key, bool bval) {
+		if (key == "sxyz") {
+			sxyz = bval;
+		} else if (key == "vxyz") {
+			vxyz = bval;
+		} else if (key == "groundvel") {
+			groundvel = bval;
+		} else if (key == "alerter") {
+			alerter = bval;
+		} else if (key == "sum") {
+			sum = bval;
+		} 		
+	}
+
     std::string DAAFormatter::toString() const {
         std::string str;
         str = "sxyz: "+Fmb(sxyz)+", vxyz: "+Fmb(vxyz)+", groundvel: "+Fmb(groundvel)+
-            ", alerter: "+Fmb(alerter)+", sum: "+Fmb(sum)+", internal: "+Fmb(internal);
+            ", alerter: "+Fmb(alerter)+", sum: "+Fmb(sum);
         return str;
     }
 

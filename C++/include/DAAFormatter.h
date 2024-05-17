@@ -20,7 +20,6 @@ public:
     bool groundvel;
     bool sum; 
     bool alerter;
-    bool internal; 
 
     DAAFormatter();
 
@@ -31,15 +30,15 @@ public:
 
     std::string toString() const;
 
+    void setKeyVal(const std::string& key, bool bval); 
+
 private:
 
-    std::string get_units(const DaidalusParameters& params, const std::string& label) const;
+    static void labels_and_units(const DaidalusParameters& params, std::stringstream& strlabels, 
+        std::stringstream& strunits, const std::vector<std::string>& labels);
 
-    void labels_and_units(const DaidalusParameters& params, std::stringstream& strlabels, 
-        std::stringstream& strunits, const std::vector<std::string>& labels) const;
-
-    void label_and_unit(const DaidalusParameters& params, std::stringstream& strlabels, 
-        std::stringstream& strunits, const std::string& label) const;
+    static void label_and_unit(const DaidalusParameters& params, std::stringstream& strlabels, 
+        std::stringstream& strunits, const std::string& label);
 
     std::string formatted_header(const bool latlon, const DaidalusParameters& params) const;
 

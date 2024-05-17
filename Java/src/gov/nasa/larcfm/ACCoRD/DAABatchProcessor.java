@@ -149,7 +149,7 @@ public abstract class DAABatchProcessor {
 			s.append("  --format <key1>,..,<keyn>:[true|false]\n\tEnable/disable format keys <key1>,..,<keyn>. Format keys are sxyz, vxyz, groundvel, alerter, and sum,\n");
 			s.append("\tIf Boolean value is not provided, true is assumed\n");
 		}
-		s.append(" --SI\n\tPrint values in SI units\n");
+		s.append("  --SI[~angle][~distance][~speed][~acceleration][~time]\n\tOverride units with SI [except angles/angular rates, distances, speeds, accelerations, or times]\n");
 		s.append("  --precision <n>\n\tOutput numbers with specified decimal precision\n");
 		s.append("  --trailingzeros\n\tOutput numbers with trailing zeros\n");
 		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
@@ -220,6 +220,93 @@ public abstract class DAABatchProcessor {
 		}		
 	}
 
+	private void parse_no_SI(String no_sis) {
+		boolean[] si = {true,true,true,true,true}; // angle, distance, speed, acceleration, and time
+		String[] arr_of_nosis = no_sis.split("~");
+		for (String nosi:arr_of_nosis) {
+			if (nosi.equals("angle")) {
+				si[0] = false;
+			} else if (nosi.equals("distance")) {
+				si[1] = false;
+			} else if (nosi.equals("speed")) {
+				si[2] = false;
+			} else if (nosi.equals("acceleration")) {
+				si[3] = false;
+			} else if (nosi.equals("time")) {
+				si[4] = false;
+			}
+		}
+		DaidalusParameters.overrideUnitsWithSI(si[0],si[1],si[2],si[3],si[4]);
+	}
+
+	private void parse_units(String keys) {
+		String unit = "internal";
+		int pos = keys.indexOf(":",0);
+		if (pos >= 0) {
+			unit = keys.substring(pos+1);
+			keys = keys.substring(0,pos);
+		}
+		String[] arr_of_keys = keys.split(",");
+		for (String key : arr_of_keys) {
+			units_.put(key,unit);
+		}
+	}
+
+	private void parse_format(String keys) {
+		boolean enable = true;
+		int pos = keys.indexOf(":",0);
+		if (pos >= 0) {
+			enable = !keys.substring(pos+1).toLowerCase().equals("false");
+			keys = keys.substring(0,pos);
+		}
+		String[] arr_of_keys = keys.split(",");
+		for (String key : arr_of_keys) {
+			format_.put(key,enable);
+		}
+	}
+
+	private void parse_location(String arga) {
+		ConfigReader reader = new ConfigReader();
+		reader.open(arga);
+		if (reader.hasError()) {
+			System.err.print("** Error: "+reader.getMessage());
+			System.exit(1);
+		}
+		ParameterData platlon = reader.getParameters();
+		if (platlon.contains("lat")) {
+			lat_ = platlon.getValue("lat");
+		}
+		if (platlon.contains("latitude")) {
+			lat_ = platlon.getValue("latitude");
+		}
+		if (platlon.contains("lon")) {
+			lon_ = platlon.getValue("lon");
+		}
+		if (platlon.contains("longitude")) {
+			lon_ = platlon.getValue("longitude");
+		}
+	}
+
+	private static int parse_int(String arga) {
+		try {
+			return Integer.parseInt(arga);
+		} catch (NumberFormatException e) {
+			System.err.println("** Error: "+arga+" is not a valid integer");
+			System.exit(1);
+		}
+		return 0;
+	}
+
+	private static double parse_double(String arga, String units) {
+		try {
+			return Units.from(units,Double.parseDouble(arga));
+		} catch (NumberFormatException e) {
+			System.err.println("** Error: "+arga+" is not a valid number");
+			System.exit(1);
+		}
+		return 0.0;
+	}
+
 	public int processOptions(String[] args, int i) {
 		int a=i;
 		String arga = args[a];
@@ -233,47 +320,22 @@ public abstract class DAABatchProcessor {
 			// Use the given configuration, but disable hysteresis
 			no_hyst_ = true;
 		} else if ((arga.startsWith("--prec") || arga.startsWith("-prec")) && a+1 < args.length) {
-			try {
-				precision_ = Integer.parseInt(args[++a]);
-				DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
-			} catch (NumberFormatException e) {
-				System.err.println("** Error: "+args[a]+" is not a valid number");
-				System.exit(1);
-			}
+			precision_ = parse_int(args[++a]);
+			DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 		} else if (arga.startsWith("--trail") || arga.startsWith("-trail")) {
 			trailing_zeros_ = true;
 			DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
 		} else if (arga.startsWith("--SI") || arga.startsWith("-SI")) {
-			DaidalusParameters.OverrideUnitsWithSI = true;
+			parse_no_SI(arga.substring(arga.startsWith("--")?4:3));
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
 		} else if (!ignoreset.contains("keys") && arga.startsWith("-") && arga.contains("=")) {
 			String keyval = arga.substring(arga.startsWith("--")?2:1);
 			parameters.set(keyval); 
 		} else if ((arga.startsWith("--units") || arga.startsWith("-units")) && a+1 < args.length) {
-			String keys = args[++a];
-			String unit = "internal";
-			int pos = keys.indexOf(":",0);
-			if (pos >= 0) {
-				unit = keys.substring(pos+1);
-				keys = keys.substring(0,pos);
-			}
-			String[] arr_of_keys = keys.split(",");
-	        for (String key : arr_of_keys) {
-				units_.put(key,unit);
-			}
+			parse_units(args[++a]);
 		} else if (!ignoreset.contains("format") && (arga.startsWith("--format") || arga.startsWith("-format")) && a+1 < args.length) {
-			String keys = args[++a];
-			boolean enable = true;
-			int pos = keys.indexOf(":",0);
-			if (pos >= 0) {
-				enable = !keys.substring(pos+1).toLowerCase().equals("false");
-				keys = keys.substring(0,pos);
-			}
-			String[] arr_of_keys = keys.split(",");
-	        for (String key : arr_of_keys) {
-				format_.put(key,enable);
-			}
+			parse_format(args[++a]);
 		} else if ((arga.startsWith("--own") || arga.startsWith("-own")) && a+1 < args.length) { 
 			ownship_ = args[++a];
 		} else if ((arga.startsWith("--traf") || arga.startsWith("-traf")) && a+1 < args.length) { 
@@ -287,42 +349,11 @@ public abstract class DAABatchProcessor {
 		} else if (!ignoreset.contains("dontskip") && (arga.startsWith("--dont") || arga.startsWith("-dont"))) {
 			skip_ = false;
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--lat") || arga.startsWith("-lat")) && a+1 < args.length) {
-			++a;
-			try {
-				lat_ = Units.from("deg",Double.parseDouble(args[a]));
-			} catch (NumberFormatException e) {
-				System.err.println("** Error: "+args[a]+" is not a valid latitude");
-				System.exit(1);
-			}
+			lat_ = parse_double(args[++a],"deg");
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--lon") || arga.startsWith("-lon")) && a+1 < args.length) {
-			++a;
-			try {
-				lon_ = Units.from("deg",Double.parseDouble(args[a]));
-			} catch (NumberFormatException e) {
-				System.err.println("** Error: "+args[a]+" is not a valid longitude");
-				System.exit(1);
-			}
+			lon_ = parse_double(args[++a],"deg");
 		} else if (!ignoreset.contains("location") && (arga.startsWith("--loc") || arga.startsWith("-loc")) && a+1 < args.length) {	
-			++a;
-			ConfigReader reader = new ConfigReader();
-			reader.open(args[a]);
-			if (reader.hasError()) {
-				System.err.print("** Error: "+reader.getMessage());
-				System.exit(1);
-			}
-			ParameterData platlon = reader.getParameters();
-			if (platlon.contains("lat")) {
-				lat_ = platlon.getValue("lat");
-			}
-			if (platlon.contains("latitude")) {
-				lat_ = platlon.getValue("latitude");
-			}
-			if (platlon.contains("lon")) {
-				lon_ = platlon.getValue("lon");
-			}
-			if (platlon.contains("longitude")) {
-				lon_ = platlon.getValue("longitude");
-			}
+			parse_location(args[++a]);
 		} else if (arga.equals("--help") || arga.equals("-help") || arga.equals("-h")) {
 			print_help_string();
 		} else if (arga.equals("--version") || arga.equals("-version")) {

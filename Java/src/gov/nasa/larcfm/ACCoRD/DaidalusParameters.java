@@ -38,10 +38,40 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 	/**
 	 * This variable overrides the unit returned by the method getUnitsOf so that it returns 
-	 * internal units (SI) instead of the specified unit in the DaidalusParameter object. 
-	 * Setting the value to false disables the overriding.
+	 * internal units (SI) instead of the specified unit in the DaidalusParameter object.
+	 * Index 0: angle or angular rate
+	 * Index 1: distance
+	 * Index 2: speed
+	 * Index 3: acceleration
+	 * Index 4: time 
+	 * Setting the value of an index to false disables the overriding.
 	 */
-	public static boolean OverrideUnitsWithSI = false; 
+	private static boolean[] SI_ = {false,false,false,false,false}; 
+
+	public static void overrideUnitsWithSI(boolean angle, boolean distance, boolean speed, boolean acceleration, boolean time) {
+		SI_[0] = angle;
+		SI_[1] = distance;
+		SI_[2] = speed;
+		SI_[3] = acceleration;
+		SI_[4] = time;
+	}
+
+	public static void overrideUnitsWithSI() {
+		overrideUnitsWithSI(true, true, true, true, true);
+	}
+
+	public static String get_overriden_unit(String units) {
+		if (units.equals("unspecified")) {
+			return units;
+		} else if ( (SI_[0] && (Units.isCompatible(units,"rad") || Units.isCompatible(units,"rad/s"))) ||
+					(SI_[1] && Units.isCompatible(units,"m")) || 
+					(SI_[2] && Units.isCompatible(units,"m/s")) || 
+					(SI_[3] && Units.isCompatible(units,"G")) ||
+					(SI_[4] && Units.isCompatible(units,"s"))) {
+			return Units.getCompatibleInternalUnit(units);
+		}
+		return units;
+	}
 
 	static {
 		Constants.set_output_precision(10);
@@ -3534,10 +3564,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		if (u == null) {
 			u = units_of_daa_key(key);
 		}
-		if (u.equals("unspecified") || !OverrideUnitsWithSI) {
-			return u;
-		}
-		return Units.getCompatibleInternalUnit(u);
+		return get_overriden_unit(u);
 	}
 
 	/** 

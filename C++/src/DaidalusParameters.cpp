@@ -24,6 +24,7 @@ namespace larcfm {
 const std::string DaidalusParameters::VERSION = "2.0.4a";
 const INT64FM DaidalusParameters::ALMOST_ = PRECISION5;
 bool DaidalusParameters::initialized = false;
+bool DaidalusParameters::SI_[] = {false,false,false,false,false}; 
 
 void DaidalusParameters::init() {
   if (!initialized) {
@@ -31,6 +32,31 @@ void DaidalusParameters::init() {
     Constants::set_trailing_zeros(false);
     initialized = true;
   }
+}
+
+void DaidalusParameters::overrideUnitsWithSI(bool angle, bool distance, bool speed, bool acceleration, bool time) {
+  SI_[0] = angle;
+	SI_[1] = distance;
+	SI_[2] = speed;
+	SI_[3] = acceleration;
+	SI_[4] = time;
+}
+
+void DaidalusParameters::overrideUnitsWithSI() {
+  overrideUnitsWithSI(true, true, true, true, true);
+}
+
+std::string DaidalusParameters:: get_overriden_unit(const std::string& units) {
+  if (units == "unspecified") {
+    return units;
+  } else if ( (SI_[0] && (Units::isCompatible(units,"rad") || Units::isCompatible(units,"rad/s"))) ||
+        (SI_[1] && Units::isCompatible(units,"m")) || 
+        (SI_[2] && Units::isCompatible(units,"m/s")) || 
+        (SI_[3] && Units::isCompatible(units,"G")) ||
+        (SI_[4] && Units::isCompatible(units,"s"))) {
+    return Units::getCompatibleInternalUnit(units);
+  }
+  return units;
 }
 
 /* NOTE: By default, no alert levels are configured */
@@ -2817,10 +2843,8 @@ std::string DaidalusParameters::cannonical_key(const std::string& keystr) const 
 std::string DaidalusParameters::getUnitsOf(const std::string& keystr) const {
   std::string key = cannonical_key(keystr);
   std::map<std::string,std::string>::const_iterator find_ptr = units_.find(key);
-  if (find_ptr != units_.end()) {
-    return find_ptr->second;
-  }
-  return units_of_daa_key(key);
+  std::string u = find_ptr != units_.end() ? find_ptr->second : units_of_daa_key(key);
+  return get_overriden_unit(u);
 }
 
 /** 

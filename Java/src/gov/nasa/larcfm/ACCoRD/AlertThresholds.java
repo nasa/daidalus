@@ -392,7 +392,7 @@ public class AlertThresholds implements ParameterAcceptor {
 		if (u == null) {
 			return "unspecified";
 		}
-		return u;
+		return DaidalusParameters.get_overriden_unit(u);
 	}
 
 }

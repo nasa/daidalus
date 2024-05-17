@@ -657,7 +657,7 @@ public class TCASTable implements ParameterTable {
 		if (u == null) {
 			return "unspecified";
 		}
-		return u;
+		return DaidalusParameters.get_overriden_unit(u);
 	}
 
 	public void updateParameterData(ParameterData p) {
