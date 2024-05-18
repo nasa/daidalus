@@ -472,7 +472,7 @@ public class DaidalusCore {
 
 	public void set_ownship_airvelocity(double heading, double airspeed) {
 		if (has_ownship()) {
-			ownship.resetAirVelocity(Velocity.mkTrkGsVs(heading,airspeed,ownship.verticalSpeed()));
+			ownship.setAirVelocity(Velocity.mkTrkGsVs(heading,airspeed,ownship.verticalSpeed()));
 			wind_vector = ownship.windVector();
 			for (TrafficState ac : traffic) {
 				ac.applyWindVector(wind_vector);

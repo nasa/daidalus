@@ -109,25 +109,19 @@ public class TrafficState {
 		sum_ = new SUMData(ac.sum_);
 	}
 
-	// Set air velocity to airvel. This method sets ground speed appropriately based on current wind
-	public void setAirVelocity(Velocity airvel) {
-		Vect3 wind = windVector();
-		avel_ = airvel;
-		gvel_ = airvel.Add(wind);
-		applyEuclideanProjection();
-	}
-
 	/**
-	 * Reset air velocity.  
+	 * Set air velocity.
 	 * @param airvel New air velocity
 	 */
-	public void resetAirVelocity(Velocity airvel) {
+	public void setAirVelocity(Velocity airvel) {
 		avel_ = airvel;
 		applyEuclideanProjection();
 	}
 
-	// Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
-	// the resulting aircraft is considered as another intruder.
+	/** 
+	 * Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
+	 * the resulting aircraft is considered as another intruder.
+	 */
 	public void setPosition(Position new_pos) {
 		pos_ = new_pos;
 		applyEuclideanProjection();
@@ -395,13 +389,6 @@ public class TrafficState {
 	 * @return Aircraft's air velocity
 	 */
 	public Velocity getAirVelocity() {
-		return avel_;
-	}
-
-	/**
-	 * @return Aircraft's velocity (can be ground or air depending on whether a wind vector was applied or not)
-	 */
-	public Velocity getVelocity() {
 		return avel_;
 	}
 

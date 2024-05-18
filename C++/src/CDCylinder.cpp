@@ -250,7 +250,7 @@ void CDCylinder::horizontalHazardZone(std::vector<Position>& haz,
     const TrafficState& ownship, const TrafficState& intruder, double T) const {
   haz.clear();
   const Position& po = ownship.getPosition();
-  Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
+  Velocity v = ownship.getAirVelocity().Sub(intruder.getAirVelocity().vect3());
   if (Util::almost_equals(T,0) || Util::almost_equals(v.vect3().norm2D(),0)) {
     circular_arc(haz,po,Velocity::mkVxyz(D_,0,0),2*Pi,false);
   } else {

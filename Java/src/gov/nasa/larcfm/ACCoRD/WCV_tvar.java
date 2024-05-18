@@ -219,7 +219,7 @@ public abstract class WCV_tvar extends Detection3D {
 			TrafficState ownship, TrafficState intruder, double T) {
 		haz.clear();
 		Position po = ownship.getPosition();
-		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
+		Velocity v = ownship.getAirVelocity().Sub(intruder.getAirVelocity().vect3());
 		if (Util.almost_equals(getTTHR()+T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			CDCylinder.circular_arc(haz,po,Velocity.mkVxyz(getDTHR(),0,0),2*Math.PI,false);
 		} else {

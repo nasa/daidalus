@@ -43,17 +43,16 @@ public:
 
   static const TrafficState& INVALID();
 
-  // Set air velocity to new_avel. This method sets ground speed appropriately based on current wind
-  void setAirVelocity(const Velocity &airvel);
-
   /**
-	 * Reset air velocity.  
+	 * Set air velocity.  
 	 * @param airvel New air velocity
 	 */
-  void resetAirVelocity(const Velocity &airvel); 
+  void setAirVelocity(const Velocity &airvel); 
 
-  // Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
-  // the resulting aircraft is considered as another intruder.
+  /**
+   * Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
+   * the resulting aircraft is considered as another intruder.
+   */
   void setPosition(const Position& new_pos);
 
 private:
@@ -204,11 +203,6 @@ public:
    * @return Aircraft's velocity (can be ground or air depending on whether a wind vector was applied or not)
    */
   const Velocity& getGroundVelocity() const;
-
-  /**
-   * @return Aircraft's air velocity
-   */
-  const Velocity& getVelocity() const;
 
   const Position& positionXYZ() const;
 

@@ -64,25 +64,19 @@ TrafficState::TrafficState(const std::string& id, const Position& pos, const Vel
   }
 }
 
-// Set air velocity to new_avel. This method sets ground speed appropriately based on current wind
-void TrafficState::setAirVelocity(const Velocity& airvel) {
-  Vect3 wind = windVector();
-  avel_ = airvel;
-  gvel_ = Velocity(airvel.Add(wind));
-  applyEuclideanProjection();
-}
-
 /**
-  * Reset air velocity.  
+  * Set air velocity.  
 	* @param airvel New air velocity
 	*/
-void TrafficState::resetAirVelocity(const Velocity& airvel) {
+void TrafficState::setAirVelocity(const Velocity& airvel) {
   avel_ = airvel;
 	applyEuclideanProjection();
 }
 
-// Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
-// the resulting aircraft is considered as another intruder.
+/**
+ * Set position to new_pos and apply Euclidean projection. This methods doesn't change ownship, i.e.,
+ * the resulting aircraft is considered as another intruder.
+ */
 void TrafficState::setPosition(const Position& new_pos) {
   pos_ = new_pos;
   applyEuclideanProjection();
@@ -294,13 +288,6 @@ const Velocity& TrafficState::getGroundVelocity() const {
  * @return Aircraft's air velocity
  */
 const Velocity& TrafficState::getAirVelocity() const {
-  return avel_;
-}
-
-/**
- * @return Aircraft's velocity (can be ground or air depending on whether a wind vector was applied or not)
- */
-const Velocity& TrafficState::getVelocity() const {
   return avel_;
 }
 

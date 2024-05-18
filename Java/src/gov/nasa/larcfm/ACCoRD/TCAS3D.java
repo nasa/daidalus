@@ -456,7 +456,7 @@ public class TCAS3D extends Detection3D {
 		double DMOD = Util.max(table_.getDMOD(sl),table_.getHMD(sl));
 		haz.clear();
 		Position po = ownship.getPosition();
-		Velocity v = ownship.getVelocity().Sub(intruder.getVelocity().vect3());
+		Velocity v = ownship.getAirVelocity().Sub(intruder.getAirVelocity().vect3());
 		if (Util.almost_equals(TAUMOD+T,0) || Util.almost_equals(v.vect3().norm2D(),0)) {
 			CDCylinder.circular_arc(haz,po,Velocity.mkVxyz(DMOD,0,0),2*Math.PI,false);
 		} else {

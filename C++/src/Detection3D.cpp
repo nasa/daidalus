@@ -115,7 +115,7 @@ void Detection3D::horizontalContours(std::vector<std::vector<Position> >& blobs,
     double thr, double T) const {
   std::vector<Position> vin;
   const Position& po = ownship.getPosition();
-  const Velocity& vo = ownship.getVelocity();
+  const Velocity& vo = ownship.getAirVelocity();
   double current_trk = vo.trk();
   std::vector<Position> vout;
   /* First step: Computes conflict contour (contour in the current path of the aircraft).

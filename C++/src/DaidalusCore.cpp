@@ -421,7 +421,7 @@ bool DaidalusCore::remove_traffic(int idx) {
 
 void DaidalusCore::set_ownship_airvelocity(double heading, double airspeed) {
 	if (has_ownship()) {
-		ownship.resetAirVelocity(Velocity::mkTrkGsVs(heading,airspeed,ownship.verticalSpeed()));
+		ownship.setAirVelocity(Velocity::mkTrkGsVs(heading,airspeed,ownship.verticalSpeed()));
 		wind_vector = ownship.windVector();
     std::vector<TrafficState>::iterator ac_ptr;
     for (ac_ptr=traffic.begin();ac_ptr != traffic.end(); ++ac_ptr) {
