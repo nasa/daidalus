@@ -405,46 +405,46 @@ public final class Position implements OutputList {
 		}
 	}
 
-	/** Return the latitude in degrees north 
-	 * @return latitude
-	 * */
-	public double latitude() {
-		return Units.to(Units.deg, lat());
+	/** Return the latitude in specified units north 
+	 * @return latitude [u]
+	 */
+	public double latitude(String units) {
+		return Units.to(units, lat());
 	}
 
-	/** Return the longitude in degrees east 
-	 * @return longitude
-	 * */
-	public double longitude() {
-		return Units.to(Units.deg, lon());
+	/** Return the longitude in specified units east 
+	 * @return longitude [u]
+	 */
+	public double longitude(String units) {
+		return Units.to(units, lon());
 	}
 
-	/** Return the altitude in feet 
-	 * @return altitude [ft]
-	 * */
-	public double altitude_ft() {
-		return Units.to(Units.ft, alt());
+	/** Return the altitude in specified units 
+	 * @return altitude [u]
+	 */
+	public double altitude(String units) {
+		return Units.to(units, alt());
 	}
 
-	/** Return the x coordinate in [NM] 
-	 * @return x coordinate [NM]
-	 * */ 
-	public double xCoordinate_nmi() {
-		return Units.to(Units.NM, x());
+	/** Return the x coordinate in specified units
+	 * @return x coordinate [u]
+	 */ 
+	public double xCoordinate(String units) {
+		return Units.to(units, x());
 	}
 
-	/** Return the y coordinate in [NM] 
-	 * @return y coordinate [NM]
-	 * */
-	public double yCoordinate_nmi() {
-		return Units.to(Units.NM, y());
+	/** Return the y coordinate in specified units
+	 * @return y coordinate [u]
+	 */
+	public double yCoordinate(String units) {
+		return Units.to(units, y());
 	}
 
-	/** Return the z coordinate in [ft] 
-	 * @return z coordinate [ft]
-	 * */
-	public double zCoordinate_ft() {
-		return Units.to(Units.ft, z());
+	/** Return the z coordinate in specified units
+	 * @return z coordinate [u]
+	 */
+	public double zCoordinate(String units) {
+		return Units.to(units, z());
 	}
 
 
@@ -1122,9 +1122,9 @@ public final class Position implements OutputList {
 			ret.add("-");
 			ret.add("-");
 		} else if (latlon) {
-			ret.add(Double.toString(ll.latitude()));
-			ret.add(Double.toString(ll.longitude()));
-			ret.add(Double.toString(ll.altitude_ft()));
+			ret.add(Double.toString(ll.latitude("deg")));
+			ret.add(Double.toString(ll.longitude("deg")));
+			ret.add(Double.toString(ll.altitude("ft")));
 		} else {
 			ret.add(Double.toString(Units.to("NM",s3.x)));
 			ret.add(Double.toString(Units.to("NM",s3.y)));
@@ -1177,9 +1177,9 @@ public final class Position implements OutputList {
 				ret.add(f.FmPrecision(ll.lon(),precision+extra));
 				ret.add(f.FmPrecision(ll.alt(),precision));
 			} else {
-				ret.add(f.FmPrecision(ll.latitude(),precision+extra));
-				ret.add(f.FmPrecision(ll.longitude(),precision+extra));
-				ret.add(f.FmPrecision(ll.altitude_ft(),precision));
+				ret.add(f.FmPrecision(ll.latitude("deg"),precision+extra));
+				ret.add(f.FmPrecision(ll.longitude("deg"),precision+extra));
+				ret.add(f.FmPrecision(ll.altitude("ft"),precision));
 			}
 		} else {
 			if (internalUnits) {

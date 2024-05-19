@@ -164,28 +164,28 @@ double Position::alt() const {
 	return ll.alt();
 }
 
-double Position::latitude() const {
-	return ll.latitude();
+double Position::latitude(const std::string& units) const {
+	return ll.latitude(units);
 }
 
-double Position::longitude() const {
-	return ll.longitude();
+double Position::longitude(const std::string& units) const {
+	return ll.longitude(units);
 }
 
-double Position::altitude_ft() const {
-	return ll.altitude_ft();
+double Position::altitude(const std::string& units) const {
+	return ll.altitude(units);
 }
 
-double Position::xCoordinate_nmi() const {
-	return Units::to("nm", s3.x());
+double Position::xCoordinate(const std::string& units) const {
+	return Units::to(units, s3.x());
 }
 
-double Position::yCoordinate_nmi() const {
-	return Units::to("nm", s3.y());
+double Position::yCoordinate(const std::string& units) const {
+	return Units::to(units, s3.y());
 }
 
-double Position::zCoordinate_ft() const {
-	return Units::to("ft", s3.z());
+double Position::zCoordinate(const std::string& units) const {
+	return Units::to(units, s3.z());
 }
 
 bool Position::isLatLon() const {
@@ -542,9 +542,9 @@ std::vector<std::string> Position::toStringList() const {
 		ret.push_back("-");
 		ret.push_back("-");
 	} else if (latlon) {
-		ret.push_back(Fm12(ll.latitude()));
-		ret.push_back(Fm12(ll.longitude()));
-		ret.push_back(Fm12(ll.altitude_ft()));
+		ret.push_back(Fm12(ll.latitude("deg")));
+		ret.push_back(Fm12(ll.longitude("deg")));
+		ret.push_back(Fm12(ll.altitude("ft")));
 	} else {
 		ret.push_back(Fm12(Units::to("NM",s3.x())));
 		ret.push_back(Fm12(Units::to("NM",s3.y())));
@@ -570,9 +570,9 @@ std::vector<std::string> Position::toStringList(int precision, int latLonExtraPr
 			ret.push_back(FmPrecision(ll.lon(),precision+extra));
 			ret.push_back(FmPrecision(ll.alt(),precision));
 		} else {
-			ret.push_back(FmPrecision(ll.latitude(),precision+extra));
-			ret.push_back(FmPrecision(ll.longitude(),precision+extra));
-			ret.push_back(FmPrecision(ll.altitude_ft(),precision));
+			ret.push_back(FmPrecision(ll.latitude("deg"),precision+extra));
+			ret.push_back(FmPrecision(ll.longitude("deg"),precision+extra));
+			ret.push_back(FmPrecision(ll.altitude("ft"),precision));
 		}
 	} else {
 		if (internalUnits) {

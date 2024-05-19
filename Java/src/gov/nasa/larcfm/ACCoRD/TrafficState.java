@@ -379,6 +379,13 @@ public class TrafficState {
 	}
 
 	/**
+	 * @return Aircraft's velocity (can be ground or air depending on whether a wind vector was applied or not)
+	 */
+	public Velocity getVelocity() {
+		return avel_;
+	}
+
+	/**
 	 * @return Aircraft's ground velocity
 	 */
 	public Velocity getGroundVelocity() {

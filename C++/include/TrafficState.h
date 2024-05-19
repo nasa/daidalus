@@ -194,6 +194,11 @@ public:
    */
   const Position& getPosition() const;
 
+	/**
+	 * @return Aircraft's velocity (can be ground or air depending on whether a wind vector was applied or not)
+	 */
+  const Velocity& getVelocity() const;
+
   /**
    * @return Aircraft's air velocity
    */

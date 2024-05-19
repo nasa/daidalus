@@ -280,6 +280,13 @@ const Position& TrafficState::getPosition() const {
   return pos_;
 }
 
+/**
+ * @return Aircraft's velocity (can be ground or air depending on whether a wind vector was applied or not)
+ */
+const Velocity& TrafficState::getVelocity() const {
+  return avel_;
+}
+
 const Velocity& TrafficState::getGroundVelocity() const {
   return gvel_;
 }

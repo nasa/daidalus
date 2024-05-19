@@ -216,30 +216,30 @@ public:
 	 * @return altitude [internal] */
 	double alt() const;
 
-	/** Return the latitude in degrees north
-	 * @return latitude
-	 * */
-	double latitude() const;
-	/** Return the longitude in degrees east
-	 * @return longitude
-	 * */
-	double longitude() const;
-	/** Return the altitude in feet
-	 * @return altitude [ft]
-	 * */
-	double altitude_ft() const;
-	/** Return the x coordinate in [NM]
-	 * @return x coordinate [NM]
-	 * */
-	double xCoordinate_nmi() const;
-	/** Return the y coordinate in [NM]
-	 * @return y coordinate [NM]
-	 * */
-	double yCoordinate_nmi() const;
-	/** Return the z coordinate in [ft]
-	 * @return z coordinate [ft]
-	 * */
-	double zCoordinate_ft() const;
+	/** Return the latitude in specified units north 
+	 * @return latitude [u]
+	 */
+	double latitude(const std::string& units) const;
+	/** Return the longitude in specified units east 
+	 * @return longitude [u]
+	 */
+	double longitude(const std::string& units) const;
+	/** Return the altitude in specified units 
+	 * @return altitude [u]
+	 */
+	double altitude(const std::string& units) const;
+	/** Return the x coordinate in specified units
+	 * @return x coordinate [u]
+	 */ 
+	double xCoordinate(const std::string& units) const;
+	/** Return the y coordinate in specified units
+	 * @return y coordinate [u]
+	 */
+	double yCoordinate(const std::string& units) const;
+	/** Return the z coordinate in specified units
+	 * @return z coordinate [u]
+	 */
+	double zCoordinate(const std::string& units) const;
 
 	/** Return if this Position is a latitude or longitude
 	 * @return true if latitude/longitude

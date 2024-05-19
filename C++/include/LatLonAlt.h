@@ -33,9 +33,9 @@ namespace larcfm {
 class LatLonAlt {
 private:
 
-	double lati;
-	double longi;
-	double alti;
+	double lat_;
+	double lon_;
+	double alt_;
 
 	/**
 	 * Creates a new position 
@@ -75,20 +75,23 @@ public:
 	 */
     static double decimal_angle(double degrees, double minutes, double seconds, bool north_east);
 
-	/** Return latitude in degrees north 
-	 * @return latitude value in degrees
-	 * */
-	double latitude() const;
+	/** Return latitude in the given units in a northerly direction 
+	 * @param units to return a value in
+	 * @return latitude altitude
+	 */
+	double latitude(const std::string& units) const;
 
-	/** Return longitude in degrees east 
-	 * @return longitude in degrees
-	 * */
-	double longitude() const;
+	/** Return longitude in the given units in an easterly direction 
+	 * @param units to return a value in
+	 * @return longitude in [units]
+	 */
+	double longitude(const std::string& units) const;
 
-	/** Return altitude in [ft] 
-	 * @return altitude in feet
-	 * */
-	double altitude_ft() const;
+	/** Return altitude in the given units 
+	 * @param units to return a value in
+	 * @return altitude
+	 */
+	double altitude(const std::string& units) const;
 
 	/** Return latitude in internal units 
 	 * @return latitude value

@@ -30,21 +30,21 @@ import java.util.ArrayList;
 public final class LatLonAlt {
 
 	/** The latitude */
-	private final double lati;
+	private final double lat_;
 
 	/** The longitude */
-	private final double longi;
+	private final double lon_;
 
 	/** The altitude */
-	private final double alti;
+	private final double alt_;
 
 	/**
 	 * Creates a new position 
 	 */
 	private LatLonAlt(double lat, double lon, double alt) {
-		lati = lat;
-		longi = lon;
-		alti = alt;
+		lat_ = lat;
+		lon_ = lon;
+		alt_ = alt;
 	}
 
 	public static final LatLonAlt ZERO = new LatLonAlt(0.0,0.0,0.0);
@@ -62,7 +62,7 @@ public final class LatLonAlt {
 	 * @return new LatLonAlt object
 	 */
 	public static LatLonAlt mk(LatLonAlt v) {
-		return new LatLonAlt(v.lati, v.longi, v.alti);
+		return new LatLonAlt(v.lat_, v.lon_, v.alt_);
 	}
 
 	/**
@@ -132,7 +132,7 @@ public final class LatLonAlt {
 	 * @return new LatLonAlt object with modified altitude
 	 */
 	public LatLonAlt mkAlt(double alt) {
-		return new LatLonAlt(lati, longi, alt);
+		return new LatLonAlt(lat_, lon_, alt);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public final class LatLonAlt {
 	 * @return new LatLonAlt object with modified altitude
 	 */
 	public LatLonAlt makeAlt(double alt) {
-		return new LatLonAlt(lati, longi, Units.from("ft",alt));
+		return new LatLonAlt(lat_, lon_, Units.from("ft",alt));
 	}
 
 	@Override
@@ -150,11 +150,11 @@ public final class LatLonAlt {
 		final int prime = 31;
 		int result = 1;
 		long temp;
-		temp = Double.doubleToLongBits(alti);
+		temp = Double.doubleToLongBits(alt_);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(lati);
+		temp = Double.doubleToLongBits(lat_);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
-		temp = Double.doubleToLongBits(longi);
+		temp = Double.doubleToLongBits(lon_);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
@@ -168,20 +168,20 @@ public final class LatLonAlt {
 		if (getClass() != obj.getClass())
 			return false;
 		LatLonAlt other = (LatLonAlt) obj;
-		if (Double.doubleToLongBits(alti) != Double
-				.doubleToLongBits(other.alti))
+		if (Double.doubleToLongBits(alt_) != Double
+				.doubleToLongBits(other.alt_))
 			return false;
-		if (Double.doubleToLongBits(lati) != Double
-				.doubleToLongBits(other.lati))
+		if (Double.doubleToLongBits(lat_) != Double
+				.doubleToLongBits(other.lat_))
 			return false;
-		if (Double.doubleToLongBits(longi) != Double
-				.doubleToLongBits(other.longi))
+		if (Double.doubleToLongBits(lon_) != Double
+				.doubleToLongBits(other.lon_))
 			return false;
 		return true;
 	}
 
 	public boolean equals2D(LatLonAlt lla) {
-		return (this.lati == lla.lati) && (this.longi == lla.longi);
+		return (this.lat_ == lla.lat_) && (this.lon_ == lla.lon_);
 	}
 
 
@@ -194,54 +194,32 @@ public final class LatLonAlt {
 	 * @return a LatLonAlt copy with a zero altitude
 	 */
 	public LatLonAlt zeroAlt() {
-		return new LatLonAlt(lati,longi,0.0);
-	}
-
-	/** Return latitude in degrees north 
-	 * @return latitude value in degrees
-	 * */
-	public double latitude() {
-		return Util.to_180(Units.to(Units.deg, lati));
+		return new LatLonAlt(lat_,lon_,0.0);
 	}
 
 	/** Return latitude in the given units in a northerly direction 
 	 * @param units to return a value in
 	 * @return latitude altitude
-	 * */
+	 */
 	public double latitude(String units) {
-		return Units.to(units, lati);
-	}
-
-	/** Return longitude in degrees east 
-	 * @return longitude in degrees
-	 * */
-	public double longitude() {
-		return Util.to_180(Units.to(Units.deg, longi));
+		return Units.to(units, lat_);
 	}
 
 	/** Return longitude in the given units in an easterly direction 
 	 * @param units to return a value in
 	 * @return longitude in [units]
-	 * */
+	 */
 	public double longitude(String units) {
-		return Units.to(units, longi);
+		return Units.to(units, lon_);
 	}
-
-	/** Return altitude in [ft] 
-	 * @return altitude in feet
-	 * */
-	public double altitude_ft() {
-		return Units.to(Units.ft, alti);
-	}	
 
 	/** Return altitude in the given units 
 	 * @param units to return a value in
 	 * @return altitude
-	 * */
+	 */
 	public double altitude(String units) {
-		return Units.to(units, alti);
+		return Units.to(units, alt_);
 	}	
-
 
 	/** Compute a new lat/lon that is offset by dn meters north and de meters east.
 	 * This is a computationally fast estimate, and only should be used for relatively short distances.
@@ -252,9 +230,9 @@ public final class LatLonAlt {
 	 */
 	public LatLonAlt linearEst(double dn, double de) {
 		double R = GreatCircle.spherical_earth_radius; // 6378137;                   // diameter earth in meters
-		double nLat = lati + dn/R;
-		double nLon = longi + de/(R*Math.cos(lati));
-		return LatLonAlt.mk(nLat,nLon,alti);
+		double nLat = lat_ + dn/R;
+		double nLon = lon_ + de/(R*Math.cos(lat_));
+		return LatLonAlt.mk(nLat,nLon,alt_);
 	}
 
 	/** Compute a new lat/lon that is obtained by moving with velocity vo for tm secs
@@ -267,7 +245,7 @@ public final class LatLonAlt {
 	public LatLonAlt linearEst(Velocity vo, double tm) {
 		double dn = vo.vect3().Scal(tm).y;
 		double de = vo.vect3().Scal(tm).x;
-		double nAlt = alti + vo.z()*tm;
+		double nAlt = alt_ + vo.z()*tm;
 		return linearEst(dn,de).mkAlt(nAlt);   
 	}
 
@@ -280,33 +258,33 @@ public final class LatLonAlt {
 	 * @return true if invalid
 	 */
 	public boolean isInvalid() {
-		return Double.isNaN(lati) || Double.isNaN(longi) || Double.isNaN(alti);
+		return Double.isNaN(lat_) || Double.isNaN(lon_) || Double.isNaN(alt_);
 	}
 
 	/** return the antipodal point corresponding to this LatLonAlt 
 	 * @return the antipode point to this object
 	 * */
 	public LatLonAlt antipode() {
-		return LatLonAlt.mk(-lati, Util.to_pi(longi+Math.PI), alti);
+		return LatLonAlt.mk(-lat_, Util.to_pi(lon_+Math.PI), alt_);
 	}
 
 	/** Return latitude in internal units 
 	 * @return latitude value
 	 * */
 	public double lat() {
-		return lati;
+		return lat_;
 	}
 	/** Return longitude in internal units 
 	 * @return longitude value
 	 * */
 	public double lon() {
-		return longi;
+		return lon_;
 	}
 	/** Return altitude in internal units 
 	 * @return altitude value
 	 * */
 	public double alt() {
-		return alti;
+		return alt_;
 	}
 
 	/** String representation with units of [deg,deg,ft] */
@@ -361,14 +339,14 @@ public final class LatLonAlt {
 	public String toStringAdvanced(int precision) {
 		StringBuffer sb = new StringBuffer(50);
 		sb.append(decimal_minutes_string(lat(), precision));
-		if (latitude() > 0) {
+		if (latitude("deg") > 0) {
 			sb.append("N, ");
 		} else {
 			sb.append("S, ");
 		}
 		
 		sb.append(decimal_minutes_string(lon(), precision));
-		if (longitude() > 0) {
+		if (longitude("deg") > 0) {
 			sb.append("E, ");
 		} else {
 			sb.append("W, ");
@@ -385,9 +363,9 @@ public final class LatLonAlt {
 	 * */
 	public List<String> toStringList(int precision) {
 		ArrayList<String> ret = new ArrayList<String>(3);
-		ret.add(f.FmPrecision(latitude(), precision));
-		ret.add(f.FmPrecision(longitude(), precision));
-		ret.add(f.FmPrecision(altitude_ft(), precision));
+		ret.add(f.FmPrecision(latitude("deg"), precision));
+		ret.add(f.FmPrecision(longitude("deg"), precision));
+		ret.add(f.FmPrecision(altitude("ft"), precision));
 		return ret;
 	}
 
@@ -401,15 +379,15 @@ public final class LatLonAlt {
 	 */
 	public String toStringUnicode(int precision) {
 		StringBuffer sb = new StringBuffer(30);
-		sb.append(f.FmPrecision(Math.abs(latitude()), precision));
-		if (latitude() > 0) {
+		sb.append(f.FmPrecision(Math.abs(latitude("deg")), precision));
+		if (lat_ > 0) {
 			sb.append("\u00B0N");
 		} else {
 			sb.append("\u00B0S");
 		}
 		sb.append(", ");
-		sb.append(f.FmPrecision(Math.abs(longitude()), precision));
-		if (longitude() > 0) {
+		sb.append(f.FmPrecision(Math.abs(longitude("deg")), precision));
+		if (lon_ > 0) {
 			sb.append("\u00B0E");
 		} else {
 			sb.append("\u00B0W");
@@ -458,8 +436,8 @@ public final class LatLonAlt {
 
 		StringBuilder sb = new StringBuilder(100);
 
-		double deg_lat = latitude();
-		double deg_lon = longitude();
+		double deg_lat = latitude("deg");
+		double deg_lon = longitude("deg");
 
 		if (deg_lat >= 0.0) {
 			sb.append("N");

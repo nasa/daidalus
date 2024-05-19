@@ -778,54 +778,6 @@ public final class AircraftState {
 		 return trkOk && gsOk && vsOk;
 	}
 
-	/** For debugging, do not use 
-	 * @return true, if tests pass...
-	 * */
-	public boolean checkIntegrity() {  // for debug purposes only
-		boolean chk = true;
-		for (int j = 0; j < size()-1; j++ ) {
-			//Triple<Vect3,Velocity,Double> trip1 = get(j);
-			//Triple<Vect3,Velocity,Double> trip2 = get(j+1);
-            Position s1 = s_list[j];
-            Position s2 = s_list[j+1];
-            Velocity v1 = v_list[j];
-            //Velocity v2 = v_list[j+1];
-            double   t1 = t_list[j];
-            double   t2 = t_list[j+1];          
-            NavPoint np1 = new NavPoint(s1,t1);
-            NavPoint np2 = new NavPoint(s2,t2);
-            Velocity calcVel = np1.initialVelocity(np2);
-            if (!closeEnough(v1,calcVel)) {
-            	System.out.println(" $$>> velocity from "+j+" to "+(j+1)+" not consistent!");
-            	System.out.println(" $$>> v = "+v1+" calculated v = "+calcVel);
-            	chk = false;
-             }
-		}
-		return chk;
-	}
-	
-
-	/** For debugging, do not use 
-	 * @return true, if tests pass
-	 */
-	public boolean repairVelocities() {  // for debug purposes only
-		boolean chk = true;
-		for (int j = 0; j < size()-1; j++ ) {
-            Position s1 = s_list[j];
-            Position s2 = s_list[j+1];
-            //Velocity v1 = v_list[j];
-            //Velocity v2 = v_list[j+1];
-            double   t1 = t_list[j];
-            double   t2 = t_list[j+1];          
-            NavPoint np1 = new NavPoint(s1,t1);
-            NavPoint np2 = new NavPoint(s2,t2);
-            Velocity calcVel = np1.initialVelocity(np2);
-            v_list[j] = calcVel;
-		}
-		System.out.println("AircraftHistory for "+id+"REPAIRED");
-		return chk;
-	}
-
 	public boolean velocitiesAboutEqual(Velocity v1, Velocity v2) {
 		double dTrk = Util.turnDelta(v1.trk(),v2.trk());
 		if (dTrk > Units.from("deg",1.0)) return false;

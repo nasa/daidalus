@@ -20,31 +20,31 @@
 namespace larcfm {
 
 LatLonAlt::LatLonAlt(double x, double y, double z) :
-    				lati(x),
-					longi(y),
-					alti(z) {
+    				lat_(x),
+					lon_(y),
+					alt_(z) {
 }
 
 LatLonAlt::LatLonAlt() :
-    				lati(0),
-					longi(0),
-					alti(0) {
+    				lat_(0),
+					lon_(0),
+					alt_(0) {
 }
 
 LatLonAlt& LatLonAlt::operator= (const LatLonAlt& lla) {
-	lati = lla.lati;
-	longi = lla.longi;
-	alti = lla.alti;
+	lat_ = lla.lat_;
+	lon_ = lla.lon_;
+	alt_ = lla.alt_;
 
 	return *this;
 }
 
 bool LatLonAlt::operator == (const LatLonAlt& v) const {
-	return lati == v.lati && longi == v.longi && alti == v.alti;
+	return lat_ == v.lat_ && lon_ == v.lon_ && alt_ == v.alt_;
 }
 
 bool LatLonAlt::operator != (const LatLonAlt& v) const {
-	return lati != v.lati || longi != v.longi || alti != v.alti;
+	return lat_ != v.lat_ || lon_ != v.lon_ || alt_ != v.alt_;
 }
 
 bool LatLonAlt::equals(const LatLonAlt& a) const {
@@ -52,33 +52,33 @@ bool LatLonAlt::equals(const LatLonAlt& a) const {
 }
 
 bool LatLonAlt::equals2D(const LatLonAlt& lla) const {
-	return (lati == lla.lati) && (longi == lla.longi);
+	return (lat_ == lla.lat_) && (lon_ == lla.lon_);
 }
 
 double LatLonAlt::decimal_angle(double degrees, double minutes, double seconds, bool north_east) {
 	return ((north_east) ? 1.0 : -1.0) * Units::from("deg", (degrees + minutes / 60.0 + seconds / 3600.0));
 }
 
-double LatLonAlt::latitude() const {
-	return to_180(Units::to("deg", lati));
+double LatLonAlt::latitude(const std::string& units) const {
+	return to_180(Units::to(units, lat_));
 }
 
-double LatLonAlt::longitude() const {
-	return to_180(Units::to("deg", longi));
+double LatLonAlt::longitude(const std::string& units) const {
+	return to_180(Units::to(units, lon_));
 }
 
-double LatLonAlt::altitude_ft() const {
-	return Units::to("ft", alti);
+double LatLonAlt::altitude(const std::string& units) const {
+	return Units::to(units, alt_);
 }
 
 double LatLonAlt::lat() const {
-	return lati;
+	return lat_;
 }
 double LatLonAlt::lon() const {
-	return longi;
+	return lon_;
 }
 double LatLonAlt::alt() const {
-	return alti;
+	return alt_;
 }
 
 double LatLonAlt::distanceH(const LatLonAlt& lla2) const {
@@ -113,34 +113,34 @@ const LatLonAlt LatLonAlt::mk(double lat, double lon, double alt) {
 }
 
 const LatLonAlt LatLonAlt::mkAlt(double alt) const {
-	return LatLonAlt(lati, longi, alt);
+	return LatLonAlt(lat_, lon_, alt);
 }
 
 const LatLonAlt LatLonAlt::makeAlt(double alt) const {
-	return LatLonAlt(lati, longi, Units::from("ft",alt));
+	return LatLonAlt(lat_, lon_, Units::from("ft",alt));
 }
 
 const LatLonAlt LatLonAlt::zeroAlt() const {
-	return LatLonAlt(lati, longi, 0.0);
+	return LatLonAlt(lat_, lon_, 0.0);
 }
 
 bool LatLonAlt::isInvalid() const {
-	return lati != lati || longi != longi || alti != alti;
+	return lat_ != lat_ || lon_ != lon_ || alt_ != alt_;
 }
 
 const LatLonAlt LatLonAlt::linearEst(double dn, double de) const {
 	//f.pln(" lat = "+Units.str("deg",lati)+" lon = "+Units.str("deg",longi));
 	double R = GreatCircle::spherical_earth_radius; //6378137;                   // diameter earth in meters
-	double nLat = lati + dn/R;
-	double nLon = longi + de/(R*cos(lati));
+	double nLat = lat_ + dn/R;
+	double nLon = lon_ + de/(R*cos(lat_));
 	//f.pln(" nLat = "+Units.str("deg",nLat)+" nLon = "+Units.str("deg",nLon));
-	return LatLonAlt::mk(nLat,nLon,alti);
+	return LatLonAlt::mk(nLat,nLon,alt_);
 }
 
 const LatLonAlt LatLonAlt::linearEst(const Velocity& vo, double tm)  const{
 	double dn = vo.vect3().Scal(tm).y();
 	double de = vo.vect3().Scal(tm).x();
-	double nAlt = alti + vo.z()*tm;
+	double nAlt = alt_ + vo.z()*tm;
 	return linearEst(dn,de).mkAlt(nAlt);
 }
 
@@ -162,7 +162,7 @@ std::string LatLonAlt::toString(const std::string& latunit, const std::string& l
 
 std::string LatLonAlt::toString(const std::string& latunit, const std::string& lonunit, const std::string& zunit, int precision) const {
 	std::stringstream temp;
-	temp <<  FmPrecision(Units::to(latunit,lati),precision) << ", " << FmPrecision(Units::to(lonunit,longi),precision) << ", " << FmPrecision(Units::to(zunit,alti),precision);
+	temp <<  FmPrecision(Units::to(latunit,lat_),precision) << ", " << FmPrecision(Units::to(lonunit,lon_),precision) << ", " << FmPrecision(Units::to(zunit,alt_),precision);
 	return temp.str();
 }
 
@@ -218,7 +218,7 @@ bool LatLonAlt::isWest(const LatLonAlt& a) const {
 }
 
 double LatLonAlt::track(const LatLonAlt& p) const {
-	LatLonAlt ThisLatLonAlt = mk(lati,longi,alti);
+	LatLonAlt ThisLatLonAlt = mk(lat_,lon_,alt_);
 	return GreatCircle::initial_course(ThisLatLonAlt,p);
 }
 
