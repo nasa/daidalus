@@ -29,12 +29,20 @@ public final class Consts {
 
 
     public static String resolutionStr(int r) {         // for debug purposes
-     if (r == -1) return "None";
-     else if (r == 0) return "Unnecessary";
-     else if (r == 1) return "Conflict";
-     else if (r == 2) return "LoSConv";
-     else if (r == 3) return "LoSDivg";     
-     else return "?????";
-  }
+        switch (r) {
+            case -1:
+                return "None";
+            case 0:
+                return "Unnecessary";
+            case 1:
+                return "Conflict";
+            case 2:
+                return "LoSConv";
+            case 3:
+                return "LoSDivg";
+            default:
+                return "?????";
+        }
+    }
 
 }

@@ -65,14 +65,14 @@ public class DrawMultiBands extends DAABatchProcessor {
 	}
 
 	static String region2str(BandsRegion r) {
-		switch (r) {
-		case NONE: return "0";
-		case FAR: return "1";
-		case MID: return "2";
-		case NEAR: return "3";
-		case RECOVERY: return "4";
-		default: return "-1";
-		}
+	        return switch (r) {
+		case NONE -> "0";
+		case FAR -> "1";
+		case MID -> "2";
+		case NEAR -> "3";
+		case RECOVERY -> "4";
+		default -> "-1";
+		};
 	}
 
 	String hs_units;
