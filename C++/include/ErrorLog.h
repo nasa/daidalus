@@ -138,6 +138,15 @@ public:
    */
 	bool isBetween(const std::string& method, double val, double lb, double ub);
 
+	/** 
+	 * Checks EXPERIMENTAL_FEATURES flag is enabled. Otherwise, 
+	 * adds an error message and returns false.
+	 * 
+	 * @param method name of method
+	 * @return true, if EXPERIMENTAL_FEATURES flag is true
+	 */
+  	bool experimentalFeaturesEnabled(const std::string& method);
+
 	bool hasError() const;
 	bool hasMessage() const;
 	std::string getMessage();

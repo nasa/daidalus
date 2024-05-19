@@ -102,7 +102,7 @@ private:
   int    alerting_m_; // Alerting M parameter of M of N
   int    alerting_n_; // Alerting N parameter of M of N
 
-  // Implicit coordination
+  // Implicit coordination -- EXPERIMENTAL FEATURE
   bool conflict_crit_; /* Use criteria for conflict bands */
   bool recovery_crit_; /* Use criteria for recovery bands */
 
@@ -187,6 +187,12 @@ public:
    */
   static const std::string VERSION;
   static const INT64FM ALMOST_;
+
+  /**
+	 * Experimental features are turned off. They are not maintained and will
+	 * eventually get removed from the code base.
+	 */
+	static const bool EXPERIMENTAL_FEATURES;
 
   static void overrideUnitsWithSI(bool angle, bool distance, bool speed, bool acceleration, bool time);
 
@@ -633,56 +639,56 @@ public:
   bool setMinVerticalRecovery(double val, const std::string& u);
 
   /**
-   * @return true if repulsive criteria is enabled for conflict bands.
+   * @return true if repulsive criteria is enabled for conflict bands -- EXPERIMENTAL FEATURE
    */
   bool isEnabledConflictCriteria() const;
 
   /**
-   * Enable/disable repulsive criteria for conflict bands.
+   * Enable/disable repulsive criteria for conflict bands -- EXPERIMENTAL FEATURE
    */
   void setConflictCriteria(bool flag);
 
   /**
-   * Enable repulsive criteria for conflict bands.
+   * Enable repulsive criteria for conflict bands -- EXPERIMENTAL FEATURE
    */
   void enableConflictCriteria();
 
   /**
-   * Disable repulsive criteria for conflict bands.
+   * Disable repulsive criteria for conflict bands -- EXPERIMENTAL FEATURE
    */
   void disableConflictCriteria();
 
   /**
-   * @return true if repulsive criteria is enabled for recovery bands.
+   * @return true if repulsive criteria is enabled for recovery bands -- EXPERIMENTAL FEATURE
    */
   bool isEnabledRecoveryCriteria() const;
 
   /**
-   * Enable/disable repulsive criteria for recovery bands.
+   * Enable/disable repulsive criteria for recovery bands -- EXPERIMENTAL FEATURE
    */
   void setRecoveryCriteria(bool flag);
 
   /**
-   * Enable repulsive criteria for recovery bands.
+   * Enable repulsive criteria for recovery bands -- EXPERIMENTAL FEATURE
    */
   void enableRecoveryCriteria();
   /**
-   * Disable repulsive criteria for recovery bands.
+   * Disable repulsive criteria for recovery bands -- EXPERIMENTAL FEATURE
    */
   void disableRecoveryCriteria();
 
   /**
-   * Enable/disable repulsive criteria for conflict and recovery bands.
+   * Enable/disable repulsive criteria for conflict and recovery bands -- EXPERIMENTAL FEATURE
    */
   void setRepulsiveCriteria(bool flag);
 
   /**
-   * Enable repulsive criteria for conflict and recovery bands.
+   * Enable repulsive criteria for conflict and recovery bands -- EXPERIMENTAL FEATURE
    */
   void enableRepulsiveCriteria();
 
   /**
-   * Disable repulsive criteria for conflict and recovery bands.
+   * Disable repulsive criteria for conflict and recovery bands -- EXPERIMENTAL FEATURE
    */
   void disableRepulsiveCriteria();
 

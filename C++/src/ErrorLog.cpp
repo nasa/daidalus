@@ -10,8 +10,9 @@
  */
 
 #include "ErrorLog.h"
-#include <iostream>
+#include "DaidalusParameters.h"
 #include "format.h"
+#include <iostream>
 #include <cstdlib>
 
 namespace larcfm {
@@ -161,6 +162,19 @@ bool ErrorLog::isBetween(const std::string& method, double val, double lb, doubl
 	if (lb <= val && val <= ub) return true;
 	addError("["+method+"] Value "+Fm4(val)+" is not between "+Fm4(lb)+" and "+Fm4(ub));
 	return false;
+}
+
+/** 
+ * Checks EXPERIMENTAL_FEATURES flag is enabled. Otherwise, 
+ * adds an error message and returns false.
+ * 
+ * @param method name of method
+ * @return true, if EXPERIMENTAL_FEATURES flag is true
+ */
+bool ErrorLog::experimentalFeaturesEnabled(const std::string& method) {
+    if (DaidalusParameters::EXPERIMENTAL_FEATURES) return true;
+    addError("["+method+"] Method uses experimental features, which are not enabled");
+    return false;
 }
 
 // Interface methods

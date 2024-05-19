@@ -23,6 +23,12 @@ namespace larcfm {
 
 const std::string DaidalusParameters::VERSION = "2.0.4a";
 const INT64FM DaidalusParameters::ALMOST_ = PRECISION5;
+/**
+ * Experimental features are turned off. They are not maintained and will
+ * eventually get removed from the code base.
+ */
+const bool DaidalusParameters::EXPERIMENTAL_FEATURES=true;
+
 bool DaidalusParameters::initialized = false;
 bool DaidalusParameters::SI_[] = {false,false,false,false,false}; 
 
@@ -196,9 +202,8 @@ DaidalusParameters::DaidalusParameters() : error("DaidalusParameters") {
   alerting_m_ = 0;
   alerting_n_ = 0;
 
-  // Implicit Coordination Parameters
+  // Implicit Coordination Parameters -- EXPERIMENTAL FEATURE
   conflict_crit_ = false;
-
   recovery_crit_ = false;
 
   // SUM parameters
@@ -1504,55 +1509,63 @@ bool DaidalusParameters::isEnabledConflictCriteria() const {
   return conflict_crit_;
 }
 
-
 void DaidalusParameters::setConflictCriteria(bool flag) {
-  conflict_crit_ = flag;
+  if (error.experimentalFeaturesEnabled("setConflictCriteria")) {
+    conflict_crit_ = flag;
+  }
 }
-
 
 void DaidalusParameters::enableConflictCriteria() {
-  setConflictCriteria(true);
+  if (error.experimentalFeaturesEnabled("enableConflictCriteria")) {
+    setConflictCriteria(true);
+  }
 }
-
 
 void DaidalusParameters::disableConflictCriteria() {
-  setConflictCriteria(false);
+  if (error.experimentalFeaturesEnabled("disableConflictCriteria")) {
+    setConflictCriteria(false);
+  }
 }
-
 
 bool DaidalusParameters::isEnabledRecoveryCriteria() const {
   return recovery_crit_;
 }
 
-
 void DaidalusParameters::setRecoveryCriteria(bool flag) {
-  recovery_crit_ = flag;
+  if (error.experimentalFeaturesEnabled("setRecoveryCriteria")) {
+    recovery_crit_ = flag;
+  }
 }
-
 
 void DaidalusParameters::enableRecoveryCriteria() {
-  setRecoveryCriteria(true);
+  if (error.experimentalFeaturesEnabled("enableRecoveryCriteria")) {
+    setRecoveryCriteria(true);
+  }
 }
-
 
 void DaidalusParameters::disableRecoveryCriteria() {
-  setRecoveryCriteria(false);
+  if (error.experimentalFeaturesEnabled("disableRecoveryCriteria")) {
+    setRecoveryCriteria(false);
+  }
 }
-
 
 void DaidalusParameters::setRepulsiveCriteria(bool flag) {
-  setConflictCriteria(flag);
-  setRecoveryCriteria(flag);
+  if (error.experimentalFeaturesEnabled("setRepulsiveCriteria")) {
+    setConflictCriteria(flag);
+    setRecoveryCriteria(flag);
+  }
 }
-
 
 void DaidalusParameters::enableRepulsiveCriteria() {
-  setRepulsiveCriteria(true);
+  if (error.experimentalFeaturesEnabled("enableRepulsiveCriteria")) {
+    setRepulsiveCriteria(true);
+  }
 }
 
-
 void DaidalusParameters::disableRepulsiveCriteria() {
-  setRepulsiveCriteria(false);
+  if (error.experimentalFeaturesEnabled("disableRepulsiveCriteria")) {
+    setRepulsiveCriteria(false);
+  }
 }
 
 
@@ -2303,10 +2316,12 @@ void DaidalusParameters::updateParameterData(ParameterData& p) const {
   p.setInt("alerting_m",alerting_m_);
   p.setInt("alerting_n",alerting_n_);
 
-  // Implicit Coordination Parameters
-  p.setBool("conflict_crit", conflict_crit_);
-  p.updateComment("conflict_crit","Implicit Coordination Parameters");
-  p.setBool("recovery_crit", recovery_crit_);
+  // Implicit Coordination Parameters -- EXPERIMENTAL FEATURE
+  if (EXPERIMENTAL_FEATURES) {
+    p.setBool("conflict_crit", conflict_crit_);
+    p.updateComment("conflict_crit","Implicit Coordination Parameters -- EXPERIMENTAL FEATURE");
+    p.setBool("recovery_crit", recovery_crit_);
+  }
 
   // SUM parameters
   p.setInternal("h_pos_z_score", h_pos_z_score_, "unitless");
@@ -2670,14 +2685,16 @@ bool DaidalusParameters::setParameterData(const ParameterData& p) {
     set_alerting_parameterN(getInt(p,"alerting_n"));
     setit = true;
   }
-  // Implicit Coordination
-  if (contains(p,"conflict_crit")) {
-    setConflictCriteria(getBool(p,"conflict_crit"));
-    setit = true;
-  }
-  if (contains(p,"recovery_crit")) {
-    setRecoveryCriteria(getBool(p,"recovery_crit"));
-    setit = true;
+  // Implicit Coordination -- EXPERIMENTAL FEATURE
+  if (EXPERIMENTAL_FEATURES) {
+    if (contains(p,"conflict_crit")) {
+      setConflictCriteria(getBool(p,"conflict_crit"));
+      setit = true;
+   }
+   if (contains(p,"recovery_crit")) {
+      setRecoveryCriteria(getBool(p,"recovery_crit"));
+      setit = true;
+    }
   }
   // Sensor Uncertainty Mitigation
   if (contains(p,"h_pos_z_score")) {

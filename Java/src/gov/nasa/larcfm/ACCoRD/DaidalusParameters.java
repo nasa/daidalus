@@ -37,6 +37,12 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	public static final long ALMOST_ = Util.PRECISION5;
 
 	/**
+	 * Experimental features are turned off. They are not maintained and will
+	 * eventually get removed from the code base.
+	 */
+	public static final boolean EXPERIMENTAL_FEATURES=false;
+
+	/**
 	 * This variable overrides the unit returned by the method getUnitsOf so that it returns 
 	 * internal units (SI) instead of the specified unit in the DaidalusParameter object.
 	 * Index 0: angle or angular rate
@@ -153,7 +159,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	private int     alerting_m_; // Alerting M parameter of M of N
 	private int     alerting_n_; // Alerting N parameter of M of N
 
-	// Implicit Coordination 
+	// Implicit Coordination -- EXPERIMENTAL FEATURE
 	private boolean conflict_crit_; /* Use criteria for conflict bands */
 	private boolean recovery_crit_; /* Use criteria for recovery bands */ 
 
@@ -372,9 +378,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		alerting_m_ = 0;
 		alerting_n_ = 0;
 
-		// Implicit Coordination Parameters
+		// Implicit Coordination Parameters. -- EXPERIMENTAL FEATURE
 		conflict_crit_ = false;
-
 		recovery_crit_ = false;
 
 		// SUM parameters
@@ -495,9 +500,11 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		alerting_m_                 = parameters.alerting_m_;
 		alerting_n_                 = parameters.alerting_n_;
 
-		// Implicit coordination parameters
-		conflict_crit_           = parameters.conflict_crit_;
-		recovery_crit_           = parameters.recovery_crit_;
+		// Implicit coordination parameters -- EXPERIMENTAL FEATURE
+		if (EXPERIMENTAL_FEATURES) {
+			conflict_crit_           = parameters.conflict_crit_;
+			recovery_crit_           = parameters.recovery_crit_;
+		}
 
 		// SUM
 		h_pos_z_score_           = parameters.h_pos_z_score_;
@@ -2108,81 +2115,99 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	}
 
 	/** 
-	 * @return true if repulsive criteria is enabled for conflict bands.
+	 * @return true if repulsive criteria is enabled for conflict bands -- EXPERIMENTAL FEATURE
 	 */
 	public boolean isEnabledConflictCriteria() {
 		return conflict_crit_;
 	}
 
 	/** 
-	 * Enable/disable repulsive criteria for conflict bands.
+	 * Enable/disable repulsive criteria for conflict bands -- EXPERIMENTAL FEATURE
 	 */
 	public void setConflictCriteria(boolean flag) {
-		conflict_crit_ = flag;
+		if (error.experimentalFeaturesEnabled("setConflictCriteria")) {
+			conflict_crit_ = flag;
+		}
 	}
 
 	/** 
-	 * Enable repulsive criteria for conflict bands.
+	 * Enable repulsive criteria for conflict bands -- EXPERIMENTAL FEATURE
 	 */
 	public void enableConflictCriteria() {
-		setConflictCriteria(true);
+		if (error.experimentalFeaturesEnabled("enableConflictCriteria")) {
+			setConflictCriteria(true);
+		}
 	}
 
 	/** 
-	 * Disable repulsive criteria for conflict bands.
+	 * Disable repulsive criteria for conflict bands -- EXPERIMENTAL FEATURE
 	 */
 	public void disableConflictCriteria() {
-		setConflictCriteria(false);
+		if (error.experimentalFeaturesEnabled("disableConflictCriteria")) {
+			setConflictCriteria(false);
+		}
 	}
 
 	/** 
-	 * @return true if repulsive criteria is enabled for recovery bands.
+	 * @return true if repulsive criteria is enabled for recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public boolean isEnabledRecoveryCriteria() {
 		return recovery_crit_;
 	}
 
 	/** 
-	 * Enable/disable repulsive criteria for recovery bands.
+	 * Enable/disable repulsive criteria for recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public void setRecoveryCriteria(boolean flag) {
-		recovery_crit_ = flag;
+		if (error.experimentalFeaturesEnabled("setRecoveryCriteria")) {
+			recovery_crit_ = flag;
+		}
 	}
 
 	/** 
-	 * Enable repulsive criteria for recovery bands.
+	 * Enable repulsive criteria for recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public void enableRecoveryCriteria() {
-		setRecoveryCriteria(true);
+		if (error.experimentalFeaturesEnabled("enableRecoveryCriteria")) {
+			setRecoveryCriteria(true);
+		}
 	}
 
 	/** 
-	 * Disable repulsive criteria for recovery bands.
+	 * Disable repulsive criteria for recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public void disableRecoveryCriteria() {
-		setRecoveryCriteria(false);
+		if (error.experimentalFeaturesEnabled("disableRecoveryCriteria")) {
+			setRecoveryCriteria(false);
+		}
 	}
 
 	/** 
-	 * Enable/disable repulsive criteria for conflict and recovery bands.
+	 * Enable/disable repulsive criteria for conflict and recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public void setRepulsiveCriteria(boolean flag) {
-		setConflictCriteria(flag);
-		setRecoveryCriteria(flag);
+		if (error.experimentalFeaturesEnabled("setRepulsiveCriteria")) {
+			setConflictCriteria(flag);
+			setRecoveryCriteria(flag);
+		}
 	}
 
 	/** 
-	 * Enable repulsive criteria for conflict and recovery bands.
+	 * Enable repulsive criteria for conflict and recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public void enableRepulsiveCriteria() {
-		setRepulsiveCriteria(true);
+		if (error.experimentalFeaturesEnabled("enableRepulsiveCriteria")) {
+			setRepulsiveCriteria(true);
+		}
 	}
 
 	/** 
-	 * Disable repulsive criteria for conflict and recovery bands.
+	 * Disable repulsive criteria for conflict and recovery bands -- EXPERIMENTAL FEATURE
 	 */
 	public void disableRepulsiveCriteria() {
-		setRepulsiveCriteria(false);
+		if (error.experimentalFeaturesEnabled("disableRepulsiveCriteria")) {
+			setRepulsiveCriteria(false);
+		}
 	}
 
 	/**
@@ -3044,10 +3069,12 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		p.setInt("alerting_m",alerting_m_);
 		p.setInt("alerting_n",alerting_n_);
 
-		// Implicit Coordination Parameters
-		p.setBool("conflict_crit", conflict_crit_);
-		p.updateComment("conflict_crit","Implicit Coordination Parameters");
-		p.setBool("recovery_crit", recovery_crit_);
+		// Implicit Coordination Parameters -- EXPERIMENTAL FEATURE
+		if (EXPERIMENTAL_FEATURES) {
+			p.setBool("conflict_crit", conflict_crit_);
+			p.updateComment("conflict_crit","Implicit Coordination Parameters -- EXPERIMENTAL FEATURE");
+			p.setBool("recovery_crit", recovery_crit_);
+		}
 
 		// SUM parameters
 		p.setInternal("h_pos_z_score", h_pos_z_score_, "unitless");
@@ -3383,14 +3410,16 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			set_alerting_parameterN(getInt(p,"alerting_n"));
 			setit = true;
 		}
-		// Implicit Coordination
-		if (contains(p,"conflict_crit")) {
-			setConflictCriteria(getBool(p,"conflict_crit"));
-			setit = true;
-		}
-		if (contains(p,"recovery_crit")) {
-			setRecoveryCriteria(getBool(p,"recovery_crit"));
-			setit = true;
+		// Implicit Coordination -- EXPERIMENTAL FEATURE
+		if (EXPERIMENTAL_FEATURES) {
+			if (contains(p,"conflict_crit")) {
+				setConflictCriteria(getBool(p,"conflict_crit"));
+				setit = true;
+			}
+			if (contains(p,"recovery_crit")) {
+				setRecoveryCriteria(getBool(p,"recovery_crit"));
+				setit = true;
+			}
 		}
 		// Sensor Uncertainty Mitigation
 		if (contains(p,"h_pos_z_score")) {

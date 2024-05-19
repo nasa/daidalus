@@ -8,6 +8,8 @@
 
 package gov.nasa.larcfm.Util;
 
+import gov.nasa.larcfm.ACCoRD.DaidalusParameters;
+
 public final class ErrorLog implements ErrorReporter {
 
   private static final String eol = System.getProperty("line.separator");
@@ -233,6 +235,19 @@ public final class ErrorLog implements ErrorReporter {
   public boolean isBetween(String method, double val, double lb, double ub) {
     if (lb <= val && val <= ub) return true;
     addError("["+method+"] Value "+val+" is not between "+lb+" and "+ub);
+    return false;
+  }
+
+  /** 
+   * Checks EXPERIMENTAL_FEATURES flag is enabled. Otherwise, 
+   * adds an error message and returns false.
+   * 
+   * @param method name of method
+   * @return true, if EXPERIMENTAL_FEATURES flag is true
+   */
+  public boolean experimentalFeaturesEnabled(String method) {
+    if (DaidalusParameters.EXPERIMENTAL_FEATURES) return true;
+    addError("["+method+"] Method uses experimental features, which are not enabled");
     return false;
   }
 

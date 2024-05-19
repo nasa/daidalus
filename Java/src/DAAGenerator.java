@@ -80,7 +80,7 @@ public class DAAGenerator extends DAABatchProcessor {
 		str.append("  --backward <b>\n\tProject <b> seconds backward from states at time <t> in <daa_file>\n");
 		str.append("  --forward <f>\n\tProject <f> seconds forward from states at time <t> in <daa_file>\n");
 		str.append("  --[<id>@]<key>=<val>\n\tSet key <key> to value <val> in givent units for aircraft <id>. If <id> is not provided,\n");
-		str.append("\t\tthe ownship is assumed. The list of valid keys are provided below.\n");
+		str.append("\tthe ownship is assumed. The list of valid keys are provided below.\n");
 		str.append("\t--horizontal_accel='-0.1[G]'\n");
 		str.append("\t--vertical_accel='0.1[G]'\n");
 		str.append("\t--turn_rate='3[deg/s]'\n");
