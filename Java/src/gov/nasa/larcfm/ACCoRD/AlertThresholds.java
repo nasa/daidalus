@@ -23,6 +23,7 @@ public class AlertThresholds implements ParameterAcceptor {
 	// If alerting_time = 0, alert is based on violation
 	private double early_alerting_time_; // Early alerting time (for maneuver guidance). If zero, same as alerting_time
 	private BandsRegion region_; // Guidance region for this alert
+	// Spread alerting -- EXPERIMENTAL FEATURE
 	private double spread_hdir_;  // Alert when direction band within spread (non-negative value)
 	private double spread_hs_;   // Alert when horizontal speed band within spread (non-negative value)
 	private double spread_vs_;   // Alert when vertical speed band within speed (non-negative value)
@@ -59,10 +60,12 @@ public class AlertThresholds implements ParameterAcceptor {
 		alerting_time_ = athr.alerting_time_;
 		early_alerting_time_ = athr.early_alerting_time_;
 		region_ = athr.region_;
-		spread_hdir_ = athr.spread_hdir_;
-		spread_hs_ = athr.spread_hs_;
-		spread_vs_ = athr.spread_vs_;
-		spread_alt_ = athr.spread_alt_; 
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			spread_hdir_ = athr.spread_hdir_;
+			spread_hs_ = athr.spread_hs_;
+			spread_vs_ = athr.spread_vs_;
+			spread_alt_ = athr.spread_alt_;
+		}
 		units_.clear();
 		units_.putAll(athr.units_);
 	}
@@ -183,127 +186,153 @@ public class AlertThresholds implements ParameterAcceptor {
 	}
 
 	/**
-	 * Get horizontal direction spread in internal units [rad]. Spread is relative to ownship's direction in the range [0,pi]
+	 * Get horizontal direction spread in internal units [rad] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's direction in the range [0,pi]
+	 * 
 	 */
 	public double getHorizontalDirectionSpread() {
 		return spread_hdir_;
 	}
 
 	/**
-	 * Get horizontal direction spread in given units [u]. Spread is relative to ownship's direction in the range [0,pi]
+	 * Get horizontal direction spread in given units [u] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's direction in the range [0,pi]
 	 */
 	public double getHorizontalDirectionSpread(String u) {
 		return Units.to(u,spread_hdir_);
 	}  
 
 	/** 
-	 * Set horizontal direction spread in internal units. Spread is relative to ownship's direction and is expected 
-	 * to be in [0,pi].
+	 * Set horizontal direction spread in internal units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's direction and is expected to be in [0,pi].
 	 */
 	public void setHorizontalDirectionSpread(double spread) {
-		spread_hdir_ = Math.abs(Util.to_pi(spread));
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			spread_hdir_ = Math.abs(Util.to_pi(spread));
+		}
 	}
 
 	/** 
-	 * Set direction spread in given units. Spread is relative to ownship's direction and is expected 
-	 * to be in [0,pi] [u].
+	 * Set direction spread in given units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's direction and is expected  to be in [0,pi] [u].
 	 */
 	public void setHorizontalDirectionSpread(double spread, String u) {
-		setHorizontalDirectionSpread(Units.from(u,spread));
-		units_.put("spread_hdir",u);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			setHorizontalDirectionSpread(Units.from(u,spread));
+			units_.put("spread_hdir",u);
+		}
 	}
 
 	/**
-	 * Get horizontal speed spread in internal units [m/s]. Spread is relative to ownship's horizontal speed
+	 * Get horizontal speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE 
+	 * Spread is relative to ownship's horizontal speed
 	 */
 	public double getHorizontalSpeedSpread() {
 		return spread_hs_;
 	}
 
 	/**
-	 * Get horizontal speed spread in given units. Spread is relative to ownship's horizontal speed
+	 * Get horizontal speed spread in given units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's horizontal speed
 	 */
 	public double getHorizontalSpeedSpread(String u) {
 		return Units.to(u,spread_hs_);
 	}  
 
 	/** 
-	 * Set horizontal speed spread in internal units [m/s]. Spread is relative to ownship's horizontal speed and is expected 
+	 * Set horizontal speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's horizontal speed and is expected 
 	 * to be non-negative
 	 */
 	public void setHorizontalSpeedSpread(double spread) {
-		spread_hs_ = Math.abs(spread);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			spread_hs_ = Math.abs(spread);
+		}
 	}
 
 	/** 
-	 * Set horizontal speed spread in given units. Spread is relative to ownship's horizontal speed and is expected 
-	 * to be non-negative
+	 * Set horizontal speed spread in given units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's horizontal speed and is expected to be non-negative
 	 */
 	public void setHorizontalSpeedSpread(double spread, String u) {
-		setHorizontalSpeedSpread(Units.from(u,spread));
-		units_.put("spread_hs",u);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			setHorizontalSpeedSpread(Units.from(u,spread));
+			units_.put("spread_hs",u);
+		}
 	}
 
 	/**
-	 * Get vertical speed spread in internal units [m/s]. Spread is relative to ownship's vertical speed
+	 * Get vertical speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's vertical speed
 	 */
 	public double getVerticalSpeedSpread() {
 		return spread_vs_;
 	}
 
 	/**
-	 * Get vertical speed spread in given units. Spread is relative to ownship's vertical speed
+	 * Get vertical speed spread in given units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's vertical speed
 	 */
 	public double getVerticalSpeedSpread(String u) {
 		return Units.to(u,spread_vs_);
 	}  
 
 	/** 
-	 * Set vertical speed spread in internal units [m/s]. Spread is relative to ownship's vertical speed and is expected 
-	 * to be non-negative
+	 * Set vertical speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's vertical speed and is expected to be non-negative
 	 */
 	public void setVerticalSpeedSpread(double spread) {
-		spread_vs_ = Math.abs(spread);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			spread_vs_ = Math.abs(spread);
+		}
 	}
 
 	/** 
-	 * Set vertical speed spread in given units. Spread is relative to ownship's vertical speed and is expected 
-	 * to be non-negative
+	 * Set vertical speed spread in given units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's vertical speed and is expected to be non-negative
 	 */
 	public void setVerticalSpeedSpread(double spread, String u) {
-		setVerticalSpeedSpread(Units.from(u,spread));
-		units_.put("spread_vs",u);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			setVerticalSpeedSpread(Units.from(u,spread));
+			units_.put("spread_vs",u);
+		}
 	}
 
 	/**
-	 * Get altitude spread in internal units [m]. Spread is relative to ownship's altitude
+	 * Get altitude spread in internal units [m] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's altitude
 	 */
 	public double getAltitudeSpread() {
 		return spread_alt_;
 	}
 
 	/**
-	 * Get altitude spread in given units. Spread is relative to ownship's altitude
+	 * Get altitude spread in given units -- EXPERIMENTAL FEATURE 
+	 * Spread is relative to ownship's altitude
 	 */
 	public double getAltitudeSpread(String u) {
 		return Units.to(u,spread_alt_);
 	}  
 
 	/** 
-	 * Set altitude spread in internal units [m]. Spread is relative to ownship's altitude and is expected 
-	 * to be non-negative
+	 * Set altitude spread in internal units [m] -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's altitude and is expected to be non-negative
 	 */
 	public void setAltitudeSpread(double spread) {
-		spread_alt_ = Math.abs(spread);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			spread_alt_ = Math.abs(spread);
+		}
 	}
 
 	/** 
-	 * Set altitude spread in given units. Spread is relative to ownship's altitude and is expected 
-	 * to be non-negative
+	 * Set altitude spread in given units -- EXPERIMENTAL FEATURE
+	 * Spread is relative to ownship's altitude and is expected to be non-negative
 	 */
 	public void setAltitudeSpread(double spread, String u) {
-		setAltitudeSpread(Units.from(u,spread));
-		units_.put("spread_alt",u);
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			setAltitudeSpread(Units.from(u,spread));
+			units_.put("spread_alt",u);
+		}
 	}
 
 	public String toString() {
@@ -341,10 +370,13 @@ public class AlertThresholds implements ParameterAcceptor {
 		p.set("region",region_.toString());
 		p.setInternal("alerting_time",alerting_time_,getUnits("alerting_time"));
 		p.setInternal("early_alerting_time",early_alerting_time_,getUnits("early_alerting_time"));
-		p.setInternal("spread_hdir",spread_hdir_,getUnits("spread_hdir"));
-		p.setInternal("spread_hs",spread_hs_,getUnits("spread_hs"));
-		p.setInternal("spread_vs",spread_vs_,getUnits("spread_vs"));
-		p.setInternal("spread_alt",spread_alt_,getUnits("spread_alt"));
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			p.setInternal("spread_hdir",spread_hdir_,getUnits("spread_hdir"));
+			p.updateComment("spread_hdir","Spread alerting -- EXPERIMENTAL FEATURE");
+			p.setInternal("spread_hs",spread_hs_,getUnits("spread_hs"));
+			p.setInternal("spread_vs",spread_vs_,getUnits("spread_vs"));
+			p.setInternal("spread_alt",spread_alt_,getUnits("spread_alt"));
+		}
 		if (detector_ != null) {
 			p.set("detector",detector_.getIdentifier());
 		}
@@ -363,27 +395,29 @@ public class AlertThresholds implements ParameterAcceptor {
 			setEarlyAlertingTime(p.getValue("early_alerting_time"));
 			units_.put("early_alerting_time",p.getUnit("early_alerting_time"));
 		}
-		if (p.contains("spread_hdir")) {
-			setHorizontalDirectionSpread(p.getValue("spread_hdir"));
-			units_.put("spread_hdir",p.getUnit("spread_hdir"));
-		} else if (p.contains("spread_trk")) {
-			setHorizontalDirectionSpread(p.getValue("spread_trk"));
-			units_.put("spread_hdir",p.getUnit("spread_trk"));
-		} 
-		if (p.contains("spread_hs")) {
-			setHorizontalSpeedSpread(p.getValue("spread_hs"));
-			units_.put("spread_hs",p.getUnit("spread_hs"));
-		} else if (p.contains("spread_gs")) {
-			setHorizontalSpeedSpread(p.getValue("spread_gs"));
-			units_.put("spread_hs",p.getUnit("spread_gs"));
-		}
-		if (p.contains("spread_vs")) {
-			setVerticalSpeedSpread(p.getValue("spread_vs"));
-			units_.put("spread_vs",p.getUnit("spread_vs"));
-		}
-		if (p.contains("spread_alt")) {
-			setAltitudeSpread(p.getValue("spread_alt"));
-			units_.put("spread_alt",p.getUnit("spread_alt"));
+		if (DaidalusParameters.EXPERIMENTAL_FEATURES) {
+			if (p.contains("spread_hdir")) {
+				setHorizontalDirectionSpread(p.getValue("spread_hdir"));
+				units_.put("spread_hdir",p.getUnit("spread_hdir"));
+			} else if (p.contains("spread_trk")) {
+				setHorizontalDirectionSpread(p.getValue("spread_trk"));
+				units_.put("spread_hdir",p.getUnit("spread_trk"));
+			} 
+			if (p.contains("spread_hs")) {
+				setHorizontalSpeedSpread(p.getValue("spread_hs"));
+				units_.put("spread_hs",p.getUnit("spread_hs"));
+			} else if (p.contains("spread_gs")) {
+				setHorizontalSpeedSpread(p.getValue("spread_gs"));
+				units_.put("spread_hs",p.getUnit("spread_gs"));
+			}
+			if (p.contains("spread_vs")) {
+				setVerticalSpeedSpread(p.getValue("spread_vs"));
+				units_.put("spread_vs",p.getUnit("spread_vs"));
+			}
+			if (p.contains("spread_alt")) {
+				setAltitudeSpread(p.getValue("spread_alt"));
+				units_.put("spread_alt",p.getUnit("spread_alt"));
+			}
 		}
 	}
 

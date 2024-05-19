@@ -1,5 +1,5 @@
-# DAIDALUSj V-2.0.4a-FormalATM-v2.7.5
-# Options: -v -config ./Configurations/DO_365B_no_SUM.conf -o ./Java/mold/DO_365B_no_SUM/C1_0_120_W.out 
+# DAIDALUSj-v2.0.4a-FormalATM-v2.7.5
+# Options: -v --config ./Configurations/DO_365B_no_SUM.conf -o ./Java/mold/DO_365B_no_SUM/C1_0_120_W.out 
 #
 # Daidalus Object
 # DAIDALUS-v2.0.4a
@@ -11,7 +11,6 @@ distance_filter = 0.0 [nmi]
 altitude_filter = 0.0 [ft]
 left_hdir = 180.0 [deg]
 right_hdir = 180.0 [deg]
-min_airspeed = 10.0 [knot]
 min_hs = 10.0 [knot]
 max_hs = 700.0 [knot]
 min_vs = -6000.0 [fpm]
@@ -58,9 +57,6 @@ persistence_preferred_vs = 250.0 [fpm]
 persistence_preferred_alt = 250.0 [ft]
 alerting_m = 2
 alerting_n = 4
-# Implicit Coordination Parameters
-conflict_crit = false
-recovery_crit = false
 # Sensor Uncertainty Mitigation Parameters
 h_pos_z_score = 1.5
 h_vel_z_score_min = 0.5
@@ -77,8 +73,10 @@ dta_longitude = 0.0 [deg]
 dta_radius = 4.2 [nmi]
 dta_height = 2000.0 [ft]
 dta_alerter = 2
-# Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantaneous, -1:Kinematic)
-hdir_bands_below_min_as = 0
+# Airspeed Threshold for Special Horizontal Direction Bands Logic
+airspeed_thr = 0.0 [knot]
+# Horizontal Direction Bands Logic When Below Airspeed Threshold (O:Disabled, 1:Instantaneous, -1:Kinematic)
+hdir_bands_below_as_thr = 0
 # Alerting Logic
 ownship_centric_alerting = false
 bands_add_time_to_maneuver = false
@@ -87,10 +85,6 @@ alerters = DWC_Phase_I,DWC_Phase_II,DWC_Non_Coop
 DWC_Phase_I_alert_1_region = NONE
 DWC_Phase_I_alert_1_alerting_time = 55.0 [s]
 DWC_Phase_I_alert_1_early_alerting_time = 75.0 [s]
-DWC_Phase_I_alert_1_spread_hdir = 0.0 [deg]
-DWC_Phase_I_alert_1_spread_hs = 0.0 [knot]
-DWC_Phase_I_alert_1_spread_vs = 0.0 [fpm]
-DWC_Phase_I_alert_1_spread_alt = 0.0 [ft]
 DWC_Phase_I_alert_1_detector = det_1
 DWC_Phase_I_det_1_WCV_DTHR = 0.66 [nmi]
 DWC_Phase_I_det_1_WCV_ZTHR = 700.0 [ft]
@@ -100,10 +94,6 @@ DWC_Phase_I_load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Phase_I_alert_2_region = MID
 DWC_Phase_I_alert_2_alerting_time = 55.0 [s]
 DWC_Phase_I_alert_2_early_alerting_time = 75.0 [s]
-DWC_Phase_I_alert_2_spread_hdir = 0.0 [deg]
-DWC_Phase_I_alert_2_spread_hs = 0.0 [knot]
-DWC_Phase_I_alert_2_spread_vs = 0.0 [fpm]
-DWC_Phase_I_alert_2_spread_alt = 0.0 [ft]
 DWC_Phase_I_alert_2_detector = det_2
 DWC_Phase_I_det_2_WCV_DTHR = 0.66 [nmi]
 DWC_Phase_I_det_2_WCV_ZTHR = 450.0 [ft]
@@ -113,10 +103,6 @@ DWC_Phase_I_load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Phase_I_alert_3_region = NEAR
 DWC_Phase_I_alert_3_alerting_time = 25.0 [s]
 DWC_Phase_I_alert_3_early_alerting_time = 55.0 [s]
-DWC_Phase_I_alert_3_spread_hdir = 0.0 [deg]
-DWC_Phase_I_alert_3_spread_hs = 0.0 [knot]
-DWC_Phase_I_alert_3_spread_vs = 0.0 [fpm]
-DWC_Phase_I_alert_3_spread_alt = 0.0 [ft]
 DWC_Phase_I_alert_3_detector = det_3
 DWC_Phase_I_det_3_WCV_DTHR = 0.66 [nmi]
 DWC_Phase_I_det_3_WCV_ZTHR = 450.0 [ft]
@@ -126,10 +112,6 @@ DWC_Phase_I_load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Phase_II_alert_1_region = NONE
 DWC_Phase_II_alert_1_alerting_time = 45.0 [s]
 DWC_Phase_II_alert_1_early_alerting_time = 75.0 [s]
-DWC_Phase_II_alert_1_spread_hdir = 0.0 [deg]
-DWC_Phase_II_alert_1_spread_hs = 0.0 [knot]
-DWC_Phase_II_alert_1_spread_vs = 0.0 [fpm]
-DWC_Phase_II_alert_1_spread_alt = 0.0 [ft]
 DWC_Phase_II_alert_1_detector = det_1
 DWC_Phase_II_det_1_WCV_DTHR = 1500.0 [ft]
 DWC_Phase_II_det_1_WCV_ZTHR = 450.0 [ft]
@@ -139,10 +121,6 @@ DWC_Phase_II_load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Phase_II_alert_2_region = MID
 DWC_Phase_II_alert_2_alerting_time = 45.0 [s]
 DWC_Phase_II_alert_2_early_alerting_time = 75.0 [s]
-DWC_Phase_II_alert_2_spread_hdir = 0.0 [deg]
-DWC_Phase_II_alert_2_spread_hs = 0.0 [knot]
-DWC_Phase_II_alert_2_spread_vs = 0.0 [fpm]
-DWC_Phase_II_alert_2_spread_alt = 0.0 [ft]
 DWC_Phase_II_alert_2_detector = det_2
 DWC_Phase_II_det_2_WCV_DTHR = 1500.0 [ft]
 DWC_Phase_II_det_2_WCV_ZTHR = 450.0 [ft]
@@ -152,10 +130,6 @@ DWC_Phase_II_load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Phase_II_alert_3_region = NEAR
 DWC_Phase_II_alert_3_alerting_time = 45.0 [s]
 DWC_Phase_II_alert_3_early_alerting_time = 75.0 [s]
-DWC_Phase_II_alert_3_spread_hdir = 0.0 [deg]
-DWC_Phase_II_alert_3_spread_hs = 0.0 [knot]
-DWC_Phase_II_alert_3_spread_vs = 0.0 [fpm]
-DWC_Phase_II_alert_3_spread_alt = 0.0 [ft]
 DWC_Phase_II_alert_3_detector = det_3
 DWC_Phase_II_det_3_WCV_DTHR = 1500.0 [ft]
 DWC_Phase_II_det_3_WCV_ZTHR = 450.0 [ft]
@@ -165,10 +139,6 @@ DWC_Phase_II_load_core_detection_det_3 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Non_Coop_alert_1_region = NONE
 DWC_Non_Coop_alert_1_alerting_time = 55.0 [s]
 DWC_Non_Coop_alert_1_early_alerting_time = 110.0 [s]
-DWC_Non_Coop_alert_1_spread_hdir = 0.0 [deg]
-DWC_Non_Coop_alert_1_spread_hs = 0.0 [knot]
-DWC_Non_Coop_alert_1_spread_vs = 0.0 [fpm]
-DWC_Non_Coop_alert_1_spread_alt = 0.0 [ft]
 DWC_Non_Coop_alert_1_detector = det_1
 DWC_Non_Coop_det_1_WCV_DTHR = 2200.0 [ft]
 DWC_Non_Coop_det_1_WCV_ZTHR = 450.0 [ft]
@@ -178,10 +148,6 @@ DWC_Non_Coop_load_core_detection_det_1 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Non_Coop_alert_2_region = MID
 DWC_Non_Coop_alert_2_alerting_time = 55.0 [s]
 DWC_Non_Coop_alert_2_early_alerting_time = 110.0 [s]
-DWC_Non_Coop_alert_2_spread_hdir = 0.0 [deg]
-DWC_Non_Coop_alert_2_spread_hs = 0.0 [knot]
-DWC_Non_Coop_alert_2_spread_vs = 0.0 [fpm]
-DWC_Non_Coop_alert_2_spread_alt = 0.0 [ft]
 DWC_Non_Coop_alert_2_detector = det_2
 DWC_Non_Coop_det_2_WCV_DTHR = 2200.0 [ft]
 DWC_Non_Coop_det_2_WCV_ZTHR = 450.0 [ft]
@@ -191,10 +157,6 @@ DWC_Non_Coop_load_core_detection_det_2 = gov.nasa.larcfm.ACCoRD.WCV_TAUMOD
 DWC_Non_Coop_alert_3_region = NEAR
 DWC_Non_Coop_alert_3_alerting_time = 25.0 [s]
 DWC_Non_Coop_alert_3_early_alerting_time = 90.0 [s]
-DWC_Non_Coop_alert_3_spread_hdir = 0.0 [deg]
-DWC_Non_Coop_alert_3_spread_hs = 0.0 [knot]
-DWC_Non_Coop_alert_3_spread_vs = 0.0 [fpm]
-DWC_Non_Coop_alert_3_spread_alt = 0.0 [ft]
 DWC_Non_Coop_alert_3_detector = det_3
 DWC_Non_Coop_det_3_WCV_DTHR = 2200.0 [ft]
 DWC_Non_Coop_det_3_WCV_ZTHR = 450.0 [ft]

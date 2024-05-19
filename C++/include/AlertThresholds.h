@@ -30,6 +30,7 @@ private:
   // If alerting_time = 0, alert is based on violation
   double early_alerting_time_; // Early alerting time (for maneuver guidance). If zero, same as alerting_time
   BandsRegion::Region region_;  // Guidance region for this alert
+ 	// Spread alerting -- EXPERIMENTAL FEATURE
   double spread_hdir_;  // Alert when direction band within spread (non-negative value)
   double spread_hs_;   // Alert when horizontal speed band within spread (non-negative value)
   double spread_vs_;   // Alert when vertical speed band within speed (non-negative value)
@@ -130,90 +131,98 @@ public:
   void setRegion(BandsRegion::Region region);
 
   /**
-   * Get track spread in internal units [rad]. Spread is relative to ownship's track
+   * Get track spread in internal units [rad] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's track
    */
   double getHorizontalDirectionSpread() const;
 
   /**
-   * Get track spread in given units [u]. Spread is relative to ownship's track
+   * Get track spread in given units [u] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's track
    */
   double getHorizontalDirectionSpread(const std::string& u) const;
 
   /**
-   * Set track spread in internal units. Spread is relative to ownship's track and is expected
-   * to be in [0,pi].
+   * Set track spread in internal units -- EXPERIMENTAL FEATURE 
+   * Spread is relative to ownship's track and is expected to be in [0,pi].
    */
   void setHorizontalDirectionSpread(double spread);
 
   /**
-   * Set track spread in given units. Spread is relative to ownship's track and is expected
-   * to be in [0,pi] [u].
+   * Set track spread in given units -- EXPERIMENTAL FEATURE 
+   * Spread is relative to ownship's track and is expected to be in [0,pi] [u].
    */
   void setHorizontalDirectionSpread(double spread, const std::string& u);
 
   /**
-   * Get ground speed spread in internal units [m/s]. Spread is relative to ownship's ground speed
+   * Get ground speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's ground speed
    */
   double getHorizontalSpeedSpread() const;
 
   /**
-   * Get ground speed spread in given units. Spread is relative to ownship's ground speed
+   * Get ground speed spread in given units -- EXPERIMENTAL FEATURE 
+   * Spread is relative to ownship's ground speed
    */
   double getHorizontalSpeedSpread(const std::string& u) const;
 
   /**
-   * Set ground speed spread in internal units [m/s]. Spread is relative to ownship's ground speed and is expected
-   * to be non-negative
+   * Set ground speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's ground speed and is expected to be non-negative
    */
   void setHorizontalSpeedSpread(double spread);
 
   /**
-   * Set ground speed spread in given units. Spread is relative to ownship's ground speed and is expected
-   * to be non-negative
+   * Set ground speed spread in given units -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's ground speed and is expected to be non-negative
    */
   void setHorizontalSpeedSpread(double spread, const std::string& u);
 
   /**
-   * Get vertical speed spread in internal units [m/s]. Spread is relative to ownship's vertical speed
+   * Get vertical speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's vertical speed
    */
   double getVerticalSpeedSpread() const;
 
   /**
-   * Get vertical speed spread in given units. Spread is relative to ownship's vertical speed
+   * Get vertical speed spread in given units -- EXPERIMENTAL FEATURE 
+   * Spread is relative to ownship's vertical speed
    */
   double getVerticalSpeedSpread(const std::string& u) const;
 
   /**
-   * Set vertical speed spread in internal units [m/s]. Spread is relative to ownship's vertical speed and is expected
-   * to be non-negative
+   * Set vertical speed spread in internal units [m/s] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's vertical speed and is expected to be non-negative
    */
   void setVerticalSpeedSpread(double spread);
 
   /**
-   * Set vertical speed spread in given units. Spread is relative to ownship's vertical speed and is expected
-   * to be non-negative
+   * Set vertical speed spread in given units -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's vertical speed and is expected to be non-negative
    */
   void setVerticalSpeedSpread(double spread, const std::string& u);
 
   /**
-   * Get altitude spread in internal units [m]. Spread is relative to ownship's altitude
+   * Get altitude spread in internal units [m] -- EXPERIMENTAL FEATURE 
+   * Spread is relative to ownship's altitude
    */
   double getAltitudeSpread() const;
 
   /**
-   * Get altitude spread in given units. Spread is relative to ownship's altitude
+   * Get altitude spread in given units -- EXPERIMENTAL FEATURE 
+   * Spread is relative to ownship's altitude
    */
   double getAltitudeSpread(const std::string& u) const;
 
   /**
-   * Set altitude spread in internal units [m]. Spread is relative to ownship's altitude and is expected
-   * to be non-negative
+   * Set altitude spread in internal units [m] -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's altitude and is expected to be non-negative
    */
   void setAltitudeSpread(double spread);
 
   /**
-   * Set altitude spread in given units. Spread is relative to ownship's altitude and is expected
-   * to be non-negative
+   * Set altitude spread in given units -- EXPERIMENTAL FEATURE
+   * Spread is relative to ownship's altitude and is expected to be non-negative
    */
   void setAltitudeSpread(double spread, const std::string& u);
 

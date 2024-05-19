@@ -1,5 +1,5 @@
 SCENARIOS=H1.daa H1_W.daa H0_0_120.daa H0_0_120a.xyz C0_0_120.daa C1_0_120.daa C1_0_120_W.daa 
-DIFFOPTIONS=--ignore=min_as:as_thr:min_airspeed:airspeed_thr
+DIFFOPTIONS= #--ignore=min_as:as_thr:min_airspeed:airspeed_thr:spread:_crit
 TESTOPTIONS= #--options --units time:s
 
 all:

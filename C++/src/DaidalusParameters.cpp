@@ -27,7 +27,7 @@ const INT64FM DaidalusParameters::ALMOST_ = PRECISION5;
  * Experimental features are turned off. They are not maintained and will
  * eventually get removed from the code base.
  */
-const bool DaidalusParameters::EXPERIMENTAL_FEATURES=true;
+const bool DaidalusParameters::EXPERIMENTAL_FEATURES=false;
 
 bool DaidalusParameters::initialized = false;
 bool DaidalusParameters::SI_[] = {false,false,false,false,false}; 

@@ -1,5 +1,5 @@
 ##
-## DAIDALUSj V-2.0.4a-FormalATM-v2.7.5
+## DAIDALUSj-v2.0.4a-FormalATM-v2.7.5
 ##
 
 # Daidalus Object
@@ -12,7 +12,6 @@ distance_filter = 0.0 [nmi]
 altitude_filter = 0.0 [ft]
 left_hdir = 180.0 [deg]
 right_hdir = 180.0 [deg]
-min_airspeed = 10.0 [knot]
 min_hs = 10.0 [knot]
 max_hs = 700.0 [knot]
 min_vs = -6000.0 [fpm]
@@ -59,9 +58,6 @@ persistence_preferred_vs = 0.0 [fpm]
 persistence_preferred_alt = 0.0 [ft]
 alerting_m = 0
 alerting_n = 0
-# Implicit Coordination Parameters
-conflict_crit = false
-recovery_crit = false
 # Sensor Uncertainty Mitigation Parameters
 h_pos_z_score = 0.0
 h_vel_z_score_min = 0.0
@@ -78,8 +74,10 @@ dta_longitude = 0.0 [deg]
 dta_radius = 0.0 [nmi]
 dta_height = 0.0 [ft]
 dta_alerter = 0
-# Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantaneous, -1:Kinematic)
-hdir_bands_below_min_as = 0
+# Airspeed Threshold for Special Horizontal Direction Bands Logic
+airspeed_thr = 0.0 [knot]
+# Horizontal Direction Bands Logic When Below Airspeed Threshold (O:Disabled, 1:Instantaneous, -1:Kinematic)
+hdir_bands_below_as_thr = 0
 # Alerting Logic
 ownship_centric_alerting = true
 bands_add_time_to_maneuver = false
@@ -88,10 +86,6 @@ alerters = CD3D
 CD3D_alert_1_region = NEAR
 CD3D_alert_1_alerting_time = 180.0 [s]
 CD3D_alert_1_early_alerting_time = 180.0 [s]
-CD3D_alert_1_spread_hdir = 0.0 [deg]
-CD3D_alert_1_spread_hs = 0.0 [knot]
-CD3D_alert_1_spread_vs = 0.0 [fpm]
-CD3D_alert_1_spread_alt = 0.0 [ft]
 CD3D_alert_1_detector = det_1
 CD3D_det_1_D = 5.0 [nmi]
 CD3D_det_1_H = 1000.0 [ft]
