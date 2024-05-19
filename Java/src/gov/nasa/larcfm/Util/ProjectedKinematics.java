@@ -11,6 +11,7 @@ package gov.nasa.larcfm.Util;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class contains versions of the Kinematics functions that have been lifted to deal with Position objects instead of Vect3 objects.
@@ -436,7 +437,7 @@ public final class ProjectedKinematics {
     return new Triple<Position,Double,Double>(pp,vertTriple.second,vertTriple.third);
   }
 
-  static ArrayList<Pair<Position,Double>> genDirectToVertexList(Position so, Velocity vo, Position wp, double bankAngle, double timeBeforeTurn, double timeBetweenPieces) {
+  static List<Pair<Position,Double>> genDirectToVertexList(Position so, Velocity vo, Position wp, double bankAngle, double timeBeforeTurn, double timeBetweenPieces) {
     Vect3 s3;
     Vect3 g3;
     EuclideanProjection proj = null;
@@ -448,9 +449,9 @@ public final class ProjectedKinematics {
         s3 = so.vect3();
         g3 = wp.vect3();    	
     }
-    ArrayList<Pair<Vect3, Double>> vertTriple = Kinematics.genDirectToVertexList(s3,vo,g3,bankAngle,timeBeforeTurn, timeBetweenPieces);
+    List<Pair<Vect3, Double>> vertTriple = Kinematics.genDirectToVertexList(s3,vo,g3,bankAngle,timeBeforeTurn, timeBetweenPieces);
 
-    ArrayList<Pair<Position,Double>> ptriple = new ArrayList<Pair<Position,Double>>();
+    List<Pair<Position,Double>> ptriple = new ArrayList<>();
     for (int i = 0; i < vertTriple.size(); i++) {
       if (so.isLatLon()) {
         Position pp = Position.make(proj.inverse(vertTriple.get(i).first));

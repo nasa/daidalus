@@ -620,7 +620,7 @@
      * @return array of strings
      */
     public List<String> toStringList() {
-      ArrayList<String> ret = new ArrayList<String>(3);
+      List<String> ret = new ArrayList<>(3);
       if (v_.isInvalid()) {
         ret.add("-");
         ret.add("-");
@@ -639,7 +639,7 @@
      * @return array of strings
      */
     public List<String> toStringList(int precision) {
-      ArrayList<String> ret = new ArrayList<String>(3);
+      List<String> ret = new ArrayList<>(3);
       if (v_.isInvalid()) {
         ret.add("-");
         ret.add("-");
@@ -657,7 +657,7 @@
      * @return array of strings
      */
     public List<String> toStringXYZList() {
-      ArrayList<String> ret = new ArrayList<String>(3);
+      List<String> ret = new ArrayList<>(3);
       if (v_.isInvalid()) {
         ret.add("-");
         ret.add("-");
@@ -678,7 +678,7 @@
      * @return array of strings
      */
     public List<String> toStringXYZList(int precision) {
-      ArrayList<String> ret = new ArrayList<String>(3);
+      List<String> ret = new ArrayList<>(3);
       if (v_.isInvalid()) {
         ret.add("-");
         ret.add("-");

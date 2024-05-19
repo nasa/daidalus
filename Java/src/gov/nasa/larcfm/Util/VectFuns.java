@@ -760,7 +760,7 @@ public final class VectFuns {
 	 * @return endpoints of segments (from c1 to c2) tangent to both circles.  This list will be empty if the circles overlap.
 	 */
 	public static List<Pair<Vect2,Vect2>> tangentSegments(Vect2 c1, double r1, Vect2 c2, double r2) {
-		ArrayList<Pair<Vect2,Vect2>> ret = new ArrayList<>();
+		List<Pair<Vect2,Vect2>> ret = new ArrayList<>();
 		Vect2 icos = internalCenterOfSimilitude(c1,r1,c2,r2);
 		if (icos.isInvalid()) return ret; // overlaps, nothing to do
 		Vect2 ecos = externalCenterOfSimilitude(c1,r1,c2,r2);

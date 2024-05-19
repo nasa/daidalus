@@ -130,13 +130,13 @@ public class TCASTable implements ParameterTable {
 	// Returns an empty TCASTable
 	private TCASTable() {
 		HMDFilter_ = false;
-		levels_ = new ArrayList<Double>(7);  
-		TAU_ = new ArrayList<Double>(8);  
-		TCOA_ = new ArrayList<Double>(8);  
-		DMOD_ = new ArrayList<Double>(8);  
-		ZTHR_ = new ArrayList<Double>(8);
-		HMD_ = new ArrayList<Double>(8);
-		units_ = new HashMap<String,String>();
+		levels_ = new ArrayList<>(7);  
+		TAU_ = new ArrayList<>(8);  
+		TCOA_ = new ArrayList<>(8);  
+		DMOD_ = new ArrayList<>(8);  
+		ZTHR_ = new ArrayList<>(8);
+		HMD_ = new ArrayList<>(8);
+		units_ = new HashMap<>();
 		add_zeros();
 		default_units();
 	}
@@ -177,12 +177,12 @@ public class TCASTable implements ParameterTable {
 
 	/** Copy constructor */
 	public TCASTable(TCASTable t) {
-		levels_ = new ArrayList<Double>(7);  
-		TAU_ = new ArrayList<Double>(8);  
-		TCOA_ = new ArrayList<Double>(8);  
-		DMOD_ = new ArrayList<Double>(8);  
-		ZTHR_ = new ArrayList<Double>(8);
-		HMD_ = new ArrayList<Double>(8);
+		levels_ = new ArrayList<>(7);  
+		TAU_ = new ArrayList<>(8);  
+		TCOA_ = new ArrayList<>(8);  
+		DMOD_ = new ArrayList<>(8);  
+		ZTHR_ = new ArrayList<>(8);
+		HMD_ = new ArrayList<>(8);
 		HMDFilter_ = t.HMDFilter_;
 		levels_.addAll(t.levels_);
 		TAU_.addAll(t.TAU_);

@@ -926,8 +926,8 @@ public final class Kinematics {
 	 * These may be the same point, in which case the turn will take less than 180 degrees to complete.
 	 * If either time is negative, then the connection cannot be made (e.g. the goal is within the indicated turn circle).  If this is the case, both times will be negative.
 	 */
-	static ArrayList<Pair<Vect3,Double>> genDirectToVertexList(Vect3 so, Velocity vo, Vect3 wp, double bankAngle, double timeBeforeTurn, double timeBetweenPieces) {
-		ArrayList<Pair<Vect3,Double>> vlist = new ArrayList<>(); 
+	static List<Pair<Vect3,Double>> genDirectToVertexList(Vect3 so, Velocity vo, Vect3 wp, double bankAngle, double timeBeforeTurn, double timeBetweenPieces) {
+		List<Pair<Vect3,Double>> vlist = new ArrayList<>(); 
 
 		so = so.Add(vo.vect3().Scal(timeBeforeTurn));
 		double R = Kinematics.turnRadius(vo.gs(), bankAngle);

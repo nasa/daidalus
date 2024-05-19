@@ -362,7 +362,7 @@ public final class LatLonAlt {
 	 * @return string representation
 	 * */
 	public List<String> toStringList(int precision) {
-		ArrayList<String> ret = new ArrayList<String>(3);
+		List<String> ret = new ArrayList<>(3);
 		ret.add(f.FmPrecision(latitude("deg"), precision));
 		ret.add(f.FmPrecision(longitude("deg"), precision));
 		ret.add(f.FmPrecision(altitude("ft"), precision));
