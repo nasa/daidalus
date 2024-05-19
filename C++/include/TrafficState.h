@@ -222,14 +222,14 @@ public:
 
   /**
    * Returns current horizontal speed in internal units.
-   * Horizontal speed may be air speed or group speed, depending on whether a wind vector
+   * Horizontal speed may be airspeed or groundspeed, depending on whether a wind vector
    * was provided or not.
    */
   double horizontalSpeed() const;
 
   /**
    * Returns current horizontal speed in given units.
-   * Horizontal speed may be air speed or group speed, depending on whether a wind vector
+   * Horizontal speed may be airspeed or groundspeed, depending on whether a wind vector
    * was provided or not.
    */
   double horizontalSpeed(const std::string& ugs) const;

@@ -14,9 +14,9 @@ package gov.nasa.larcfm.ACCoRD;
 public class SpecialBandFlags {
  
     /** 
-     * Ground speed is below min air speed
+     * Airspeed is below threshold
      */
-    public boolean below_min_as;
+    public boolean below_as_thr;
 
 	/** 
      * Value of DTA status given current aircraft states. 
@@ -27,12 +27,12 @@ public class SpecialBandFlags {
     public int dta_status;
 
     public SpecialBandFlags() {
-        below_min_as = false;
+        below_as_thr = false;
         dta_status = 0;
     }
     
     public void reset() {
-        below_min_as = false;
+        below_as_thr = false;
         dta_status = 0;
     }
 

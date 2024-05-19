@@ -473,16 +473,16 @@ double Daidalus::getOwnshipHeading(const std::string& units) const {
 }
   
 /**
-	* Get ownship's air speed in internal units [m/s]
+	* Get ownship's airspeed in internal units [m/s]
 	*/
-double Daidalus::getOwnshipAirSpeed() const {
+double Daidalus::getOwnshipAirspeed() const {
   return core_.ownship.horizontalSpeed();
 }
 
 /**
-	* Get ownship's air apeed in given units 
+	* Get ownship's airspeed in given units 
 	*/
-double Daidalus::getOwnshipAirSpeed(const std::string& units) const {
+double Daidalus::getOwnshipAirspeed(const std::string& units) const {
   return core_.ownship.horizontalSpeed(units);
 }
 
@@ -947,17 +947,17 @@ double Daidalus::getRightHorizontalDirection(const std::string& u) const {
 }
 
 /** 
- * @return minimum airspeed speed in internal units [m/s]. 
+ * @return airspeed threshold in internal units [m/s]. 
  */
-double Daidalus::getMinAirSpeed() const {
-	return core_.parameters.getMinAirSpeed();
+double Daidalus::getAirspeedThreshold() const {
+	return core_.parameters.getAirspeedThreshold();
 }
 
 /** 
- * @return minimum air speed in specified units [u]. 
+ * @return airspeed threshold in specified units [u]. 
  */
-double Daidalus::getMinAirSpeed(const std::string& u) const {
-		return Units::to(u,getMinAirSpeed());
+double Daidalus::getAirspeedThreshold(const std::string& u) const {
+		return Units::to(u,getAirspeedThreshold());
 }
 
 /**
@@ -1554,19 +1554,17 @@ bool Daidalus::setRightHorizontalDirection(double val, const std::string& u) {
 }
 
 /** 
- * Set minimum air speed to value in internal units [m/s].
- * Minimum air speed must be greater or equal than min horizontal speed.
+ * Set airspeed threshold value in internal units [m/s].
  */
-bool Daidalus::setMinAirSpeed(double val) {
-	return reset_or_false(core_.parameters.setMinAirSpeed(val));
+bool Daidalus::setAirspeedThreshold(double val) {
+	return reset_or_false(core_.parameters.setAirspeedThreshold(val));
 }
 
 /** 
- * Set minimum air speed to value in specified units [u].
- * Minimum air speed must be greater or equal than min horizontal speed.
+ * Set airspeed threshold to value in specified units [u].
  */
-bool Daidalus::setMinAirSpeed(double val, const std::string& u) {
-	return reset_or_false(core_.parameters.setMinAirSpeed(val,u));
+bool Daidalus::setAirspeedThreshold(double val, const std::string& u) {
+	return reset_or_false(core_.parameters.setAirspeedThreshold(val,u));
 }
 
 /**
@@ -2642,23 +2640,23 @@ void Daidalus::setDTAAlerter(int alerter) {
 }
 
 /**
- * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
- * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
- * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
- * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-*/
-int Daidalus::getHorizontalDirBandsBelowMinAirspeed() const {
-  return core_.parameters.getHorizontalDirBandsBelowMinAirspeed();
+ * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+ * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+ * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+ * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+ */
+int Daidalus::getHorizontalDirBandsBelowAirspeedThr() const {
+  return core_.parameters.getHorizontalDirBandsBelowAirspeedThr();
 }
 
 /**
- * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
- * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
- * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
- * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-*/
-void Daidalus::setHorizontalDirBandsBelowMinAirspeed(int val) {
- 	core_.parameters.setHorizontalDirBandsBelowMinAirspeed(val);
+ * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+ * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+ * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+ * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+ */
+void Daidalus::setHorizontalDirBandsBelowAirspeedThr(int val) {
+ 	core_.parameters.setHorizontalDirBandsBelowAirspeedThr(val);
 	reset(); 
 }
 

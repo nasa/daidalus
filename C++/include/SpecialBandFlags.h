@@ -22,9 +22,9 @@ class SpecialBandFlags {
 public:
 
     /** 
-     * Ground speed is below min air speed
+     * Airspeed is below threshold
      */
-	bool below_min_as;
+	bool below_as_thr;
 
 	/** 
      * Value of DTA status given current aircraft states. 
@@ -34,12 +34,12 @@ public:
 	 */
     int dta_status;
 
-    SpecialBandFlags() : below_min_as(false), dta_status(0) {}
+    SpecialBandFlags() : below_as_thr(false), dta_status(0) {}
 
     virtual ~SpecialBandFlags() {}
 
 	void reset() {
-        below_min_as = false;
+        below_as_thr = false;
         dta_status = 0;
     }
 

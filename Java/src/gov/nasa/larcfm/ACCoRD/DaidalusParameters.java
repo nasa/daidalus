@@ -95,7 +95,6 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	private double altitude_filter_; // Altitude filter (respect to the ownship) 
 	private double left_hdir_;      // Left horizontal direction [0 - pi]
 	private double right_hdir_;     // Right horizontal direction [0 - pi]
-	private double min_airspeed_;   // Minimum airspeed for calculation of horizontal direction bands
 	private double min_hs_;         // Minimum horizontal speed
 	private double max_hs_;         // Maximum horizontal speed
 	private double min_vs_;         // Minimum vertical speed
@@ -191,13 +190,14 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	private double dta_height_;
 	private int dta_alerter_;
 
-	/**
-	 * Horizontal Direction Bands Logic When Below Min Airspeed: 
-	 * 0: Special guidance logic when speed is below min airspeed is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	// Airspeed threshold for calculation of horizontal direction bands
+	private double airspeed_thr_;
+	/** 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
-	private int hdir_bands_below_min_as_;
+	private int hdir_bands_below_as_thr_;
 
 	// Alerting logic
 	// When true, alerting logic is ownship-centric. Otherwise, it is intruder-centric.
@@ -229,6 +229,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			put("persistence_preferred_hs", Arrays.asList("max_delta_resolution_hs"));
 			put("persistence_preferred_vs", Arrays.asList("max_delta_resolution_vs"));
 			put("persistence_preferred_alt", Arrays.asList("max_delta_resolution_alt"));
+			put("airspeed_thr", Arrays.asList("min_airspeed"));
+			put("hdir_bands_below_as_thr", Arrays.asList("hdir_bands_below_min_as"));
 		}};
 
 	/* NOTE: By default, no alert levels are configured */
@@ -251,9 +253,6 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 
 		right_hdir_ = Units.from("deg",180.0);
 		units_.put("right_hdir","deg");
-
-		min_airspeed_  = Units.from("knot",10.0);
-		units_.put("min_airspeed","knot");
 
 		min_hs_  = Units.from("knot",10.0);
 		units_.put("min_hs","knot");
@@ -408,8 +407,10 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		units_.put("dta_height","ft");
 		dta_alerter_  = 0;
 
-		// Horizontal Direction Bands Logic When Below Min Airspeed
-		hdir_bands_below_min_as_ = 0;
+	    // Horizontal Direction Bands Logic When Speed Below Airspeed Threshold
+		airspeed_thr_  = Units.from("knot",0.0);
+		units_.put("airspeed_thr","knot");
+		hdir_bands_below_as_thr_ = 0;
 
 		// Alerting logic
 		ownship_centric_alerting_ = true;
@@ -440,7 +441,6 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		altitude_filter_ = parameters.altitude_filter_;
 		left_hdir_ = parameters.left_hdir_;
 		right_hdir_ = parameters.right_hdir_;
-		min_airspeed_ = parameters.min_airspeed_;
 		min_hs_ = parameters.min_hs_;
 		max_hs_ = parameters.max_hs_;
 		min_vs_ = parameters.min_vs_;
@@ -518,8 +518,9 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		dta_height_ = parameters.dta_height_;
 		dta_alerter_ = parameters.dta_alerter_;
 
-		// Horizontal Direction Bands Logic When Below Min Airspeed
-		hdir_bands_below_min_as_ = parameters.hdir_bands_below_min_as_;
+		// Horizontal Direction Bands Logic When Below Airspeed Threshold
+		airspeed_thr_ = parameters.airspeed_thr_;
+		hdir_bands_below_as_thr_ = parameters.hdir_bands_below_as_thr_;
 
 		// Alerting logic
 		ownship_centric_alerting_ = parameters.ownship_centric_alerting_;
@@ -679,17 +680,17 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	}
 
 	/** 
-	 * @return minimum airspeed speed in internal units [m/s]. 
+	 * @return airspeed threshold in internal units [m/s]. 
 	 */
-	public double getMinAirSpeed() {
-		return min_airspeed_;
+	public double getAirspeedThreshold() {
+		return airspeed_thr_;
 	}
 
 	/** 
-	 * @return minimum air speed in specified units [u]. 
+	 * @return airspeed threshold in specified units [u]. 
 	 */
-	public double getMinAirSpeed(String u) {
-		return Units.to(u,getMinAirSpeed());
+	public double getAirspeedThreshold(String u) {
+		return Units.to(u,getAirspeedThreshold());
 	}
 	
 	/** 
@@ -1293,24 +1294,22 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	}
 
 	/** 
-	 * Set minimum air speed to value in internal units [m/s].
-	 * Minimum air speed must be greater or equal than min horizontal speed.
+	 * Set airspeed threshold to value in internal units [m/s].
 	 */
-	public boolean setMinAirSpeed(double val) {
-		if (error.isNonNegative("setMinAirSpeed",val)) {
-			min_airspeed_ = val;
+	public boolean setAirspeedThreshold(double val) {
+		if (error.isNonNegative("setAirspeedThreshold",val)) {
+			airspeed_thr_ = val;
 			return true;
 		}
 		return false;
 	}
 
 	/** 
-	 * Set minimum air speed to value in specified units [u].
-	 * Minimum air speed must be greater or equal than min horizontal speed.
+	 * Set airspeed threshold to value in specified units [u].
 	 */
-	public boolean setMinAirSpeed(double val, String u) {		
-		if (setMinAirSpeed(Units.from(u,val))) {
-			units_.put("min_airspeed",u);
+	public boolean setAirspeedThreshold(double val, String u) {		
+		if (setAirspeedThreshold(Units.from(u,val))) {
+			units_.put("airspeed_thr",u);
 			return true;
 		}
 		return false;
@@ -2651,23 +2650,23 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 	}
 
 	/**
-	 * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
-	 * 0: Special guidance logic when speed is below min airspeed is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
-	public int getHorizontalDirBandsBelowMinAirspeed() {
-		return hdir_bands_below_min_as_;
+	public int getHorizontalDirBandsBelowAirspeedThr() {
+		return hdir_bands_below_as_thr_;
 	}
 
 	/**
-	 * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
-	 * 0: Special guidance logic when speed is below min airspeed is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
-	public void setHorizontalDirBandsBelowMinAirspeed(int val) {
-		hdir_bands_below_min_as_ = val;
+	public void setHorizontalDirBandsBelowAirspeedThr(int val) {
+		hdir_bands_below_as_thr_ = val;
 	}
 
 	/**
@@ -2891,7 +2890,6 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		s+="altitude_filter := "+f.FmPrecision(altitude_filter_)+", ";
 		s+="left_hdir := "+f.FmPrecision(left_hdir_)+", ";
 		s+="right_hdir := "+f.FmPrecision(right_hdir_)+", ";
-		s+="min_airspeed := "+f.FmPrecision(min_airspeed_)+", ";
 		s+="min_hs := "+f.FmPrecision(min_hs_)+", ";
 		s+="max_hs := "+f.FmPrecision(max_hs_)+", ";
 		s+="min_vs := "+f.FmPrecision(min_vs_)+", ";
@@ -2948,7 +2946,8 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		s+="dta_radius := "+f.FmPrecision(dta_radius_)+", ";
 		s+="dta_height := "+f.FmPrecision(dta_height_)+", ";
 		s+="dta_alerter := "+f.Fmi(dta_alerter_)+", ";
-		s+="hdir_bands_below_min_as := "+f.Fmi(hdir_bands_below_min_as_)+", ";
+		s+="airspeed_thr := "+f.FmPrecision(airspeed_thr_)+", ";
+		s+="hdir_bands_below_as_thr := "+f.Fmi(hdir_bands_below_as_thr_)+", ";
 		s+="ownship_centric_alerting := "+ownship_centric_alerting_+", ";
 		s+="bands_add_time_to_maneuver := "+bands_add_time_to_maneuver_+", ";
 		s+="corrective_region := "+corrective_region_.toString()+", ";
@@ -2988,7 +2987,6 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		p.updateComment("altitude_filter","Traffic aircraft above/below this altitude to the ownship are ignored. Zero means no filter");
 		p.setInternal("left_hdir", left_hdir_, getUnitsOf("left_hdir"));
 		p.setInternal("right_hdir", right_hdir_, getUnitsOf("right_hdir"));
-		p.setInternal("min_airspeed", min_airspeed_, getUnitsOf("min_airspeed"));
 		p.setInternal("min_hs", min_hs_, getUnitsOf("min_hs"));
 		p.setInternal("max_hs", max_hs_, getUnitsOf("max_hs"));
 		p.setInternal("min_vs", min_vs_, getUnitsOf("min_vs"));
@@ -3073,9 +3071,11 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		p.setInternal("dta_height", dta_height_, getUnitsOf("dta_height"));
 		p.setInt("dta_alerter", dta_alerter_);
 
-		// Horizontal Direction Bands Logic When Below Min Airspeed
-		p.setInt("hdir_bands_below_min_as", hdir_bands_below_min_as_);
-		p.updateComment("hdir_bands_below_min_as", "Horizontal Direction Bands Logic When Below Min Airspeed (O:Disabled, 1:Instantaneous, -1:Kinematic)");
+		// Horizontal Direction Bands Logic When Below Airspeed Threshold
+		p.setInternal("airspeed_thr", airspeed_thr_, getUnitsOf("airspeed_thr"));
+		p.updateComment("airspeed_thr", "Airspeed Threshold for Special Horizontal Direction Bands Logic");
+		p.setInt("hdir_bands_below_as_thr", hdir_bands_below_as_thr_);
+		p.updateComment("hdir_bands_below_as_thr", "Horizontal Direction Bands Logic When Below Airspeed Threshold (O:Disabled, 1:Instantaneous, -1:Kinematic)");
 
 		// Alerting logic
 		p.setBool("ownship_centric_alerting",ownship_centric_alerting_);
@@ -3181,11 +3181,6 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			units_.put("right_hdir",getUnit(p,"right_hdir"));
 			setit = true;
 		}
-		if (contains(p,"min_airspeed")) { 
-			setMinAirSpeed(getValue(p,"min_airspeed"));
-			units_.put("min_airspeed",getUnit(p,"min_airspeed"));
-			setit = true;
-		} 
 		if (contains(p,"min_hs")) { 
 			setMinHorizontalSpeed(getValue(p,"min_hs"));
 			units_.put("min_hs",getUnit(p,"min_hs"));
@@ -3458,9 +3453,14 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 			setDTAAlerter(getInt(p,"dta_alerter"));
 			setit = true;				
 		}
-		// Horizontal Direction Bands Logic When Below Min Airspeed
-		if (contains(p,"hdir_bands_below_min_as")) {
-			setHorizontalDirBandsBelowMinAirspeed(getInt(p,"hdir_bands_below_min_as"));
+		// Horizontal Direction Bands Logic When Below Airspeed Threshold
+		if (contains(p,"airspeed_thr")) { 
+			setAirspeedThreshold(getValue(p,"airspeed_thr"));
+			units_.put("airspeed_thr",getUnit(p,"airspeed_thr"));
+			setit = true;
+		} 
+		if (contains(p,"hdir_bands_below_as_thr")) {
+			setHorizontalDirBandsBelowAirspeedThr(getInt(p,"hdir_bands_below_as_thr"));
 			setit = true;				
 		}
 		// Alerting logic
@@ -3529,7 +3529,7 @@ final public class DaidalusParameters implements ParameterAcceptor, ErrorReporte
 		} else if (key.equals("gs") || key.equals("vx") || key.equals("vy")) {
 			return units_.get("step_hs");
 		} else if (key.equals("airspeed")) {
-			return units_.get("min_airspeed");
+			return units_.get("airspeed_thr");
 		} else if (key.equals("vs") || key.equals("vz")) {
 			return units_.get("step_vs");
 		} else if (key.equals("time")) {

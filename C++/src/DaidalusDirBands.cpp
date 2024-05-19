@@ -18,9 +18,9 @@
 
 namespace larcfm {
 
-DaidalusDirBands::DaidalusDirBands() : DaidalusRealBands(2*Pi), below_min_as_(0) {}
+DaidalusDirBands::DaidalusDirBands() : DaidalusRealBands(2*Pi), below_as_thr_(0) {}
 
-DaidalusDirBands::DaidalusDirBands(const DaidalusDirBands& b) : DaidalusRealBands(b), below_min_as_(0) {}
+DaidalusDirBands::DaidalusDirBands(const DaidalusDirBands& b) : DaidalusRealBands(b), below_as_thr_(0) {}
 
 bool DaidalusDirBands::do_recovery(const DaidalusParameters& parameters) const {
   return parameters.isEnabledRecoveryHorizontalDirectionBands();
@@ -51,15 +51,15 @@ bool DaidalusDirBands::saturate_corrective_bands(const DaidalusParameters& param
 }
 
 void DaidalusDirBands::set_special_configuration(const DaidalusParameters& parameters, const SpecialBandFlags& special_flags) {
-  if (special_flags.below_min_as) {
-    below_min_as_ = parameters.getHorizontalDirBandsBelowMinAirspeed();
+  if (special_flags.below_as_thr) {
+    below_as_thr_ = parameters.getHorizontalDirBandsBelowAirspeedThr();
   } else {
-    below_min_as_ = 0;
+    below_as_thr_ = 0;
   }
 }
 
 bool DaidalusDirBands::instantaneous_bands(const DaidalusParameters& parameters) const {
-  return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || below_min_as_ > 0;
+  return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || below_as_thr_ > 0;
 }
 
 double DaidalusDirBands::own_val(const TrafficState& ownship) const {
@@ -77,8 +77,8 @@ double DaidalusDirBands::time_step(const DaidalusParameters& parameters, const T
 }
 
 double DaidalusDirBands::ownship_gs(const DaidalusParameters& parameters, const TrafficState& ownship) const {
-  double gso = below_min_as_ == 0 ? ownship.velocityXYZ().gs() : 
-    std::max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs());
+  double gso = below_as_thr_ == 0 ? ownship.velocityXYZ().gs() : 
+    std::max(parameters.getAirspeedThreshold(),ownship.velocityXYZ().gs());
   return  std::max(parameters.getHorizontalSpeedStep(),gso);
 }
 
@@ -109,7 +109,7 @@ double DaidalusDirBands::max_delta_resolution(const DaidalusParameters& paramete
 
 std::string DaidalusDirBands::rawString() const {
   std::string s(DaidalusRealBands::rawString());
-	s += "below_min_as = "+Fmi(below_min_as_)+"\n";
+	s += "below_as_thr_ = "+Fmi(below_as_thr_)+"\n";
 	return s;
 }
 

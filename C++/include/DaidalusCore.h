@@ -76,12 +76,13 @@ public:
   // Alerting and DTA hysteresis per aircraft's ids
   std::map<std::string,HysteresisData> alerting_hysteresis_acs_;
   std::map<std::string,HysteresisData> dta_hysteresis_acs_;
-  HysteresisData below_min_as_hysteresis_; // Below min airspeed Hysteris
+  // Below airspeed threshold hysteresis
+  HysteresisData below_as_thr_hysteresis_;
 
   void copyFrom(const DaidalusCore& core);
   void refresh_mua_eps();
 
-  int below_min_as_hysteresis_current_value();
+  int below_as_thr_hysteresis_current_value();
 
 public:
   DaidalusCore();

@@ -17,11 +17,11 @@ import gov.nasa.larcfm.Util.Velocity;
 public class DaidalusDirBands extends DaidalusRealBands {
 
 	/** 
-	 * 0: Special guidance logic when speed is below min airspeed is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
+	 * -1; Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
-	private int below_min_as_;
+	private int below_as_thr_;
 
 	// min/max is left/right relative to ownship's direction
 	public DaidalusDirBands() {
@@ -61,15 +61,15 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	public void set_special_configuration(DaidalusParameters parameters, SpecialBandFlags special_flags) {
-		if (special_flags.below_min_as) {
-			below_min_as_ = parameters.getHorizontalDirBandsBelowMinAirspeed();
+		if (special_flags.below_as_thr) {
+			below_as_thr_ = parameters.getHorizontalDirBandsBelowAirspeedThr();
 		} else {
-			below_min_as_ = 0;
+			below_as_thr_ = 0;
 		}
 	}
 
 	public boolean instantaneous_bands(DaidalusParameters parameters) {
-		return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || below_min_as_ > 0;
+		return (parameters.getTurnRate() == 0.0 && parameters.getBankAngle() == 0.0) || below_as_thr_ > 0;
 	}
 
 	public double own_val(TrafficState ownship) {
@@ -87,8 +87,8 @@ public class DaidalusDirBands extends DaidalusRealBands {
 	}
 
 	private double ownship_gs(DaidalusParameters parameters, TrafficState ownship) {
-		double gso = below_min_as_ == 0 ? ownship.velocityXYZ().gs() : 
-			Util.max(parameters.getMinAirSpeed(),ownship.velocityXYZ().gs());
+		double gso = below_as_thr_ == 0 ? ownship.velocityXYZ().gs() : 
+			Util.max(parameters.getAirspeedThreshold(),ownship.velocityXYZ().gs());
 		return  Util.max(parameters.getHorizontalSpeedStep(),gso);
 	}
 
@@ -119,7 +119,7 @@ public class DaidalusDirBands extends DaidalusRealBands {
 
 	public String rawString() {
 		String s = super.rawString();
-		s += "below_min_as_ = "+below_min_as_+"\n";
+		s += "below_as_thr_ = "+below_as_thr_+"\n";
 		return s;
 	}
 

@@ -136,7 +136,7 @@ bool DaidalusCore::set_alerter_traffic(int idx, int alerter_idx) {
 void DaidalusCore::clear_hysteresis() {
   alerting_hysteresis_acs_.clear();
   dta_hysteresis_acs_.clear();
-  below_min_as_hysteresis_.init();
+  below_as_thr_hysteresis_.init();
   stale();
 }
 
@@ -163,7 +163,7 @@ void DaidalusCore::stale() {
     for (hysteresis_ptr = dta_hysteresis_acs_.begin();hysteresis_ptr != dta_hysteresis_acs_.end();++hysteresis_ptr) {
       hysteresis_ptr->second.outdateIfCurrentTime(current_time);
     }
-    below_min_as_hysteresis_.outdateIfCurrentTime(current_time);
+    below_as_thr_hysteresis_.outdateIfCurrentTime(current_time);
   }
 }
 
@@ -211,7 +211,7 @@ void DaidalusCore::refresh() {
       }
     }
     special_band_flags_.dta_status = dta_status;
-    special_band_flags_.below_min_as = below_min_as_hysteresis_current_value();
+    special_band_flags_.below_as_thr = below_as_thr_hysteresis_current_value();
     refresh_mua_eps();
     cache_ = 1;
   }
@@ -246,22 +246,22 @@ void DaidalusCore::refresh_mua_eps() {
   }
 }
 
-int DaidalusCore::below_min_as_hysteresis_current_value() {
-	int actual_bmas = 0;
-	if (!below_min_as_hysteresis_.isValid()) {
-		below_min_as_hysteresis_.setHysteresisData(
+int DaidalusCore::below_as_thr_hysteresis_current_value() {
+	int actual_basthr = 0;
+	if (!below_as_thr_hysteresis_.isValid()) {
+		below_as_thr_hysteresis_.setHysteresisData(
 		parameters.getHysteresisTime(),
 		parameters.getPersistenceTime(),
 		parameters.getAlertingParameterM(),
 		parameters.getAlertingParameterN());
 	}
-	if (below_min_as_hysteresis_.isUpdatedAtCurrentTime(current_time)) {
-		actual_bmas = below_min_as_hysteresis_.getLastValue();
+	if (below_as_thr_hysteresis_.isUpdatedAtCurrentTime(current_time)) {
+		actual_basthr = below_as_thr_hysteresis_.getLastValue();
 	} else {
-		int raw_bmas = ownship.getAirVelocity().gs() < parameters.getMinAirSpeed() ? 1 : 0;	
-		actual_bmas = below_min_as_hysteresis_.applyHysteresisLogic(raw_bmas,current_time);
+		int raw_basthr = ownship.getAirVelocity().gs() < parameters.getAirspeedThreshold() ? 1 : 0;	
+		actual_basthr = below_as_thr_hysteresis_.applyHysteresisLogic(raw_basthr,current_time);
 	}
-	return actual_bmas > 0;
+	return actual_basthr > 0;
 }
   
 const SpecialBandFlags& DaidalusCore::getSpecialBandFlags() {
@@ -865,8 +865,8 @@ std::string DaidalusCore::rawString() const {
     s += "\n";
   }
   s += "dta_status_ = "+Fmi(special_band_flags_.dta_status)+"\n";
-  s += "below_min_as_hysteresis_ = "+below_min_as_hysteresis_.toString()+"\n";
-	s += "below_min_as_ = "+Fmb(special_band_flags_.below_min_as)+"\n";
+  s += "below_as_thr_hysteresis_ = "+below_as_thr_hysteresis_.toString()+"\n";
+	s += "below_as_thr_ = "+Fmb(special_band_flags_.below_as_thr)+"\n";
   s += "wind_vector = "+wind_vector.toString()+"\n";
   s += "## Aircraft states relative to wind\n"; 
 	s += raw_traffic_data(); 

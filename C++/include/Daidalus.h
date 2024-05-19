@@ -322,14 +322,14 @@ public:
   double getOwnshipHeading(const std::string& units) const;
   
   /**
-	 * Get ownship's air speed in internal units [m/s]
+	 * Get ownship's airspeed in internal units [m/s]
 	 */
-	double getOwnshipAirSpeed() const;
+	double getOwnshipAirspeed() const;
 
   /**
-	 * Get ownship's air apeed in given units 
+	 * Get ownship's airspeed in given units 
 	 */
-	double getOwnshipAirSpeed(const std::string& units) const;
+	double getOwnshipAirspeed(const std::string& units) const;
 
   /**
 	 * Set ownship's air velocity. This method resets the wind setting and the air velocity of all traffic aircraft.
@@ -619,14 +619,14 @@ public:
   double getRightHorizontalDirection(const std::string& u) const;
 
   /** 
-   * @return minimum airspeed speed in internal units [m/s]. 
+   * @return airspeed threshold in internal units [m/s]. 
    */
-  double getMinAirSpeed() const;
+  double getAirspeedThreshold() const;
 
   /** 
-   * @return minimum air speed in specified units [u].    
+   * @return airspeed threshold in specified units [u].    
    */
-  double getMinAirSpeed(const std::string& u) const;
+  double getAirspeedThreshold(const std::string& u) const;
   
   /**
    * @return minimum horizontal speed for horizontal speed bands in internal units [m/s].
@@ -1045,16 +1045,14 @@ public:
   bool setRightHorizontalDirection(double val, const std::string& u);
 
 	/** 
-   * Set minimum air speed to value in internal units [m/s].
-   * Minimum air speed must be greater or equal than min horizontal speed.
+   * Set airspeed threshold to value in internal units [m/s].
    */
-	bool setMinAirSpeed(double val);
+	bool setAirspeedThreshold(double val);
 
   /** 
-   * Set minimum air speed to value in specified units [u].
-   * Minimum air speed must be greater or equal than min horizontal speed.
+   * Set airspeed threshold to value in specified units [u].
    */
-	bool setMinAirSpeed(double val, const std::string& u);
+	bool setAirspeedThreshold(double val, const std::string& u);
   
   /**
    * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
@@ -1825,21 +1823,21 @@ public:
    */
   void setDTAAlerter(int alerter);
 
-  /**
-   * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
-   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-	*/
-  int getHorizontalDirBandsBelowMinAirspeed() const;
+	/**
+	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+	 */
+  int getHorizontalDirBandsBelowAirspeedThr() const;
 
-  /**
-   * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
-   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-	*/
-  void setHorizontalDirBandsBelowMinAirspeed(int val);
+	/**
+	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+	 */
+  void setHorizontalDirBandsBelowAirspeedThr(int val);
 
   /**
    * Set alerting logic to the value indicated by ownship_centric.

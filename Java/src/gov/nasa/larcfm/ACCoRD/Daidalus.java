@@ -538,16 +538,16 @@ public class Daidalus {
 	}
 
 	/**
-	 * Get ownship's air speed in internal units [m/s]
+	 * Get ownship's airspeed in internal units [m/s]
 	 */
-	public double getOwnshipAirSpeed() {
+	public double getOwnshipAirspeed() {
 		return core_.ownship.horizontalSpeed();
 	}
 
 	/**
-	 * Get ownship's air apeed in given units 
+	 * Get ownship's airspeed in given units 
 	 */
-	public double getOwnshipAirSpeed(String units) {
+	public double getOwnshipAirspeed(String units) {
 		return core_.ownship.horizontalSpeed(units);
 	}
 	
@@ -1045,17 +1045,17 @@ public class Daidalus {
 	}
 
 	/** 
-	 * @return minimum airspeed speed in internal units [m/s]. 
+	 * @return airspeed threshold in internal units [m/s]. 
 	 */
-	public double getMinAirSpeed() {
-		return core_.parameters.getMinAirSpeed();
+	public double getAirspeedThreshold() {
+		return core_.parameters.getAirspeedThreshold();
 	}
 
 	/** 
-	 * @return minimum air speed in specified units [u].
+	 * @return airspeed threshold in specified units [u].
 	 */
-	public double getMinAirSpeed(String u) {
-		return Units.to(u,getMinAirSpeed());
+	public double getAirspeedThreshold(String u) {
+		return Units.to(u,getAirspeedThreshold());
 	}
 
   	/**
@@ -1652,19 +1652,17 @@ public class Daidalus {
 	}
 
 	/** 
-	 * Set minimum air speed to value in internal units [m/s].
-	 * Minimum air speed must be greater or equal than min horizontal speed.
+	 * Set airspeed threshold to value in internal units [m/s].
 	 */
-	public boolean setMinAirSpeed(double val) {
-		return reset_or_false(core_.parameters.setMinAirSpeed(val));
+	public boolean setAirspeedThreshold(double val) {
+		return reset_or_false(core_.parameters.setAirspeedThreshold(val));
 	}
 
 	/** 
-	 * Set minimum air speed to value in specified units [u].
-	 * Minimum air speed must be greater or equal than min horizontal speed.
+	 * Set airspeed threshold to value in specified units [u].
 	 */
-	public boolean setMinAirSpeed(double val, String u) {	
-		return reset_or_false(core_.parameters.setMinAirSpeed(val,u));
+	public boolean setAirspeedThreshold(double val, String u) {	
+		return reset_or_false(core_.parameters.setAirspeedThreshold(val,u));
 	}
 
 	/** 
@@ -2741,23 +2739,23 @@ public class Daidalus {
 	}
 
 	/**
-	 * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
-	 * 0: Horizontal direction bands disabled when airspeed is below min_airspeed
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
-	public int getHorizontalDirBandsBelowMinAirspeed() {
-		return core_.parameters.getHorizontalDirBandsBelowMinAirspeed();
+	public int getHorizontalDirBandsBelowAirspeedThr() {
+		return core_.parameters.getHorizontalDirBandsBelowAirspeedThr();
 	}
 
 	/**
-	 * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
-	 * 0: Horizontal direction bands disabled 
-	 * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-	 * -1; Kinematic horizontal direction bands computed assumming min_airspeed
+	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
-	public void setHorizontalDirBandsBelowMinAirspeed(int val) {
-		core_.parameters.setHorizontalDirBandsBelowMinAirspeed(val);
+	public void setHorizontalDirBandsBelowAirspeedThr(int val) {
+		core_.parameters.setHorizontalDirBandsBelowAirspeedThr(val);
 		reset();
 	}
 

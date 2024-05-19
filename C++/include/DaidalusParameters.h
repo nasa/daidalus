@@ -44,7 +44,6 @@ private:
 	double altitude_filter_; // Altitude filter (respect to the ownship) 
   double left_hdir_;      // Left horizontal direction [0 - pi]
   double right_hdir_;     // Right horizontal direction [0 - pi]
-  double min_airspeed_;   // Minimum airspeed for calculation of horizontal direction bands
   double min_hs_;         // Minimum horizontal speed
   double max_hs_;         // Maximum horizontal speed
   double min_vs_;         // Minimum vertical speed
@@ -140,13 +139,14 @@ private:
   double dta_height_;
   int dta_alerter_;
 
-	/**
-	 * Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Special guidance logic when speed is below min airspeed is disabled
-   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-   */
-	int hdir_bands_below_min_as_;
+  // Airspeed threshold for calculation of horizontal direction bands
+	double airspeed_thr_;   
+	/** 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+	 */
+	int hdir_bands_below_as_thr_;
 
   // Alerting logic
   // When true, alerting logic is ownship-centric. Otherwise, it is intruder-centric.
@@ -260,14 +260,14 @@ public:
   double getRightHorizontalDirection(const std::string& u) const;
 
   /** 
-   * @return minimum airspeed speed in internal units [m/s].
+   * @return airspeed threshold in internal units [m/s].
    */
-  double getMinAirSpeed() const;
+  double getAirspeedThreshold() const;
 
   /** 
-   * @return minimum air speed in specified units [u].    
+   * @return airspeed threshold in specified units [u].    
    */
-  double getMinAirSpeed(const std::string& u) const;
+  double getAirspeedThreshold(const std::string& u) const;
 
   double getMinHorizontalSpeed() const;
 
@@ -454,16 +454,14 @@ public:
   bool setRightHorizontalDirection(double val, const std::string& u);
 
 	/** 
-   * Set minimum air speed to value in internal units [m/s].
-   * Minimum air speed must be greater or equal than min horizontal speed.
+   * Set airspeed threshold to value in internal units [m/s].
    */
-	bool setMinAirSpeed(double val);
+	bool setAirspeedThreshold(double val);
 
   /** 
-   * Set minimum air speed to value in specified units [u].
-   * Minimum air speed must be greater or equal than min horizontal speed.
+   * Set airspeed threshold to value in specified units [u].
    */
-	bool setMinAirSpeed(double val, const std::string& u);
+	bool setAirspeedThreshold(double val, const std::string& u);
     
   /**
    * Set minimum horizontal speed to value in internal units [m/s].
@@ -932,21 +930,21 @@ public:
    */
   void setDTAAlerter(int alerter);
 
-  /**
-   * Get Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Special guidance logic when speed is below min airspeed is disabled
-   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-   */
-  int getHorizontalDirBandsBelowMinAirspeed() const;
+	/**
+	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+	 */
+  int getHorizontalDirBandsBelowAirspeedThr() const;
 
-  /**
-   * Set Horizontal Direction Bands Logic When Below Min Airspeed: 
-   * 0: Special guidance logic when speed is below min airspeed is disabled
-   * 1: Instantaneous horizontal direction bands computed assuming min_airspeed 
-   * -1; Kinematic horizontal direction bands computed assumming min_airspeed
-   */
-  void setHorizontalDirBandsBelowMinAirspeed(int val);
+	/**
+	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
+	 */
+  void setHorizontalDirBandsBelowAirspeedThr(int val);
 
   /**
    * Set alerting logic to the value indicated by ownship_centric.
