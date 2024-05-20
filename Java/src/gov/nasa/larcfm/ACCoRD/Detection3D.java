@@ -171,7 +171,7 @@ public abstract class Detection3D implements ParameterAcceptor {
 			return;
 		}
 		// Add conflict contour
-		List<Position> blob = new ArrayList<Position>(vin);
+		List<Position> blob = new ArrayList<>(vin);
 		blob.addAll(vout);
 		blobs.add(blob);
 		vin.clear();
@@ -192,11 +192,11 @@ public abstract class Detection3D implements ParameterAcceptor {
 	 */
 	final public void horizontalContours(List<List<Position>>blobs, TrafficState ownship, TrafficState intruder, 
 			double thr, double T) {
-		Deque<Position> vin = new ArrayDeque<Position>();
+		Deque<Position> vin = new ArrayDeque<>();
 		Position po = ownship.getPosition();
 		Velocity vo = ownship.getAirVelocity();
 		double current_trk = vo.trk();
-		Deque<Position> vout = new ArrayDeque<Position>();
+		Deque<Position> vout = new ArrayDeque<>();
 		/* First step: Computes conflict contour (contour in the current path of the aircraft).
 		 * Get contour portion to the right.  If los.getTimeIn() == 0, a 360 degree
 		 * contour will be computed. Otherwise, stops at the first non-conflict degree.

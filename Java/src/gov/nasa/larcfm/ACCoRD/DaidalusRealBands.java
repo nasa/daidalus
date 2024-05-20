@@ -79,13 +79,13 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		max_rel_ = 0;
 
 		// Cached arrays_ are initialized
-		acs_peripheral_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
-		acs_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
+		acs_peripheral_bands_ = new ArrayList<>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
+		acs_bands_ = new ArrayList<>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			acs_peripheral_bands_.add(new ArrayList<IndexLevelT>());
 			acs_bands_.add(new ArrayList<IndexLevelT>());
 		}
-		ranges_ = new ArrayList<BandsRange>();
+		ranges_ = new ArrayList<>();
 		bands_hysteresis_ = new BandsHysteresis();
 		bands_hysteresis_.setMod(mod_);
 
@@ -106,13 +106,13 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 		max_rel_ = b.max_rel_;
 
 		// Cached arrays_ are initialized
-		acs_peripheral_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
-		acs_bands_ = new ArrayList<List<IndexLevelT>>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
+		acs_peripheral_bands_ = new ArrayList<>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
+		acs_bands_ = new ArrayList<>(BandsRegion.NUMBER_OF_CONFLICT_BANDS);
 		for (int conflict_region=0; conflict_region < BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++conflict_region) {
 			acs_peripheral_bands_.add(new ArrayList<IndexLevelT>());
 			acs_bands_.add(new ArrayList<IndexLevelT>());
 		}
-		ranges_ = new ArrayList<BandsRange>();
+		ranges_ = new ArrayList<>();
 		bands_hysteresis_ = new BandsHysteresis();
 		bands_hysteresis_.setMod(mod_);
 
@@ -815,7 +815,7 @@ abstract public class DaidalusRealBands extends DaidalusIntegerBands {
 	 */
 	public void none_bands(IntervalSet noneset, Detection3D conflict_det, Optional<Detection3D> recovery_det, 
 			int epsh, int epsv, double B, double T, DaidalusParameters parameters, TrafficState ownship, TrafficState traffic) {
-		List<Integerval> bands_int = new ArrayList<Integerval>();
+		List<Integerval> bands_int = new ArrayList<>();
 		int mino = maxdown(parameters,ownship);
 		int maxo = maxup(parameters,ownship);
 		double tstep = instantaneous_bands(parameters) ?  0.0 : time_step(parameters,ownship);	

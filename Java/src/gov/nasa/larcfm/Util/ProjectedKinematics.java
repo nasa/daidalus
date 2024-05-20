@@ -32,7 +32,7 @@ public final class ProjectedKinematics {
 		} else {
 			s3 = so.vect3();
 			Vect3 ns = s3.linear(vo.vect3(),t);
-			return new Pair<Position,Velocity>(Position.make(ns),vo);  
+			return new Pair<>(Position.make(ns),vo);  
 		}
 	}
 
@@ -109,7 +109,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+      return new Pair<>(Position.make(pres), vres);  
     }
   }
 
@@ -168,7 +168,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+      return new Pair<>(Position.make(pres), vres);  
     }
   }
 
@@ -212,7 +212,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+      return new Pair<>(Position.make(pres), vres);  
     }
   }
 
@@ -245,7 +245,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+      return new Pair<>(Position.make(pres), vres);  
     }
   }
 
@@ -279,7 +279,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+      return new Pair<>(Position.make(pres), vres);  
     }
   }
 
@@ -312,7 +312,7 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       return Projection.createProjection(so.lla().zeroAlt()).inverse(pres,vres,true);
     } else {
-      return new Pair<Position,Velocity>(Position.make(pres), vres);  
+      return new Pair<>(Position.make(pres), vres);  
     }
   }
 
@@ -328,12 +328,12 @@ public final class ProjectedKinematics {
     	so3 = proj.project(so); 
     	si3 = proj.project(si); 
         Pair<Vect3,Double> intersect = VectFuns.intersection(so3, vo.vect3(), si3, vi.vect3());
-        return new Pair<Position,Double>(Position.make(proj.inverse(intersect.first)),intersect.second);
+        return new Pair<>(Position.make(proj.inverse(intersect.first)),intersect.second);
     } else {
     	so3 = so.vect3();
     	si3 = si.vect3();
         Pair<Vect3,Double> intersect = VectFuns.intersection(so3, vo.vect3(), si3, vi.vect3());
-        return new Pair<Position,Double>(Position.make(intersect.first),intersect.second);  
+        return new Pair<>(Position.make(intersect.first),intersect.second);  
     }
   }
 
@@ -385,9 +385,9 @@ public final class ProjectedKinematics {
     if (so.isLatLon()) {
       pv = proj.inverse(dtp.first,dtp.second,true);
     } else {
-      pv = new Pair<Position,Velocity>(Position.make(dtp.first), dtp.second);  
+      pv = new Pair<>(Position.make(dtp.first), dtp.second);  
     }
-    return new Quad<Position,Velocity,Double,Integer> (pv.first, pv.second, dtp.third,dtp.fourth);
+    return new Quad<> (pv.first, pv.second, dtp.third,dtp.fourth);
   }
   
   /** Wrapper around Kinematic.genDirectToVertex
@@ -415,7 +415,7 @@ public final class ProjectedKinematics {
     }
     Triple<Vect3,Double,Double> vertTriple = Kinematics.genDirectToVertex(s3,vo,g3,bankAngle,timeBeforeTurn);
     if (vertTriple.third < 0) {
-      return new Triple<Position,Double,Double>(Position.INVALID, -1.0, -1.0);
+      return new Triple<>(Position.INVALID, -1.0, -1.0);
     }
     //f.pln(" $$$ genDirectToVertex: vertPair.second = "+vertTriple.second);
     Vect3 vertex = vertTriple.first;
@@ -434,7 +434,7 @@ public final class ProjectedKinematics {
     //  f.pln("a1,"+sop.toStringNP(8)+","+vo.toString8NP());
     //  f.pln("b2,"+pp.toStringNP(8)+","+vo.toString8NP());
     //  f.pln("c3,"+wpp.toStringNP(8)+","+vo.toString8NP());
-    return new Triple<Position,Double,Double>(pp,vertTriple.second,vertTriple.third);
+    return new Triple<>(pp,vertTriple.second,vertTriple.third);
   }
 
   static List<Pair<Position,Double>> genDirectToVertexList(Position so, Velocity vo, Position wp, double bankAngle, double timeBeforeTurn, double timeBetweenPieces) {

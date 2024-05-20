@@ -706,28 +706,26 @@ public final class SeparatedInput implements ParameterReader, ErrorReporter {
 		return error.getMessageNoClear();
 	}
 
+    public String toString() {
+        StringBuilder str = new StringBuilder(100);
+        str.append("SeparateInput: \n header_str:");
+        for (String header_str1 : header_str) {
+            str.append(", ");
+            str.append(header_str1);
+        }
 
-	public String toString() {
-		StringBuilder str = new StringBuilder(100);
-		str.append("SeparateInput: \n header_str:");
-		for (int i=0; i < header_str.length; i++) {
-			str.append(", ");
-			str.append(header_str[i]);  
-		}
+        str.append("\n units_str:");
+        for (String units_str1 : units_str) {
+            str.append(", ");
+            str.append(units_str1);
+        }
 
-		str.append("\n units_str:");
-		for (int i=0; i < units_str.length; i++) {
-			str.append(", ");
-			str.append(units_str[i]);  
-		}
+        str.append("\n line_str:");
+        for (String line_str1 : line_str) {
+            str.append(", ");
+            str.append(line_str1);
+        }
 
-		str.append("\n line_str:");
-		for (int i=0; i < line_str.length; i++) {
-			str.append(", ");
-			str.append(line_str[i]);  
-		}
-
-		return str.toString();
-	}
-
+        return str.toString();
+    }
 }

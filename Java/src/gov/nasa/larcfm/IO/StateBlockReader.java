@@ -16,16 +16,21 @@ import gov.nasa.larcfm.Util.Velocity;
 import java.io.Closeable;
 import java.util.List;
 
-/** An interface representing a reader that can correlate a number of aircraft for a single time */
-public interface StateBlockReader extends ParameterReader, ParameterProvider, ErrorReporter, Closeable  {
+/**
+ * An interface representing a reader that can correlate a number of aircraft
+ * for a single time
+ */
+public interface StateBlockReader extends ParameterReader, ParameterProvider, ErrorReporter, Closeable {
 
-	public void open(String filename);
+    public void open(String filename);
     public void close();
-    
-	/** 
-	 * Reads a sequence of lines that all have the same time and returns these lines as an ArrayList
-	 * @return a list of data structure holding the name of the aircraft, its position, its velocity, and the time.
-	 */
-	public List<Quad<String, Position, Velocity, Double>> readTimeBlock();
 
+    /**
+     * Reads a sequence of lines that all have the same time and returns these
+     * lines as an ArrayList
+     *
+     * @return a list of data structure holding the name of the aircraft, its
+     * position, its velocity, and the time.
+     */
+    public List<Quad<String, Position, Velocity, Double>> readTimeBlock();
 }

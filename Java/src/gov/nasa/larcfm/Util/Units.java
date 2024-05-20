@@ -1497,21 +1497,24 @@ public final class Units {
 		return p1.compatible.equals(p2.compatible);
 	}
 
-	/**
-	 * Return the internal (factor 1.0) unit compatible with this unit
-	 * @param unit unit to check
-	 * @return unit with factor 1.0 that is compatible with this unit.  In the event the unit is recognized but has no factor 1.0 equivalent, this will return the empty string.
-	 * This will throw a UnitException if the unit is not recognized.
-	 */
-	public static String getCompatibleInternalUnit(String unit) {
-		String[] compat = getCompatibleUnits(unit);
-		for (int i = 0; i < compat.length; i++) {
-			if (getFactor(compat[i]) == 1.0) {
-				return compat[i];
-			}
-		}
-		return "";
-	}
+    /**
+     * Return the internal (factor 1.0) unit compatible with this unit
+     *
+     * @param unit unit to check
+     * @return unit with factor 1.0 that is compatible with this unit. In the
+     * event the unit is recognized but has no factor 1.0 equivalent, this will
+     * return the empty string. This will throw a UnitException if the unit is
+     * not recognized.
+     */
+    public static String getCompatibleInternalUnit(String unit) {
+        String[] compat = getCompatibleUnits(unit);
+        for (String compat1 : compat) {
+            if (getFactor(compat1) == 1.0) {
+                return compat1;
+            }
+        }
+        return "";
+    }
 
 
 	/**
@@ -1657,17 +1660,16 @@ public final class Units {
 	 *                Thrown if the conversion factor is invalid.
 	 */
 	public static void to(double factor, double[][] value) throws UnitException {
-
 		if (factor <= 0.0) {
-			for (int i = 0; i < value.length; i++) {
-				to(factor, value[i]);
-			}
+                    for (double[] value1 : value) {
+                        to(factor, value1);
+                    }
 		} else {
-			for (int i = 0; i < value.length; i++) {
-				for (int j = 0; j < value[i].length; j++) {
-					value[i][j] /= factor;
-				}
-			}
+                    for (double[] value1 : value) {
+                        for (int j = 0; j < value1.length; j++) {
+                            value1[j] /= factor;
+                        }
+                    }
 		}
 	}
 
@@ -1839,15 +1841,15 @@ public final class Units {
 			throws UnitException {
 
 		if (factor <= 0.0) {
-			for (int i = 0; i < value.length; i++) {
-				from(factor, value[i]);
-			}
+                    for (double[] value1 : value) {
+                        from(factor, value1);
+                    }
 		} else {
-			for (int i = 0; i < value.length; i++) {
-				for (int j = 0; j < value[i].length; j++) {
-					value[i][j] *= factor;
-				}
-			}
+                    for (double[] value1 : value) {
+                        for (int j = 0; j < value1.length; j++) {
+                            value1[j] *= factor;
+                        }
+                    }
 		}
 	}
 
@@ -1884,17 +1886,17 @@ public final class Units {
 			throws UnitException {
 
 		if (factor <= 0.0) {
-			for (int i = 0; i < value.length; i++) {
-				from(factor, value[i]);
-			}
+                    for (double[][] value1 : value) {
+                        from(factor, value1);
+                    }
 		} else {
-			for (int i = 0; i < value.length; i++) {
-				for (int j = 0; j < value[i].length; j++) {
-					for (int k = 0; k < value[i].length; k++) {
-						value[i][j][k] *= factor;
-					}
-				}
-			}
+                    for (double[][] value1 : value) {
+                        for (double[] value11 : value1) {
+                            for (int k = 0; k < value1.length; k++) {
+                                value11[k] *= factor;
+                            }
+                        }
+                    }
 		}
 	}
 
@@ -2122,49 +2124,47 @@ public final class Units {
 		return f.FmPrecision(to(unit, value),precision) + " [" + unit + "]";	
 	}
 
-	
-	/**
-	 * Creates a string that looks contains an HTML representation of all available
-	 * units, their factors, and their compatible units.
-	 * 
-	 * @throws UnitException if invalid unit
-	 */
-	public static String getAllUnitsHTML() {
+    /**
+     * Creates a string that looks contains an HTML representation of all
+     * available units, their factors, and their compatible units.
+     *
+     * @throws UnitException if invalid unit
+     */
+    public static String getAllUnitsHTML() {
+        Iterator<String> itr;
+        UnitPair u;
+        String[] units = getAllUnits();
+        StringBuilder sb = new StringBuilder(1000);
+        String nl = System.lineSeparator();
 
-		Iterator<String> itr;
-		UnitPair u;
-		String[] units = getAllUnits();
-		StringBuilder sb = new StringBuilder(1000);
-		String nl = System.lineSeparator();
-		
-		sb.append("<body>"+nl);
-		sb.append("<H1>List of Units</H1>"+nl);
-		sb.append("Note: this is the list of units when the "+nl);
-		sb.append("Units class was created, the user may have added"+nl);
-		sb.append("other units in the interm.<p>"+nl);
-		sb.append("<table border>"+nl);
-		sb.append("<tr><th>Unit</th>"+nl);
-		sb.append("    <th>Factor</th>"+nl);
-		sb.append("    <th>Compatible Units</th></tr>"+nl);
-		for (int i = 0; i < units.length; i++) {
-			sb.append("<tr><td align=center>");
-			sb.append(units[i]);
-			sb.append("</th>");
-			u = getUnitPair(units[i]);
-			sb.append("<td align=right>");
-			sb.append(u.factor);
-			sb.append("</td>");
-			sb.append("<td>");
-			itr = u.compatible.iterator();
-			while (itr.hasNext()) {
-				sb.append(itr.next());
-				sb.append(' ');
-			}
-			sb.append("</td>"+nl);
-			sb.append("</tr>"+nl);
-		}
-		sb.append("</table>"+nl);
-		sb.append("</body>"+nl);
-		return sb.toString();
-	}
+        sb.append("<body>").append(nl);
+        sb.append("<H1>List of Units</H1>").append(nl);
+        sb.append("Note: this is the list of units when the ").append(nl);
+        sb.append("Units class was created, the user may have added").append(nl);
+        sb.append("other units in the interm.<p>").append(nl);
+        sb.append("<table border>").append(nl);
+        sb.append("<tr><th>Unit</th>").append(nl);
+        sb.append("    <th>Factor</th>").append(nl);
+        sb.append("    <th>Compatible Units</th></tr>").append(nl);
+        for (String unit : units) {
+            sb.append("<tr><td align=center>");
+            sb.append(unit);
+            sb.append("</th>");
+            u = getUnitPair(unit);
+            sb.append("<td align=right>");
+            sb.append(u.factor);
+            sb.append("</td>");
+            sb.append("<td>");
+            itr = u.compatible.iterator();
+            while (itr.hasNext()) {
+                sb.append(itr.next());
+                sb.append(' ');
+            }
+            sb.append("</td>").append(nl);
+            sb.append("</tr>").append(nl);
+        }
+        sb.append("</table>").append(nl);
+        sb.append("</body>").append(nl);
+        return sb.toString();
+    }
 }

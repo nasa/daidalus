@@ -75,7 +75,7 @@ public class CDCylinder extends Detection3D {
 	public CDCylinder(String s) {
 		D_ = Units.from("nmi",5.0);
 		H_ = Units.from("ft",1000.0);
-		units_ = new HashMap<String,String>();
+		units_ = new HashMap<>();
 		units_.put("D","nmi");
 		units_.put("H","ft");
 		id = s;
@@ -91,7 +91,7 @@ public class CDCylinder extends Detection3D {
 	public CDCylinder(CDCylinder cdc) {
 		D_ = cdc.D_;
 		H_ = cdc.H_;
-		units_ = new HashMap<String,String>();
+		units_ = new HashMap<>();
 		units_.putAll(cdc.units_);
 		id = cdc.id;
 	}
@@ -103,7 +103,7 @@ public class CDCylinder extends Detection3D {
 	public CDCylinder(double d, String dunit, double h, String hunit) {
 		D_ = Units.from(dunit,Math.abs(d));
 		H_ = Units.from(hunit,Math.abs(h));
-		units_ = new HashMap<String,String>();
+		units_ = new HashMap<>();
 		units_.put("D",dunit);
 		units_.put("H",hunit);
 		id = "";

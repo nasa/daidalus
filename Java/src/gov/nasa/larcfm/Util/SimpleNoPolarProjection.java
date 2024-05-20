@@ -194,11 +194,11 @@ public final class SimpleNoPolarProjection implements EuclideanProjection {
      * Project both a position and a velocity at that position into a Euclidean reference frame 
      */
     public Pair<Vect3,Velocity> project(Position p, Velocity v) {
-    	return new Pair<Vect3,Velocity>(project(p),projectVelocity(p,v));
+    	return new Pair<>(project(p),projectVelocity(p,v));
     }
 
     public Pair<Vect3,Velocity> project(LatLonAlt p, Velocity v) {
-    	return new Pair<Vect3,Velocity>(project(p),projectVelocity(p,v));
+    	return new Pair<>(project(p),projectVelocity(p,v));
     }
 
      /**
@@ -206,16 +206,14 @@ public final class SimpleNoPolarProjection implements EuclideanProjection {
       */
     public Pair<Position,Velocity> inverse(Vect3 p, Velocity v, boolean toLatLon) {
     	if (toLatLon) {
-    	  return new Pair<Position,Velocity>(Position.make(inverse(p)),inverseVelocity(p,v,true));
+    	  return new Pair<>(Position.make(inverse(p)),inverseVelocity(p,v,true));
     	} else {
-    		return new Pair<Position,Velocity>(Position.make(p),v);
+    		return new Pair<>(Position.make(p),v);
     	}
     }
     
     /** String representation */
     public String toString() {
     	return "SimpleNoPolarProjection: projLat = "+Units.str("deg",projLat)+"  projLon = "+Units.str("deg",projLon)+"  projAlt = "+Units.str("ft",projAlt);
-    }
-
-    
+    }   
 }

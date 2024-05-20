@@ -929,14 +929,14 @@ public final class Position implements OutputList {
 	public static Pair<Position,Double> intersection(Position so, Position so2, double dto, Position si, Position si2) {
 		if (so.latlon != si.latlon && so2.latlon != si2.latlon && so.latlon != so2.latlon) {
 			Debug.error("Position.intersection call was given an inconsistent argument.");	
-			return new Pair<Position,Double>(Position.INVALID,-1.0);
+			return new Pair<>(Position.INVALID,-1.0);
 		}
 		if (so.latlon) {
 			Pair<LatLonAlt,Double> lgc = GreatCircle.intersectionAvgAlt(so.lla(),so2.lla(), dto, si.lla(), si2.lla());
-			return new Pair<Position,Double>(make(lgc.first),lgc.second);
+			return new Pair<>(make(lgc.first),lgc.second);
 		} else {
 			Pair<Vect3,Double> pvt = VectFuns.intersectionAvgZ(so.vect3(),so2.vect3(),dto,si.vect3(),si2.vect3());
-			return new Pair<Position,Double>(make(pvt.first),pvt.second );
+			return new Pair<>(make(pvt.first),pvt.second );
 		}
 	}
 
@@ -1116,7 +1116,7 @@ public final class Position implements OutputList {
 	 * LatLon use the units [deg,deg,ft] */
 	@Override
 	public List<String> toStringList() {
-		ArrayList<String> ret = new ArrayList<String>(3);
+		List<String> ret = new ArrayList<>(3);
 		if (isInvalid()) {
 			ret.add("-");
 			ret.add("-");
