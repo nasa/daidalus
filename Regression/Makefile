@@ -3,7 +3,7 @@ DIFFOPTIONS= #--ignore=min_as:as_thr:min_airspeed:airspeed_thr:spread:_crit
 TESTOPTIONS= #--options --units time:s
 
 all:
-	@echo "make mold | gold | diff [-e IGNORE=<ignorestr>] [-e DIFFOPTIONS=<diffoptions>] [-e TESTOPTIONS=<diffoptions>] | java | cpp"
+	@echo "make mold | gold | diff [-e IGNORE=<ignorestr>] [-e DIFFOPTIONS=<diffoptions>] [-e TESTOPTIONS=<diffoptions>] | both | java | cpp"
 
 gold:
 	../Scripts/make-gold.sh Java
@@ -20,9 +20,13 @@ moldj: moldirj
 diffoptions=$(subst :, -I ,$(subst --ignore=,-I ,$(DIFFOPTIONS)))
 
 diffj:
+	@echo 
+	@echo "== Diff Java =="
 	../Scripts/strest -d -J $(DIFFOPTIONS) --extension=out:csv -c DO_365B_no_SUM H1.daa $(SCENARIOS)
 	../Scripts/strest -d -J $(DIFFOPTIONS) --extension=out:csv -c DO_365B_SUM H1_SUM.daa
 	-diff -x ".*" -I "^#.*" $(diffoptions) Java/mold/example gold/current/example
+	@echo "== End diff Java =="
+	@echo
 
 moldcpp: moldircpp
 	C++/DaidalusExample --config no_sum --verbose > C++/mold/example/DaidalusExample-no_sum.out
@@ -34,9 +38,13 @@ moldcpp: moldircpp
 	../Scripts/strest -t -C $(TESTOPTIONS) --extension=out:csv -c DO_365B_SUM H1_SUM.daa
 
 diffcpp: 
+	@echo 
+	@echo "== Begin diff C++ =="
 	../Scripts/strest -d -C $(DIFFOPTIONS) --extension=out:csv -c DO_365B_no_SUM H1.daa $(SCENARIOS)
 	../Scripts/strest -d -C $(DIFFOPTIONS) --extension=out:csv -c DO_365B_SUM H1_SUM.daa
 	-diff -x ".*" -I "^#.*" $(diffoptions) C++/mold/example gold/current/example
+	@echo "== End diff C++ =="
+	@echo
 
 mold: moldj moldcpp
 
@@ -45,6 +53,8 @@ diff: diffj diffcpp
 java: moldj diffj
 
 cpp: moldcpp diffcpp
+
+both: java cpp
 
 moldirj:
 	@test -d Java/mold || mkdir -p Java/mold/example
