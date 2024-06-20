@@ -87,13 +87,13 @@ import java.util.Optional;
 
 public class Daidalus {
 
-	private DaidalusCore      core_;
-	private DaidalusDirBands  hdir_band_; 
-	private DaidalusHsBands   hs_band_;  
-	private DaidalusVsBands   vs_band_;  
-	private DaidalusAltBands  alt_band_; 
+	private final DaidalusCore      core_;
+	private final DaidalusDirBands  hdir_band_;
+	private final DaidalusHsBands   hs_band_;
+	private final DaidalusVsBands   vs_band_;
+	private final DaidalusAltBands  alt_band_;
 
-	protected ErrorLog error = new ErrorLog("Daidalus");
+	protected final ErrorLog error;
 
 	/* Constructors */
 
@@ -109,6 +109,7 @@ public class Daidalus {
 		hs_band_ = new DaidalusHsBands();
 		vs_band_ = new DaidalusVsBands();
 		alt_band_ = new DaidalusAltBands();
+		error = new ErrorLog("Daidalus");
 	}
 
 	/** 
@@ -120,6 +121,7 @@ public class Daidalus {
 		hs_band_ = new DaidalusHsBands();
 		vs_band_ = new DaidalusVsBands();
 		alt_band_ = new DaidalusAltBands();
+		error = new ErrorLog("Daidalus");
 	}
 
 	/** 
@@ -132,6 +134,7 @@ public class Daidalus {
 		hs_band_ = new DaidalusHsBands();
 		vs_band_ = new DaidalusVsBands();
 		alt_band_ = new DaidalusAltBands();
+		error = new ErrorLog("Daidalus");
 	}
 
 	/**
@@ -144,6 +147,7 @@ public class Daidalus {
 		hs_band_ = new DaidalusHsBands(daa.hs_band_);
 		vs_band_ = new DaidalusVsBands(daa.vs_band_);
 		alt_band_ = new DaidalusAltBands(daa.alt_band_);
+		error = new ErrorLog(daa.error);
 	}
 
 	/* Setting for WC Definitions RTCA DO-365 */
