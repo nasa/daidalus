@@ -1,4 +1,4 @@
-## DAAGenerator -backward 100 -forward 20 --loc NY.loc C1.txt
+## DAAGenerator -backward 100 -forward 20 --loc NY.loc -o C1_0_120.daa C1.txt
 NAME lat lon alt trk gs vs time
 [none] [deg] [deg] [ft] [deg] [knot] [fpm] [s]
 Ownship, 40.616774, -74.04466, 15000.0, 0.0, 120.000051, 0.0, 0.0

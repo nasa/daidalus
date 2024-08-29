@@ -65,14 +65,14 @@ public class DrawMultiBands extends DAABatchProcessor {
 	}
 
 	static String region2str(BandsRegion r) {
-	        return switch (r) {
-		case NONE -> "0";
-		case FAR -> "1";
-		case MID -> "2";
-		case NEAR -> "3";
-		case RECOVERY -> "4";
-		default -> "-1";
-		};
+	    switch (r) {
+		case NONE : return "0";
+		case FAR : return "1";
+		case MID : return "2";
+		case NEAR :return  "3";
+		case RECOVERY : return "4";
+		default : return"-1";
+		}
 	}
 
 	String hs_units;
@@ -93,6 +93,7 @@ public class DrawMultiBands extends DAABatchProcessor {
 
 	public static void main(String[] args) {
 		DrawMultiBands processor = new DrawMultiBands();
+		processor.out = new PrintWriter(System.out);
 		processor.ignoreset.addAll(Arrays.asList("location","format"));
 		/* Reading and processing options */
 		for (int a=0;a < args.length; ++a) {
@@ -113,24 +114,31 @@ public class DrawMultiBands extends DAABatchProcessor {
 		}				
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
-		if (input_files.size() != 1) {
+		if (!processor.standardInputEnabled() && input_files.isEmpty()) {
 			System.err.println("Usage:\n\tDrawMultiBands [<options>] <daa_file>");
 			System.err.println("Try:\n\tDrawMultiBands --help");
 			System.exit(1);
 		}
-		File file = input_files.get(0);
-		String base_name = input_files.get(0).getName();
-		processor.scenario = base_name.substring(0,base_name.lastIndexOf('.'));
-		String output_file = processor.getOutputFileNameOr(processor.scenario,"draw");
-		try {
-			processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
-			System.out.println("Writing file "+output_file+", which can be processed with the Python script drawmultibands.py");
-			processor.processFile(file.getPath());
-			processor.out.close();
-		} catch (Exception e) {
-			System.err.println("** Error: "+e);
-			System.exit(1);
+		String input_file = processor.standardInputEnabled() ? "" : input_files.get(0).getPath();
+		String output_file = processor.getOutputFileName();
+		if (!input_file.isEmpty() && output_file.isEmpty()) {
+			String base_name = input_files.get(0).getName();
+			processor.scenario = base_name.substring(0,base_name.lastIndexOf('.'));
+			if (!processor.scenario.isEmpty()) {
+				output_file = processor.scenario+"_"+processor.getConfigurationName()+".draw";
+			}
 		}
+		if (!output_file.isEmpty()) {
+			try {
+				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+				System.err.println("Writing file "+output_file+", which can be processed with the Python script drawmultibands.py");
+			} catch (Exception e) {
+				System.err.println("** Error: "+e);
+				System.exit(1);
+			}
+		}
+		processor.processFile(input_file);
+		processor.out.close();
 	}
 
 	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {

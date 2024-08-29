@@ -181,19 +181,26 @@ int main(int argc, const char* argv[]) {
 			exit(1);
 		}
 		const std::vector<std::string>& input_files = processor.getFileNames();
-		if (input_files.size() != 1) {
+    if (!processor.standardInputEnabled() && input_files.empty()) {
 			std::cerr << "Usage:\n\tDaidalusAlerting [<options>] <daa_file>" << std::endl;
 			std::cerr << "Try:\n\tDaidalusAlerting --help" << std::endl;
 			exit(1);
 		}
-    const std::string& input_file = input_files[0];
-		std::string scenario = base_filename(input_file,false);
-		std::string output_file = processor.getOutputFileNameOr(scenario,".csv");
+    const std::string& input_file = processor.standardInputEnabled() ? "" : input_files[0];
+		std::string output_file = processor.getOutputFileName();
+    if (!input_file.empty() && output_file.empty()) {
+      		std::string scenario = base_filename(input_file,false);
+          output_file = scenario+"_"+processor.getConfigurationName()+".csv";
+    }
     std::ofstream fout;
-    fout.open(output_file.c_str());
-		processor.out = &fout;
-    std::cerr << "Processing DAIDALUS file " << input_file << std::endl;
-    std::cerr << "Generating CSV file " << output_file << std::endl;
+    if (!output_file.empty()) {
+      fout.open(output_file.c_str());
+		  processor.out = &fout;
+      std::cerr << "Processing DAIDALUS file " << input_file << std::endl;
+      std::cerr << "Generating CSV file " << output_file << std::endl;
+    } 
     processor.processFile(input_file);
-    fout.close();
+    if (fout.is_open()) {
+      fout.close();
+    }
 }

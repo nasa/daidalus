@@ -89,24 +89,31 @@ public class DaidalusAlerting extends DAABatchProcessor {
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
-		if (input_files.size() != 1) {
+		if (!processor.standardInputEnabled() && input_files.isEmpty()) {
 			System.err.println("Usage:\n\tDaidalusAlerting [<options>] <daa_file>");
 			System.err.println("Try:\n\tDaidalusAlerting --help");
 			System.exit(1);
 		}
-		File file = input_files.get(0);
-		String base_name = input_files.get(0).getName();
-		String scenario = base_name.substring(0,base_name.lastIndexOf('.'));
-		String output_file = processor.getOutputFileNameOr(scenario,".csv");
-		try {
-			processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
-		} catch (Exception e) {
-			System.err.println("** Error: "+e);
-			System.exit(1);
+		String input_file = processor.standardInputEnabled() ? "" : input_files.get(0).getPath();
+		String output_file = processor.getOutputFileName();
+		if (!input_file.isEmpty() && output_file.isEmpty()) {
+			String base_name = input_files.get(0).getName();
+			String scenario = base_name.substring(0,base_name.lastIndexOf('.'));
+			if (!scenario.isEmpty()) {
+				output_file = scenario+"_"+processor.getConfigurationName()+".csv";
+			}
 		}
-		System.err.println("Processing DAIDALUS file "+file.getPath());
-		System.err.println("Generating CSV file "+output_file);
-		processor.processFile(file.getPath());
+		if (!output_file.isEmpty()) {
+			try {
+				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+			} catch (Exception e) {
+				System.err.println("** Error: "+e);
+				System.exit(1);
+			}
+			System.err.println("Processing DAIDALUS file "+input_file);
+			System.err.println("Generating CSV file "+output_file);
+		}
+		processor.processFile(input_file);
 		processor.out.close();
 	}
 

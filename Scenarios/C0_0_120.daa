@@ -1,4 +1,4 @@
-## DAAGenerator --backward 120 C0.txt
+## DAAGenerator --backward 120 -o C0_0_120.daa C0.txt
 NAME lat lon alt trk gs vs time
 [none] [deg] [deg] [ft] [deg] [knot] [fpm] [s]
 Ownship, 40.588997, -74.04466, 15000.0, 0.0, 150.0, 0.0, 0.0

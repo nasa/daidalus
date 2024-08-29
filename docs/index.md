@@ -1335,7 +1335,7 @@ track of 0 [deg] (with respect to true north) and the intruder has a
 ground speed of 120 [knot] and ground track of 90 [deg] (clockwise
 with respect to true north). The command
 ```
-$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 120 C0.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 120 --out C0_0_120.daa C0.txt 
 ```
 linearly projects the aircraft states at time 0, from  [`C0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/C0.txt), 120 seconds
 backward in time and generates the encounter file [C0_0_120.daa](https://github.com/nasa/daidalus/blob/master/Scenarios/C0_0_120.daa).
@@ -1349,7 +1349,7 @@ the file
 specifies, in local Euclidean coordinates, a head-on encounter with a closest approach of 0.5
 [nmi]. The command 
 ```
-$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --out H0_0_120a.xyz  H0.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --out H0_0_120a.xyz H0.txt
 ```
 linearly projects the aircraft states at time 0, from [`H0.txt`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0.txt), 100 seconds
 backward and 20 seconds forward in time, and generates the encounter
@@ -1361,7 +1361,7 @@ scenario can be generated in geodesic coordinates if a latitude and
 longitude for the origin of the Euclidean coordinate system is
 provided. For example, the command
 ```
-$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --lat 40.67233 --lon -74.04466 H0.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --lat 40.67233 --lon -74.04466 --out H0_0_120.daa H0.txt
 ```
  generates the encounter file
 [`H0_0_120.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/H0_0_120.daa),
@@ -1371,7 +1371,7 @@ the local Euclidean coordinate system.
 
 Wind can be added to generated scenarios. The command
 ```
-$ <DAIDALUS_DIR>/Java/DAAGenerator -backward 100 -forward 20 -lat 40.754377 -lon -74.007436 --wind_speed='40[kn]' --wind_from='170[deg]' --out C1_0_120_W.daa C1.txt
+$ <DAIDALUS_DIR>/Java/DAAGenerator --backward 100 --forward 20 --lat 40.754377 --lon -74.007436 --wind_speed='40[kn]' --wind_from='170[deg]' --out C1_0_120_W.daa C1.txt
 ```
 generates the file
 [`C0_1_120_W.daa`](https://github.com/nasa/daidalus/blob/master/Scenarios/C1_0_120_W.daa)

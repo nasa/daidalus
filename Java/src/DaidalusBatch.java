@@ -87,7 +87,7 @@ public class DaidalusBatch extends DAABatchProcessor {
 					processor.options.append(arga);
 					processor.options.append(" ");
 				} else if (arga.startsWith("-")) {
-					System.out.println("** Error: Invalid option ("+arga+")");
+					System.err.println("** Error: Invalid option ("+arga+")");
 					System.exit(1);
 				} 			
 			}
@@ -98,7 +98,7 @@ public class DaidalusBatch extends DAABatchProcessor {
 		}		
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
-		if (input_files.isEmpty()) {
+		if (!processor.standardInputEnabled() && input_files.isEmpty()) {
 			System.err.println("Usage:\n\tDaidalusBatch [<options>] <daa_files>");
 			System.err.println("Try:\n\tDaidalusBatch --help");
 			System.exit(1);
@@ -109,12 +109,16 @@ public class DaidalusBatch extends DAABatchProcessor {
 				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output)),true);
 			}
 		} catch (Exception e) {
-			System.out.println("** Error: "+e.getMessage());
+			System.err.println("** Error: "+e.getMessage());
 			System.exit(1);
 		}   
-		for (File file:input_files) {
-			String filename = file.getPath();
-			processor.processFile(filename);
+		if (input_files.isEmpty()) {
+			processor.processFile("");
+		} else {
+			for (File file:input_files) {
+				String filename = file.getPath();
+				processor.processFile(filename);
+			}
 		}
 		processor.out.close();
 	}//main

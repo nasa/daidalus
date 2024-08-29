@@ -40,6 +40,7 @@ public abstract class DAABatchProcessor {
 	private int precision_;
 	private boolean trailing_zeros_;
 	private List<String> file_names_ = new ArrayList<>();
+	private boolean stdin_ = false;
 	public  Set<String> ignoreset; // Ignore options
 	public  ParameterData parameters;
 	public  DAAFormatter formatter;
@@ -152,7 +153,6 @@ public abstract class DAABatchProcessor {
 		s.append("  --SI[~angle][~distance][~speed][~acceleration][~time]\n\tOverride units with SI [except angles/angular rates, distances, speeds, accelerations, or times]\n");
 		s.append("  --precision <n>\n\tOutput numbers with specified decimal precision\n");
 		s.append("  --trailingzeros\n\tOutput numbers with trailing zeros\n");
-		s.append("  --output <output_file>\n\tOutput information to <output_file>\n");
 		s.append("  --ownship <id>\n\tSpecify a particular aircraft as ownship\n");
 		s.append("  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic\n");
 		s.append("  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively\n");
@@ -167,7 +167,9 @@ public abstract class DAABatchProcessor {
 			s.append("  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>\n");
 		}
 		s.append("  --version\n\tPrint DAIDALUS version and exit\n");
-		s.append("  --help\n\tPrint this message\n");
+		s.append("  -o | --output <output_file>\n\tOutput information to <output_file>\n");
+		s.append("  -i | --stdinput\n\tRead aircraft states from standard input (option is ignored if <daa_file> is provided)\n");
+		s.append("  -h | --help\n\tPrint this message\n");
 		return s.toString();    
 	}
 
@@ -329,6 +331,8 @@ public abstract class DAABatchProcessor {
 			parse_no_SI(arga.substring(arga.startsWith("--")?4:3));
 		} else if ((arga.startsWith("--out") || arga.startsWith("-out") || arga.equals("-o")) && a+1 < args.length) {
 			output_file_ = args[++a];
+		} else if ((arga.startsWith("--std") || arga.startsWith("-std") || arga.equals("-i"))) {
+			stdin_ = true;
 		} else if (!ignoreset.contains("keys") && arga.startsWith("-") && arga.contains("=")) {
 			String keyval = arga.substring(arga.startsWith("--")?2:1);
 			parameters.set(keyval); 
@@ -379,20 +383,12 @@ public abstract class DAABatchProcessor {
 		return output_file_;
 	}
 
-	public String getConfigurationName() {
-		return Util.base_filename(conf_,false);
+	public boolean standardInputEnabled() {
+		return stdin_;
 	}
 
-	public String getOutputFileNameOr(String prefix, String ext) {
-		String name = output_file_;
-		if (output_file_.isEmpty()) {
-			name = prefix;
-			if (!conf_.isEmpty()) {
-				name += "_"+getConfigurationName();
-			}
-			name += ext;
-		}
-		return name;
+	public String getConfigurationName() {
+		return Util.base_filename(conf_,false);
 	}
 
 	public Interval timeInterval(DaidalusFileWalker walker) {
@@ -482,7 +478,8 @@ public abstract class DAABatchProcessor {
 	public DaidalusFileWalker getDAAWalker(String filename) {
 		DaidalusFileWalker walker = new DaidalusFileWalker(filename); 
 		if (walker.atEnd()) {
-			System.err.println("** Error: File "+filename+" doesn't appear to be a DAA file");
+			String msg = filename.isEmpty() ? "Standard input" : "File "+filename;
+			System.err.println("** Error: "+msg+" doesn't appear to be a timed list of aircraft states ("+walker.getMessage()+")");
 			System.exit(1);
 		}
 		Velocity wind = getWind();

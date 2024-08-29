@@ -23,7 +23,8 @@ DAABatchProcessor::DAABatchProcessor() :
 	lat_(0.0),
 	lon_(0.0),
 	precision_(DEFAULT_PRECISION),
-	trailing_zeros_(false) {
+	trailing_zeros_(false),
+	stdin_(false) {
 	DaidalusParameters::setDefaultOutputPrecision(precision_,trailing_zeros_);
 }
 
@@ -57,6 +58,18 @@ bool DAABatchProcessor::disabled_option(const std::string& str) const {
 	return ignoreset.find(str) != ignoreset.end();
 }
 
+const std::vector<std::string>& DAABatchProcessor::getFileNames() const {
+	for (std::vector<std::string>::const_iterator files_it = file_names_.begin();
+		files_it != file_names_.end(); ++files_it) {
+		const std::string& filename = *files_it;
+		if (!std::ifstream(filename.c_str()).good()) {
+			std::cerr << "** Error: DAA file " << filename << " not found" << std::endl;
+   			exit(1);
+    	}
+	}
+	return file_names_;
+}
+
 std::string DAABatchProcessor::help_string() const {
 	std::stringstream s;
 	if (!disabled_option("config")) {
@@ -78,7 +91,6 @@ std::string DAABatchProcessor::help_string() const {
 	s << "  --SI[~angle][~distance][~speed][~acceleration][~time]\n\tOverride units with SI [except angles/angular rates, distances, speeds, accelerations, or times]" << std::endl;
 	s << "  --precision <n>\n\tOutput numbers with specified decimal precision" << std::endl;
 	s << "  --trailingzeros\n\tOutput numbers with trailing zeros" << std::endl;
-	s << "  --output <output_file>\n\tOutput information to <output_file>" << std::endl;
 	s << "  --ownship <id>\n\tSpecify a particular aircraft as ownship" << std::endl;
 	s << "  --traffic <id1>,..,<idn>\n\tSpecify a list of aircraft as traffic" << std::endl;
 	s << "  --from [<t> | +<t> | -<t>]\n\tBegin at time <t>, <t> secs after beginning, or <t> secs before end, respectively" << std::endl;
@@ -93,7 +105,9 @@ std::string DAABatchProcessor::help_string() const {
 		s << "  --location <locfile.loc>\n\tSet latitude/longitude to values specified in <locfile.loc>" << std::endl;
 	}
 	s << "  --version\n\tPrint DAIDALUS version and exit" << std::endl;
-	s << "  --help\n\tPrint this message" << std::endl;
+	s << "  -o | --output <output_file>\n\tOutput information to <output_file>" << std::endl;
+	s << "  -i | --stdinput\n\tRead aircraft states from standard input (option is ignored if <daa_file> is provided)" << std::endl;
+	s << "  -h | --help\n\tPrint this message" << std::endl;
 	return s.str();    
 }
 
@@ -253,6 +267,8 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 		parse_no_SI(arga.substr(startsWith(arga,"--")?4:3));
 	} else if ((startsWith(arga,"--out") || startsWith(arga,"-out") || arga == "-o") && a+1 < argc) {
 		output_file_ = args[++a];
+	} else if ((startsWith(arga,"--std") || startsWith(arga,"-std") || arga == "-i")) {
+		stdin_ = true;
 	} else if (!disabled_option("keys") && startsWith(arga,"-") && contains(arga,"=")) {
 		std::string keyval = arga.substr(startsWith(arga,"--")?2:1);
 		parameters.set(keyval); 
@@ -300,18 +316,6 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 
 std::string DAABatchProcessor::getConfigurationName() const {
 	return base_filename(conf_,false);	
-}
-
-std::string DAABatchProcessor::getOutputFileNameOr(const std::string& prefix, const std::string& ext) const {
-	std::string name = output_file_;
-	if (output_file_.empty()) {
-		name = prefix;
-		if (!conf_.empty()) {
-			name += "_"+getConfigurationName();
-		}
-		name += ext;
-	}
-	return name;
 }
 
 Interval DAABatchProcessor::timeInterval(const DaidalusFileWalker& walker) const {
@@ -405,7 +409,8 @@ void DAABatchProcessor::setDAAFormatter(const DaidalusFileWalker& walker) {
 DaidalusFileWalker DAABatchProcessor::getDAAWalker(const std::string& filename) {
 	DaidalusFileWalker walker = DaidalusFileWalker(filename); 
 	if (walker.atEnd()) {
-		std::cerr << "** Error: File " << filename << " doesn't appear to be a DAA file" << std::endl;
+		std::string msg = filename.empty() ? "Standard input" : "File "+filename;
+		std::cerr << "** Error: " << msg << " doesn't appear to be a timed list of aircraft states (" << walker.getMessage() << ")" << std::endl;
 		exit(1);
 	}
 	Velocity wind = getWind();

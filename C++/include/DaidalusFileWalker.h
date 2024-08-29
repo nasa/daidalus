@@ -22,7 +22,7 @@ namespace larcfm {
 
 class DaidalusFileWalker : public ErrorReporter {
 private:
-  std::string filename_;
+  std::string filename_; // Empty filename is stdin
   SequenceReader sr_;
   ParameterData p_;
   std::vector<double> times_;
@@ -33,8 +33,10 @@ private:
   std::vector<std::string> columns_; // Columns of DAA file
 
 public:
+	// If filename is empty, use stdin
   explicit DaidalusFileWalker(const std::string& filename);
 
+  // Reset input file (do nothing if filename is empty)
   void resetInputFile(const std::string& filename);
 
 private:

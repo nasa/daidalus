@@ -13,13 +13,15 @@ import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Velocity;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class DaidalusFileWalker implements ErrorReporter {
 
-	private String filename_;
+	private String filename_; // Empty filename is stdin
 	private SequenceReader sr_;
 	private ParameterData p_;
 	private List<Double> times_;
@@ -29,17 +31,26 @@ public class DaidalusFileWalker implements ErrorReporter {
 	private Velocity wind_; // Wind velocity vector
 	private List<String> columns_; // Columns of DAA file
 
+	// If filename is empty, use stdin
 	public DaidalusFileWalker(String filename) {
 		filename_ = filename;
-		sr_ = new SequenceReader(filename);
+		sr_ = new SequenceReader();
+		if (filename.isEmpty()) {
+			sr_.open(new BufferedReader(new InputStreamReader(System.in)));
+		} else {
+			sr_.open(filename_);
+		}
 		traffic_ = new ArrayList<>();
 		init();
 	}
 
+	// Reset input file (do nothing if filename is empty)
 	public void resetInputFile(String filename) {
-		filename_ = filename;
-		sr_ = new SequenceReader(filename);
-		init();
+		if (!filename.isEmpty()) {
+			filename_ = filename;
+			sr_ = new SequenceReader(filename);
+			init();
+		}
 	}
 
 	public String getFileName() {

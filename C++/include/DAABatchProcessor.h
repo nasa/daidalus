@@ -36,6 +36,7 @@ private:
 	int precision_;
 	bool trailing_zeros_;
 	std::vector<std::string> file_names_;
+	bool stdin_;
 
 	std::string help_string() const;
 	void parse_time(int from_to_at, const std::string& arga);
@@ -62,15 +63,15 @@ public:
 
 	EuclideanProjection getProjection() const;
 
-	const std::vector<std::string>& getFileNames() const { return file_names_; }
+	const std::vector<std::string>& getFileNames() const;
 
 	int processOptions(const char* args[], const int argc, const int i);
 
 	const std::string& getOutputFileName() const { return output_file_; }
 
-	std::string getConfigurationName() const;
+	bool standardInputEnabled() const { return stdin_; }
 
-	std::string getOutputFileNameOr(const std::string& prefix, const std::string& ext) const;
+	std::string getConfigurationName() const;
 
 	Interval timeInterval(const DaidalusFileWalker& walker) const;
 

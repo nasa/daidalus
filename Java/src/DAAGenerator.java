@@ -70,6 +70,7 @@ public class DAAGenerator extends DAABatchProcessor {
 	// Keyed by aircraft id
 	Map<String, ParameterData> params = new HashMap<String, ParameterData>(); 
 	Map<String, Velocity> hcpa_vel = new HashMap<String,Velocity>();
+	PrintWriter out;
 
 	public String applicationHelpString() {
 		StringBuffer str = new StringBuffer();
@@ -101,7 +102,7 @@ public class DAAGenerator extends DAABatchProcessor {
 
 		DAAGenerator processor = new DAAGenerator();
 		processor.ignoreset.addAll(Arrays.asList("config","dontskip","keys"));
-		PrintWriter out = new PrintWriter(System.out);
+		processor.out = new PrintWriter(System.out);
 		int backward = 0; // In seconds
 		int forward = 0;  // In seconds
 		double time = 0.0;  // In seconds
@@ -121,11 +122,11 @@ public class DAAGenerator extends DAABatchProcessor {
 				} else try {
 						if ((arga.equals("--time") || arga.equals("-time") || arga.equals("-t")) && a+1 < args.length) {
 							time = Math.abs(Double.parseDouble(args[++a]));
-						} else if (arga.startsWith("--back") || arga.startsWith("-back") || arga.equals("-b")) {
+						} else if ((arga.startsWith("--back") || arga.startsWith("-back") || arga.equals("-b")) && a+1 < args.length) {
 							backward = Math.abs(Integer.parseInt(args[++a]));
-						} else if (arga.startsWith("--for") || arga.startsWith("-for") || arga.equals("-f")) {
+						} else if ((arga.startsWith("--for") || arga.startsWith("-for") || arga.equals("-f")) && a+1 < args.length) {
 							forward = Math.abs(Integer.parseInt(args[++a]));
-						} else if (arga.startsWith("--init") || arga.startsWith("-init")) {
+						} else if ((arga.startsWith("--init") || arga.startsWith("-init")) && a+1 < args.length) {
 							init = Math.abs(Integer.parseInt(args[++a]));
 						} else if (arga.startsWith("-")){
 							System.err.println("** Error: Invalid option ("+arga+")");
@@ -141,13 +142,13 @@ public class DAAGenerator extends DAABatchProcessor {
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
-		if (input_files.size() != 1) {
+		if (!processor.standardInputEnabled() && input_files.isEmpty()) {
 			System.err.println("Usage:\n\tDAAGenerator [<options>] <daa_file>");
 			System.err.println("Try:\n\tDAAGenerator --help");
 			System.exit(1);
 		}
-		File file = input_files.get(0);
-		DaidalusFileWalker walker = processor.getDAAWalker(file.getPath()); 
+		String input_file = processor.standardInputEnabled() ? "" : input_files.get(0).getPath();
+		DaidalusFileWalker walker = processor.getDAAWalker(input_file);
 		Daidalus daa = processor.getDaidalus(walker);
 
 		//beginProcess(walker,daa);
@@ -164,56 +165,39 @@ public class DAAGenerator extends DAABatchProcessor {
 		boolean xyz2latlon = processor.isLocationSet();
 		Optional<EuclideanProjection> projection = xyz2latlon ? Optional.of(processor.getProjection()) : Optional.empty();
 		TrafficState ownship = daa.getOwnshipState();
-		boolean daalatlon = ownship.isLatLon() || xyz2latlon;
 		try {
-			String output_file = "";
-			if (processor.getOutputFileName().isEmpty()) {
-				String ext = ".";
-				if (daalatlon) {
-					ext += "daa";
-				} else {
-					ext += "xyz";
-				}
-				String filename = file.getName();
-				output_file += filename.substring(0,filename.lastIndexOf('.'));
-				output_file += "_" + f.Fm0(init);
-				double to = init + backward + forward;
-				if (init != to) {
-					output_file += "_" + f.Fm0(to);
-				}
-				output_file += ext;
-			} else {
-				output_file += processor.getOutputFileName();
+			String output_file = processor.getOutputFileName();
+			if (!output_file.isEmpty()) {
+				processor.out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
+				System.err.println("Writing "+output_file);
 			}
-			out = new PrintWriter(new BufferedWriter(new FileWriter(output_file)),true);
-			System.err.println("Writing "+output_file);
 		} catch (Exception e) {
 			System.err.println("** Error: "+e);
 			System.exit(1);
-		}
-		out.println("## DAAGenerator "+processor.options+file.getName());
+		}   
+		processor.out.println("## DAAGenerator "+processor.options+input_file);
 		processor.setKeyVals(daa,keyvals);
 		Velocity wind = processor.getWindFromOwnship(daa);
 		if (!wind.isZero()) {	
 			processor.formatter.groundvel = true;			
-			out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
+			processor.out.println("## Wind (TO direction): "+wind.toStringUnits("deg","kn","fpm"));
 		}
-		processor.printKeyVals(keyvals,out);
+		processor.printKeyVals(keyvals);
 		ParameterData own_param = processor.params.get(daa.getOwnshipState().getId());
 		int offset = 0;
 		for (double t = -backward; t <= forward; ++t, ++offset) {
 			Pair<Position,Velocity> own_posvel = processor.move(ownship,own_param,t);
 			TrafficState new_own = pp_ownship(ownship.getId(),own_posvel,wind,projection);
-			out.print(processor.formatter.formattedTrafficState(new_own,offset==0,daa.getCore().parameters,init+offset));
+			processor.out.print(processor.formatter.formattedTrafficState(new_own,offset==0,daa.getCore().parameters,init+offset));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				ParameterData ac_param = processor.params.get(ac.getId());
 				Pair<Position,Velocity> ac_posvelhor = processor.move(ac,ac_param,t);
 				TrafficState new_ac = pp_traffic(ac.getId(),ac_posvelhor,new_own,projection);
-				out.print(processor.formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,init+offset));
+				processor.out.print(processor.formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,init+offset));
 			}
 		}  
-		out.close();
+		processor.out.close();
 	}
 
 	void setKeyVals(Daidalus daa, List<String> keyvals) {
@@ -311,7 +295,7 @@ public class DAAGenerator extends DAABatchProcessor {
 		}
 	}
 
-	void printKeyVals(List<String> keyvals, PrintWriter out) {
+	void printKeyVals(List<String> keyvals) {
 		for (Map.Entry<String,ParameterData> mapelement : params.entrySet()) {
 			String acid = mapelement.getKey();
 			ParameterData param = mapelement.getValue();

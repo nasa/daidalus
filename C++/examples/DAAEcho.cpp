@@ -141,8 +141,7 @@ int main(int argc, const char* argv[]) {
 		}
 	}
 	const std::vector<std::string>& input_files = processor.getFileNames();
-	if (input_files.size() > 1 ||
-		(input_files.empty() && processor.getConfigurationName().empty())) {
+	if (!processor.standardInputEnabled() && input_files.empty() && processor.getConfigurationName().empty()) {		
 		std::cerr << "Usage:\n\tDAAEcho [<options>] <daa_files" << std::endl;
 		std::cerr << "Try:\n\tDAAEcho --help" << std::endl;
 		exit(1);
@@ -154,12 +153,14 @@ int main(int argc, const char* argv[]) {
 		processor.out = &fout;
 		std::cerr << "Writing " << output_file << std::endl;
 	}
-	if (input_files.empty()) {
+	if (!processor.getConfigurationName().empty()) {
 		Daidalus daa = processor.getDaidalus();
 		processor.setDaidalusUnits(daa);
 		*processor.out << daa.getCore().parameters.toString();
-	} else {
-		processor.processFile(input_files[0]);
+	}
+	if (processor.standardInputEnabled() || !input_files.empty()) {
+		std::string input_file = processor.standardInputEnabled() ? "" : input_files[0];
+		processor.processFile(input_file);
 	}
 	if (!output_file.empty()) {
 		fout.close();

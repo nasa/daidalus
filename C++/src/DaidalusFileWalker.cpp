@@ -14,14 +14,22 @@
 
 namespace larcfm {
 
-DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) : filename_(filename), sr_(SequenceReader(filename)) {
+DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) : filename_(filename) {
+  if (filename.empty()) {
+    sr_.open(&std::cin);
+  } else {
+      sr_.open(filename);
+  }
   init();
 }
 
+// Reset input file (do nothing if filename is empty)
 void DaidalusFileWalker::resetInputFile(const std::string& filename) {
-  filename_ = filename;
-  sr_ = SequenceReader(filename);
-  init();
+  if (!filename.empty()) {
+    filename_ = filename;
+    sr_ = SequenceReader(filename);
+    init();
+  }
 }
 
 void DaidalusFileWalker::init() {

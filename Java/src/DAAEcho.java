@@ -84,8 +84,7 @@ public class DAAEcho extends DAABatchProcessor {
 		}
 		List<String> exts = Arrays.asList("daa","xyz");
 		List<File> input_files = processor.getFiles(exts);
-		if (input_files.size() > 1 ||
-			(input_files.isEmpty() && processor.getConfigurationName().isEmpty())) {
+		if (!processor.standardInputEnabled() && input_files.isEmpty() && processor.getConfigurationName().isEmpty()) {
 			System.err.println("Usage:\n\tDAAEcho [<options>] <daa_file>");
 			System.err.println("Try:\n\tDAAEcho --help");
 			System.exit(1);
@@ -97,16 +96,17 @@ public class DAAEcho extends DAABatchProcessor {
 				System.err.println("Writing "+output_file);
 			}
 		} catch (Exception e) {
-			System.out.println("** Error: "+e);
+			System.err.println("** Error: "+e);
 			System.exit(1);
 		}   
-		if (input_files.isEmpty()) {
+		if (!processor.getConfigurationName().isEmpty()) {
 			Daidalus daa = processor.getDaidalus();
 			processor.setDaidalusUnits(daa);
 			processor.out.print(daa.getCore().parameters.toString());
-		} else {
-			File file = input_files.get(0);
-			processor.processFile(file.getPath());
+		} 
+		if (processor.standardInputEnabled() || !input_files.isEmpty()) {
+			String input_file = processor.standardInputEnabled() ? "" : input_files.get(0).getPath();
+			processor.processFile(input_file);
 		}
 		processor.out.close();
 	}

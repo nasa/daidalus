@@ -150,7 +150,7 @@ int main(int argc, const char* argv[]) {
 		exit(1);
 	}		
 	const std::vector<std::string>& input_files = processor.getFileNames();
-	if (input_files.empty()) {
+	if (!processor.standardInputEnabled() && input_files.empty()) {
 		std::cerr << "Usage:\n\tDaidalusBatch [<options>] <daa_files>" << std::endl;
 		std::cerr << "Try:\n\tDaidalusBatch --help" << std::endl;
 		exit(1);
@@ -161,10 +161,14 @@ int main(int argc, const char* argv[]) {
 		fout.open(output.c_str());
 		processor.out = &fout;
 	}
-	for (std::vector<std::string>::const_iterator files_it = input_files.begin();
-		files_it != input_files.end(); ++files_it) {
-		const std::string& filename = *files_it;
-		processor.processFile(filename);
+	if (input_files.empty()) {
+			processor.processFile("");
+	} else {
+		for (std::vector<std::string>::const_iterator files_it = input_files.begin();
+			files_it != input_files.end(); ++files_it) {
+			const std::string& filename = *files_it;
+			processor.processFile(filename);
+		}
 	}
 	if (!output.empty()) {
 		fout.close();
