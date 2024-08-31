@@ -52,6 +52,7 @@ import gov.nasa.larcfm.Util.Pair;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.Velocity;
+import gov.nasa.larcfm.Util.f;
 
 public class DAAEcho extends DAABatchProcessor {
 
@@ -107,6 +108,10 @@ public class DAAEcho extends DAABatchProcessor {
 		if (processor.standardInputEnabled() || !input_files.isEmpty()) {
 			String input_file = processor.standardInputEnabled() ? "" : input_files.get(0).getPath();
 			processor.processFile(input_file);
+			if (processor.invalidTimeSteps() > 0) {
+				System.err.println("** Warning: "+processor.processedTimeSteps()+" processed time steps, "+
+				processor.invalidTimeSteps()+" invalid time steps");
+			}
 		}
 		processor.out.close();
 	}
@@ -117,7 +122,7 @@ public class DAAEcho extends DAABatchProcessor {
 		} 
 	}
 
-	public void processTime(Daidalus daa, int iteration) {
+	public void processTime(Daidalus daa) {
 		if (!daa.isLatLon() && isLocationSet()) {
 			Velocity wind = daa.getWindVelocityTo();
 			TrafficState ownship = daa.getOwnshipState();
@@ -129,7 +134,7 @@ public class DAAEcho extends DAABatchProcessor {
 			if (formatter.sum) {
 				new_own.setSUM(ownship.sum());
 			}
-			out.print(formatter.formattedTrafficState(new_own,iteration==0,daa.getCore().parameters,daa.getCurrentTime()));
+			out.print(formatter.formattedTrafficState(new_own,processedTimeSteps() == 0,daa.getCore().parameters,daa.getCurrentTime()));
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				Pair<Position,Velocity> ac_posvel = Pair.make(ac.getPosition(),ac.getGroundVelocity());
@@ -143,7 +148,7 @@ public class DAAEcho extends DAABatchProcessor {
 				out.print(formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,daa.getCurrentTime()));
 			}
 		} else {
-			out.print(daa.getCore().outputStringAircraftStates(iteration == 0,formatter));
+			out.print(daa.getCore().outputStringAircraftStates(processedTimeSteps() == 0,formatter));
 		}
 	}
 

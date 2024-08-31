@@ -160,7 +160,7 @@ public class DrawMultiBands extends DAABatchProcessor {
 		alerting_times = new Hashtable<String,String>(); 
 	}
 
-	public void processTime(Daidalus daa, int iteration) {
+	public void processTime(Daidalus daa) {
 		str_to += f.FmPrecision(daa.getCurrentTime())+" ";
 		double trko = Util.to_pi(daa.getOwnshipState().horizontalDirection());
 		str_trko += f.FmPrecision(Units.to("deg",trko))+" ";

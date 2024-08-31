@@ -39,8 +39,10 @@ public abstract class DAABatchProcessor {
 	private HashMap<String,Boolean> format_;
 	private int precision_;
 	private boolean trailing_zeros_;
-	private List<String> file_names_ = new ArrayList<>();
-	private boolean stdin_ = false;
+	private boolean stdin_;
+	private int processed_ts_; // Processed time steps
+	private int invalid_ts_;   // Invalid time steps
+	private List<String> file_names_;
 	public  Set<String> ignoreset; // Ignore options
 	public  ParameterData parameters;
 	public  DAAFormatter formatter;
@@ -65,11 +67,22 @@ public abstract class DAABatchProcessor {
 		lon_  = 0.0;
 		precision_ = DEFAULT_PRECISION;
 		trailing_zeros_ = false;
+		stdin_ = false;
+		processed_ts_ = 0;
+		invalid_ts_ = 0;
 		file_names_ = new ArrayList<>();
 		ignoreset = new HashSet<>();
 		formatter = new DAAFormatter();
 		options = new StringBuffer();
 		DaidalusParameters.setDefaultOutputPrecision(precision_,trailing_zeros_);
+	}
+
+	public int processedTimeSteps() {
+		return processed_ts_;
+	}
+
+	public int invalidTimeSteps() {
+		return invalid_ts_;
 	}
 
 	public Velocity getWind() {
@@ -503,22 +516,26 @@ public abstract class DAABatchProcessor {
 				walker.goToTime(from_to.low);
 			}
 			daa.reset();
-			int iteration = 0;
+			processed_ts_ = 0;
+			invalid_ts_ = 0;
 			while (!walker.atEnd() && walker.getTime() <= from_to.up) {
-				walker.readState(daa);
-				if (!daa.hasOwnship()) {
-					System.err.println("** Warning: Ownship not found in file "+walker.getFileName());
-					return;
-				}			
-				if (daa.getCurrentTime() >= from_to.low) {
-					processTime(daa,iteration);
-					++iteration;
+				if (walker.readState(daa)) {
+					if (!daa.hasOwnship()) {
+						System.err.println("** Warning: Ownship not found in file "+walker.getFileName());
+						return;
+					}			
+					if (daa.getCurrentTime() >= from_to.low) {
+						processTime(daa);
+						++processed_ts_;
+					} else {
+						// Skipping processing but keeping hysteresis
+						daa.forceAltitudeBandsComputation();
+						daa.forceHorizontalDirectionBandsComputation();
+						daa.forceHorizontalSpeedBandsComputation();
+						daa.forceVerticalSpeedBandsComputation();
+					}
 				} else {
-					// Skipping processing but keeping hysteresis
-					daa.forceAltitudeBandsComputation();
-					daa.forceHorizontalDirectionBandsComputation();
-					daa.forceHorizontalSpeedBandsComputation();
-					daa.forceVerticalSpeedBandsComputation();
+					++invalid_ts_;
 				}
 			} 
 		}
@@ -541,7 +558,7 @@ public abstract class DAABatchProcessor {
 
 	abstract public String applicationHelpString();
 
-	abstract public void processTime(Daidalus daa, int iteration);
+	abstract public void processTime(Daidalus daa);
 
 	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {}
 

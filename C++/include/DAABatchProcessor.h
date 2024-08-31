@@ -35,8 +35,10 @@ private:
 	std::map<std::string,bool> format_;
 	int precision_;
 	bool trailing_zeros_;
-	std::vector<std::string> file_names_;
 	bool stdin_;
+	int processed_ts_; // Processed time steps
+	int invalid_ts_; // Invalid time steps
+	std::vector<std::string> file_names_;
 
 	std::string help_string() const;
 	void parse_time(int from_to_at, const std::string& arga);
@@ -71,6 +73,10 @@ public:
 
 	bool standardInputEnabled() const { return stdin_; }
 
+	int processedTimeSteps() const { return processed_ts_; }
+
+	int invalidTimeSteps() const { return invalid_ts_; }
+
 	std::string getConfigurationName() const;
 
 	Interval timeInterval(const DaidalusFileWalker& walker) const;
@@ -89,7 +95,7 @@ public:
 
 	void processFile(const std::string& filename);
 
-	virtual void processTime(Daidalus& daa, int iteration) = 0;
+	virtual void processTime(Daidalus& daa) = 0;
 
 	virtual std::string applicationHelpString() const = 0;
 

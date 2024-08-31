@@ -12,12 +12,12 @@ import gov.nasa.larcfm.Util.ErrorReporter;
 import gov.nasa.larcfm.Util.ParameterData;
 import gov.nasa.larcfm.Util.Position;
 import gov.nasa.larcfm.Util.Velocity;
+import gov.nasa.larcfm.Util.f;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class DaidalusFileWalker implements ErrorReporter {
 
@@ -26,7 +26,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 	private ParameterData p_;
 	private List<Double> times_;
 	private int index_;
-	private Optional<String> ownship_; // Set ownship to a given value
+	private String ownship_; // Current ownship
 	private List<String> traffic_; // Only consider the traffic aircraft in this list
 	private Velocity wind_; // Wind velocity vector
 	private List<String> columns_; // Columns of DAA file
@@ -42,6 +42,10 @@ public class DaidalusFileWalker implements ErrorReporter {
 		}
 		traffic_ = new ArrayList<>();
 		init();
+	}
+
+	public DaidalusFileWalker() {
+		this("");
 	}
 
 	// Reset input file (do nothing if filename is empty)
@@ -65,7 +69,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 		if (times_.size() > 0) {
 			sr_.setActive(times_.get(0));
 		}
-		ownship_ = Optional.empty();
+		ownship_ = "";
 		traffic_.clear();
 		wind_ = Velocity.INVALID;
 		columns_ = sr_.getColumnList(); 
@@ -78,7 +82,11 @@ public class DaidalusFileWalker implements ErrorReporter {
 	 * is added to the Daidalus object at that particular time step.
 	 */
 	public void setOwnship(String name) {
-		ownship_ = Optional.of(name);
+		ownship_ = name;
+	}
+
+	public String getOwnship() {
+		return ownship_;
 	}
 
 	/** 
@@ -86,7 +94,7 @@ public class DaidalusFileWalker implements ErrorReporter {
 	 * the ownship.
 	 */
 	public void resetOwnship() {
-		ownship_ = Optional.empty();
+		ownship_ = "";
 	}
 
 	/** 
@@ -336,23 +344,27 @@ public class DaidalusFileWalker implements ErrorReporter {
 		}
 	}
 
-	public void readState(Daidalus daa) {
+	/**
+	 * Return true if a new state was read. A new state is not read when, e.g., ownship is not found
+	 * in the current state. 
+	*/
+	public  boolean readState(Daidalus daa) {
 		if (p_.size() > 0) {
 			daa.setParameterData(p_);
 			daa.reset();
 		}
-		int own = 0; // By default onwship is 0
-		if (ownship_.isPresent()) {
-			own = -1;
-			for (int ac = 0; ac < sr_.size();++ac) {
-				if (sr_.getName(ac).equals(ownship_.get())) {
-					own = ac;
-					break;
-				}
+		int own = -1;
+		for (int ac = 0; ac < sr_.size();++ac) {
+			if (ownship_.isEmpty() || sr_.getName(ac).equals(ownship_)) {
+				own = ac;
+				break;
 			}
 		}
 		if (own >= 0) {
 			String ido = sr_.getName(own);
+			if (ownship_.isEmpty()) {
+				setOwnship(ido);
+			}
 			Position so = sr_.getPosition(own);
 			Velocity vo = sr_. getVelocity(own);
 			daa.setOwnshipState(ido,so,vo,getTime());
@@ -376,8 +388,12 @@ public class DaidalusFileWalker implements ErrorReporter {
 					}
 				}
 			}
+		} else {
+			String msg = ownship_.isEmpty() ? "" : "("+ownship_+") ";
+			System.err.println("** Warning: Ownship aircraft "+msg+"not found at time "+f.FmPrecision(getTime()));
 		}
 		goNext();
+		return own >= 0;
 	}
 
 	public boolean hasError() {

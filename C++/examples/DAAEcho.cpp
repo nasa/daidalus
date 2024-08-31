@@ -93,7 +93,7 @@ public:
 		return ownship.makeIntruder(id,pos,vel);
 	}
 
-	void processTime(Daidalus& daa, int iteration) {
+	void processTime(Daidalus& daa) {
 		if (!daa.isLatLon() && isLocationSet()) {
 			Velocity wind = daa.getWindVelocityTo();
 			TrafficState ownship = daa.getOwnshipState();
@@ -105,7 +105,7 @@ public:
 			if (formatter.sum) {
 				new_own.setSUM(ownship.sum());
 			}
-			*out << formatter.formattedTrafficState(new_own,iteration==0,daa.getCore().parameters,daa.getCurrentTime());
+			*out << formatter.formattedTrafficState(new_own,processedTimeSteps() == 0,daa.getCore().parameters,daa.getCurrentTime());
 			for (int ac_idx = 1; ac_idx <= daa.lastTrafficIndex(); ++ac_idx) {
 				TrafficState ac = daa.getAircraftStateAt(ac_idx);
 				std::pair<Position,Velocity> ac_posvel = std::pair<Position,Velocity>(ac.getPosition(),ac.getGroundVelocity());
@@ -119,7 +119,7 @@ public:
 				*out << formatter.formattedTrafficState(new_ac,false,daa.getCore().parameters,daa.getCurrentTime());
 			}
 		} else {
-			*out << daa.getCore().outputStringAircraftStates(iteration == 0,formatter);
+			*out << daa.getCore().outputStringAircraftStates(processedTimeSteps() == 0,formatter);
 		}
 	}
 
@@ -161,6 +161,10 @@ int main(int argc, const char* argv[]) {
 	if (processor.standardInputEnabled() || !input_files.empty()) {
 		std::string input_file = processor.standardInputEnabled() ? "" : input_files[0];
 		processor.processFile(input_file);
+		if (processor.invalidTimeSteps() > 0) {
+			std::cerr << "** Warning: " << processor.processedTimeSteps() << " processed time steps, " <<
+			processor.invalidTimeSteps() << " invalid time steps" << std::endl;
+		}
 	}
 	if (!output_file.empty()) {
 		fout.close();

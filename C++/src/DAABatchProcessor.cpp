@@ -24,7 +24,9 @@ DAABatchProcessor::DAABatchProcessor() :
 	lon_(0.0),
 	precision_(DEFAULT_PRECISION),
 	trailing_zeros_(false),
-	stdin_(false) {
+	stdin_(false),
+	processed_ts_(0),
+	invalid_ts_(0) {
 	DaidalusParameters::setDefaultOutputPrecision(precision_,trailing_zeros_);
 }
 
@@ -434,24 +436,28 @@ void DAABatchProcessor::go(DaidalusFileWalker& walker, Daidalus& daa) {
 			walker.goToTime(from_to.low);
 		}
 		daa.reset();
-		int iteration = 0;
+		processed_ts_ = 0;
+		invalid_ts_ = 0;
 		while (!walker.atEnd() && walker.getTime() <= from_to.up) {
-			walker.readState(daa);
-			if (!daa.hasOwnship()) {
-				std::cerr << "** Warning: Ownship not found in file " << walker.getFileName() << std::endl;
-				return;
-			}			
-			if (daa.getCurrentTime() >= from_to.low) {
-				processTime(daa,iteration);
-				++iteration;
+			if (walker.readState(daa)) {
+				if (!daa.hasOwnship()) {
+					std::cerr << "** Warning: Ownship not found in file " << walker.getFileName() << std::endl;
+					return;
+				}			
+				if (daa.getCurrentTime() >= from_to.low) {
+					processTime(daa);
+					++processed_ts_;
+				} else {
+					// Skipping processing but keeping hysteresis
+					daa.forceAltitudeBandsComputation();
+					daa.forceHorizontalDirectionBandsComputation();
+					daa.forceHorizontalSpeedBandsComputation();
+					daa.forceVerticalSpeedBandsComputation();
+				}
 			} else {
-				// Skipping processing but keeping hysteresis
-				daa.forceAltitudeBandsComputation();
-				daa.forceHorizontalDirectionBandsComputation();
-				daa.forceHorizontalSpeedBandsComputation();
-				daa.forceVerticalSpeedBandsComputation();
+				++invalid_ts_;
 			}
-		} 
+		}
 	}
 }
 

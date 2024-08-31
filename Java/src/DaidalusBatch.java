@@ -155,7 +155,7 @@ public class DaidalusBatch extends DAABatchProcessor {
 		}	
 	}
 
-	public void processTime(Daidalus daa, int iteration) {
+	public void processTime(Daidalus daa) {
 		switch (format) {
 		case STANDARD:
 			out.print(daa.outputString());      

@@ -104,7 +104,7 @@ public:
 		}	
 	}
 
-	void processTime(Daidalus& daa, int iteration) {
+	void processTime(Daidalus& daa) {
 		switch (format) {
 		case STANDARD:
 			*out << daa.outputString();

@@ -94,7 +94,7 @@ public:
     *out << line_units << std::endl;
   }
 
-  void processTime(Daidalus& daa, int iteration) {
+  void processTime(Daidalus& daa) {
     int max_alert_levels = daa.maxNumberOfAlertLevels();
     std::string uhor = daa.getUnitsOf("distance_filter");
     std::string uver = daa.getUnitsOf("altitude_filter");

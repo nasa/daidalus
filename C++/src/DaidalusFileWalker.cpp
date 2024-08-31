@@ -18,7 +18,7 @@ DaidalusFileWalker::DaidalusFileWalker(const std::string& filename) : filename_(
   if (filename.empty()) {
     sr_.open(&std::cin);
   } else {
-      sr_.open(filename);
+    sr_.open(filename);
   }
   init();
 }
@@ -308,19 +308,16 @@ void DaidalusFileWalker::setDAAUnits(Daidalus& daa) const {
 	}
 }
 
-void DaidalusFileWalker::readState(Daidalus& daa) {
+bool DaidalusFileWalker::readState(Daidalus& daa) {
   if (p_.size() > 0) {
     daa.setParameterData(p_);
     daa.reset();
   }
-  int own = 0; // By default onwship is 0
-  if (!ownship_.empty()) {
-    own = -1;
-    for (int ac = 0; ac < sr_.size();++ac) {
-      if (sr_.getName(ac) == ownship_) {
-        own = ac;
-        break;
-      }
+  int own = -1; // By default onwship is 0
+  for (int ac = 0; ac < sr_.size();++ac) {
+    if (ownship_.empty() || sr_.getName(ac) == ownship_) {
+      own = ac;
+      break;
     }
   }
   if (own >= 0) {
@@ -349,8 +346,15 @@ void DaidalusFileWalker::readState(Daidalus& daa) {
         }
       }
     }
+}  else {
+    std::string msg = ""; 
+    if (!ownship_.empty()) {
+      msg = "("+ownship_+") ";
+    }
+    std::cerr << "** Warning: Ownship aircraft " << msg << "not found at time " << FmPrecision(getTime()) << std::endl;
   }
   goNext();
+  return own >= 0;
 }
 
 // ErrorReporter Interface Methods

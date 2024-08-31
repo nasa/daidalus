@@ -151,7 +151,7 @@ public class DaidalusAlerting extends DAABatchProcessor {
 		out.println(line_units);
 	}
 
-	public void processTime(Daidalus daa, int iteration) {
+	public void processTime(Daidalus daa) {
 		int max_alert_levels = daa.maxNumberOfAlertLevels();
 		String uhor = daa.getUnitsOf("distance_filter");
 		String uver = daa.getUnitsOf("altitude_filter");

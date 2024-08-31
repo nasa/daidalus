@@ -386,7 +386,7 @@ public class DAAGenerator extends DAABatchProcessor {
 
 	public void beginProcess(DaidalusFileWalker walker,Daidalus daa) {}
 
-	public void processTime(Daidalus daa, int iteration) {}
+	public void processTime(Daidalus daa) {}
 
 	public void endProcess(DaidalusFileWalker walker,Daidalus daa) {}
 }

@@ -34,7 +34,7 @@ private:
 
 public:
 	// If filename is empty, use stdin
-  explicit DaidalusFileWalker(const std::string& filename);
+  explicit DaidalusFileWalker(const std::string& filename="");
 
   // Reset input file (do nothing if filename is empty)
   void resetInputFile(const std::string& filename);
@@ -49,6 +49,8 @@ private:
 public:
 
   const std::string& getFileName() const { return filename_; } 
+
+  const std::string& getOwnship() const { return ownship_; }
 
   /**
    * By default ownship is the first aircraft in the daa file.
@@ -135,7 +137,11 @@ public:
 
   void setDAAUnits(Daidalus& daa) const;
 
-  void readState(Daidalus& daa);
+	/**
+	 * Return true if a new state was read. A new state is not read when, e.g., ownship is not found
+	 * in the current state. 
+	*/
+  bool readState(Daidalus& daa);
 
   bool hasError() const;
 
