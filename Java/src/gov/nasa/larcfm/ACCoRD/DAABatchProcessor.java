@@ -85,6 +85,10 @@ public abstract class DAABatchProcessor {
 		return invalid_ts_;
 	}
 
+	public int totalTimeSteps() {
+		return processed_ts_+invalid_ts_;
+	}
+
 	public Velocity getWind() {
 		if (parameters.contains("wind_speed")) {
 			double wind_speed = parameters.getValue("wind_speed");

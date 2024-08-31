@@ -77,6 +77,8 @@ public:
 
 	int invalidTimeSteps() const { return invalid_ts_; }
 
+	int totalTimeSteps() { return processed_ts_+invalid_ts_; }
+
 	std::string getConfigurationName() const;
 
 	Interval timeInterval(const DaidalusFileWalker& walker) const;

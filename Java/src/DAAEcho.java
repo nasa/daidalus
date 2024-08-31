@@ -109,8 +109,9 @@ public class DAAEcho extends DAABatchProcessor {
 			String input_file = processor.standardInputEnabled() ? "" : input_files.get(0).getPath();
 			processor.processFile(input_file);
 			if (processor.invalidTimeSteps() > 0) {
+				double pc=processor.invalidTimeSteps()/(double)processor.totalTimeSteps();
 				System.err.println("** Warning: "+processor.processedTimeSteps()+" processed time steps, "+
-				processor.invalidTimeSteps()+" invalid time steps");
+				processor.invalidTimeSteps()+" invalid time steps ("+f.Fm0(pc*100.0)+"%)");
 			}
 		}
 		processor.out.close();

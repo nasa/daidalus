@@ -162,8 +162,11 @@ int main(int argc, const char* argv[]) {
 		std::string input_file = processor.standardInputEnabled() ? "" : input_files[0];
 		processor.processFile(input_file);
 		if (processor.invalidTimeSteps() > 0) {
+			double pc=processor.invalidTimeSteps()/(double)processor.totalTimeSteps();
+	
 			std::cerr << "** Warning: " << processor.processedTimeSteps() << " processed time steps, " <<
-			processor.invalidTimeSteps() << " invalid time steps" << std::endl;
+			processor.invalidTimeSteps() << " invalid time steps (" <<
+			Fm0(pc*100.0) << "%)" << std::endl;
 		}
 	}
 	if (!output_file.empty()) {
