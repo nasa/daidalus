@@ -154,7 +154,7 @@ public:
   void set_DO_365B(bool type=true, bool sum=true);
 
   /*
-   * Set DAIDALUS object such that
+   * Set Daidalus object such that
    * - Alerting thresholds are buffered
    * - Maneuver guidance logic assumes kinematic maneuvers
    * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
@@ -163,7 +163,7 @@ public:
    */
   void set_Buffered_WC_DO_365(bool type);
 
-  /* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to
+  /* Set Daidalus object such that alerting logic and maneuver guidance corresponds to
    * ACCoRD's CD3D, i.e.,
    * - Separation is given by a cylinder of of diameter 5nm and height 1000ft
    * - Lookahead time and alerting time is 180s
@@ -171,7 +171,7 @@ public:
    * - Instantaneous maneuvers */
   void set_CD3D();
 
-  /* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to
+  /* Set Daidalus object such that alerting logic and maneuver guidance corresponds to
    * ideal TCASII */
   void set_TCASII();
 

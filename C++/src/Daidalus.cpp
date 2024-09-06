@@ -114,43 +114,10 @@ Daidalus::Daidalus(const Detection3D& det, double T) : error("Daidalus"), core_(
  * - Configure Sensor Uncertainty Migitation (SUM) when sum is true
  * - Bands don't saturate until NMAC
  */
-void Daidalus::set_DO_365A(bool type, bool sum) {
-  clearAlerters();
-  if (sum) {
-    addAlerter(Alerter::DWC_Phase_I_SUM());
-    addAlerter(Alerter::DWC_Phase_II_SUM());
-  } else {
-    addAlerter(Alerter::DWC_Phase_I());
-    addAlerter(Alerter::DWC_Phase_II());
-  }
-  setCorrectiveRegion(BandsRegion::MID);
-  setKinematicBands(type);
-  setCollisionAvoidanceBands(true);
-  setCollisionAvoidanceBandsFactor(0.1);
-  setMinHorizontalRecovery(0.66,"nmi");
-  setMinVerticalRecovery(450,"ft");
-  //setVerticalRate(1000,"fpm");
-  setIntruderCentricAlertingLogic();
-  /** Set hysteresis parameters **/
-  setHysteresisTime(5.0);
-  setPersistenceTime(4.0);
-  setBandsPersistence(true);
-  setPersistencePreferredHorizontalDirectionResolution(15,"deg");
-  setPersistencePreferredHorizontalSpeedResolution(100,"knot");
-  setPersistencePreferredVerticalSpeedResolution(250,"fpm");
-  setPersistencePreferredAltitudeResolution(250,"ft");
-  setAlertingMofN(2,4);
-  /** Set SUM parameters **/
-  setHorizontalPositionZScore(1.5);
-  setHorizontalVelocityZScoreMin(0.5);
-  setHorizontalVelocityZScoreMax(1.0);
-  setHorizontalVelocityZDistance(5,"nmi");
-  setVerticalPositionZScore(0.75);
-  setVerticalSpeedZScore(1.5);
-  /** Set DTA parameters **/
-  setDTARadius(4.2,"nmi");
-  setDTAHeight(2000,"ft");
-  setDTAAlerter(2);
+void Daidalus::set_DO_365A(bool type, bool sum) {		
+  core_.parameters.set_DO_365A(type,sum);
+	reset();
+	clearHysteresis();
 }
 
 /*
@@ -163,16 +130,13 @@ void Daidalus::set_DO_365A(bool type, bool sum) {
  * - Bands don't saturate until NMAC
  */
 void Daidalus::set_DO_365B(bool type, bool sum) {
-  set_DO_365A(type,sum);
-  if (sum) {
-    addAlerter(Alerter::DWC_Non_Coop_SUM());
-  } else {
-    addAlerter(Alerter::DWC_Non_Coop());
-  }
+	core_.parameters.set_DO_365B(type, sum);
+	reset();
+	clearHysteresis();
 }
 
 /*
- * Set DAIDALUS object such that
+ * Set Daidalus object such that
  * - Alerting thresholds are buffered
  * - Maneuver guidance logic assumes kinematic maneuvers
  * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
@@ -180,46 +144,29 @@ void Daidalus::set_DO_365B(bool type, bool sum) {
  * - Bands don't saturate until NMAC
  */
 void Daidalus::set_Buffered_WC_DO_365(bool type) {
-  clearAlerters();
-  addAlerter(Alerter::Buffered_DWC_Phase_I());
-  setCorrectiveRegion(BandsRegion::MID);
-  setKinematicBands(type);
-  setCollisionAvoidanceBands(true);
-  setCollisionAvoidanceBandsFactor(0.1);
-  setMinHorizontalRecovery(1.0,"nmi");
-  setMinVerticalRecovery(450,"ft");
+		core_.parameters.set_Buffered_WC_DO_365(type);
+		reset();
+		clearHysteresis();
 }
 
-/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to
+/* Set Daidalus object such that alerting logic and maneuver guidance corresponds to
  * ACCoRD's CD3D, i.e.,
  * - Separation is given by a cylinder of of diameter 5nm and height 1000ft
  * - Lookahead time and alerting time is 180s
  * - Only 1 alert level
  * - Instantaneous maneuvers */
 void Daidalus::set_CD3D() {
-  clearAlerters();
-  addAlerter(Alerter::CD3D_SingleBands());
-  setCorrectiveRegion(BandsRegion::NEAR);
-  setInstantaneousBands();
-  setCollisionAvoidanceBands(true);
-  setCollisionAvoidanceBandsFactor(0.1);
-  setMinHorizontalRecovery(5.0,"nmi");
-  setMinVerticalRecovery(1000,"ft");
+		core_.parameters.set_CD3D();
+		reset();
+		clearHysteresis();
 }
 
-/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to
+/* Set Daidalus object such that alerting logic and maneuver guidance corresponds to
  * ideal TCASII */
 void Daidalus::set_TCASII() {
-  clearAlerters();
-  addAlerter(Alerter::TCASII());
-  setLookaheadTime(60);
-  setCorrectiveRegion(BandsRegion::NEAR);
-  setKinematicBands(true);
-  setVerticalRate(1500,"fpm");
-  setCollisionAvoidanceBands(true);
-  setCollisionAvoidanceBandsFactor(0.1);
-  setMinHorizontalRecovery(0);
-  setMinVerticalRecovery(0);
+		core_.parameters.set_TCASII();
+		reset();
+		clearHysteresis();
 }
 
 /**

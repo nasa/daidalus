@@ -210,6 +210,52 @@ public:
 
   ~DaidalusParameters();
 
+  /* Setting for WC Definitions RTCA DO-365 */
+
+  /*
+   * Set DaidalusParameters object such that
+   * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
+   * - Maneuver guidance logic assumes kinematic maneuvers
+   * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
+   *   when type is false.
+   * - Configure Sensor Uncertainty Migitation (SUM) when sum is true
+   * - Bands don't saturate until NMAC
+   */
+  void set_DO_365A(bool type=true, bool sum=true);
+
+  /*
+   * Set DaidalusParameters object such that
+   * - Configure two alerters (Phase I, Phase II, and Non-Cooperative) as defined as in RTCA DO-365B
+   * - Maneuver guidance logic assumes kinematic maneuvers
+   * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
+   *   when type is false.
+   * - Configure Sensor Uncertainty Migitation (SUM) when sum is true
+   * - Bands don't saturate until NMAC
+   */
+  void set_DO_365B(bool type=true, bool sum=true);
+
+  /*
+   * Set DaidalusParameters object such that
+   * - Alerting thresholds are buffered
+   * - Maneuver guidance logic assumes kinematic maneuvers
+   * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
+   *   when type is false.
+   * - Bands don't saturate until NMAC
+   */
+  void set_Buffered_WC_DO_365(bool type);
+
+  /* Set DaidalusParameters object such that alerting logic and maneuver guidance corresponds to
+   * ACCoRD's CD3D, i.e.,
+   * - Separation is given by a cylinder of of diameter 5nm and height 1000ft
+   * - Lookahead time and alerting time is 180s
+   * - Only 1 alert level
+   * - Instantaneous maneuvers */
+  void set_CD3D();
+
+  /* Set DaidalusParameters object such that alerting logic and maneuver guidance corresponds to
+   * ideal TCASII */
+  void set_TCASII();
+
   typedef std::map< std::string,std::vector<std::string> > aliasestype;
   static const aliasestype& getAliases(); // List of key aliases
 
