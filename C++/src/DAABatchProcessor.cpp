@@ -281,7 +281,7 @@ int DAABatchProcessor::processOptions(const char* args[], const int argc, const 
 	} else if ((startsWith(arga,"--own") || startsWith(arga,"-own")) && a+1 < argc) { 
 		ownship_ = args[++a];
 	} else if ((startsWith(arga,"--traf") || startsWith(arga,"-traf")) && a+1 < argc) { 
-		std::vector<std::string> s = split(arga,",");
+		std::vector<std::string> s = split(args[++a],",");
 		traffic_.insert(traffic_.end(),s.begin(),s.end());
 	} else if ((arga == "--from" || arga == "-from") && a+1 < argc) {
 		parse_time(1,args[++a]);
