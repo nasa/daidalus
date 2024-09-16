@@ -445,8 +445,7 @@ public class Daidalus {
 
 	/**
 	 * @return last traffic index. Every traffic aircraft has an index between 1 and lastTrafficIndex. 
-	 * The index 0 is reserved for the ownship. When lastTrafficIndex is 0, the ownship is set but no
-	 * traffic aircraft has been set. When lastTrafficIndex is negative, ownship has not been set.
+	 * The index 0 is reserved for the ownship.	 
 	 */
 	public int lastTrafficIndex() {
 		return numberOfAircraft()-1;
