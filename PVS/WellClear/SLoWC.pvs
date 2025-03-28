@@ -1,0 +1,58 @@
+%% Severity of Loss of Well Clear
+SLoWC[DMOD,ZTHR:posreal,TAUMOD:nnreal] : THEORY
+BEGIN
+
+  real_le_1 : TYPE = {x:real | 0 <= x <= 1}
+
+  real_le_100 : TYPE = {x:real | 0 <= x <= 100}
+
+  IMPORTING reals@sqrt,
+  	    vectors@vect_3D_2D
+
+  % Fernandez-Guasti Squircle
+  % Used to combine normalized measures 
+  squircle(x,y:real_le_1) : real_le_1 =
+    sqrt(sq(x) + (1-sq(x))*sq(y))
+
+  % Basic formulas taken from: C. Muñoz, A. Narkawicz, J. Chamberlain, M. Consiglio, and J. Upchurch,
+  % A Family of Well-Clear Boundary Models for the Integration of UAS in the NAS,
+  % Proceedings of the 14th AIAA Aviation Technology, Integration, and Operations (ATIO) Conference, AIAA-2014-2412.
+  % Available at https://shemesh.larc.nasa.gov/fm/papers/ATIO-2014-2412.pdf
+
+  r_i(s:Vect2) : nnreal = norm(s)
+  
+  rdot_i(s:Nz_vect2,v:Vect2) : real = (s*v)/norm(s)
+
+  S_i(s:Nz_vect2,v:Vect2) : posreal =
+   LET rdotTAUMOD = rdot_i(s,v)*TAUMOD IN
+     max(DMOD,(sqrt(sq(rdotTAUMOD)+4*sq(DMOD))-rdotTAUMOD)/2)
+
+  % s is the relative 2-D position of the aircraft, i.e., so-si
+  RangePen_i(s,v:Vect2) : real_le_1 =
+    IF zero_vect2?(s) THEN 0
+    ELSE 
+      min(r_i(s)/S_i(s,v),1)
+    ENDIF
+
+  HMD_i(s,v:Vect2) : nnreal =
+    LET t_CPA = IF zero_vect2?(v) THEN 0 ELSE -s*v/sqv(v) ENDIF IN
+    norm(s+t_CPA*v)
+
+  HMDPen_i(s,v:Vect2) : real_le_1 =
+    min(HMD_i(s,v)/DMOD,1)
+
+  dh_i(sz:real) : nnreal =
+    abs(sz)
+
+  VertPen_i(sz:real) : real_le_1 =
+    min(dh_i(sz)/ZTHR,1)
+    
+  % Severity of well-clear
+  SLoWC_i(so,vo,si,vi:Vect3) : real_le_100 =
+    LET s  = so-si,
+        v = vo-vi IN
+    (1 - squircle(RangePen_i(vect2(s),vect2(v)),
+                  squircle(HMDPen_i(vect2(s),vect2(v)),
+		           VertPen_i(s`z)))) * 100
+
+END SLoWC

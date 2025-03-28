@@ -56,6 +56,9 @@ BEGIN
             WCV_tep,
 	    %% General Properties
             WCV_inclusion,
-            DMOD_vs_HMD
+            DMOD_vs_HMD,
+	    %% Severity of Loss of Well Clear
+	    SLoWC,
+	    SLoWC_io
 
 END top

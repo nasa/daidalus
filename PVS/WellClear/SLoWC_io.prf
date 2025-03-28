@@ -1,0 +1,59 @@
+(|SLoWC_io|
+ (|headon_collision_TCC1| 0
+  (|headon_collision_TCC1-1| NIL 3952182921 ("" (SUBTYPE-TCC) NIL NIL)
+   ((|knot| CONST-DECL "posreal" |units| |aviation|)
+    (|hour| CONST-DECL "posreal" |units| |aviation|)
+    (|nmi| CONST-DECL "posreal" |units| |aviation|)
+    (|ft| CONST-DECL "posreal" |units| |aviation|)
+    (NIL APPLICATION-JUDGEMENT "above(n)" |exp2| NIL))
+   NIL
+   (|headon_collision| SUBTYPE "SLoWC_io.so`3" "real"
+    (17 14 17 16
+     "making lambda expr (# x := so`1, y := so`2, z := so`3 #) from macro vectors_3D_def.mk_vect3"))))
+ (|headon_collision_TCC2| 0
+  (|headon_collision_TCC2-1| NIL 3952182921 ("" (SUBTYPE-TCC) NIL NIL)
+   ((|knot| CONST-DECL "posreal" |units| |aviation|)
+    (|hour| CONST-DECL "posreal" |units| |aviation|)
+    (|nmi| CONST-DECL "posreal" |units| |aviation|)
+    (|ft| CONST-DECL "posreal" |units| |aviation|)
+    (NIL APPLICATION-JUDGEMENT "above(n)" |exp2| NIL))
+   NIL
+   (|headon_collision| SUBTYPE "SLoWC_io.vo`1" "real"
+    (17 17 17 19
+     "making lambda expr (# x := vo`1, y := vo`2, z := vo`3 #) from macro vectors_3D_def.mk_vect3"))))
+ (|headon_collision_TCC3| 0
+  (|headon_collision_TCC3-1| NIL 3952182921 ("" (SUBTYPE-TCC) NIL NIL)
+   ((|knot| CONST-DECL "posreal" |units| |aviation|)
+    (|hour| CONST-DECL "posreal" |units| |aviation|)
+    (|nmi| CONST-DECL "posreal" |units| |aviation|)
+    (|ft| CONST-DECL "posreal" |units| |aviation|)
+    (NIL APPLICATION-JUDGEMENT "above(n)" |exp2| NIL))
+   NIL
+   (|headon_collision| SUBTYPE "SLoWC_io.si`1" "real"
+    (17 20 17 22
+     "making lambda expr (# x := si`1, y := si`2, z := si`3 #) from macro vectors_3D_def.mk_vect3"))))
+ (|headon_collision_TCC4| 0
+  (|headon_collision_TCC4-1| NIL 3952182921 ("" (SUBTYPE-TCC) NIL NIL)
+   ((|knot| CONST-DECL "posreal" |units| |aviation|)
+    (|hour| CONST-DECL "posreal" |units| |aviation|)
+    (|nmi| CONST-DECL "posreal" |units| |aviation|)
+    (|ft| CONST-DECL "posreal" |units| |aviation|)
+    (NIL APPLICATION-JUDGEMENT "above(n)" |exp2| NIL))
+   NIL
+   (|headon_collision| SUBTYPE "SLoWC_io.si`3" "real"
+    (17 20 17 22
+     "making lambda expr (# x := si`1, y := si`2, z := si`3 #) from macro vectors_3D_def.mk_vect3"))))
+ (|headon_collision_TCC5| 0
+  (|headon_collision_TCC5-1| NIL 3952182921 ("" (SUBTYPE-TCC) NIL NIL)
+   ((|knot| CONST-DECL "posreal" |units| |aviation|)
+    (|hour| CONST-DECL "posreal" |units| |aviation|)
+    (|nmi| CONST-DECL "posreal" |units| |aviation|)
+    (|ft| CONST-DECL "posreal" |units| |aviation|)
+    (NIL APPLICATION-JUDGEMENT "above(n)" |exp2| NIL))
+   NIL
+   (|headon_collision| SUBTYPE "SLoWC_io.vi`1" "real"
+    (17 23 17 25
+     "making lambda expr (# x := vi`1, y := vi`2, z := vi`3 #) from macro vectors_3D_def.mk_vect3"))))
+ (|headon_collision| 0
+  (|headon_collision-1| NIL 3952182931 ("" (POSTPONE) NIL NIL) NIL SHOSTAK)))
+

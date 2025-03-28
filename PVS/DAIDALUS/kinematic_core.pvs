@@ -233,14 +233,11 @@ update_omega_in_place(omega:nnreal, bank:{x:posreal| x<pi/2}, gs:posreal ):
       g*tan(bank)/gs 
     ENDIF
 
-	     
-
-
  break_sym(ownid, intrid:string)(vec:Vect3): Sign = 
    IF vec`z /= 0 THEN sign(vec`z)
    ELSIF vec`x /= 0 THEN sign(vec`x)
    ELSIF vec`y /= 0 THEN sign(vec`y)
-   ELSE  IF strcmp(ownid, intrid)>=0 THEN 1 ELSE -1 ENDIF
+   ELSE  IF stdstr.strcmp(ownid, intrid)>=0 THEN 1 ELSE -1 ENDIF
    ENDIF    
 
 most_urgent_function(crit_ac:string, own: Aircraft, AL:Traffic,  conf_crit, rec_crit: bool): 

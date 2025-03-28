@@ -1,0 +1,55 @@
+SLoWC_io : THEORY
+BEGIN
+
+  IMPORTING aviation@units
+
+  DMOD : posreal = 4000*ft
+  ZTHR : posreal = 450*ft
+  TAUMOD :nnreal = 35*s
+
+  IMPORTING SLoWC[DMOD,ZTHR,TAUMOD]
+
+  headon_collision : void =
+    LET so : Vect3 = (0,0,1000*ft),
+        vo : Vect3 = (300*knot,0,0),
+        si : Vect3 = (0,0,1000*ft),
+	vi : Vect3 = (-300*knot,0,0) IN
+      printf("SLoWC = ~f% (Should be 100%)~%",SLoWC_i(so,vo,si,vi))
+
+  headon_DMOD : void =
+    LET so : Vect3 = (0,0,1000*ft),
+        vo : Vect3 = (300*knot,0,0),
+        si : Vect3 = (0,DMOD,1000*ft),
+	vi : Vect3 = (-300*knot,0,0) IN
+    printf("SLoWC = ~f% (Should be 0%)~%",SLoWC_i(so,vo,si,vi))
+
+  headon_ZTHR : void =
+    LET so : Vect3 = (0,0,1000*ft),
+        vo : Vect3 = (300*knot,0,0),
+        si : Vect3 = (0,0,1000*ft+ZTHR),
+	vi : Vect3 = (-300*knot,0,0) IN
+    printf("SLoWC = ~f% (Should be 0%)~%",SLoWC_i(so,vo,si,vi))
+
+  headon_NMAC1 : void =
+    LET so : Vect3 = (0,0,1000*ft),
+        vo : Vect3 = (300*knot,0,0),
+        si : Vect3 = (500*ft,0,1000*ft),
+	vi : Vect3 = (-300*knot,0,0) IN
+    printf("SLoWC = ~f%~%",SLoWC_i(so,vo,si,vi))
+
+  headon_NMAC2 : void =
+    LET so : Vect3 = (0,0,1000*ft),
+        vo : Vect3 = (300*knot,0,0),
+        si : Vect3 = (0,500*ft,1000*ft),
+	vi : Vect3 = (-300*knot,0,0) IN
+    printf("SLoWC = ~f%~%",SLoWC_i(so,vo,si,vi))
+
+  headon_NMAC3 : void =
+    LET so : Vect3 = (0,0,1000*ft),
+        vo : Vect3 = (300*knot,0,0),
+        si : Vect3 = (0,0,1100*ft),
+	vi : Vect3 = (-300*knot,0,0) IN
+    printf("SLoWC = ~f%~%",SLoWC_i(so,vo,si,vi))
+
+
+END SLoWC_io

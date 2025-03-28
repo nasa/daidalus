@@ -1,0 +1,117 @@
+(|SLoWC|
+ (|squircle_TCC1| 0
+  (|squircle_TCC1-1| NIL 3952164942 ("" (METIT) NIL NIL) NIL NIL
+   (|squircle| SUBTYPE
+    "(number_fields.+)(sq.sq(SLoWC.x), number_fields.*(((number_fields.-)(1, sq.sq(SLoWC.x))), sq.sq(SLoWC.y)))"
+    "nonneg_real" (15 9 15 32))))
+ (|squircle_TCC2| 0
+  (|squircle_TCC2-1| NIL 3952164942 ("" (METIT) NIL NIL) NIL NIL
+   (|squircle| SUBTYPE
+    "sqrt.sqrt((number_fields.+)(sq.sq(SLoWC.x), number_fields.*(((number_fields.-)(1, sq.sq(SLoWC.x))), sq.sq(SLoWC.y))))"
+    "real_le_1" (15 4 15 33))))
+ (|S_i_TCC1| 0
+  (|S_i_TCC1-1| NIL 3952179822
+   ("" (SKEEP)
+    ((""
+      (CASE
+          "max(DMOD, (sqrt(sq(rdotTAUMOD) + 4 * sq(DMOD)) - rdotTAUMOD) / 2) > 0")
+      (("1" (ASSERT) NIL NIL)
+       ("2" (HIDE 2) (("2" (REWRITE "max_gt") (("2" (ASSERT) NIL NIL)) NIL))
+        NIL))
+      NIL))
+    NIL)
+   ((|sqrt| CONST-DECL "{nnz: nnreal | nnz * nnz = nnx}" |sqrt| |reals|)
+    (|sq| CONST-DECL "nonneg_real" |sq| |reals|)
+    (|sq_nz_pos| APPLICATION-JUDGEMENT "posreal" |sq| |reals|)
+    (|sqrt_pos| APPLICATION-JUDGEMENT "posreal" |sqrt| |reals|))
+   NIL
+   (|S_i| SUBTYPE
+    "real_defs.max(SLoWC.DMOD, number_fields./(((number_fields.-)(sqrt.sqrt((number_fields.+)(sq.sq(SLoWC.rdotTAUMOD), number_fields.*(4, sq.sq(SLoWC.DMOD)))), SLoWC.rdotTAUMOD)), 2))"
+    "posreal" (28 5 28 61))))
+ (|RangePen_i_TCC1| 0
+  (|RangePen_i_TCC1-1| NIL 3952179822 ("" (SUBTYPE-TCC) NIL NIL) NIL NIL
+   (|RangePen_i| SUBTYPE "SLoWC.s" "Nz_vect2" (34 21 34 22))))
+ (|RangePen_i_TCC2| 0
+  (|RangePen_i_TCC2-1| NIL 3952179822
+   ("" (SKEEP)
+    (("" (REWRITE "le_min")
+      (("" (SPLIT) (("1" (ASSERT) NIL NIL) ("2" (REWRITE "min_le") NIL NIL))
+        NIL))
+      NIL))
+    NIL)
+   ((|Nz_vect2| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
+    (|zero| CONST-DECL "Vector" |vectors_2D| |vectors|)
+    (|Vector| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
+    (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|))
+   NIL
+   (|RangePen_i| SUBTYPE
+    "real_defs.min(number_fields./(SLoWC.r_i(SLoWC.s), SLoWC.S_i(SLoWC.s, SLoWC.v)), 1)"
+    "real_le_1" (34 6 34 28))))
+ (|HMD_i_TCC1| 0
+  (|HMD_i_TCC1-1| NIL 3952179822
+   ("" (SKEEP) (("" (REWRITE "sqv_eq_0") NIL NIL)) NIL)
+   ((|sqv_eq_0| FORMULA-DECL NIL |vectors_2D| |vectors|)
+    (|Vector| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
+    (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|))
+   NIL (|HMD_i| SUBTYPE "vectors_2D.sqv(SLoWC.v)" "nznum" (38 51 38 57))))
+ (|HMDPen_i_TCC1| 0
+  (|HMDPen_i_TCC2-1| NIL 3952179822
+   ("" (SKEEP)
+    (("" (REWRITE "le_min")
+      (("" (SPLIT) (("1" (ASSERT) NIL NIL) ("2" (REWRITE "min_le") NIL NIL))
+        NIL))
+      NIL))
+    NIL)
+   ((|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|)) NIL
+   (|HMDPen_i| SUBTYPE
+    "real_defs.min(number_fields./(SLoWC.HMD_i(SLoWC.s, SLoWC.v), SLoWC.DMOD), 1)"
+    "real_le_1" (42 4 42 26))))
+ (|VertPen_i_TCC1| 0
+  (|VertPen_i_TCC1-1| NIL 3952179822
+   ("" (SKEEP)
+    (("" (REWRITE "le_min")
+      (("" (SPLIT) (("1" (ASSERT) NIL NIL) ("2" (REWRITE "min_le") NIL NIL))
+        NIL))
+      NIL))
+    NIL)
+   NIL NIL
+   (|VertPen_i| SUBTYPE
+    "real_defs.min(number_fields./(SLoWC.dh_i(SLoWC.sz), SLoWC.ZTHR), 1)"
+    "real_le_1" (48 4 48 24))))
+ (|SLoWC_i_TCC1| 0
+  (|SLoWC_i_TCC1-1| NIL 3952181349
+   ("" (SKEEP)
+    ((""
+      (TYPEPRED "squircle(RangePen_i(vect2(s), vect2(v)),
+                  squircle(HMDPen_i(vect2(s), vect2(v)), VertPen_i(s`z)))")
+      (("" (ASSERT) NIL NIL)) NIL))
+    NIL)
+   ((|VertPen_i| CONST-DECL "real_le_1" |SLoWC| NIL)
+    (|HMDPen_i| CONST-DECL "real_le_1" |SLoWC| NIL)
+    (|Vector| TYPE-EQ-DECL NIL |vectors_3D| |vectors|)
+    (|vect2| CONST-DECL "Vect2" |vect_3D_2D| |vectors|)
+    (|Vect3| TYPE-EQ-DECL NIL |vectors_3D_def| |vectors|)
+    (|RangePen_i| CONST-DECL "real_le_1" |SLoWC| NIL)
+    (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|)
+    (|squircle| CONST-DECL "real_le_1" |SLoWC| NIL)
+    (|real_le_1| TYPE-EQ-DECL NIL |SLoWC| NIL)
+    (AND CONST-DECL "[bool, bool -> bool]" |booleans| NIL)
+    (<= CONST-DECL "bool" |reals| NIL)
+    (|real| NONEMPTY-TYPE-FROM-DECL NIL |reals| NIL)
+    (|real_pred| CONST-DECL "[number_field -> boolean]" |reals| NIL)
+    (|number_field| NONEMPTY-TYPE-FROM-DECL NIL |number_fields| NIL)
+    (|number_field_pred| CONST-DECL "[number -> boolean]" |number_fields| NIL)
+    (|number| NONEMPTY-TYPE-DECL NIL |numbers| NIL)
+    (NOT CONST-DECL "[bool -> bool]" |booleans| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|real_minus_real_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL)
+    (|real_times_real_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL)
+    (|minus_nzint_is_nzint| APPLICATION-JUDGEMENT "nzint" |integers| NIL)
+    (|real_le_is_total_order| NAME-JUDGEMENT "(total_order?[real])"
+     |real_props| NIL))
+   NIL
+   (|SLoWC_i| SUBTYPE
+    "number_fields.*(((number_fields.-)(1, SLoWC.squircle(SLoWC.RangePen_i(vect_3D_2D.vect2(SLoWC.s), vect_3D_2D.vect2(SLoWC.v)), SLoWC.squircle(SLoWC.HMDPen_i(vect_3D_2D.vect2(SLoWC.s), vect_3D_2D.vect2(SLoWC.v)), SLoWC.VertPen_i(SLoWC.s`z))))), 100)"
+    "real_le_100" (54 4 56 36)))))
+
