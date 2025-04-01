@@ -35,7 +35,13 @@ private:
   Vect3 s_; // Relative position
   Vect3 v_; // Relative velocity
 
+  static double squircle(double x, double y);
+
 public:
+
+	enum SLoWCClassification {
+    SLoWC_None, SLoWC_Minimal,SLoWC_Minor, SLoWC_Major, SLoWC_Hazardous, SLoWC_Catastrophic
+	};
 
   std::string toString() const;
 
@@ -150,30 +156,43 @@ public:
   double tcoa() const;
 
   /**
-   * Horizontal closure rate
-   * @return Horizontal closure rate in internal units at current time
+   * Horizontal relative speed
+   * @return Horizontal relative speed in internal units at current time
    */
-  double horizontalClosureRate() const;
+  double horizontalRelativeSpeed() const;
 
   /**
-   * Horizontal closure rate
+   * Horizontal relative speed
    * @param u units
-   * @return Horizontal closure rate in specified units u at current time
+   * @return Horizontal relative speed in specified units u at current time
    */
-  double horizontalClosureRate(const std::string& u) const;
+  double horizontalRelativeSpeed(const std::string& u) const;
 
   /**
-   * Vertical closure rate
-   * @return Vertical closure rate in internal units at current time
+   * Vertical relative speed
+   * @return Vertical relative speed in internal units at current time
    */
-  double verticalClosureRate() const;
+  double verticalRelativeSpeed() const;
 
   /**
-   * Vertical closure rate
+   * Vertical relative speed
    * @param u units
-   * @return Vertical closure rate in specified units at current time
+   * @return Vertical relative speed in specified units at current time
    */
-  double verticalClosureRate(const std::string& u) const;
+  double verticalRelativeSpeed(const std::string& u) const;
+
+  /** 
+   * return SLoWC classification for SC-228 SLoWC value 
+   **/
+  static SLoWCClassification classifySLoWC(double slowc);
+
+  static std::string SLoWCClassificationToString(SLoWCClassification slowc_class);
+
+  /**
+	 * Severity of Loss of Well Clear calculation for one time instant, 0.0 (minimal) - 100.0 (catastrophic). 
+	 * For an encounter, it should take max of every instance (SC-228)
+	 **/ 
+	double SLoWC(double DMOD, double TAUMOD, double ZTHR) const;
 
   /**
    * @return A time in seconds that can be used to compare severity of conflicts for arbitrary

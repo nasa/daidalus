@@ -392,6 +392,11 @@ public:
   int mostSevereAlertLevel(int ac_idx);
 
 	/**
+	 * Returns true if ownship is in confict with respect the corrective volume with a given traffic aircraft.
+	 */
+	bool inCorrectiveConflictWithAircraft(int ac_idx);
+
+	/**
 	 * Returns true if ownship is in confict with respect the corrective volume with any traffic aircraft.
 	 */
 	bool inCorrectiveConflict();
@@ -2731,28 +2736,28 @@ public:
   double currentVerticalSeparation(int ac_idx,const std::string& u) const;
 
   /**
-   * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+   * Returns horizontal relative speed, in internal units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
-  double horizontalClosureRate(int ac_idx) const;
+  double horizontalRelativeSpeed(int ac_idx) const;
 
   /**
-   * Returns current closure rate, in given units, with aircraft at index ac_idx.
+   * Returns current relative speed, in given units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
-  double horizontalClosureRate(int ac_idx,const std::string& u) const;
+  double horizontalRelativeSpeed(int ac_idx,const std::string& u) const;
 
   /**
-   * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+   * Returns vertical relative speed, in internal units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
-  double verticalClosureRate(int ac_idx) const;
+  double verticalRelativeSpeed(int ac_idx) const;
 
   /**
-   * Returns vertical closure rate, in given units, with aircraft at index ac_idx.
+   * Returns vertical relative speed, in given units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
-  double verticalClosureRate(int ac_idx,const std::string& u) const;
+  double verticalRelativeSpeed(int ac_idx,const std::string& u) const;
 
   /**
    * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time),

@@ -182,37 +182,94 @@ double ConflictData::VMD(const std::string& u, double T) const {
 }
 
 /**
- * Horizontal closure rate
- * @return Horizontal closure rate in internal units at current time
+ * Horizontal relative speed
+ * @return Horizontal relative speed in internal units at current time
  */
- double ConflictData::horizontalClosureRate() const {
+ double ConflictData::horizontalRelativeSpeed() const {
     return v_.norm2D();
 }
 
 /**
- * Horizontal closure rate
+ * Horizontal relative speed
  * @param u units
- * @return Horizontal closure rate in specified units u at current time
+ * @return Horizontal relative speed in specified units u at current time
  */
- double ConflictData::horizontalClosureRate(const std::string& u) const {
-    return Units::to(u,horizontalClosureRate());
+ double ConflictData::horizontalRelativeSpeed(const std::string& u) const {
+    return Units::to(u,horizontalRelativeSpeed());
 }
 
 /**
- * Vertical closure rate
- * @return Vertical closure rate in internal units at current time
+ * Vertical relative speed
+ * @return Vertical relative speed in internal units at current time
  */
- double ConflictData::verticalClosureRate() const {
+ double ConflictData::verticalRelativeSpeed() const {
     return std::abs(v_.z());
 }
 
 /**
- * Vertical closure rate
+ * Vertical relative speed
  * @param u units
- * @return Vertical closure rate in specified units at current time
+ * @return Vertical relative speed in specified units at current time
  */
- double ConflictData::verticalClosureRate(const std::string& u) const {
-    return Units::to(u,verticalClosureRate());
+ double ConflictData::verticalRelativeSpeed(const std::string& u) const {
+    return Units::to(u,verticalRelativeSpeed());
+}
+
+/** 
+ * return SLoWC classification for SC-228 SLoWC value 
+ **/
+ConflictData::SLoWCClassification ConflictData::classifySLoWC(double slowc) {
+  if (Util::almost_equals(slowc,0.0)) return ConflictData::SLoWC_None; 
+  else if (slowc <= 17) return ConflictData::SLoWC_Minimal; 
+  else if (slowc <= 33) return ConflictData::SLoWC_Minor; 
+  else if (slowc <= 47) return ConflictData::SLoWC_Major; 
+  else if (slowc <= 94) return ConflictData::SLoWC_Hazardous; 
+  else return ConflictData::SLoWC_Catastrophic; 
+}
+
+std::string ConflictData::SLoWCClassificationToString(ConflictData::SLoWCClassification slowc_class) {
+  switch (slowc_class) {
+    case 0: return "SLoWC_None"; 
+    case 1: return "SLoWC_Minimal"; 
+    case 2: return "SLoWC_Minor"; 
+    case 3: return "SLoWC_Major"; 
+    case 4: return "SLoWC_Hazardous"; 
+    default: return "SLoWC_Catastrophic"; 
+  }
+}
+
+double ConflictData::squircle(double x, double y) {
+  double sqx = Util::sq(x);
+  double sqy = Util::sq(y);
+  return Util::sqrt_safe(sqx + (1-sqx)*sqy);
+}
+
+/**
+ * Severity of Loss of Well Clear calculation for one time instant, 0.0 (minimal) - 100.0 (catastrophic). 
+ * For an encounter, it should take max of every instance (SC-228)
+ **/ 
+double ConflictData::SLoWC(double DMOD, double TAUMOD, double ZTHR) const {
+  Vect2 s2 = s_.vect2();
+  Vect2 v2 = v_.vect2();
+  
+  double r_i = s2.norm();
+  double rdot_i = Util::almost_equals(r_i,0.0) ? 0.0 : s2.dot(v2)/r_i;
+
+  double rdotTAUMOD = rdot_i*TAUMOD;
+  double S_i = Util::max(DMOD, (Util::sqrt_safe(Util::sq(rdotTAUMOD)+4*Util::sq(DMOD))-rdotTAUMOD)/2.0);
+  double RangePen_i = Util::almost_equals(r_i,0.0) ? 0 : Util::min(r_i/S_i, 1.0);
+  
+  double sqv2 = v2.sqv();
+  double t_CPA = Util::almost_equals(sqv2,0.0) ? 0.0 : -s2.dot(v2)/v2.sqv();
+  double HMD_i = s2.AddScal(t_CPA, v2).norm();
+  double HMDPen_i = Util::almost_equals(DMOD,0.0) ? 0 : Util::min(HMD_i/DMOD, 1.0);
+  
+  double dh_i = std::abs(s_.z());
+  double VertPen_i = Util::almost_equals(ZTHR,0.0) ? 0.0 : Util::min(dh_i/ZTHR, 1.0);
+  
+  double slowc = (1.0 - squircle(RangePen_i, squircle(HMDPen_i, VertPen_i))) * 100.0;
+
+  return slowc;
 }
 
 /**

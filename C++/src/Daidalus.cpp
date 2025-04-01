@@ -3759,12 +3759,19 @@ int Daidalus::alertLevelAllTraffic() {
 }
 
 /**
+ * Returns true if ownship is in confict with respect the corrective volume with a given traffic aircraft.
+ */
+bool Daidalus::inCorrectiveConflictWithAircraft(int ac_idx) {
+  int alert = alertLevel(ac_idx);
+	return alert > 0 && alert >= alertLevelOfRegion(ac_idx,getCorrectiveRegion());
+}
+
+/**
  * Return true if ownship is in confict with respect the corrective volume with any traffic aircraft.
  */
 bool Daidalus::inCorrectiveConflict() {
   for (int ac_idx=1; ac_idx <= lastTrafficIndex(); ++ac_idx) {
-    int alert = alertLevel(ac_idx);
-    if (alert > 0 && alert >= alertLevelOfRegion(ac_idx,getCorrectiveRegion())) {
+    if (inCorrectiveConflictWithAircraft(ac_idx)) {
       return true;
     }
   }
@@ -3963,10 +3970,10 @@ double Daidalus::currentVerticalSeparation(int ac_idx,const std::string& u) cons
 }
 
 /**
- * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+ * Returns horizontal relative speed, in internal units, with aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
-double Daidalus::horizontalClosureRate(int ac_idx) const {
+double Daidalus::horizontalRelativeSpeed(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
     Vect2 v = core_.ownship.get_v().vect2().Sub(core_.traffic[ac_idx-1].get_v().vect2());
     return v.norm();
@@ -3976,22 +3983,22 @@ double Daidalus::horizontalClosureRate(int ac_idx) const {
 }
 
 /**
- * Returns current closure rate, in given units, with aircraft at index ac_idx.
+ * Returns current relative speed, in given units, with aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
-double Daidalus::horizontalClosureRate(int ac_idx,const std::string& u) const {
+double Daidalus::horizontalRelativeSpeed(int ac_idx,const std::string& u) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-    return Units::to(u,horizontalClosureRate(ac_idx));
+    return Units::to(u,horizontalRelativeSpeed(ac_idx));
   } else {
     return NaN;
   }
 }
 
 /**
- * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+ * Returns vertical relative speed, in internal units, with aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
-double Daidalus::verticalClosureRate(int ac_idx) const {
+double Daidalus::verticalRelativeSpeed(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
     double  vz = core_.ownship.get_v().z() - core_.traffic[ac_idx-1].get_v().z();
     return std::abs(vz);
@@ -4001,12 +4008,12 @@ double Daidalus::verticalClosureRate(int ac_idx) const {
 }
 
 /**
- * Returns vertical closure rate, in given units, with aircraft at index ac_idx.
+ * Returns vertical relative speed, in given units, with aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
-double Daidalus::verticalClosureRate(int ac_idx,const std::string& u) const {
+double Daidalus::verticalRelativeSpeed(int ac_idx,const std::string& u) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-    return Units::to(u,verticalClosureRate(ac_idx));
+    return Units::to(u,verticalRelativeSpeed(ac_idx));
   } else {
     return NaN;
   }
@@ -4140,6 +4147,9 @@ double Daidalus::timeToCoAltitude(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
     double sz = core_.ownship.get_s().z() - core_.traffic[ac_idx-1].get_s().z();
     double vz = core_.ownship.get_v().z() - core_.traffic[ac_idx-1].get_v().z();
+    if (Util::almost_equals(sz,0.0)) {
+			return 0.0;
+		}
     if (Util::almost_equals(vz,0.0)) {
       return NINFINITY;
     }

@@ -34,12 +34,19 @@ public class LossData {
 	/**
 	 * Returns true if loss
 	 */
-	public boolean conflict() {
-		return Util.almost_less(time_in,time_out); 
+	public boolean loss() {
+		return time_in <= 0.0;
 	}
 
 	/**
-	 * Returns true if loss occurs before t in seconds
+	 * Returns true if predicted loss
+	 */
+	public boolean conflict() {
+		return Util.almost_less(time_in,time_out); //[CAM] Added to avoid numerical instability
+	}
+
+	/**
+	 * Returns true if predicted loss occurs before t in seconds
 	 */
 	public boolean conflictBefore(double t) {
 		return // Zero is special since loss intervals are cut at 0
@@ -48,7 +55,7 @@ public class LossData {
 	}
 
 	/**
-	 * Returns true if loss last more than thr in seconds
+	 * Returns true if predicted loss last more than thr in seconds
 	 */
 	public boolean conflictLastMoreThan(double thr) {
 		return conflict() && (time_out - time_in >= thr);

@@ -1,14 +1,43 @@
 (|SLoWC|
  (|squircle_TCC1| 0
-  (|squircle_TCC1-1| NIL 3952164942 ("" (METIT) NIL NIL) NIL NIL
+  (|squircle_TCC1-1| NIL 3952164942 ("" (METIT) NIL NIL)
+   ((|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (|bijective?| CONST-DECL "bool" |functions| NIL)
+    (|id| CONST-DECL "(bijective?[T, T])" |identity| NIL)
+    (TRUE CONST-DECL "bool" |booleans| NIL))
+   NIL
    (|squircle| SUBTYPE
     "(number_fields.+)(sq.sq(SLoWC.x), number_fields.*(((number_fields.-)(1, sq.sq(SLoWC.x))), sq.sq(SLoWC.y)))"
     "nonneg_real" (15 9 15 32))))
  (|squircle_TCC2| 0
-  (|squircle_TCC2-1| NIL 3952164942 ("" (METIT) NIL NIL) NIL NIL
+  (|squircle_TCC2-1| NIL 3952164942 ("" (METIT) NIL NIL)
+   ((|nnreal_plus_nnreal_is_nnreal| APPLICATION-JUDGEMENT "nnreal" |real_types|
+     NIL)
+    (|nnreal_times_nnreal_is_nnreal| APPLICATION-JUDGEMENT "nnreal"
+     |real_types| NIL)
+    (|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (|bijective?| CONST-DECL "bool" |functions| NIL)
+    (|id| CONST-DECL "(bijective?[T, T])" |identity| NIL)
+    (TRUE CONST-DECL "bool" |booleans| NIL))
+   NIL
    (|squircle| SUBTYPE
     "sqrt.sqrt((number_fields.+)(sq.sq(SLoWC.x), number_fields.*(((number_fields.-)(1, sq.sq(SLoWC.x))), sq.sq(SLoWC.y))))"
     "real_le_1" (15 4 15 33))))
+ (|rdot_i_TCC1| 0
+  (|rdot_i_TCC1-1| NIL 3952443649
+   ("" (SKEEP :PREDS? T) (("" (GRIND) NIL NIL)) NIL)
+   ((|real_times_real_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL)
+    (|real_plus_real_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL)
+    (|nz_sqv_gt_0| APPLICATION-JUDGEMENT "posreal" |vectors_2D| |vectors|)
+    (|sqrt_pos| APPLICATION-JUDGEMENT "posreal" |sqrt| |reals|)
+    (|nz_norm_gt_0| APPLICATION-JUDGEMENT "posreal" |vectors_2D| |vectors|)
+    (|r_i| CONST-DECL "nnreal" |SLoWC| NIL)
+    (|norm| CONST-DECL "nnreal" |vectors_2D| |vectors|)
+    (|sqv| CONST-DECL "nnreal" |vectors_2D| |vectors|)
+    (* CONST-DECL "real" |vectors_2D| |vectors|))
+   NIL (|rdot_i| SUBTYPE "SLoWC.r_i(SLoWC.s)" "nznum" (24 44 24 50))))
  (|S_i_TCC1| 0
   (|S_i_TCC1-1| NIL 3952179822
    ("" (SKEEP)
@@ -20,16 +49,53 @@
         NIL))
       NIL))
     NIL)
-   ((|sqrt| CONST-DECL "{nnz: nnreal | nnz * nnz = nnx}" |sqrt| |reals|)
+   ((|nnreal_plus_posreal_is_posreal| APPLICATION-JUDGEMENT "posreal"
+     |real_types| NIL)
+    (|real_div_nzreal_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL)
+    (|number| NONEMPTY-TYPE-DECL NIL |numbers| NIL)
+    (|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|number_field_pred| CONST-DECL "[number -> boolean]" |number_fields| NIL)
+    (|number_field| NONEMPTY-TYPE-FROM-DECL NIL |number_fields| NIL)
+    (|real_pred| CONST-DECL "[number_field -> boolean]" |reals| NIL)
+    (|real| NONEMPTY-TYPE-FROM-DECL NIL |reals| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (> CONST-DECL "bool" |reals| NIL)
+    (AND CONST-DECL "[bool, bool -> bool]" |booleans| NIL)
+    (>= CONST-DECL "bool" |reals| NIL)
+    (|max| CONST-DECL "{p: real | p >= m AND p >= n}" |real_defs| NIL)
+    (|nonneg_real| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (|posreal| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (DMOD FORMAL-CONST-DECL "posreal" |SLoWC| NIL)
+    (|numfield| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (/= CONST-DECL "boolean" |notequal| NIL)
+    (|nznum| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (/ CONST-DECL "[numfield, nznum -> numfield]" |number_fields| NIL)
+    (- CONST-DECL "[numfield, numfield -> numfield]" |number_fields| NIL)
+    (|nnreal| TYPE-EQ-DECL NIL |real_types| NIL)
+    (= CONST-DECL "[T, T -> boolean]" |equalities| NIL)
+    (* CONST-DECL "[numfield, numfield -> numfield]" |number_fields| NIL)
+    (|sqrt| CONST-DECL "{nnz: nnreal | nnz * nnz = nnx}" |sqrt| |reals|)
+    (+ CONST-DECL "[numfield, numfield -> numfield]" |number_fields| NIL)
     (|sq| CONST-DECL "nonneg_real" |sq| |reals|)
+    (|real_gt_is_strict_total_order| NAME-JUDGEMENT
+     "(strict_total_order?[real])" |real_props| NIL)
+    (|real_times_real_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL)
+    (|real_ge_is_total_order| NAME-JUDGEMENT "(total_order?[real])"
+     |real_props| NIL)
+    (|max_gt| FORMULA-DECL NIL |real_defs| NIL)
     (|sq_nz_pos| APPLICATION-JUDGEMENT "posreal" |sq| |reals|)
-    (|sqrt_pos| APPLICATION-JUDGEMENT "posreal" |sqrt| |reals|))
+    (|minus_nzint_is_nzint| APPLICATION-JUDGEMENT "nzint" |integers| NIL)
+    (|posreal_times_posreal_is_posreal| APPLICATION-JUDGEMENT "posreal"
+     |real_types| NIL)
+    (|sqrt_pos| APPLICATION-JUDGEMENT "posreal" |sqrt| |reals|)
+    (|real_minus_real_is_real| APPLICATION-JUDGEMENT "real" |reals| NIL))
    NIL
    (|S_i| SUBTYPE
     "real_defs.max(SLoWC.DMOD, number_fields./(((number_fields.-)(sqrt.sqrt((number_fields.+)(sq.sq(SLoWC.rdotTAUMOD), number_fields.*(4, sq.sq(SLoWC.DMOD)))), SLoWC.rdotTAUMOD)), 2))"
     "posreal" (28 5 28 61))))
  (|RangePen_i_TCC1| 0
-  (|RangePen_i_TCC1-1| NIL 3952179822 ("" (SUBTYPE-TCC) NIL NIL) NIL NIL
+  (|RangePen_i_TCC1-1| NIL 3952179822 ("" (SUBTYPE-TCC) NIL NIL)
+   ((/= CONST-DECL "boolean" |notequal| NIL)) NIL
    (|RangePen_i| SUBTYPE "SLoWC.s" "Nz_vect2" (34 21 34 22))))
  (|RangePen_i_TCC2| 0
   (|RangePen_i_TCC2-1| NIL 3952179822
@@ -39,10 +105,34 @@
         NIL))
       NIL))
     NIL)
-   ((|Nz_vect2| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
+   ((|S_i| CONST-DECL "posreal" |SLoWC| NIL)
+    (|posreal| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (> CONST-DECL "bool" |reals| NIL)
+    (|nonneg_real| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (|Nz_vect2| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
     (|zero| CONST-DECL "Vector" |vectors_2D| |vectors|)
     (|Vector| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
-    (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|))
+    (|r_i| CONST-DECL "nnreal" |SLoWC| NIL)
+    (|nnreal| TYPE-EQ-DECL NIL |real_types| NIL)
+    (>= CONST-DECL "bool" |reals| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|)
+    (/ CONST-DECL "[numfield, nznum -> numfield]" |number_fields| NIL)
+    (|nznum| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (/= CONST-DECL "boolean" |notequal| NIL)
+    (|numfield| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (|real| NONEMPTY-TYPE-FROM-DECL NIL |reals| NIL)
+    (|real_pred| CONST-DECL "[number_field -> boolean]" |reals| NIL)
+    (|number_field| NONEMPTY-TYPE-FROM-DECL NIL |number_fields| NIL)
+    (|number_field_pred| CONST-DECL "[number -> boolean]" |number_fields| NIL)
+    (|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|number| NONEMPTY-TYPE-DECL NIL |numbers| NIL)
+    (|le_min| FORMULA-DECL NIL |real_defs| NIL)
+    (|nnreal_div_posreal_is_nnreal| APPLICATION-JUDGEMENT "nnreal" |real_types|
+     NIL)
+    (|real_le_is_total_order| NAME-JUDGEMENT "(total_order?[real])"
+     |real_props| NIL)
+    (|min_le| FORMULA-DECL NIL |real_defs| NIL))
    NIL
    (|RangePen_i| SUBTYPE
     "real_defs.min(number_fields./(SLoWC.r_i(SLoWC.s), SLoWC.S_i(SLoWC.s, SLoWC.v)), 1)"
@@ -51,6 +141,7 @@
   (|HMD_i_TCC1-1| NIL 3952179822
    ("" (SKEEP) (("" (REWRITE "sqv_eq_0") NIL NIL)) NIL)
    ((|sqv_eq_0| FORMULA-DECL NIL |vectors_2D| |vectors|)
+    (|real| NONEMPTY-TYPE-FROM-DECL NIL |reals| NIL)
     (|Vector| TYPE-EQ-DECL NIL |vectors_2D| |vectors|)
     (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|))
    NIL (|HMD_i| SUBTYPE "vectors_2D.sqv(SLoWC.v)" "nznum" (38 51 38 57))))
@@ -62,7 +153,32 @@
         NIL))
       NIL))
     NIL)
-   ((|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|)) NIL
+   ((DMOD FORMAL-CONST-DECL "posreal" |SLoWC| NIL)
+    (|posreal| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (> CONST-DECL "bool" |reals| NIL)
+    (|nonneg_real| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (|HMD_i| CONST-DECL "nnreal" |SLoWC| NIL)
+    (|nnreal| TYPE-EQ-DECL NIL |real_types| NIL)
+    (>= CONST-DECL "bool" |reals| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (|Vect2| TYPE-EQ-DECL NIL |vectors_2D_def| |vectors|)
+    (/ CONST-DECL "[numfield, nznum -> numfield]" |number_fields| NIL)
+    (|nznum| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (/= CONST-DECL "boolean" |notequal| NIL)
+    (|numfield| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (|real| NONEMPTY-TYPE-FROM-DECL NIL |reals| NIL)
+    (|real_pred| CONST-DECL "[number_field -> boolean]" |reals| NIL)
+    (|number_field| NONEMPTY-TYPE-FROM-DECL NIL |number_fields| NIL)
+    (|number_field_pred| CONST-DECL "[number -> boolean]" |number_fields| NIL)
+    (|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|number| NONEMPTY-TYPE-DECL NIL |numbers| NIL)
+    (|le_min| FORMULA-DECL NIL |real_defs| NIL)
+    (|nnreal_div_posreal_is_nnreal| APPLICATION-JUDGEMENT "nnreal" |real_types|
+     NIL)
+    (|real_le_is_total_order| NAME-JUDGEMENT "(total_order?[real])"
+     |real_props| NIL)
+    (|min_le| FORMULA-DECL NIL |real_defs| NIL))
+   NIL
    (|HMDPen_i| SUBTYPE
     "real_defs.min(number_fields./(SLoWC.HMD_i(SLoWC.s, SLoWC.v), SLoWC.DMOD), 1)"
     "real_le_1" (42 4 42 26))))
@@ -74,7 +190,31 @@
         NIL))
       NIL))
     NIL)
-   NIL NIL
+   ((ZTHR FORMAL-CONST-DECL "posreal" |SLoWC| NIL)
+    (|posreal| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (> CONST-DECL "bool" |reals| NIL)
+    (|nonneg_real| NONEMPTY-TYPE-EQ-DECL NIL |real_types| NIL)
+    (|dh_i| CONST-DECL "nnreal" |SLoWC| NIL)
+    (|nnreal| TYPE-EQ-DECL NIL |real_types| NIL)
+    (>= CONST-DECL "bool" |reals| NIL)
+    (|bool| NONEMPTY-TYPE-EQ-DECL NIL |booleans| NIL)
+    (/ CONST-DECL "[numfield, nznum -> numfield]" |number_fields| NIL)
+    (|nznum| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (/= CONST-DECL "boolean" |notequal| NIL)
+    (|numfield| NONEMPTY-TYPE-EQ-DECL NIL |number_fields| NIL)
+    (|real| NONEMPTY-TYPE-FROM-DECL NIL |reals| NIL)
+    (|real_pred| CONST-DECL "[number_field -> boolean]" |reals| NIL)
+    (|number_field| NONEMPTY-TYPE-FROM-DECL NIL |number_fields| NIL)
+    (|number_field_pred| CONST-DECL "[number -> boolean]" |number_fields| NIL)
+    (|boolean| NONEMPTY-TYPE-DECL NIL |booleans| NIL)
+    (|number| NONEMPTY-TYPE-DECL NIL |numbers| NIL)
+    (|le_min| FORMULA-DECL NIL |real_defs| NIL)
+    (|nnreal_div_posreal_is_nnreal| APPLICATION-JUDGEMENT "nnreal" |real_types|
+     NIL)
+    (|real_le_is_total_order| NAME-JUDGEMENT "(total_order?[real])"
+     |real_props| NIL)
+    (|min_le| FORMULA-DECL NIL |real_defs| NIL))
+   NIL
    (|VertPen_i| SUBTYPE
     "real_defs.min(number_fields./(SLoWC.dh_i(SLoWC.sz), SLoWC.ZTHR), 1)"
     "real_le_1" (48 4 48 24))))

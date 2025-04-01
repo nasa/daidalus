@@ -9,6 +9,7 @@ package gov.nasa.larcfm.ACCoRD;
 import gov.nasa.larcfm.Util.LossData;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
+import gov.nasa.larcfm.Util.Vect2;
 import gov.nasa.larcfm.Util.Vect3;
 import gov.nasa.larcfm.Util.f;
 
@@ -192,37 +193,87 @@ public class ConflictData extends LossData {
 	}
 
 	/**
-	 * Horizontal closure rate
-	 * @return Horizontal closure rate in internal units at current time
+	 * Horizontal relative speed
+	 * @return Horizontal relative speed in internal units at current time
 	 */
-	public double horizontalClosureRate() {
+	public double horizontalRelativeSpeed() {
 		return v_.norm2D();
 	}
 
 	/**
-	 * Horizontal closure rate 
+	 * Horizontal relative speed 
 	 * @param u units
-	 * @return Horizontal closure rate in specified units u at current time
+	 * @return Horizontal relative speed in specified units u at current time
 	 */
-	public double horizontalClosureRate(String u) {
-		return Units.to(u,horizontalClosureRate());
+	public double horizontalRelativeSpeed(String u) {
+		return Units.to(u,horizontalRelativeSpeed());
 	}
 
 	/**
-	 * Vertical closure rate
-	 * @return Vertical closure rate in internal units at current time
+	 * Vertical relative speed
+	 * @return Vertical relative speed in internal units at current time
 	 */
-	public double verticalClosureRate() {
+	public double verticalRelativeSpeed() {
 		return Math.abs(v_.z);
 	}
 
 	/**
-	 * Vertical closure rate
+	 * Vertical relative speed
 	 * @param u units
-	 * @return Vertical closure rate in specified units at current time
+	 * @return Vertical relative speed in specified units at current time
 	 */
-	public double verticalClosureRate(String u) {
-		return Units.to(u,verticalClosureRate());
+	public double verticalRelativeSpeed(String u) {
+		return Units.to(u,verticalRelativeSpeed());
+	}
+
+	enum SLoWCClassification {
+		SLoWC_None, SLoWC_Minimal,SLoWC_Minor, SLoWC_Major, SLoWC_Hazardous, SLoWC_Catastrophic
+	}
+
+	/** 
+	 * return SLoWC classification for SC-228 SLoWC value 
+	 **/
+	public static SLoWCClassification classifySLoWC(double slowc) {
+		if (Util.almost_equals(slowc,0.0)) return SLoWCClassification.SLoWC_None; 
+		else if (slowc <= 17) return SLoWCClassification.SLoWC_Minimal; 
+		else if (slowc <= 33) return SLoWCClassification.SLoWC_Minor; 
+		else if (slowc <= 47) return SLoWCClassification.SLoWC_Major; 
+		else if (slowc <= 94) return SLoWCClassification.SLoWC_Hazardous; 
+		else return SLoWCClassification.SLoWC_Catastrophic; 
+	}
+	
+	private static double squircle(double x, double y) {
+		double sqx = Util.sq(x);
+		double sqy = Util.sq(y);
+		return Util.sqrt_safe(sqx + (1-sqx)*sqy);
+	}
+	
+	/**
+	 * Severity of Loss of Well Clear calculation for one time instant, 0.0 (minimal) - 100.0 (catastrophic). 
+	 * For an encounter, it should take max of every instance (SC-228)
+	 **/ 
+	public double SLoWC(double DMOD, double TAUMOD, double ZTHR) {
+		Vect2 s2 = s_.vect2();
+		Vect2 v2 = v_.vect2();
+		
+		double r_i = s2.norm();
+		double rdot_i = Util.almost_equals(r_i,0.0) ? 0.0 : s2.dot(v2)/r_i;
+
+		double rdotTAUMOD = rdot_i*TAUMOD;
+		double S_i = Util.max(DMOD, (Util.sqrt_safe(Util.sq(rdotTAUMOD)+4*Util.sq(DMOD))-rdotTAUMOD)/2.0);
+		double RangePen_i = Util.almost_equals(r_i,0.0) ? 0 : Util.min(r_i/S_i, 1.0);
+		
+		double sqv2 = v2.sqv();
+		double t_CPA = Util.almost_equals(sqv2,0.0) ? 0.0 : -s2.dot(v2)/v2.sqv();
+		double HMD_i = s2.AddScal(t_CPA, v2).norm();
+		double HMDPen_i = Util.almost_equals(DMOD,0.0) ? 0 : Util.min(HMD_i/DMOD, 1.0);
+		
+		double dh_i = Math.abs(s_.z);
+		double VertPen_i = Util.almost_equals(ZTHR,0.0) ? 0.0 : Util.min(dh_i/ZTHR, 1.0);
+		
+		double slowc = (1.0 - squircle(RangePen_i, squircle(HMDPen_i, VertPen_i))) * 100.0;
+	
+		return slowc;
 	}
 
 	/**

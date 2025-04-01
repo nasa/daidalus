@@ -65,8 +65,6 @@ public:
 			std::cerr << "** Error: Maximum alert level is 0. It appears that no alerter is configured" << std::endl;
 			exit(1);
     }
-    int corrective_level = daa.correctiveAlertLevel(1);
-    const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
     std::string uhor = daa.getUnitsOf("distance_filter");
     std::string uver = daa.getUnitsOf("altitude_filter");
     std::string uhs = daa.getUnitsOf("step_hs");
@@ -80,16 +78,20 @@ public:
     if (!daa.isDisabledDTALogic()) {
       line_units += ",,, ["+uhor+"]";
     }
+    *out << ", Corrective Level";
+    line_units += ",";
     for (int level=1; level <= max_alert_levels;++level) {
       *out << ", Time to Volume of Alert(" << level << ")";
       line_units += ", [s]";
     }
-    *out << ", Horizontal Separation, Vertical Separation, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
+    *out << ", Conflict?, LoWC?, SLoWC, Severity";
+		line_units += ",,,%,";
+    *out << ", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
     line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
-    if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
-      *out << ", Projected TAUMOD (WCV*)";
-      line_units += ", [s]";
-    }
+    *out << ", Type of Detector";
+    line_units += ",";
+		*out << ", Projected TimeVar";
+		line_units += ", [s]";
     *out << std::endl;
     *out << line_units << std::endl;
   }
@@ -110,8 +112,8 @@ public:
       *out << ", " << daa.getOwnshipState().getId();
       *out << ", " << daa.getAircraftStateAt(ac).getId();
       *out << ", " << alerter_idx;
-      int alert = daa.alertLevel(ac);
-      *out << ", " << Fmi(alert);
+      int alert_level = daa.alertLevel(ac);
+      *out << ", " << Fmi(alert_level);
       if (!daa.isDisabledDTALogic()) {
         *out << ", " << Fmb(daa.isActiveDTALogic());
         *out << ", " << (daa.isActiveDTASpecialManeuverGuidance() ?
@@ -125,6 +127,9 @@ public:
           *out << ", " << FmPrecision(Units::to(uhor,dh));
         }
       }
+      int corrective_level = daa.alertLevelOfRegion(ac,daa.getCorrectiveRegion());
+			const Detection3D& detector = alerter.getDetector(corrective_level);
+      *out << ", " << Fmi(corrective_level);
       for (int level=1; level <= max_alert_levels; ++level) {
         *out << ", ";
         if (level <= alerter.mostSevereAlertLevel()) {
@@ -132,10 +137,25 @@ public:
           *out << FmPrecision(det.getTimeIn());
         }
       }
+      *out << ", " << Fmb(daa.inCorrectiveConflictWithAircraft(ac)); // Conflict?
+			ConflictData det = daa.violationOfCorrectiveThresholds(ac);
+			*out << ", " << Fmb(det.loss()); // Loss?
+			double slowc = -1;
+			if (detector.getSimpleClassName() == "WCV_TAUMOD" ||  detector.getSimpleClassName() == "WCV_TAUMOD_SUM") {
+				slowc = det.SLoWC(((WCV_tvar&)detector).getDTHR(),((WCV_tvar&)detector).getTTHR(),((WCV_tvar&)detector).getZTHR());
+			} else if (detector.getSimpleClassName() == "CDCylinder") {
+				slowc = det.SLoWC(((CDCylinder&)detector).getHorizontalSeparation(),0.0,((CDCylinder&)detector).getVerticalSeparation());
+			}
+			if (slowc >= 0) {
+  			*out << ", " << Fm2(slowc); // SLoWC
+				*out << ", " << ConflictData::SLoWCClassificationToString(ConflictData::classifySLoWC(slowc)); 
+			} else {
+				*out << ",,";
+			}
       *out << ", " << FmPrecision(daa.currentHorizontalSeparation(ac,uhor));
       *out << ", " << FmPrecision(daa.currentVerticalSeparation(ac,uver));
-      *out << ", " << FmPrecision(daa.horizontalClosureRate(ac,uhs));
-      *out << ", " << FmPrecision(daa.verticalClosureRate(ac,uvs));
+      *out << ", " << FmPrecision(daa.horizontalRelativeSpeed(ac,uhs));
+      *out << ", " << FmPrecision(daa.verticalRelativeSpeed(ac,uvs));
       *out << ", " << FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor));
       *out << ", " << FmPrecision(daa.predictedVerticalMissDistance(ac,uver));
       *out << ", " << FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac));
@@ -145,13 +165,13 @@ public:
       if (tcoa >= 0) {
         *out << FmPrecision(tcoa);
       }
-      *out << ", ";
-      int corrective_level = daa.correctiveAlertLevel(1);
-      const Detection3D& detector = daa.getAlerterAt(1).getDetector(corrective_level);
-      if (detector.isValid() && detector.getSimpleSuperClassName() == "WCV_tvar") {
-        double tau_mod  = daa.modifiedTau(ac,((WCV_tvar&)detector).getDTHR());
-        if (tau_mod >= 0) {
-          *out << FmPrecision(tau_mod);
+      *out << ", " << detector.getSimpleClassName();
+      *out << ",";
+      if (detector.getSimpleSuperClassName() == "WCV_tvar") {
+        // tvar is either taumod, tcpa, or tep depending on the type of detector
+        double tvar  = ((WCV_tvar&)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());	
+        if (tvar >= 0) {
+          *out << " " << FmPrecision(tvar);
         }
       }
       *out << std::endl;

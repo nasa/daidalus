@@ -42,15 +42,20 @@ public:
 	/**
 	 * Returns true if loss
 	 */
+	bool loss() const;
+
+	/**
+	 * Returns true if predicted loss
+	 */
 	bool conflict() const;
 
 	/**
-	 * Returns true if loss occurs before t in seconds
+	 * Returns true if predicted loss occurs before t in seconds
 	 */
 	bool conflictBefore(double t) const;
 
 	/**
-	 * Returns true if loss last more than thr in seconds
+	 * Returns true if predicted loss last more than thr in seconds
 	 */
 	bool conflictLastMoreThan(double thr) const;
 

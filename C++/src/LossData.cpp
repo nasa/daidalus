@@ -34,12 +34,19 @@ const LossData& EMPTY() {
 /**
  * Returns true if loss
  */
+bool LossData::loss() const {
+	return time_in <= 0.0;
+}
+
+/**
+ * Returns true if predicted loss
+ */
 bool LossData::conflict() const {
 	return Util::almost_less(time_in,time_out); //[CAM] Added to avoid numerical instability
 }
 
 /**
- * Returns true if loss occurs before t in seconds
+ * Returns true if predicted loss occurs before t in seconds
  */
 bool LossData::conflictBefore(double t) const {
 	return // Zero is special since loss intervals are cut at 0
@@ -48,7 +55,7 @@ bool LossData::conflictBefore(double t) const {
 }
 
 /**
- * Returns true if loss last more than thr in seconds
+ * Returns true if predicted loss last more than thr in seconds
  */
 bool LossData::conflictLastMoreThan(double thr) const {
 	return conflict() && (time_out - time_in >= thr);

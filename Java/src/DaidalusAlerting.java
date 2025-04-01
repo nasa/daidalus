@@ -45,11 +45,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import gov.nasa.larcfm.ACCoRD.Alerter;
+import gov.nasa.larcfm.ACCoRD.CDCylinder;
 import gov.nasa.larcfm.ACCoRD.ConflictData;
 import gov.nasa.larcfm.ACCoRD.DAABatchProcessor;
 import gov.nasa.larcfm.ACCoRD.Daidalus;
 import gov.nasa.larcfm.ACCoRD.DaidalusFileWalker;
 import gov.nasa.larcfm.ACCoRD.Detection3D;
+import gov.nasa.larcfm.ACCoRD.WCV_TAUMOD;
 import gov.nasa.larcfm.ACCoRD.WCV_tvar;
 import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.f;
@@ -123,8 +125,6 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			System.err.println("** Error: Maximum alert level is 0. It appears that no alerter is configured");
 			System.exit(1);
 		}
-		int corrective_level = daa.correctiveAlertLevel(1);
-		Detection3D detector = daa.getAlerterAt(1).getDetector(corrective_level).get();
 		String uhor = daa.getUnitsOf("distance_filter");
 		String uver = daa.getUnitsOf("altitude_filter");
 		String uhs = daa.getUnitsOf("step_hs");
@@ -137,16 +137,20 @@ public class DaidalusAlerting extends DAABatchProcessor {
 		if (!daa.isDisabledDTALogic()) {
 			line_units += ",,, ["+uhor+"]";
 		}
+		out.print(", Corrective Level");
+		line_units += ",";
 		for (int level=1; level <= max_alert_levels;++level) {
 			out.print(", Time to Volume of Alert("+level+")");
 			line_units += ", [s]";
 		}
-		out.print(", Horizontal Separation, Vertical Separation, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA");
+		out.print(", Conflict?, LoWC?, SLoWC, Severity");
+		line_units += ",,,%,";
+		out.print(", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA");
 		line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
-		if (detector instanceof WCV_tvar) {
-			out.print(", Projected TAUMOD (WCV*)");
-			line_units += ", [s]";
-		}
+		out.print(", Type of Detector");
+		line_units += ",";
+		out.print(", Projected TimeVar");
+		line_units += ", [s]";
 		out.println();
 		out.println(line_units);
 	}
@@ -167,8 +171,8 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			out.print(", "+daa.getOwnshipState().getId());
 			out.print(", "+daa.getAircraftStateAt(ac).getId());
 			out.print(", "+alerter_idx);
-			int alert = daa.alertLevel(ac);
-			out.print(", "+alert);
+			int alert_level = daa.alertLevel(ac);
+			out.print(", "+alert_level);
 			if (!daa.isDisabledDTALogic()) {
 				out.print(", "+daa.isActiveDTALogic());					
 				out.print(", "+(daa.isActiveDTASpecialManeuverGuidance() ? 
@@ -181,6 +185,9 @@ public class DaidalusAlerting extends DAABatchProcessor {
 					out.print(", "+f.FmPrecision(Units.to(uhor,dh)));
 				}
 			}
+			int corrective_level = daa.alertLevelOfRegion(ac,daa.getCorrectiveRegion());
+			Detection3D detector = alerter.getDetector(corrective_level).get();
+			out.print(", "+corrective_level);
 			for (int level=1; level <= max_alert_levels; ++level) {
 				out.print(", ");
 				if (level <= alerter.mostSevereAlertLevel()) {
@@ -188,10 +195,25 @@ public class DaidalusAlerting extends DAABatchProcessor {
 					out.print(f.FmPrecision(det.getTimeIn()));
 				}
 			}
+			out.print(", "+daa.inCorrectiveConflictWithAircraft(ac)); // Conflict?
+			ConflictData det = daa.violationOfCorrectiveThresholds(ac);
+			out.print(", "+det.loss()); // Loss?
+			double slowc = -1;
+			if (detector instanceof WCV_TAUMOD) {
+				slowc = det.SLoWC(((WCV_tvar)detector).getDTHR(),((WCV_tvar)detector).getTTHR(),((WCV_tvar)detector).getZTHR());
+			} else if (detector instanceof CDCylinder) {
+				slowc = det.SLoWC(((CDCylinder)detector).getHorizontalSeparation(),0.0,((CDCylinder)detector).getVerticalSeparation());
+			}
+			if (slowc >= 0) {
+  				out.print(", "+f.Fm2(slowc)); // SLoWC
+				out.print(", "+ConflictData.classifySLoWC(slowc)); 
+			} else {
+				out.print(",,");
+			}
 			out.print(", "+f.FmPrecision(daa.currentHorizontalSeparation(ac,uhor)));
 			out.print(", "+f.FmPrecision(daa.currentVerticalSeparation(ac,uver)));
-			out.print(", "+f.FmPrecision(daa.horizontalClosureRate(ac,uhs)));
-			out.print(", "+f.FmPrecision(daa.verticalClosureRate(ac,uvs)));
+			out.print(", "+f.FmPrecision(daa.horizontalRelativeSpeed(ac,uhs)));
+			out.print(", "+f.FmPrecision(daa.verticalRelativeSpeed(ac,uvs)));
 			out.print(", "+f.FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor)));
 			out.print(", "+f.FmPrecision(daa.predictedVerticalMissDistance(ac,uver)));
 			out.print(", "+f.FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac)));
@@ -201,13 +223,13 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			if (tcoa >= 0) {
 				out.print(f.FmPrecision(tcoa));
 			}
-			out.print(", ");
-			int corrective_level = daa.correctiveAlertLevel(1);
-			Detection3D detector = daa.getAlerterAt(1).getDetector(corrective_level).get();
+			out.print(", "+detector.getSimpleClassName());
+			out.print(",");
 			if (detector instanceof WCV_tvar) {
-				double tau_mod  = daa.modifiedTau(ac,((WCV_tvar)detector).getDTHR());
-				if (tau_mod >= 0) {
-					out.print(f.FmPrecision(tau_mod));
+				// tvar is either taumod, tcpa, or tep depending on the type of detector
+				double tvar  = ((WCV_tvar)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());	
+				if (tvar >= 0) {
+					out.print(" "+f.FmPrecision(tvar)); 
 				}						
 			}
 			out.println();

@@ -21,7 +21,7 @@ BEGIN
 
   r_i(s:Vect2) : nnreal = norm(s)
   
-  rdot_i(s:Nz_vect2,v:Vect2) : real = (s*v)/norm(s)
+  rdot_i(s:Nz_vect2,v:Vect2) : real = (s*v)/r_i(s)
 
   S_i(s:Nz_vect2,v:Vect2) : posreal =
    LET rdotTAUMOD = rdot_i(s,v)*TAUMOD IN
