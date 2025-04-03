@@ -82,7 +82,7 @@ public class DaidalusAlerting extends DAABatchProcessor {
 				if (arga.startsWith("-")){
 					System.err.println("** Error: Unknown option ("+arga+")");
 					System.exit(1);
-				} 			
+				}
 			}
 		}
 		if (processor.getConfigurationName().isEmpty()) {
@@ -145,8 +145,8 @@ public class DaidalusAlerting extends DAABatchProcessor {
 		}
 		out.print(", Conflict?, LoWC?, SLoWC, Severity");
 		line_units += ",,,%,";
-		out.print(", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA");
-		line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
+		out.print(", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA");
+		line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
 		out.print(", Type of Detector");
 		line_units += ",";
 		out.print(", Projected TimeVar");
@@ -174,8 +174,8 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			int alert_level = daa.alertLevel(ac);
 			out.print(", "+alert_level);
 			if (!daa.isDisabledDTALogic()) {
-				out.print(", "+daa.isActiveDTALogic());					
-				out.print(", "+(daa.isActiveDTASpecialManeuverGuidance() ? 
+				out.print(", "+daa.isActiveDTALogic());
+				out.print(", "+(daa.isActiveDTASpecialManeuverGuidance() ?
 					(daa.isEnabledDTALogicWithHorizontalDirRecovery() ? "Departing" : "Landing") : ""));
 				if (daa.getDTARadius() == 0 && daa.getDTAHeight() == 0) {
 					out.print(", ");
@@ -206,7 +206,7 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			}
 			if (slowc >= 0) {
   				out.print(", "+f.Fm2(slowc)); // SLoWC
-				out.print(", "+ConflictData.classifySLoWC(slowc)); 
+				out.print(", "+ConflictData.classifySLoWC(slowc));
 			} else {
 				out.print(",,");
 			}
@@ -214,6 +214,8 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			out.print(", "+f.FmPrecision(daa.currentVerticalSeparation(ac,uver)));
 			out.print(", "+f.FmPrecision(daa.horizontalRelativeSpeed(ac,uhs)));
 			out.print(", "+f.FmPrecision(daa.verticalRelativeSpeed(ac,uvs)));
+			out.print(", "+f.FmPrecision(daa.horizontalClosureRate(ac,uhs)));
+			out.print(", "+f.FmPrecision(daa.verticalClosureRate(ac,uvs)));
 			out.print(", "+f.FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor)));
 			out.print(", "+f.FmPrecision(daa.predictedVerticalMissDistance(ac,uver)));
 			out.print(", "+f.FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac)));
@@ -227,10 +229,10 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			out.print(",");
 			if (detector instanceof WCV_tvar) {
 				// tvar is either taumod, tcpa, or tep depending on the type of detector
-				double tvar  = ((WCV_tvar)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());	
+				double tvar  = ((WCV_tvar)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());
 				if (tvar >= 0) {
-					out.print(" "+f.FmPrecision(tvar)); 
-				}						
+					out.print(" "+f.FmPrecision(tvar));
+				}
 			}
 			out.println();
 		}

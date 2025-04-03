@@ -224,7 +224,7 @@ public:
    * If time is different from current time, traffic state is projected, past or future,
    * into current time. If it's the first aircraft, this aircraft is
    * set as the ownship. If a traffic state with the same id already exists,
-	 * the traffic state is overwritten. If id is ownship's, nothing is done and 
+	 * the traffic state is overwritten. If id is ownship's, nothing is done and
 	 * the value -1 is returned.
    * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
 	 * -1 is returned.
@@ -290,7 +290,7 @@ public:
 
   /**
    * @return last traffic index. Every traffic aircraft has an index between 1 and lastTrafficIndex.
-   * The index 0 is reserved for the ownship.   
+   * The index 0 is reserved for the ownship.
    */
   int lastTrafficIndex() const;
 
@@ -319,14 +319,14 @@ public:
 	 * Get ownship's heading in given units [0-2PI]
 	 */
   double getOwnshipHeading(const std::string& units) const;
-  
+
   /**
 	 * Get ownship's airspeed in internal units [m/s]
 	 */
 	double getOwnshipAirspeed() const;
 
   /**
-	 * Get ownship's airspeed in given units 
+	 * Get ownship's airspeed in given units
 	 */
 	double getOwnshipAirspeed(const std::string& units) const;
 
@@ -334,7 +334,7 @@ public:
 	 * Set ownship's air velocity. This method resets the wind setting and the air velocity of all traffic aircraft.
 	 */
 	void setOwnshipAirVelocity(double heading, double airspeed);
-  
+
   /**
    * Get wind velocity specified in the TO direction
    */
@@ -582,22 +582,22 @@ public:
    */
   double getLookaheadTime(const std::string& u) const;
 
-  /** 
+  /**
    * @return distance filter in meters.
    */
 	double getDistanceFilter() const;
 
-  /** 
+  /**
    * @return distance filter in specified units [u].
    */
 	double getDistanceFilter(const std::string& u) const;
 
-  /** 
+  /**
    * @return altitude filter in meters.
    */
 	double getAltitudeFilter() const;
 
-  /** 
+  /**
    * @return altitude filter in specified units [u].
    */
 	double getAltitudeFilter(const std::string& u) const;
@@ -622,16 +622,16 @@ public:
    */
   double getRightHorizontalDirection(const std::string& u) const;
 
-  /** 
-   * @return airspeed threshold in internal units [m/s]. 
+  /**
+   * @return airspeed threshold in internal units [m/s].
    */
   double getAirspeedThreshold() const;
 
-  /** 
-   * @return airspeed threshold in specified units [u].    
+  /**
+   * @return airspeed threshold in specified units [u].
    */
   double getAirspeedThreshold(const std::string& u) const;
-  
+
   /**
    * @return minimum horizontal speed for horizontal speed bands in internal units [m/s].
    */
@@ -1008,26 +1008,26 @@ public:
    */
   bool setLookaheadTime(double t, const std::string& u);
 
-  /** 
+  /**
    * Set distance filter to value in meters.
    */
 	bool setDistanceFilter(double val);
 
-  /** 
+  /**
    * Set distance filter to value in specified units [u].
    */
-  bool setDistanceFilter(double val, const std::string& u); 
-  
-  /** 
+  bool setDistanceFilter(double val, const std::string& u);
+
+  /**
    * Set altitude filter to value in meters.
    */
 	bool setAltitudeFilter(double val);
 
-  /** 
+  /**
    * Set altitude filter to value in specified units [u].
    */
-  bool setAltitudeFilter(double val, const std::string& u); 
-  
+  bool setAltitudeFilter(double val, const std::string& u);
+
   /**
    * Set left direction to value in internal units [rad]. Value is expected to be in [0 - pi]
    */
@@ -1048,16 +1048,16 @@ public:
    */
   bool setRightHorizontalDirection(double val, const std::string& u);
 
-	/** 
+	/**
    * Set airspeed threshold to value in internal units [m/s].
    */
 	bool setAirspeedThreshold(double val);
 
-  /** 
+  /**
    * Set airspeed threshold to value in specified units [u].
    */
 	bool setAirspeedThreshold(double val, const std::string& u);
-  
+
   /**
    * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
    * Minimum horizontal speed must be non-negative.
@@ -1828,17 +1828,17 @@ public:
   void setDTAAlerter(int alerter);
 
 	/**
-	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold:
 	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
 	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
   int getHorizontalDirBandsBelowAirspeedThr() const;
 
 	/**
-	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold:
 	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
 	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
   void setHorizontalDirBandsBelowAirspeedThr(int val);
@@ -1957,7 +1957,7 @@ public:
    */
   std::string getUnitsOf(const std::string& key) const;
 
-  /** 
+  /**
    * Set string units of parameters keys. Return false if units are not compatible
    */
   bool setUnitsOf(const std::string& keystr, const std::string& units);
@@ -2644,7 +2644,7 @@ public:
 
   /**
    * Return the most severe alert level with respect to all traffic aircraft
-   * Return 0 if no alert. Return -1 if ownship has not been set 
+   * Return 0 if no alert. Return -1 if ownship has not been set
    */
   int alertLevelAllTraffic();
 
@@ -2736,28 +2736,56 @@ public:
   double currentVerticalSeparation(int ac_idx,const std::string& u) const;
 
   /**
-   * Returns horizontal relative speed, in internal units, with aircraft at index ac_idx.
+   * Returns horizontal relative speed (ownship wrt intruder), in internal units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
   double horizontalRelativeSpeed(int ac_idx) const;
 
   /**
-   * Returns current relative speed, in given units, with aircraft at index ac_idx.
+   * Returns current relative speed (ownship wrt intruder), in given units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
   double horizontalRelativeSpeed(int ac_idx,const std::string& u) const;
 
   /**
-   * Returns vertical relative speed, in internal units, with aircraft at index ac_idx.
+   * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+   * If positive, aircraft are horizontally converging.
+   * Returns NaN if aircraft index is not valid
+   */
+  double horizontalClosureRate(int ac_idx) const;
+
+  /**
+   * Returns closure rate, in given units, with aircraft at index ac_idx.
+   * If positive, aircraft are horizontally converging.
+   * Returns NaN if aircraft index is not valid
+   */
+  double horizontalClosureRate(int ac_idx,const std::string& u) const;
+
+  /**
+   * Returns vertical relative speed (ownship wrt intruder), in internal units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
   double verticalRelativeSpeed(int ac_idx) const;
 
   /**
-   * Returns vertical relative speed, in given units, with aircraft at index ac_idx.
+   * Returns vertical relative speed (ownship wrt intruder), in given units, with aircraft at index ac_idx.
    * Returns NaN if aircraft index is not valid
    */
   double verticalRelativeSpeed(int ac_idx,const std::string& u) const;
+
+  /**
+   * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+   * If positive, aircraft are vertically converging.
+   * Returns NaN if aircraft index is not valid
+   */
+  double verticalClosureRate(int ac_idx) const;
+
+  /**
+   * Returns vertical closure rate, in given units, with aircraft at index ac_idx.
+   * If positive, aircraft are vertically converging.
+   * Returns NaN if aircraft index is not valid
+   */
+  double verticalClosureRate(int ac_idx,const std::string& u) const;
 
   /**
    * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time),

@@ -13,10 +13,12 @@ Release DAIDALUS-v2.0.4a:
 * April 2025
 - Added configuration parameters distance_filter and altitude_filter
 to filter traffic aircraft.
-- Renamed Daidalus ' and ConflictData's methods "horizontalClosureRate" and
-"verticalClosureRate" to "horizontalRelativeSpeed" and
-"verticalRelativeSpeed", respectively,
-- Added calculation of Severity of Loss of Well Clear (SLoWC).
+- Fixed Daidalus' and ConflictData's methods horizontalClosureRate
+and verticalClosureRate.
+- Added Daidalus' and ConflictData's methods horizontalRelativeSpeed and
+verticalRelativeSpeed.
+- Added calculation of Severity of Loss of Well Clear (SLoWC) to
+ConflictData.
 
 Release DAIDALUS-v2.0.4:
 ------------------

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * <p>Objects of class "Daidalus" compute the conflict bands using 
- * kinematic single-maneuver projections of the ownship and linear preditions 
- * of (multiple) traffic aircraft positions. The bands consist of ranges of 
+ * <p>Objects of class "Daidalus" compute the conflict bands using
+ * kinematic single-maneuver projections of the ownship and linear preditions
+ * of (multiple) traffic aircraft positions. The bands consist of ranges of
  * guidance maneuvers: direction angles, horizontal speeds, vertical
- * speeds, and altitude.</p> 
- * 
+ * speeds, and altitude.</p>
+ *
  * <p>An assumption of the bands information is that the traffic aircraft
  * do not maneuver. If the ownship immediately executes a NONE
  * guidance maneuver, then the new path is conflict free (within a
@@ -39,17 +39,17 @@ import java.util.Optional;
  *
  * <p>If recovery bands are set and the ownship is in
  * a violation path, loss of separation recovery bands and recovery times are
- * computed for each type of maneuver. If the ownship immediately executes a 
+ * computed for each type of maneuver. If the ownship immediately executes a
  * RECOVERY guidance maneuver, then the new path is conflict-free after the
- * recovery time. Furthermore, the recovery time is the minimum time for which 
+ * recovery time. Furthermore, the recovery time is the minimum time for which
  * there exists a kinematic conflict-free maneuver in the future. </p>
  *
  * <p>Note that in the case of geodetic coordinates this version of bands
  * performs an internal projection of the coordinates and velocities
- * into the Euclidean frame (see Util/Projection).  Accuracy may be 
+ * into the Euclidean frame (see Util/Projection).  Accuracy may be
  * reduced if the traffic plans involve any segments longer than
  * Util.Projection.projectionConflictRange(lat,acc), and an error will
- * be logged if the distance between traffic and ownship exceeds 
+ * be logged if the distance between traffic and ownship exceeds
  * Util.Projection.projectionMaxRange() at any point in the lookahead
  * range.</p>
  *
@@ -64,22 +64,22 @@ import java.util.Optional;
  * Daidalus daa = new Daidalus();
  * daa.loadFromFile({@code <configurationfile>});
  * ...
- * 
+ *
  * daa.setOwnshipState(position of ownship, velocity of ownship);
  * daa.addTrafficState(position of (one) traffic aircraft, velocity of traffic);
  * daa.addTrafficState(position of (another) traffic aircraft, velocity of traffic);
- * 
+ *
  * ...add other traffic aircraft...
- * 
+ *
  * {@code
- * for (int i = 0; i < daa.horizontalDirectionBandsLength(); i++ )} {  
+ * for (int i = 0; i < daa.horizontalDirectionBandsLength(); i++ )} {
  *    interval = daa.horizontalDirectionIntervalAt(i);
  *    lower_ang = intrval.low;
  *    upper_ang = intrval.up;
  *    regionType = daa.horizontalDirectionRegionAt(i);
  *    ..do something with this information..
- * } 
- * 
+ * }
+ *
  * ...similar for horizontal speed and vertical speed...
  * </pre>
  *
@@ -88,16 +88,16 @@ import java.util.Optional;
 public class Daidalus {
 
 	private DaidalusCore      core_;
-	private DaidalusDirBands  hdir_band_; 
-	private DaidalusHsBands   hs_band_;  
-	private DaidalusVsBands   vs_band_;  
-	private DaidalusAltBands  alt_band_; 
+	private DaidalusDirBands  hdir_band_;
+	private DaidalusHsBands   hs_band_;
+	private DaidalusVsBands   vs_band_;
+	private DaidalusAltBands  alt_band_;
 
 	protected ErrorLog error = new ErrorLog("Daidalus");
 
 	/* Constructors */
 
-	/** 
+	/**
 	 * Construct an empty Daidalus object.
 	 * NOTE: This object doesn't have any alert configured. Alerters can be
 	 * configured either programmatically, set_DO_365B() or
@@ -111,7 +111,7 @@ public class Daidalus {
 		alt_band_ = new DaidalusAltBands();
 	}
 
-	/** 
+	/**
 	 * Construct a Daidalus object with initial alerter.
 	 */
 	public Daidalus(Alerter alerter) {
@@ -122,7 +122,7 @@ public class Daidalus {
 		alt_band_ = new DaidalusAltBands();
 	}
 
-	/** 
+	/**
 	 * Construct a Daidalus object with the default parameters and one alerter with the
 	 * given detector and T (in seconds) as the alerting time, early alerting time, and lookahead time.
 	 */
@@ -135,7 +135,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Construct a Daidalus object from an existing Daidalus object. 
+	 * Construct a Daidalus object from an existing Daidalus object.
 	 * This copies all traffic data and configuration, but not the cache information.
 	 */
 	public Daidalus(Daidalus daa) {
@@ -148,12 +148,12 @@ public class Daidalus {
 
 	/* Setting for WC Definitions RTCA DO-365 */
 
-	/*  
-	 * Set Daidalus object such that 
+	/*
+	 * Set Daidalus object such that
 	 * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
 	 * - Maneuver guidance logic assumes kinematic maneuvers
 	 * - Turn rate is set to 3 deg/s
-	 * - Configure Sensor Uncertainty Migitation (SUM) 
+	 * - Configure Sensor Uncertainty Migitation (SUM)
 	 * - Bands don't saturate until NMAC
 	 */
 	public void set_DO_365A() {
@@ -162,13 +162,13 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	/*  
-	 * Set Daidalus object such that 
+	/*
+	 * Set Daidalus object such that
 	 * - Configure two alerters (Phase I and Phase II) as defined as in RTCA DO-365A
 	 * - Maneuver guidance logic assumes kinematic maneuvers
 	 * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
 	 *   when type is false.
-	 * - Configure Sensor Uncertainty Migitation (SUM) when sum is true  
+	 * - Configure Sensor Uncertainty Migitation (SUM) when sum is true
 	 * - Bands don't saturate until NMAC
 	 */
 	public void set_DO_365A(boolean type, boolean sum) {
@@ -177,12 +177,12 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	/*  
-	 * Set Daidalus object such that 
+	/*
+	 * Set Daidalus object such that
 	 * - Configure two alerters (Phase I, Phase II, and Non-Cooperative) as defined as in RTCA DO-365B
 	 * - Maneuver guidance logic assumes kinematic maneuvers
 	 * - Turn rate is set to 3 deg/s
-	 * - Configure Sensor Uncertainty Migitation (SUM) 
+	 * - Configure Sensor Uncertainty Migitation (SUM)
 	 * - Bands don't saturate until NMAC
 	 */
 	public void set_DO_365B() {
@@ -191,13 +191,13 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	/*  
-	 * Set Daidalus object such that 
+	/*
+	 * Set Daidalus object such that
 	 * - Configure two alerters (Phase, Phase II, and Non-Cooperative) as defined as in RTCA DO-365B
 	 * - Maneuver guidance logic assumes kinematic maneuvers
 	 * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
 	 *   when type is false.
-	 * - Configure Sensor Uncertainty Migitation (SUM) when sum is true  
+	 * - Configure Sensor Uncertainty Migitation (SUM) when sum is true
 	 * - Bands don't saturate until NMAC
 	 */
 	public void set_DO_365B(boolean type, boolean sum) {
@@ -206,9 +206,9 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	/*  
-	 * Set Daidalus object such that 
-	 * - Alerting thresholds are buffered 
+	/*
+	 * Set Daidalus object such that
+	 * - Alerting thresholds are buffered
 	 * - Maneuver guidance logic assumes kinematic maneuvers
 	 * - Turn rate is set to 3 deg/s, when type is true, and to  1.5 deg/s
 	 *   when type is false.
@@ -220,7 +220,7 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	/* Set Daidalus object such that alerting logic and maneuver guidance corresponds to 
+	/* Set Daidalus object such that alerting logic and maneuver guidance corresponds to
 	 * ACCoRD's CD3D, i.e.,
 	 * - Separation is given by a cylinder of of diameter 5nm and height 1000ft
 	 * - Lookahead time and alerting time is 180s
@@ -232,7 +232,7 @@ public class Daidalus {
 		clearHysteresis();
 	}
 
-	/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to 
+	/* Set DAIDALUS object such that alerting logic and maneuver guidance corresponds to
 	 * ideal TCASII */
 	public void set_TCASII() {
 		core_.parameters.set_TCASII();
@@ -244,7 +244,7 @@ public class Daidalus {
 	 * Return release version string
 	 */
 	public static String release() {
-		return "DAIDALUSj-v"+DaidalusParameters.VERSION+"-FormalATM-"+Constants.version; 
+		return "DAIDALUSj-v"+DaidalusParameters.VERSION+"-FormalATM-"+Constants.version;
 	}
 
 	/* Ownship and Traffic Setting */
@@ -257,7 +257,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Returns state of aircraft at index idx 
+	 * Returns state of aircraft at index idx
 	 */
 	public TrafficState getAircraftStateAt(int idx) {
 		if (0 <= idx && idx <= lastTrafficIndex()) {
@@ -273,7 +273,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Set ownship state and current time. Clear all traffic. 
+	 * Set ownship state and current time. Clear all traffic.
 	 * @param id     Ownship's identifier
 	 * @param pos    Ownship's position
 	 * @param vel    Ownship's ground velocity
@@ -281,7 +281,7 @@ public class Daidalus {
 	 * @param time   Time stamp of ownship's state
 	 */
 	public void setOwnshipState(String id, Position pos, Velocity vel, Velocity airvel, double time) {
-		if (!hasOwnship() || !core_.ownship.getId().equals(id) || 
+		if (!hasOwnship() || !core_.ownship.getId().equals(id) ||
 				time < getCurrentTime() ||
 				time-getCurrentTime() > getHysteresisTime()){
 			// Full reset (including hysteresis) if adding a different ownship or time is
@@ -318,10 +318,10 @@ public class Daidalus {
 
 	/**
 	 * Add traffic state at given time. Assume previous wind.
-	 * If time is different from current time, traffic state is projected, past or future, 
-	 * into current time. If it's the first aircraft, this aircraft is 
+	 * If time is different from current time, traffic state is projected, past or future,
+	 * into current time. If it's the first aircraft, this aircraft is
 	 * set as the ownship. If a traffic state with the same id already exists,
-	 * the traffic state is overwritten. If id is ownship's, nothing is done and 
+	 * the traffic state is overwritten. If id is ownship's, nothing is done and
 	 * the value -1 is returned.
 	 * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
 	 * -1 is returned.
@@ -335,7 +335,7 @@ public class Daidalus {
 		if (lastTrafficIndex() < 0) {
 			setOwnshipState(id,pos,vel,vel,time);
 			return 0;
-		} 
+		}
 		if ((core_.parameters.getDistanceFilter() <= 0 || core_.ownship.getPosition().distanceH(pos) <= core_.parameters.getDistanceFilter()) &&
 			(core_.parameters.getAltitudeFilter() <= 0 || core_.ownship.getPosition().distanceV(pos) <= core_.parameters.getAltitudeFilter())) {
 			int idx = core_.set_traffic_state(id,pos,vel,time);
@@ -349,8 +349,8 @@ public class Daidalus {
 	}
 
 	/**
-	 * Add traffic state at current time. If it's the first aircraft, this aircraft is 
-	 * set as the ownship. 
+	 * Add traffic state at current time. If it's the first aircraft, this aircraft is
+	 * set as the ownship.
 	 * If traffic aircraft is beyond distance_filter or altitude_filter, traffic aircraft won't be added and
 	 * -1 is returned.
 	 * @param id Aircraft's identifier
@@ -362,7 +362,7 @@ public class Daidalus {
 		return addTrafficState(id,pos,vel,core_.current_time);
 	}
 
-	/** 
+	/**
 	 * Get index of aircraft with given name. Return -1 if no such index exists
 	 */
 	public int aircraftIndex(String name) {
@@ -393,10 +393,10 @@ public class Daidalus {
 		}
 	}
 
-	/**                                                                                                                                                
-	 * Remove traffic from the list of aircraft. Returns false if no aircraft was removed.                                                             
-	 * Ownship cannot be removed.                                                                                                                      
-	 * If traffic is at index i, the indices of aircraft at {@code k > i}, are shifted to k-1.                                                                 
+	/**
+	 * Remove traffic from the list of aircraft. Returns false if no aircraft was removed.
+	 * Ownship cannot be removed.
+	 * If traffic is at index i, the indices of aircraft at {@code k > i}, are shifted to k-1.
 	 * EXPERT USE ONLY !!!
 	 */
 	public boolean removeTrafficAircraft(String name) {
@@ -408,7 +408,7 @@ public class Daidalus {
 		return false;
 	}
 
-	/** 
+	/**
 	 * Project ownship and traffic aircraft offset seconds in the future (if positive) or in the past (if negative)
 	 * EXPERT USE ONLY !!!
 	 */
@@ -444,8 +444,8 @@ public class Daidalus {
 	}
 
 	/**
-	 * @return last traffic index. Every traffic aircraft has an index between 1 and lastTrafficIndex. 
-	 * The index 0 is reserved for the ownship.	 
+	 * @return last traffic index. Every traffic aircraft has an index between 1 and lastTrafficIndex.
+	 * The index 0 is reserved for the ownship.
 	 */
 	public int lastTrafficIndex() {
 		return numberOfAircraft()-1;
@@ -495,12 +495,12 @@ public class Daidalus {
 	}
 
 	/**
-	 * Get ownship's airspeed in given units 
+	 * Get ownship's airspeed in given units
 	 */
 	public double getOwnshipAirspeed(String units) {
 		return core_.ownship.horizontalSpeed(units);
 	}
-	
+
 	/**
 	 * Set ownship's air velocity. This method resets the wind setting and the air velocity of all traffic aircraft.
 	 */
@@ -541,7 +541,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Set no wind velocity 
+	 * Set no wind velocity
 	 */
 	public void setNoWind() {
 		core_.clear_wind();
@@ -552,7 +552,7 @@ public class Daidalus {
 
 	/**
 	 * Set alerter of the aircraft at ac_idx to alerter_idx
-	 * @param ac_idx: Aircraft index between 0 (ownship) and lastTrafficIndex(), inclusive 
+	 * @param ac_idx: Aircraft index between 0 (ownship) and lastTrafficIndex(), inclusive
 	 * @param alerter_idx: Alerter index starting from 1. The value 0 means none.
 	 */
 	public void setAlerterIndex(int ac_idx, int alerter_idx) {
@@ -574,18 +574,18 @@ public class Daidalus {
 
 	/**
 	 * Set alerter of the aircraft at ac_idx to alerter
-	 * @param ac_idx: Aircraft index between 0 (ownship) and lastTrafficIndex(), inclusive 
-	 * @param alerter: Alerter identifier 
+	 * @param ac_idx: Aircraft index between 0 (ownship) and lastTrafficIndex(), inclusive
+	 * @param alerter: Alerter identifier
 	 */
 	public void setAlerter(int ac_idx, String alerter) {
 		setAlerterIndex(ac_idx,core_.parameters.getAlerterIndex(alerter));
 	}
 
 	/**
-	 * Return alert index used for the traffic aircraft at index ac_idx. 
+	 * Return alert index used for the traffic aircraft at index ac_idx.
 	 * The alert index depends on alerting logic. If ownship centric, it returns the
-	 * alert index of ownship. Otherwise, it returns the alert index of the traffic aircraft 
-	 * at ac_idx. 
+	 * alert index of ownship. Otherwise, it returns the alert index of the traffic aircraft
+	 * at ac_idx.
 	 */
 	public int alerterIndexBasedOnAlertingLogic(int ac_idx) {
 		if (0 <= ac_idx && ac_idx <= lastTrafficIndex()) {
@@ -594,7 +594,7 @@ public class Daidalus {
 		return 0;
 	}
 
-	/** 
+	/**
 	 * Returns most severe alert level for a given aircraft. Returns 0 if either the aircraft or the alerter is undefined.
 	 */
 	public int mostSevereAlertLevel(int ac_idx) {
@@ -727,16 +727,16 @@ public class Daidalus {
 	/* Urgency strategy for implicitly coordinate bands (experimental) */
 
 	/**
-	 * @return strategy for computing most urgent aircraft. 
+	 * @return strategy for computing most urgent aircraft.
 	 */
-	public UrgencyStrategy getUrgencyStrategy() { 
+	public UrgencyStrategy getUrgencyStrategy() {
 		return core_.urgency_strategy;
 	}
 
 	/**
 	 * Set strategy for computing most urgent aircraft.
 	 */
-	public void setUrgencyStrategy(UrgencyStrategy strat) { 
+	public void setUrgencyStrategy(UrgencyStrategy strat) {
 		if (strat != null) {
 			core_.urgency_strategy = strat.copy();
 			reset();
@@ -753,8 +753,8 @@ public class Daidalus {
 	/* Computation of contours, a.k.a. blobs, and hazard zones */
 
 	/**
-	 * Computes horizontal contours contributed by aircraft at index idx, for 
-	 * given alert level. A contour is a list of points in counter-clockwise 
+	 * Computes horizontal contours contributed by aircraft at index idx, for
+	 * given alert level. A contour is a list of points in counter-clockwise
 	 * direction representing a polygon. Last point should be connected to first one.
 	 * The computed polygon should only be used for display purposes since it's merely an
 	 * approximation of the actual contours defined by the violation and detection methods.
@@ -768,26 +768,26 @@ public class Daidalus {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			int code = core_.horizontal_contours(blobs,ac_idx-1,alert_level);
 			switch (code) {
-			case 1: 
+			case 1:
 				error.addError("horizontalContours: detector of traffic aircraft "+ac_idx+" is not set");
 				break;
 			case 2:
 				error.addError("horizontalContours: no corrective alerter level for alerter of "+ac_idx);
 				break;
-			case 3: 
+			case 3:
 				error.addError("horizontalContours: alerter of traffic aircraft "+ac_idx+" is out of bounds");
 				break;
 			}
 		} else {
-			error.addError("horizontalContours: aircraft index "+ac_idx+" is out of bounds");			
+			error.addError("horizontalContours: aircraft index "+ac_idx+" is out of bounds");
 		}
 	}
 
 	/**
-	 * Computes horizontal contours contributed by aircraft at index ac_idx, for the alert level 
-	 * corresponding to the corrective region. A contour is a list of points in 
-	 * counter-clockwise direction representing a polygon. Last point should be connected to 
-	 * first one.  
+	 * Computes horizontal contours contributed by aircraft at index ac_idx, for the alert level
+	 * corresponding to the corrective region. A contour is a list of points in
+	 * counter-clockwise direction representing a polygon. Last point should be connected to
+	 * first one.
 	 * The computed polygon should only be used for display purposes since it's merely an
 	 * approximation of the actual contours defined by the violation and detection methods.
 	 * @param blobs list of horizontal contours returned by reference.
@@ -798,28 +798,28 @@ public class Daidalus {
 	}
 
 	/**
-	 * Computes horizontal contours contributed by aircraft at index idx, for 
-	 * given region. A contour is a list of points in counter-clockwise 
+	 * Computes horizontal contours contributed by aircraft at index idx, for
+	 * given region. A contour is a list of points in counter-clockwise
 	 * direction representing a polygon. Last point should be connected to first one.
 	 * The computed polygon should only be used for display purposes since it's merely an
 	 * approximation of the actual contours defined by the violation and detection methods.
 	 * @param blobs list of horizontal contours returned by reference.
 	 * @param ac_idx is the index of the aircraft used to compute the contours.
-	 * @param region is the region used to compute detection. 
+	 * @param region is the region used to compute detection.
 	 */
 	public void horizontalContours(List<List<Position>>blobs, int ac_idx, BandsRegion region) {
 		horizontalContours(blobs,ac_idx,alertLevelOfRegion(ac_idx,region));
 	}
 
 	/**
-	 * Computes horizontal hazard zone around aircraft at index ac_idx, for given alert level. 
-	 * A hazard zone is a list of points in counter-clockwise 
+	 * Computes horizontal hazard zone around aircraft at index ac_idx, for given alert level.
+	 * A hazard zone is a list of points in counter-clockwise
 	 * direction representing a polygon. Last point should be connected to first one.
 	 * @param haz hazard zone returned by reference.
 	 * @param ac_idx is the index of the aircraft used to compute the contours.
-	 * @param loss true means that the polygon represents the hazard zone. Otherwise, 
-	 * the polygon represents the hazard zone with an alerting time. 
-	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed 
+	 * @param loss true means that the polygon represents the hazard zone. Otherwise,
+	 * the polygon represents the hazard zone with an alerting time.
+	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed
 	 * from the intruder's point of view.
 	 * @param alert_level is the alert level used to compute detection. The value 0
 	 * indicate the alert level of the corrective region.
@@ -832,50 +832,50 @@ public class Daidalus {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
 			int code = core_.horizontal_hazard_zone(haz,ac_idx-1,alert_level,loss,from_ownship);
 			switch (code) {
-			case 1: 
+			case 1:
 				error.addError("horizontalHazardZone: detector of traffic aircraft "+ac_idx+" is not set");
 				break;
 			case 2:
 				error.addError("horizontalHazardZone: no corrective alerter level for alerter of "+ac_idx);
 				break;
-			case 3: 
+			case 3:
 				error.addError("horizontalHazardZone: alerter of traffic aircraft "+ac_idx+" is out of bounds");
 				break;
 			}
 		} else {
-			error.addError("horizontalHazardZone: aircraft index "+ac_idx+" is out of bounds");			
+			error.addError("horizontalHazardZone: aircraft index "+ac_idx+" is out of bounds");
 		}
 	}
 
 	/**
-	 * Computes horizontal hazard zone around aircraft at index ac_idx, for corrective alert level. 
-	 * A hazard zone is a list of points in counter-clockwise 
+	 * Computes horizontal hazard zone around aircraft at index ac_idx, for corrective alert level.
+	 * A hazard zone is a list of points in counter-clockwise
 	 * direction representing a polygon. Last point should be connected to first one.
 	 * @param haz hazard zone returned by reference.
 	 * @param ac_idx is the index of the aircraft used to compute the contours.
-	 * @param loss true means that the polygon represents the hazard zone. Otherwise, 
-	 * the polygon represents the hazard zone with an alerting time. 
-	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed 
+	 * @param loss true means that the polygon represents the hazard zone. Otherwise,
+	 * the polygon represents the hazard zone with an alerting time.
+	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed
 	 * from the intruder's point of view.
 	 * NOTE: The computed polygon should only be used for display purposes since it's merely an
 	 * approximation of the hazard zone defined by the violation and detection methods.
 	 */
-	public void horizontalHazardZone(List<Position> haz, int ac_idx, 
+	public void horizontalHazardZone(List<Position> haz, int ac_idx,
 			boolean loss, boolean from_ownship) {
 		horizontalHazardZone(haz,ac_idx,loss,from_ownship,0);
 	}
 
 	/**
-	 * Computes horizontal hazard zone around aircraft at index ac_idx, for given region. 
-	 * A hazard zone is a list of points in counter-clockwise 
+	 * Computes horizontal hazard zone around aircraft at index ac_idx, for given region.
+	 * A hazard zone is a list of points in counter-clockwise
 	 * direction representing a polygon. Last point should be connected to first one.
 	 * @param haz hazard zone returned by reference.
 	 * @param ac_idx is the index of the aircraft used to compute the contours.
-	 * @param loss true means that the polygon represents the hazard zone. Otherwise, 
-	 * the polygon represents the hazard zone with an alerting time. 
-	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed 
+	 * @param loss true means that the polygon represents the hazard zone. Otherwise,
+	 * the polygon represents the hazard zone with an alerting time.
+	 * @param from_ownship true means ownship point of view. Otherwise, the hazard zone is computed
 	 * from the intruder's point of view.
-	 * @param region is the region used to compute detection. 
+	 * @param region is the region used to compute detection.
 	 * NOTE: The computed polygon should only be used for display purposes since it's merely an
 	 * approximation of the actual hazard zone defined by the violation and detection methods.
 	 */
@@ -901,7 +901,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Return index of alerter with a given name. Return 0 if it doesn't exist 
+	 * Return index of alerter with a given name. Return 0 if it doesn't exist
 	 */
 	public int getAlerterIndex(String id) {
 		return core_.parameters.getAlerterIndex(id);
@@ -925,83 +925,83 @@ public class Daidalus {
 		return alert_idx;
 	}
 
-	/** 
-	 * @return lookahead time in seconds. 
-	 */ 
+	/**
+	 * @return lookahead time in seconds.
+	 */
 	public double getLookaheadTime() {
 		return core_.parameters.getLookaheadTime();
 	}
 
-	/** 
+	/**
 	 * @return lookahead time in specified units [u].
 	 */
 	public double getLookaheadTime(String u) {
 		return core_.parameters.getLookaheadTime(u);
 	}
 
-	/** 
+	/**
 	 * @return distance filter in meters.
 	 */
 	public double getDistanceFilter() {
 		return core_.parameters.getDistanceFilter();
 	}
 
-	/** 
+	/**
 	 * @return distance filter in specified units [u].
 	 */
 	public double getDistanceFilter(String u) {
 		return core_.parameters.getDistanceFilter(u);
 	}
-	/** 
+	/**
 	 * @return altitude filter in meters.
 	 */
 	public double getAltitudeFilter() {
 		return core_.parameters.getAltitudeFilter();
 	}
 
-	/** 
+	/**
 	 * @return altitude filter in specified units [u].
 	 */
 	public double getAltitudeFilter(String u) {
 		return core_.parameters.getAltitudeFilter(u);
 	}
 
-	/** 
+	/**
 	 * @return left direction in radians [0 - pi] [rad] from current ownship's direction
 	 */
 	public double getLeftHorizontalDirection() {
 		return core_.parameters.getLeftHorizontalDirection();
 	}
 
-	/** 
+	/**
 	 * @return left direction in specified units [0 - pi] [u] from current ownship's direction
 	 */
 	public double getLeftHorizontalDirection(String u) {
 		return Units.to(u,getLeftHorizontalDirection());
 	}
 
-	/** 
+	/**
 	 * @return right direction in radians [0 - pi] [rad] from current ownship's direction
 	 */
 	public double getRightHorizontalDirection() {
 		return core_.parameters.getRightHorizontalDirection();
 	}
 
-	/** 
+	/**
 	 * @return right direction in specified units [0 - pi] [u] from current ownship's direction
 	 */
 	public double getRightHorizontalDirection(String u) {
 		return Units.to(u,getRightHorizontalDirection());
 	}
 
-	/** 
-	 * @return airspeed threshold in internal units [m/s]. 
+	/**
+	 * @return airspeed threshold in internal units [m/s].
 	 */
 	public double getAirspeedThreshold() {
 		return core_.parameters.getAirspeedThreshold();
 	}
 
-	/** 
+	/**
 	 * @return airspeed threshold in specified units [u].
 	 */
 	public double getAirspeedThreshold(String u) {
@@ -1022,70 +1022,70 @@ public class Daidalus {
 		return Units.to(u,getMinHorizontalSpeed());
 	}
 
-	/** 
+	/**
 	 * @return maximum horizontal speed for horizontal speed bands in internal units [m/s].
 	 */
 	public double getMaxHorizontalSpeed() {
 		return core_.parameters.getMaxHorizontalSpeed();
 	}
 
-	/** 
+	/**
 	 * @return maximum horizontal speed for horizontal speed bands in specified units [u].
 	 */
 	public double getMaxHorizontalSpeed(String u) {
 		return Units.to(u,getMaxHorizontalSpeed());
 	}
 
-	/** 
+	/**
 	 * @return minimum vertical speed for vertical speed bands in internal units [m/s].
 	 */
 	public double getMinVerticalSpeed() {
 		return core_.parameters.getMinVerticalSpeed();
 	}
 
-	/** 
+	/**
 	 * @return minimum vertical speed for vertical speed bands in specified units [u].
 	 */
 	public double getMinVerticalSpeed(String u) {
 		return Units.to(u,getMinVerticalSpeed());
 	}
 
-	/** 
+	/**
 	 * @return maximum vertical speed for vertical speed bands in internal units [m/s].
 	 */
 	public double getMaxVerticalSpeed() {
 		return core_.parameters.getMaxVerticalSpeed();
 	}
 
-	/** 
+	/**
 	 * @return maximum vertical speed for vertical speed bands in specified units [u].
 	 */
 	public double getMaxVerticalSpeed(String u) {
 		return Units.to(u,getMaxVerticalSpeed());
 	}
 
-	/** 
+	/**
 	 * @return minimum altitude for altitude bands in internal units [m]
 	 */
 	public double getMinAltitude() {
 		return core_.parameters.getMinAltitude();
 	}
 
-	/** 
+	/**
 	 * @return minimum altitude for altitude bands in specified units [u].
 	 */
 	public double getMinAltitude(String u) {
 		return Units.to(u,getMinAltitude());
 	}
 
-	/** 
+	/**
 	 * @return maximum altitude for altitude bands in internal units [m]
 	 */
 	public double getMaxAltitude() {
 		return core_.parameters.getMaxAltitude();
 	}
 
-	/** 
+	/**
 	 * @return maximum altitude for altitude bands in specified units [u].
 	 */
 	public double getMaxAltitude(String u) {
@@ -1093,172 +1093,172 @@ public class Daidalus {
 	}
 
 	/**
-	 * @return Horizontal speed in internal units (below current value) for the 
-	 * computation of relative bands 
+	 * @return Horizontal speed in internal units (below current value) for the
+	 * computation of relative bands
 	 */
 	public double getBelowRelativeHorizontalSpeed() {
 		return core_.parameters.getBelowRelativeHorizontalSpeed();
 	}
 
 	/**
-	 * @return Horizontal speed in given units (below current value) for the 
-	 * computation of relative bands 
+	 * @return Horizontal speed in given units (below current value) for the
+	 * computation of relative bands
 	 */
 	public double getBelowRelativeHorizontalSpeed(String u) {
 		return Units.to(u,getBelowRelativeHorizontalSpeed());
 	}
 
 	/**
-	 * @return Horizontal speed in internal units (above current value) for the 
-	 * computation of relative bands 
+	 * @return Horizontal speed in internal units (above current value) for the
+	 * computation of relative bands
 	 */
 	public double getAboveRelativeHorizontalSpeed() {
 		return core_.parameters.getAboveRelativeHorizontalSpeed();
 	}
 
 	/**
-	 * @return Horizontal speed in given units (above current value) for the 
-	 * computation of relative bands 
+	 * @return Horizontal speed in given units (above current value) for the
+	 * computation of relative bands
 	 */
 	public double getAboveRelativeHorizontalSpeed(String u) {
 		return Units.to(u,getAboveRelativeHorizontalSpeed());
 	}
 
 	/**
-	 * @return Vertical speed in internal units (below current value) for the 
-	 * computation of relative bands 
+	 * @return Vertical speed in internal units (below current value) for the
+	 * computation of relative bands
 	 */
 	public double getBelowRelativeVerticalSpeed() {
 		return core_.parameters.getBelowRelativeVerticalSpeed();
 	}
 
 	/**
-	 * @return Vertical speed in given units (below current value) for the 
-	 * computation of relative bands 
+	 * @return Vertical speed in given units (below current value) for the
+	 * computation of relative bands
 	 */
 	public double getBelowRelativeVerticalSpeed(String u) {
 		return Units.to(u,getBelowRelativeVerticalSpeed());
 	}
 
 	/**
-	 * @return Vertical speed in internal units (above current value) for the 
-	 * computation of relative bands 
+	 * @return Vertical speed in internal units (above current value) for the
+	 * computation of relative bands
 	 */
 	public double getAboveRelativeVerticalSpeed() {
 		return core_.parameters.getAboveRelativeVerticalSpeed();
 	}
 
 	/**
-	 * @return Vertical speed in given units (above current value) for the 
-	 * computation of relative bands 
+	 * @return Vertical speed in given units (above current value) for the
+	 * computation of relative bands
 	 */
 	public double getAboveRelativeVerticalSpeed(String u) {
 		return Units.to(u,getAboveRelativeVerticalSpeed());
 	}
 
 	/**
-	 * @return Altitude in internal units (below current value) for the 
-	 * computation of relative bands 
+	 * @return Altitude in internal units (below current value) for the
+	 * computation of relative bands
 	 */
 	public double getBelowRelativeAltitude() {
 		return core_.parameters.getBelowRelativeAltitude();
 	}
 
 	/**
-	 * @return Altitude in given units (below current value) for the 
-	 * computation of relative bands 
+	 * @return Altitude in given units (below current value) for the
+	 * computation of relative bands
 	 */
 	public double getBelowRelativeAltitude(String u) {
 		return Units.to(u,getBelowRelativeAltitude());
 	}
 
 	/**
-	 * @return Altitude in internal units (above current value) for the 
-	 * computation of relative bands 
+	 * @return Altitude in internal units (above current value) for the
+	 * computation of relative bands
 	 */
 	public double getAboveRelativeAltitude() {
 		return core_.parameters.getAboveRelativeAltitude();
 	}
 
 	/**
-	 * @return Altitude in given units (above current value) for the 
-	 * computation of relative bands 
+	 * @return Altitude in given units (above current value) for the
+	 * computation of relative bands
 	 */
 	public double getAboveRelativeAltitude(String u) {
 		return Units.to(u,getAboveRelativeAltitude());
 	}
 
-	/** 
-	 * @return step size for direction bands in internal units [rad]. 
+	/**
+	 * @return step size for direction bands in internal units [rad].
 	 */
 	public double getHorizontalDirectionStep() {
 		return core_.parameters.getHorizontalDirectionStep();
 	}
 
-	/** 
-	 * @return step size for direction bands in specified units [u]. 
+	/**
+	 * @return step size for direction bands in specified units [u].
 	 */
 	public double getHorizontalDirectionStep(String u) {
 		return core_.parameters.getHorizontalDirectionStep(u);
 	}
 
-	/** 
-	 * @return step size for horizontal speed bands in internal units [m/s]. 
+	/**
+	 * @return step size for horizontal speed bands in internal units [m/s].
 	 */
 	public double getHorizontalSpeedStep() {
 		return core_.parameters.getHorizontalSpeedStep();
 	}
 
-	/** 
-	 * @return step size for horizontal speed bands in specified units [u]. 
+	/**
+	 * @return step size for horizontal speed bands in specified units [u].
 	 */
 	public double getHorizontalSpeedStep(String u) {
 		return core_.parameters.getHorizontalSpeedStep(u);
 	}
 
-	/** 
+	/**
 	 * @return step size for vertical speed bands in internal units [m/s].
 	 */
 	public double getVerticalSpeedStep() {
 		return core_.parameters.getVerticalSpeedStep();
 	}
 
-	/** 
+	/**
 	 * @return step size for vertical speed bands in specified units [u].
 	 */
 	public double getVerticalSpeedStep(String u) {
 		return core_.parameters.getVerticalSpeedStep(u);
 	}
 
-	/** 
+	/**
 	 * @return step size for altitude bands in internal units [m]
 	 */
 	public double getAltitudeStep() {
 		return core_.parameters.getAltitudeStep();
 	}
 
-	/** 
+	/**
 	 * @return step size for altitude bands in specified units [u].
 	 */
 	public double getAltitudeStep(String u) {
 		return core_.parameters.getAltitudeStep(u);
 	}
 
-	/** 
-	 * @return horizontal acceleration for horizontal speed bands to value in internal units [m/s^2]. 
+	/**
+	 * @return horizontal acceleration for horizontal speed bands to value in internal units [m/s^2].
 	 */
 	public double getHorizontalAcceleration() {
 		return core_.parameters.getHorizontalAcceleration();
 	}
 
-	/** 
-	 * @return horizontal acceleration for horizontal speed bands to value in specified units [u]. 
+	/**
+	 * @return horizontal acceleration for horizontal speed bands to value in specified units [u].
 	 */
 	public double getHorizontalAcceleration(String u) {
 		return core_.parameters.getHorizontalAcceleration(u);
 	}
 
-	/** 
+	/**
 	 * @return constant vertical acceleration for vertical speed and altitude bands in internal [m/s^2]
 	 * units
 	 */
@@ -1266,7 +1266,7 @@ public class Daidalus {
 		return core_.parameters.getVerticalAcceleration();
 	}
 
-	/** 
+	/**
 	 * @return constant vertical acceleration for vertical speed and altitude bands in specified
 	 * units
 	 */
@@ -1274,70 +1274,70 @@ public class Daidalus {
 		return core_.parameters.getVerticalAcceleration(u);
 	}
 
-	/** 
+	/**
 	 * @return turn rate in internal units [rad/s].
 	 */
 	public double getTurnRate() {
 		return core_.parameters.getTurnRate();
 	}
 
-	/** 
+	/**
 	 * @return turn rate in specified units [u].
 	 */
 	public double getTurnRate(String u) {
 		return core_.parameters.getTurnRate(u);
 	}
 
-	/** 
+	/**
 	 * @return bank angle in internal units [rad].
 	 */
 	public double getBankAngle() {
 		return core_.parameters.getBankAngle();
 	}
 
-	/** 
+	/**
 	 * @return bank angle in specified units [u].
 	 */
 	public double getBankAngle(String u) {
 		return core_.parameters.getBankAngle(u);
 	}
 
-	/** 
+	/**
 	 * @return the vertical climb/descend rate for altitude bands in internal units [m/s]
 	 */
 	public double getVerticalRate() {
 		return core_.parameters.getVerticalRate();
 	}
 
-	/** 
+	/**
 	 * @return the vertical climb/descend rate for altitude bands in specified units [u].
 	 */
 	public double getVerticalRate(String u) {
 		return core_.parameters.getVerticalRate(u);
 	}
 
-	/** 
+	/**
 	 * @return horizontal NMAC distance in internal units [m].
 	 */
 	public double getHorizontalNMAC() {
 		return core_.parameters.getHorizontalNMAC();
 	}
 
-	/** 
+	/**
 	 * @return horizontal NMAC distance in specified units [u].
 	 */
 	public double getHorizontalNMAC(String u) {
 		return core_.parameters.getHorizontalNMAC(u);
 	}
 
-	/** 
+	/**
 	 * @return vertical NMAC distance in internal units [m].
 	 */
 	public double getVerticalNMAC() {
 		return core_.parameters.getVerticalNMAC();
 	}
 
-	/** 
+	/**
 	 * @return vertical NMAC distance in specified units [u].
 	 */
 	public double getVerticalNMAC(String u) {
@@ -1345,7 +1345,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * @return recovery stability time in seconds. Recovery bands are computed at time of 
+	 * @return recovery stability time in seconds. Recovery bands are computed at time of
 	 * first conflict-free region plus this time.
 	 */
 	public double getRecoveryStabilityTime() {
@@ -1353,134 +1353,134 @@ public class Daidalus {
 	}
 
 	/**
-	 * @return recovery stability time in specified units. Recovery bands are computed at time of 
+	 * @return recovery stability time in specified units. Recovery bands are computed at time of
 	 * first conflict-free region plus this time.
 	 */
 	public double getRecoveryStabilityTime(String u) {
 		return core_.parameters.getRecoveryStabilityTime(u);
 	}
 
-	/** 
-	 * @return hysteresis time in seconds. 
+	/**
+	 * @return hysteresis time in seconds.
 	 */
 	public double getHysteresisTime() {
 		return core_.parameters.getHysteresisTime();
 	}
 
-	/** 
+	/**
 	 * @return hysteresis time in specified units [u].
 	 */
 	public double getHysteresisTime(String u) {
 		return core_.parameters.getHysteresisTime(u);
 	}
 
-	/** 
-	 * @return alerting persistence time in seconds. 
+	/**
+	 * @return alerting persistence time in seconds.
 	 */
 	public double getPersistenceTime() {
 		return core_.parameters.getPersistenceTime();
 	}
 
-	/** 
+	/**
 	 * @return alerting persistence time in specified units [u].
 	 */
 	public double getPersistenceTime(String u) {
 		return core_.parameters.getPersistenceTime(u);
 	}
 
-	/** 
+	/**
 	 * @return true if bands persistence is enabled
 	 */
 	public boolean isEnabledBandsPersistence() {
 		return core_.parameters.isEnabledBandsPersistence();
 	}
 
-	/** 
+	/**
 	 * Enable/disable bands persistence
-	 */ 
+	 */
 	public void setBandsPersistence(boolean flag) {
 		core_.parameters.setBandsPersistence(flag);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Enable bands persistence
-	 */ 
+	 */
 	public void enableBandsPersistence() {
 		setBandsPersistence(true);
 	}
 
-	/** 
+	/**
 	 * Disable bands persistence
-	 */ 
+	 */
 	public void disableBandsPersistence() {
 		setBandsPersistence(false);
 	}
 
-	/** 
+	/**
 	 * @return persistence for horizontal direction resolution in internal units
 	 */
 	public double getPersistencePreferredHorizontalDirectionResolution() {
 		return core_.parameters.getPersistencePreferredHorizontalDirectionResolution();
 	}
 
-	/** 
+	/**
 	 * @return persistence for horizontal direction resolution in given units
 	 */
 	public double getPersistencePreferredHorizontalDirectionResolution(String u) {
 		return core_.parameters.getPersistencePreferredHorizontalDirectionResolution(u);
 	}
 
-	/** 
+	/**
 	 * @return persistence for horizontal speed resolution in internal units
 	 */
 	public double getPersistencePreferredHorizontalSpeedResolution() {
 		return core_.parameters.getPersistencePreferredHorizontalSpeedResolution();
 	}
 
-	/** 
+	/**
 	 * @return persistence for horizontal speed resolution in given units
 	 */
 	public double getPersistencePreferredHorizontalSpeedResolution(String u) {
 		return core_.parameters.getPersistencePreferredHorizontalSpeedResolution(u);
 	}
 
-	/** 
+	/**
 	 * @return persistence for vertical speed resolution in internal units
 	 */
 	public double getPersistencePreferredVerticalSpeedResolution() {
 		return core_.parameters.getPersistencePreferredVerticalSpeedResolution();
 	}
 
-	/** 
+	/**
 	 * @return persistence for vertical speed resolution in given units
 	 */
 	public double getPersistencePreferredVerticalSpeedResolution(String u) {
 		return core_.parameters.getPersistencePreferredVerticalSpeedResolution(u);
 	}
 
-	/** 
+	/**
 	 * @return persistence for altitude resolution in internal units
 	 */
 	public double getPersistencePreferredAltitudeResolution() {
 		return core_.parameters.getPersistencePreferredAltitudeResolution();
 	}
 
-	/** 
+	/**
 	 * @return persistence for altitude resolution in given units
 	 */
 	public double getPersistencePreferredAltitudeResolution(String u) {
 		return core_.parameters.getPersistencePreferredAltitudeResolution(u);
 	}
 
-	/** 
+	/**
 	 * @return Alerting parameter m of "M of N" strategy
 	 */
 	public int getAlertingParameterM() {
 		return core_.parameters.getAlertingParameterM();
 	}
 
-	/** 
+	/**
 	 * @return Alerting parameter n of "M of N" strategy
 	 */
 	public int getAlertingParameterN() {
@@ -1494,21 +1494,21 @@ public class Daidalus {
 		return core_.parameters.getMinHorizontalRecovery();
 	}
 
-	/** 
+	/**
 	 * Return minimum horizontal separation for recovery bands in specified units [u]
 	 */
 	public double getMinHorizontalRecovery(String u) {
 		return core_.parameters.getMinHorizontalRecovery(u);
 	}
 
-	/** 
+	/**
 	 * @return minimum vertical separation for recovery bands in internal units [m].
 	 */
 	public double getMinVerticalRecovery() {
 		return core_.parameters.getMinVerticalRecovery();
 	}
 
-	/** 
+	/**
 	 * Return minimum vertical separation for recovery bands in specified units [u].
 	 */
 	public double getMinVerticalRecovery(String u) {
@@ -1531,91 +1531,91 @@ public class Daidalus {
 		return false;
 	}
 
-	/** 
-	 * Sets lookahead time in seconds. 
-	 */ 
+	/**
+	 * Sets lookahead time in seconds.
+	 */
 	public boolean setLookaheadTime(double t) {
 		return reset_or_false(core_.parameters.setLookaheadTime(t));
 	}
 
-	/** 
+	/**
 	 * Set lookahead time to value in specified units [u].
 	 */
 	public boolean setLookaheadTime(double t, String u) {
 		return reset_or_false(core_.parameters.setLookaheadTime(t,u));
 	}
 
-	/** 
+	/**
 	 * Set distance filter to value in meters.
 	 */
 	public boolean setDistanceFilter(double val) {
 		return reset_or_false(core_.parameters.setDistanceFilter(val));
 	}
 
-	/** 
+	/**
 	 * Set distance filter to value in specified units [u].
 	 */
 	public boolean setDistanceFilter(double val, String u) {
 		return reset_or_false(core_.parameters.setDistanceFilter(val,u));
 	}
 
-	/** 
+	/**
 	 * Set altitude filter to value in meters.
 	 */
 	public boolean setAltitudeFilter(double val) {
 		return reset_or_false(core_.parameters.setAltitudeFilter(val));
 	}
 
-	/** 
+	/**
 	 * Set altitude filter to value in specified units [u].
 	 */
 	public boolean setAltitudeFilter(double val, String u) {
 		return reset_or_false(core_.parameters.setAltitudeFilter(val,u));
 	}
 
-	/** 
+	/**
 	 * Set left direction to value in internal units [rad]. Value is expected to be in [0 - pi]
 	 */
 	public boolean setLeftHorizontalDirection(double val) {
 		return reset_or_false(core_.parameters.setLeftHorizontalDirection(val));
 	}
 
-	/** 
+	/**
 	 * Set left direction to value in specified units [u]. Value is expected to be in [0 - pi]
 	 */
 	public boolean setLeftHorizontalDirection(double val, String u) {
 		return reset_or_false(core_.parameters.setLeftHorizontalDirection(val,u));
 	}
 
-	/** 
+	/**
 	 * Set right direction to value in internal units [rad]. Value is expected to be in [0 - pi]
 	 */
 	public boolean setRightHorizontalDirection(double val) {
 		return reset_or_false(core_.parameters.setRightHorizontalDirection(val));
 	}
 
-	/** 
+	/**
 	 * Set right direction to value in specified units [u]. Value is expected to be in [0 - pi]
 	 */
 	public boolean setRightHorizontalDirection(double val, String u) {
 		return reset_or_false(core_.parameters.setRightHorizontalDirection(val,u));
 	}
 
-	/** 
+	/**
 	 * Set airspeed threshold to value in internal units [m/s].
 	 */
 	public boolean setAirspeedThreshold(double val) {
 		return reset_or_false(core_.parameters.setAirspeedThreshold(val));
 	}
 
-	/** 
+	/**
 	 * Set airspeed threshold to value in specified units [u].
 	 */
-	public boolean setAirspeedThreshold(double val, String u) {	
+	public boolean setAirspeedThreshold(double val, String u) {
 		return reset_or_false(core_.parameters.setAirspeedThreshold(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets minimum horizontal speed for horizontal speed bands to value in internal units [m/s].
 	 * Minimum horizontal speed must be non-negative.
 	 */
@@ -1623,7 +1623,7 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setMinHorizontalSpeed(val));
 	}
 
-	/** 
+	/**
 	 * Sets minimum horizontal speed for horizontal speed bands to value in specified units [u].
 	 * Minimum horizontal speed must be non-negative.
 	 */
@@ -1631,70 +1631,70 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setMinHorizontalSpeed(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets maximum horizontal speed for horizontal speed bands to value in internal units [m/s].
 	 */
 	public boolean setMaxHorizontalSpeed(double val) {
 		return reset_or_false(core_.parameters.setMaxHorizontalSpeed(val));
 	}
 
-	/** 
+	/**
 	 * Sets maximum horizontal speed for horizontal speed bands to value in specified units [u].
 	 */
 	public boolean setMaxHorizontalSpeed(double val, String u) {
 		return reset_or_false(core_.parameters.setMaxHorizontalSpeed(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets minimum vertical speed for vertical speed bands to value in internal units [m/s].
 	 */
 	public boolean setMinVerticalSpeed(double val) {
 		return reset_or_false(core_.parameters.setMinVerticalSpeed(val));
 	}
 
-	/** 
+	/**
 	 * Sets minimum vertical speed for vertical speed bands to value in specified units [u].
 	 */
 	public boolean setMinVerticalSpeed(double val, String u) {
 		return reset_or_false(core_.parameters.setMinVerticalSpeed(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets maximum vertical speed for vertical speed bands to value in internal units [m/s].
 	 */
 	public boolean setMaxVerticalSpeed(double val) {
 		return reset_or_false(core_.parameters.setMaxVerticalSpeed(val));
 	}
 
-	/** 
+	/**
 	 * Sets maximum vertical speed for vertical speed bands to value in specified units [u].
 	 */
 	public boolean setMaxVerticalSpeed(double val, String u) {
 		return reset_or_false(core_.parameters.setMaxVerticalSpeed(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets minimum altitude for altitude bands to value in internal units [m]
 	 */
 	public boolean setMinAltitude(double val) {
 		return reset_or_false(core_.parameters.setMinAltitude(val));
 	}
 
-	/** 
+	/**
 	 * Sets minimum altitude for altitude bands to value in specified units [u].
 	 */
 	public boolean setMinAltitude(double val, String u) {
 		return reset_or_false(core_.parameters.setMinAltitude(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets maximum altitude for altitude bands to value in internal units [m]
 	 */
 	public boolean setMaxAltitude(double val) {
 		return reset_or_false(core_.parameters.setMaxAltitude(val));
 	}
 
-	/** 
+	/**
 	 * Sets maximum altitude for altitude bands to value in specified units [u].
 	 */
 	public boolean setMaxAltitude(double val, String u) {
@@ -1702,96 +1702,96 @@ public class Daidalus {
 	}
 
 	/**
-	 * Set horizontal speed in internal units (below current value) for the 
-	 * computation of relative bands 
+	 * Set horizontal speed in internal units (below current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setBelowRelativeHorizontalSpeed(double val) {
 		return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val));
 	}
 
 	/**
-	 * Set horizontal speed in given units (below current value) for the 
-	 * computation of relative bands 
+	 * Set horizontal speed in given units (below current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setBelowRelativeHorizontalSpeed(double val,String u) {
 		return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val,u));
 	}
 
 	/**
-	 * Set horizontal speed in internal units (above current value) for the 
-	 * computation of relative bands 
+	 * Set horizontal speed in internal units (above current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setAboveRelativeHorizontalSpeed(double val) {
 		return reset_or_false(core_.parameters.setAboveRelativeHorizontalSpeed(val));
 	}
 
 	/**
-	 * Set horizontal speed in given units (above current value) for the 
-	 * computation of relative bands 
+	 * Set horizontal speed in given units (above current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setAboveRelativeHorizontalSpeed(double val, String u) {
 		return reset_or_false(core_.parameters.setAboveRelativeHorizontalSpeed(val,u));
 	}
 
 	/**
-	 * Set vertical speed in internal units (below current value) for the 
-	 * computation of relative bands 
+	 * Set vertical speed in internal units (below current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setBelowRelativeVerticalSpeed(double val) {
 		return reset_or_false(core_.parameters.setBelowRelativeHorizontalSpeed(val));
 	}
 
 	/**
-	 * Set vertical speed in given units (below current value) for the 
-	 * computation of relative bands 
+	 * Set vertical speed in given units (below current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setBelowRelativeVerticalSpeed(double val, String u) {
 		return reset_or_false(core_.parameters.setBelowRelativeVerticalSpeed(val,u));
 	}
 
 	/**
-	 * Set vertical speed in internal units (above current value) for the 
-	 * computation of relative bands 
+	 * Set vertical speed in internal units (above current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setAboveRelativeVerticalSpeed(double val) {
 		return reset_or_false(core_.parameters.setAboveRelativeVerticalSpeed(val));
 	}
 
 	/**
-	 * Set vertical speed in given units (above current value) for the 
-	 * computation of relative bands 
+	 * Set vertical speed in given units (above current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setAboveRelativeVerticalSpeed(double val, String u) {
 		return reset_or_false(core_.parameters.setAboveRelativeVerticalSpeed(val,u));
 	}
 
 	/**
-	 * Set altitude in internal units (below current value) for the 
-	 * computation of relative bands 
+	 * Set altitude in internal units (below current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setBelowRelativeAltitude(double val) {
 		return reset_or_false(core_.parameters.setBelowRelativeAltitude(val));
 	}
 
 	/**
-	 * Set altitude in given units (below current value) for the 
-	 * computation of relative bands 
+	 * Set altitude in given units (below current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setBelowRelativeAltitude(double val, String u) {
 		return reset_or_false(core_.parameters.setBelowRelativeAltitude(val,u));
 	}
 
 	/**
-	 * Set altitude in internal units (above current value) for the 
-	 * computation of relative bands 
+	 * Set altitude in internal units (above current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setAboveRelativeAltitude(double val) {
 		return reset_or_false(core_.parameters.setAboveRelativeAltitude(val));
 	}
 
 	/**
-	 * Set altitude in given units (above current value) for the 
-	 * computation of relative bands 
+	 * Set altitude in given units (above current value) for the
+	 * computation of relative bands
 	 */
 	public boolean setAboveRelativeAltitude(double val, String u) {
 		return reset_or_false(core_.parameters.setAboveRelativeAltitude(val,u));
@@ -1863,77 +1863,77 @@ public class Daidalus {
 		setAboveRelativeAltitude(0);
 	}
 
-	/** 
+	/**
 	 * Sets step size for direction bands in internal units [rad].
 	 */
 	public boolean setHorizontalDirectionStep(double val) {
 		return reset_or_false(core_.parameters.setHorizontalDirectionStep(val));
 	}
 
-	/** 
+	/**
 	 * Sets step size for direction bands in specified units [u].
 	 */
 	public boolean setHorizontalDirectionStep(double val, String u) {
 		return reset_or_false(core_.parameters.setHorizontalDirectionStep(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets step size for horizontal speed bands to value in internal units [m/s].
 	 */
 	public boolean setHorizontalSpeedStep(double val) {
 		return reset_or_false(core_.parameters.setHorizontalSpeedStep(val));
 	}
 
-	/** 
+	/**
 	 * Sets step size for horizontal speed bands to value in specified units [u].
 	 */
 	public boolean setHorizontalSpeedStep(double val, String u) {
 		return reset_or_false(core_.parameters.setHorizontalSpeedStep(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets step size for vertical speed bands to value in internal units [m/s].
 	 */
 	public boolean setVerticalSpeedStep(double val) {
 		return reset_or_false(core_.parameters.setVerticalSpeedStep(val));
 	}
 
-	/** 
+	/**
 	 * Sets step size for vertical speed bands to value in specified units [u].
 	 */
 	public boolean setVerticalSpeedStep(double val, String u) {
 		return reset_or_false(core_.parameters.setVerticalSpeedStep(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets step size for altitude bands to value in internal units [m]
 	 */
 	public boolean setAltitudeStep(double val) {
 		return reset_or_false(core_.parameters.setAltitudeStep(val));
 	}
 
-	/** 
+	/**
 	 * Sets step size for altitude bands to value in specified units [u].
 	 */
 	public boolean setAltitudeStep(double val, String u) {
 		return reset_or_false(core_.parameters.setAltitudeStep(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets horizontal acceleration for horizontal speed bands to value in internal units [m/s^2].
 	 */
 	public boolean setHorizontalAcceleration(double val) {
 		return reset_or_false(core_.parameters.setHorizontalAcceleration(val));
 	}
 
-	/** 
+	/**
 	 * Sets horizontal acceleration for horizontal speed bands to value in specified units [u].
 	 */
 	public boolean setHorizontalAcceleration(double val, String u) {
 		return reset_or_false(core_.parameters.setHorizontalAcceleration(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets the constant vertical acceleration for vertical speed and altitude bands
 	 * to value in internal units [m/s^2]
 	 */
@@ -1941,7 +1941,7 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setVerticalAcceleration(val));
 	}
 
-	/** 
+	/**
 	 * Sets the constant vertical acceleration for vertical speed and altitude bands
 	 * to value in specified units [u].
 	 */
@@ -1949,7 +1949,7 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setVerticalAcceleration(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets turn rate for direction bands to value in internal units [rad/s]. As a side effect, this method
 	 * resets the bank angle.
 	 */
@@ -1957,7 +1957,7 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setTurnRate(val));
 	}
 
-	/** 
+	/**
 	 * Sets turn rate for direction bands to value in specified units [u]. As a side effect, this method
 	 * resets the bank angle.
 	 */
@@ -1965,7 +1965,7 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setTurnRate(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets bank angle for direction bands to value in internal units [rad]. As a side effect, this method
 	 * resets the turn rate.
 	 */
@@ -1973,7 +1973,7 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setBankAngle(val));
 	}
 
-	/** 
+	/**
 	 * Sets bank angle for direction bands to value in specified units [u]. As a side effect, this method
 	 * resets the turn rate.
 	 */
@@ -1981,42 +1981,42 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setBankAngle(val,u));
 	}
 
-	/** 
+	/**
 	 * Sets vertical rate for altitude bands to value in internal units [m/s]
 	 */
 	public boolean setVerticalRate(double val) {
 		return reset_or_false(core_.parameters.setVerticalRate(val));
 	}
 
-	/** 
+	/**
 	 * Sets vertical rate for altitude bands to value in specified units [u].
 	 */
 	public boolean setVerticalRate(double val, String u) {
 		return reset_or_false(core_.parameters.setVerticalRate(val,u));
 	}
 
-	/** 
+	/**
 	 * Set horizontal NMAC distance to value in internal units [m].
 	 */
 	public boolean setHorizontalNMAC(double val) {
 		return reset_or_false(core_.parameters.setHorizontalNMAC(val));
 	}
 
-	/** 
+	/**
 	 * Set horizontal NMAC distance to value in specified units [u].
 	 */
 	public boolean setHorizontalNMAC(double val, String u) {
 		return reset_or_false(core_.parameters.setHorizontalNMAC(val,u));
 	}
 
-	/** 
+	/**
 	 * Set vertical NMAC distance to value in internal units [m].
 	 */
 	public boolean setVerticalNMAC(double val) {
 		return reset_or_false(core_.parameters.setVerticalNMAC(val));
 	}
 
-	/** 
+	/**
 	 * Set vertical NMAC distance to value in specified units [u].
 	 */
 	public boolean setVerticalNMAC(double val, String u) {
@@ -2024,7 +2024,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Sets recovery stability time in seconds. Recovery bands are computed at time of 
+	 * Sets recovery stability time in seconds. Recovery bands are computed at time of
 	 * first conflict-free region plus this time.
 	 */
 	public boolean setRecoveryStabilityTime(double t) {
@@ -2032,112 +2032,112 @@ public class Daidalus {
 	}
 
 	/**
-	 * Sets recovery stability time in specified units. Recovery bands are computed at time of 
+	 * Sets recovery stability time in specified units. Recovery bands are computed at time of
 	 * first conflict-free region plus this time.
 	 */
 	public boolean setRecoveryStabilityTime(double t, String u) {
 		return reset_or_false(core_.parameters.setRecoveryStabilityTime(t,u));
 	}
 
-	/** 
+	/**
 	 * Set hysteresis time to value in seconds.
 	 */
 	public boolean setHysteresisTime(double val) {
 		return clearHysteresis_or_false(core_.parameters.setHysteresisTime(val));
 	}
 
-	/** 
+	/**
 	 * Set hysteresis time to value in specified units [u].
 	 */
 	public boolean setHysteresisTime(double val, String u) {
 		return clearHysteresis_or_false(core_.parameters.setHysteresisTime(val,u));
 	}
 
-	/** 
+	/**
 	 * Set alerting persistence time to value in seconds.
 	 */
 	public boolean setPersistenceTime(double val) {
 		return clearHysteresis_or_false(core_.parameters.setPersistenceTime(val));
 	}
 
-	/** 
+	/**
 	 * Set alerting persistence time to value in specified units [u].
 	 */
 	public boolean setPersistenceTime(double val, String u) {
 		return clearHysteresis_or_false(core_.parameters.setPersistenceTime(val,u));
 	}
 
-	/** 
+	/**
 	 * Set persistence in horizontal direction resolution in internal units
 	 */
 	public boolean setPersistencePreferredHorizontalDirectionResolution(double val) {
 		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val));
 	}
 
-	/** 
+	/**
 	 * Set persistence in horizontal direction resolution in given units
 	 */
 	public boolean setPersistencePreferredHorizontalDirectionResolution(double val, String u) {
 		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalDirectionResolution(val,u));
 	}
 
-	/** 
+	/**
 	 * Set persistence in horizontal speed resolution in internal units
 	 */
 	public boolean setPersistencePreferredHorizontalSpeedResolution(double val) {
 		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val));
 	}
 
-	/** 
+	/**
 	 * Set persistence in horizontal speed resolution in given units
 	 */
 	public boolean setPersistencePreferredHorizontalSpeedResolution(double val, String u) {
 		return reset_or_false(core_.parameters.setPersistencePreferredHorizontalSpeedResolution(val,u));
 	}
 
-	/** 
+	/**
 	 * Set persistence in vertical speed resolution in internal units
 	 */
 	public boolean setPersistencePreferredVerticalSpeedResolution(double val) {
 		return reset_or_false(core_.parameters.setPersistencePreferredVerticalSpeedResolution(val));
 	}
 
-	/** 
+	/**
 	 * Set persistence in vertical speed resolution in given units
 	 */
 	public boolean setPersistencePreferredVerticalSpeedResolution(double val, String u) {
 		return reset_or_false(core_.parameters.setPersistencePreferredVerticalSpeedResolution(val,u));
 	}
 
-	/** 
+	/**
 	 * Set persistence in altitude resolution in internal units
 	 */
 	public boolean setPersistencePreferredAltitudeResolution(double val) {
 		return reset_or_false(core_.parameters.setPersistencePreferredAltitudeResolution(val));
 	}
 
-	/** 
+	/**
 	 * Set persistence in altitude resolution in given units
 	 */
 	public boolean setPersistencePreferredAltitudeResolution(double val, String u) {
 		return reset_or_false(core_.parameters.setPersistencePreferredAltitudeResolution(val,u));
 	}
 
-	/** 
+	/**
 	 * Set alerting parameters of M of N strategy
 	 */
 	public boolean setAlertingMofN(int m, int n) {
 		return clearHysteresis_or_false(core_.parameters.setAlertingMofN(m,n));
 	}
 
-	/** 
+	/**
 	 * Sets minimum horizontal separation for recovery bands in internal units [m].
 	 */
 	public boolean setMinHorizontalRecovery(double val) {
 		return reset_or_false(core_.parameters.setMinHorizontalRecovery(val));
 	}
 
-	/** 
+	/**
 	 * Set minimum horizontal separation for recovery bands in specified units [u].
 	 */
 	public boolean setMinHorizontalRecovery(double val, String u) {
@@ -2151,21 +2151,21 @@ public class Daidalus {
 		return reset_or_false(core_.parameters.setMinVerticalRecovery(val));
 	}
 
-	/** 
+	/**
 	 * Set minimum vertical separation for recovery bands in units
 	 */
 	public boolean setMinVerticalRecovery(double val, String u) {
 		return reset_or_false(core_.parameters.setMinVerticalRecovery(val,u));
 	}
 
-	/** 
+	/**
 	 * @return true if repulsive criteria is enabled for conflict bands.
 	 */
 	public boolean isEnabledConflictCriteria() {
 		return core_.parameters.isEnabledConflictCriteria();
 	}
 
-	/** 
+	/**
 	 * Enable/disable repulsive criteria for conflict bands.
 	 */
 	public void setConflictCriteria(boolean flag) {
@@ -2173,28 +2173,28 @@ public class Daidalus {
 		reset();
 	}
 
-	/** 
+	/**
 	 * Enable repulsive criteria for conflict bands.
 	 */
 	public void enableConflictCriteria() {
 		setConflictCriteria(true);
 	}
 
-	/** 
+	/**
 	 * Disable repulsive criteria for conflict bands.
 	 */
 	public void disableConflictCriteria() {
 		setConflictCriteria(false);
 	}
 
-	/** 
+	/**
 	 * @return true if repulsive criteria is enabled for recovery bands.
 	 */
 	public boolean isEnabledRecoveryCriteria() {
 		return core_.parameters.isEnabledRecoveryCriteria();
 	}
 
-	/** 
+	/**
 	 * Enable/disable repulsive criteria for recovery bands.
 	 */
 	public void setRecoveryCriteria(boolean flag) {
@@ -2202,21 +2202,21 @@ public class Daidalus {
 		reset();
 	}
 
-	/** 
+	/**
 	 * Enable repulsive criteria for recovery bands.
 	 */
 	public void enableRecoveryCriteria() {
 		setRecoveryCriteria(true);
 	}
 
-	/** 
+	/**
 	 * Disable repulsive criteria for recovery bands.
 	 */
 	public void disableRecoveryCriteria() {
 		setRecoveryCriteria(false);
 	}
 
-	/** 
+	/**
 	 * Enable/disable repulsive criteria for conflict and recovery bands.
 	 */
 	public void setRepulsiveCriteria(boolean flag) {
@@ -2224,14 +2224,14 @@ public class Daidalus {
 		setRecoveryCriteria(flag);
 	}
 
-	/** 
+	/**
 	 * Enable repulsive criteria for conflict and recovery bands.
 	 */
 	public void enableRepulsiveCriteria() {
 		setRepulsiveCriteria(true);
 	}
 
-	/** 
+	/**
 	 * Disable repulsive criteria for conflict and recovery bands.
 	 */
 	public void disableRepulsiveCriteria() {
@@ -2266,9 +2266,9 @@ public class Daidalus {
 		return core_.parameters.isEnabledRecoveryAltitudeBands();
 	}
 
-	/** 
+	/**
 	 * Sets recovery bands flag for direction, horizontal speed, and vertical speed bands to specified value.
-	 */ 
+	 */
 	public void setRecoveryBands(boolean flag) {
 		setRecoveryHorizontalDirectionBands(flag);
 		setRecoveryHorizontalSpeedBands(flag);
@@ -2276,223 +2276,223 @@ public class Daidalus {
 		setRecoveryAltitudeBands(flag);
 	}
 
-	/** 
+	/**
 	 * Enable all recovery bands for direction, horizontal speed, vertical speed, and altitude.
-	 */ 
+	 */
 	public void enableRecoveryBands() {
 		setRecoveryBands(true);
 	}
 
-	/** 
+	/**
 	 * Disable all recovery bands for direction, horizontal speed, vertical speed, and altitude.
-	 */ 
+	 */
 	public void disableRecoveryBands() {
 		setRecoveryBands(false);
 	}
 
-	/** 
+	/**
 	 * Sets recovery bands flag for direction bands to specified value.
-	 */ 
+	 */
 	public void setRecoveryHorizontalDirectionBands(boolean flag) {
 		core_.parameters.setRecoveryHorizontalDirectionBands(flag);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Sets recovery bands flag for horizontal speed bands to specified value.
-	 */ 
+	 */
 	public void setRecoveryHorizontalSpeedBands(boolean flag) {
 		core_.parameters.setRecoveryHorizontalSpeedBands(flag);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Sets recovery bands flag for vertical speed bands to specified value.
-	 */ 
+	 */
 	public void setRecoveryVerticalSpeedBands(boolean flag) {
 		core_.parameters.setRecoveryVerticalSpeedBands(flag);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Sets recovery bands flag for altitude bands to specified value.
-	 */ 
+	 */
 	public void setRecoveryAltitudeBands(boolean flag) {
 		core_.parameters.setRecoveryAltitudeBands(flag);
 		reset();
 	}
 
-	/** 
+	/**
 	 * @return true if collision avoidance bands are enabled.
 	 */
 	public boolean isEnabledCollisionAvoidanceBands() {
 		return core_.parameters.isEnabledCollisionAvoidanceBands();
 	}
 
-	/** 
+	/**
 	 * Enable/disable collision avoidance bands.
-	 */ 
+	 */
 	public void setCollisionAvoidanceBands(boolean flag) {
 		core_.parameters.setCollisionAvoidanceBands(flag);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Enable collision avoidance bands.
-	 */ 
+	 */
 	public void enableCollisionAvoidanceBands() {
 		setCollisionAvoidanceBands(true);
 	}
 
-	/** 
+	/**
 	 * Disable collision avoidance bands.
-	 */ 
+	 */
 	public void disableCollisionAvoidanceBands() {
 		setCollisionAvoidanceBands(false);
 	}
 
-	/** 
+	/**
 	 * @return get factor for computing collision avoidance bands. Factor value is in (0,1]
 	 */
 	public double getCollisionAvoidanceBandsFactor() {
 		return core_.parameters.getCollisionAvoidanceBandsFactor();
 	}
 
-	/** 
+	/**
 	 * Set factor for computing collision avoidance bands. Factor value is in (0,1]
 	 */
 	public boolean setCollisionAvoidanceBandsFactor(double val) {
 		return reset_or_false(core_.parameters.setCollisionAvoidanceBandsFactor(val));
 	}
 
-	/** 
-	 * @return get z-score (number of standard deviations) for horizontal position 
+	/**
+	 * @return get z-score (number of standard deviations) for horizontal position
 	 */
 	public double getHorizontalPositionZScore() {
 		return core_.parameters.getHorizontalPositionZScore();
 	}
 
-	/** 
+	/**
 	 * Set z-score (number of standard deviations) for horizontal position (non-negative value)
 	 */
 	public boolean setHorizontalPositionZScore(double val) {
 		return reset_or_false(core_.parameters.setHorizontalPositionZScore(val));
 	}
 
-	/** 
-	 * @return get min z-score (number of standard deviations) for horizontal velocity 
+	/**
+	 * @return get min z-score (number of standard deviations) for horizontal velocity
 	 */
 	public double getHorizontalVelocityZScoreMin() {
 		return core_.parameters.getHorizontalVelocityZScoreMin();
 	}
 
-	/** 
+	/**
 	 * Set min z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
 	public boolean setHorizontalVelocityZScoreMin(double val) {
 		return reset_or_false(core_.parameters.setHorizontalVelocityZScoreMin(val));
 	}
 
-	/** 
-	 * @return get max z-score (number of standard deviations) for horizontal velocity 
+	/**
+	 * @return get max z-score (number of standard deviations) for horizontal velocity
 	 */
 	public double getHorizontalVelocityZScoreMax() {
 		return core_.parameters.getHorizontalVelocityZScoreMax();
 	}
 
-	/** 
+	/**
 	 * Set max z-score (number of standard deviations) for horizontal velocity (non-negative value)
 	 */
 	public boolean setHorizontalVelocityZScoreMax(double val) {
 		return reset_or_false(core_.parameters.setHorizontalVelocityZScoreMax(val));
 	}
 
-	/** 
+	/**
 	 * @return Distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public double getHorizontalVelocityZDistance() {
 		return core_.parameters.getHorizontalVelocityZDistance();
 	}
 
-	/** 
+	/**
 	 * @return Distance (in given units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public double getHorizontalVelocityZDistance(String u) {
 		return core_.parameters.getHorizontalVelocityZDistance(u);
 	}
 
-	/** 
+	/**
 	 * Set distance (in internal units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public boolean setHorizontalVelocityZDistance(double val) {
 		return reset_or_false(core_.parameters.setHorizontalVelocityZDistance(val));
 	}
 
-	/** 
+	/**
 	 * Set distance (in given units) at which h_vel_z_score scales from min to max as range decreases
 	 */
 	public boolean setHorizontalVelocityZDistance(double val, String u) {
 		return reset_or_false(core_.parameters.setHorizontalVelocityZDistance(val,u));
 	}
 
-	/** 
-	 * @return get z-score (number of standard deviations) for vertical position 
+	/**
+	 * @return get z-score (number of standard deviations) for vertical position
 	 */
 	public double getVerticalPositionZScore() {
 		return core_.parameters.getVerticalPositionZScore();
 	}
 
-	/** 
+	/**
 	 * Set z-score (number of standard deviations) for vertical position (non-negative value)
 	 */
 	public boolean setVerticalPositionZScore(double val) {
 		return reset_or_false(core_.parameters.setVerticalPositionZScore(val));
 	}
 
-	/** 
-	 * @return get z-score (number of standard deviations) for vertical velocity 
+	/**
+	 * @return get z-score (number of standard deviations) for vertical velocity
 	 */
 	public double getVerticalSpeedZScore() {
 		return core_.parameters.getVerticalSpeedZScore();
 	}
 
-	/** 
+	/**
 	 * Set z-score (number of standard deviations) for vertical velocity (non-negative value)
 	 */
 	public boolean setVerticalSpeedZScore(double val) {
 		return reset_or_false(core_.parameters.setVerticalSpeedZScore(val));
 	}
 
-	/** 
-	 * Get horizontal contour threshold, specified in internal units [rad] as an angle to 
-	 * the left/right of current aircraft direction. A value of 0 means only conflict contours. 
+	/**
+	 * Get horizontal contour threshold, specified in internal units [rad] as an angle to
+	 * the left/right of current aircraft direction. A value of 0 means only conflict contours.
 	 * A value of pi means all contours.
 	 */
 	public double getHorizontalContourThreshold() {
 		return core_.parameters.getHorizontalContourThreshold();
 	}
 
-	/** 
-	 * Get horizontal contour threshold, specified in given units [u] as an angle to 
-	 * the left/right of current aircraft direction. A value of 0 means only conflict contours. 
+	/**
+	 * Get horizontal contour threshold, specified in given units [u] as an angle to
+	 * the left/right of current aircraft direction. A value of 0 means only conflict contours.
 	 * A value of pi means all contours.
 	 */
 	public double getHorizontalContourThreshold(String u) {
 		return core_.parameters.getHorizontalContourThreshold(u);
 	}
 
-	/** 
-	 * Set horizontal contour threshold, specified in internal units [rad] [0 - pi] as an angle to 
-	 * the left/right of current aircraft direction. A value of 0 means only conflict contours. 
+	/**
+	 * Set horizontal contour threshold, specified in internal units [rad] [0 - pi] as an angle to
+	 * the left/right of current aircraft direction. A value of 0 means only conflict contours.
 	 * A value of pi means all contours.
 	 */
 	public boolean setHorizontalContourThreshold(double val) {
 		return reset_or_false(core_.parameters.setHorizontalContourThreshold(val));
 	}
 
-	/** 
-	 * Set horizontal contour threshold, specified in given units [u] [0 - pi] as an angle to 
-	 * the left/right of current aircraft direction. A value of 0 means only conflict contours. 
+	/**
+	 * Set horizontal contour threshold, specified in given units [u] [0 - pi] as an angle to
+	 * the left/right of current aircraft direction. A value of 0 means only conflict contours.
 	 * A value of pi means all contours.
 	 */
 	public boolean setHorizontalContourThreshold(double val, String u) {
@@ -2513,185 +2513,185 @@ public class Daidalus {
 		return core_.getSpecialBandFlags().dta_status > 0;
 	}
 
-	/** 
+	/**
 	 * Return true if DAA Terminal Area (DTA) logic is disabled.
-	 */ 
+	 */
 	public boolean isDisabledDTALogic() {
 		return core_.parameters.getDTALogic() == 0;
 	}
 
-	/** 
-	 * Return true if DAA Terminal Area (DTA) logic is enabled with horizontal 
-	 * direction recovery guidance. If true, horizontal direction recovery is enabled, 
+	/**
+	 * Return true if DAA Terminal Area (DTA) logic is enabled with horizontal
+	 * direction recovery guidance. If true, horizontal direction recovery is enabled,
 	 * but vertical recovery blocks down resolutions when alert is higher than corrective.
 	 * NOTE:
 	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
 	 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
 	 * intruder-centric logic).
-	 */ 
+	 */
 	public boolean isEnabledDTALogicWithHorizontalDirRecovery() {
 		return core_.parameters.getDTALogic() > 0;
 	}
 
-	/** 
-	 * Return true if DAA Terminal Area (DTA) logic is enabled without horizontal 
-	 * direction recovery guidance. If true, horizontal direction recovery is disabled and 
+	/**
+	 * Return true if DAA Terminal Area (DTA) logic is enabled without horizontal
+	 * direction recovery guidance. If true, horizontal direction recovery is disabled and
 	 * vertical recovery blocks down resolutions when alert is higher than corrective.
 	 * NOTE:
 	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
 	 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
 	 * intruder-centric logic).
-	 */ 
+	 */
 	public boolean isEnabledDTALogicWithoutHorizontalDirRecovery() {
 		return core_.parameters.getDTALogic() < 0;
 	}
 
-	/** 
-	 * Disable DAA Terminal Area (DTA) logic   
-	 */ 
+	/**
+	 * Disable DAA Terminal Area (DTA) logic
+	 */
 	public void disableDTALogic() {
 		core_.parameters.setDTALogic(0);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Enable DAA Terminal Area (DTA) logic with horizontal direction recovery guidance, i.e.,
-	 * horizontal direction recovery is enabled, but vertical recovery blocks down 
+	 * horizontal direction recovery is enabled, but vertical recovery blocks down
 	 * resolutions when alert is higher than corrective.
 	 * NOTE:
 	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
 	 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
 	 * intruder-centric logic).
-	 */ 
+	 */
 	public void enableDTALogicWithHorizontalDirRecovery() {
 		core_.parameters.setDTALogic(1);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Enable DAA Terminal Area (DTA) logic withou horizontal direction recovery guidance, i.e.,
-	 * horizontal direction recovery is disabled and vertical recovery blocks down 
+	 * horizontal direction recovery is disabled and vertical recovery blocks down
 	 * resolutions when alert is higher than corrective.
 	 * NOTE:
 	 * When DTA logic is enabled, DAIDALUS automatically switches to DTA alerter and to
 	 * special maneuver guidance, when aircraft enters DTA volume (depending on ownship- vs
 	 * intruder-centric logic).
-	 */ 
+	 */
 	public void enableDTALogicWithoutHorizontalDirRecovery() {
 		core_.parameters.setDTALogic(-1);
 		reset();
 	}
 
-	/** 
+	/**
 	 * Get DAA Terminal Area (DTA) position (lat/lon)
-	 */ 
+	 */
 	public Position getDTAPosition() {
 		return core_.parameters.getDTAPosition();
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) latitude (internal units)
-	 */ 
+	 */
 	public boolean setDTALatitude(double lat) {
 		return reset_or_false(core_.parameters.setDTALatitude(lat));
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) latitude in given units
-	 */ 
+	 */
 	public boolean setDTALatitude(double lat, String ulat) {
 		return reset_or_false(core_.parameters.setDTALatitude(lat,ulat));
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) longitude (internal units)
-	 */ 
+	 */
 	public boolean setDTALongitude(double lon) {
 		return reset_or_false(core_.parameters.setDTALongitude(lon));
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) longitude in given units
-	 */ 
+	 */
 	public boolean setDTALongitude(double lon, String ulon) {
 		return reset_or_false(core_.parameters.setDTALongitude(lon,ulon));
 	}
 
-	/** 
+	/**
 	 * Get DAA Terminal Area (DTA) radius (internal units)
-	 */ 
+	 */
 	public double getDTARadius() {
 		return core_.parameters.getDTARadius();
 	}
 
-	/** 
+	/**
 	 * Get DAA Terminal Area (DTA) radius in given units
-	 */ 
+	 */
 	public double getDTARadius(String u) {
 		return core_.parameters.getDTARadius(u);
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) radius (internal units)
-	 */ 
+	 */
 	public boolean setDTARadius(double val) {
 		return reset_or_false(core_.parameters.setDTARadius(val));
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) radius in given units
-	 */ 
+	 */
 	public boolean setDTARadius(double val, String u) {
 		return reset_or_false(core_.parameters.setDTARadius(val,u));
 	}
 
-	/** 
+	/**
 	 * Get DAA Terminal Area (DTA) height (internal units)
-	 */ 
+	 */
 	public double getDTAHeight() {
 		return core_.parameters.getDTAHeight();
 	}
 
-	/** 
+	/**
 	 * Get DAA Terminal Area (DTA) height in given units
-	 */ 
+	 */
 	public double getDTAHeight(String u) {
 		return core_.parameters.getDTAHeight(u);
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) height (internal units)
-	 */ 
+	 */
 	public boolean setDTAHeight(double val) {
 		return reset_or_false(core_.parameters.setDTAHeight(val));
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) height in given units
-	 */ 
+	 */
 	public boolean setDTAHeight(double val, String u) {
 		return reset_or_false(core_.parameters.setDTAHeight(val,u));
 	}
 
-	/** 
+	/**
 	 * Get DAA Terminal Area (DTA) alerter
-	 */ 
+	 */
 	public int getDTAAlerter() {
 		return core_.parameters.getDTAAlerter();
 	}
 
-	/** 
+	/**
 	 * Set DAA Terminal Area (DTA) alerter
-	 */ 
+	 */
 	public void setDTAAlerter(int alerter) {
 		core_.parameters.setDTAAlerter(alerter);
 		reset();
 	}
 
 	/**
-	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * Get Horizontal Direction Bands Logic When Below Airspeed Threshold:
 	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
 	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
 	public int getHorizontalDirBandsBelowAirspeedThr() {
@@ -2699,9 +2699,9 @@ public class Daidalus {
 	}
 
 	/**
-	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold: 
+	 * Set Horizontal Direction Bands Logic When Below Airspeed Threshold:
 	 * 0: Special horizontal dir bands logic when airspeed is below airspeed_thr is disabled
-	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr 
+	 * 1: Instantaneous horizontal direction bands computed assuming airspeed_thr
 	 * -1: Kinematic horizontal direction bands computed assumming airspeed_thr
 	 */
 	public void setHorizontalDirBandsBelowAirspeedThr(int val) {
@@ -2711,7 +2711,7 @@ public class Daidalus {
 
 	/**
 	 * Set alerting logic to the value indicated by ownship_centric.
-	 * If ownship_centric is true, alerting and guidance logic will use the alerter in ownship. Alerter 
+	 * If ownship_centric is true, alerting and guidance logic will use the alerter in ownship. Alerter
 	 * in every intruder will be disregarded.
 	 * If ownship_centric is false, alerting and guidance logic will use the alerter in every intruder. Alerter
 	 * in ownship will be disregarded.
@@ -2722,23 +2722,23 @@ public class Daidalus {
 	}
 
 	/**
-	 * Set alerting and guidance logic to ownship-centric. Alerting and guidance logic will use the alerter in ownship. 
-	 * Alerter in every intruder will be disregarded.	 
+	 * Set alerting and guidance logic to ownship-centric. Alerting and guidance logic will use the alerter in ownship.
+	 * Alerter in every intruder will be disregarded.
 	 */
 	public void setOwnshipCentricAlertingLogic() {
 		setAlertingLogic(true);
 	}
 
 	/**
-	 * Set alerting and guidance logic to intruder-centric. Alerting and guidance logic will use the alerter in every intruder. 
-	 * Alerter in ownship will be disregarded.	 
+	 * Set alerting and guidance logic to intruder-centric. Alerting and guidance logic will use the alerter in every intruder.
+	 * Alerter in ownship will be disregarded.
 	 */
 	public void setIntruderCentricAlertingLogic() {
-		setAlertingLogic(false);		
+		setAlertingLogic(false);
 	}
 
 	/**
-	 * @return true if alerting/guidance logic is ownship centric. 
+	 * @return true if alerting/guidance logic is ownship centric.
 	 */
 	public boolean isAlertingLogicOwnshipCentric() {
 		return core_.parameters.isAlertingLogicOwnshipCentric();
@@ -2746,8 +2746,8 @@ public class Daidalus {
 
 	/**
 	* Set logic of "bands add time to manevuer" to the value indicated by bands_add_time_to_maneuver
-	* By default this parameter is set to false. When set to true, the time to maneuver is 
-	* considerd against alerting time when computing peripheral bands. The latter was the behavior in 
+	* By default this parameter is set to false. When set to true, the time to maneuver is
+	* considerd against alerting time when computing peripheral bands. The latter was the behavior in
 	* v.2.0.1 and v1.
 	*/
 	public void setBandsAddTimeToManeuver(boolean bands_add_time_to_maneuver) {
@@ -2777,14 +2777,14 @@ public class Daidalus {
 		return core_.parameters.isEnabledBandsAddTimeToManeuver();
 	}
 
-	/** 
+	/**
 	 * Get corrective region for calculation of resolution maneuvers and bands saturation.
 	 */
 	public BandsRegion getCorrectiveRegion() {
 		return core_.parameters.getCorrectiveRegion();
 	}
 
-	/** 
+	/**
 	 * Set corrective region for calculation of resolution maneuvers and bands saturation.
 	 */
 	public boolean setCorrectiveRegion(BandsRegion val) {
@@ -2793,10 +2793,10 @@ public class Daidalus {
 
 	/**
 	 * @param alerter_idx Indice of an alerter (starting from 1)
-	 * @return corrective level of alerter at alerter_idx. The corrective level 
+	 * @return corrective level of alerter at alerter_idx. The corrective level
 	 * is the first alert level that has a region equal to or more severe than corrective_region.
 	 * Return -1 if alerter_idx is out of range of if there is no corrective alert level
-	 * for this alerter. 
+	 * for this alerter.
 	 */
 	public int correctiveAlertLevel(int alerter_idx) {
 		return core_.parameters.correctiveAlertLevel(alerter_idx);
@@ -2809,7 +2809,7 @@ public class Daidalus {
 		return core_.parameters.maxNumberOfAlertLevels();
 	}
 
-	/** 
+	/**
 	 * Set instantaneous bands.
 	 */
 	public void setInstantaneousBands() {
@@ -2817,7 +2817,7 @@ public class Daidalus {
 		reset();
 	}
 
-	/** 
+	/**
 	 * Set kinematic bands.
 	 * Set turn rate to 3 deg/s, when type is true; set turn rate to  1.5 deg/s
 	 * when type is false;
@@ -2827,7 +2827,7 @@ public class Daidalus {
 		reset();
 	}
 
-	/** 
+	/**
 	 * Disable hysteresis parameters
 	 */
 	public void disableHysteresis() {
@@ -2858,21 +2858,21 @@ public class Daidalus {
 	}
 
 	public boolean setParameterData(ParameterData p) {
-		return clearHysteresis_or_false(core_.parameters.setParameterData(p)); 
+		return clearHysteresis_or_false(core_.parameters.setParameterData(p));
 	}
 
 	public ParameterData getParameterData() {
 		return core_.parameters.getParameters();
 	}
 
-	/** 
+	/**
 	 * Get string units of parameters key
 	 */
 	public String getUnitsOf(String key) {
 		return core_.parameters.getUnitsOf(key);
 	}
 
-	/** 
+	/**
 	 * Set string units of parameters keys. Return false if units are not compatible
 	 */
 	public boolean setUnitsOf(String key, String units) {
@@ -2881,7 +2881,7 @@ public class Daidalus {
 
 	/* Utility methods */
 
-	/** 
+	/**
 	 * Return core object of bands. For expert users only
 	 * DO NOT USE IT, UNLESS YOU KNOW WHAT YOU ARE DOING. EXPERT USE ONLY !!!
 	 */
@@ -2890,7 +2890,7 @@ public class Daidalus {
 	}
 
 	/**
-	 *  Clear hysteresis data 
+	 *  Clear hysteresis data
 	 */
 	public void clearHysteresis() {
 		core_.clear_hysteresis();
@@ -2970,16 +2970,16 @@ public class Daidalus {
 		return timeIntervalOfConflict(BandsRegion.orderOfRegion(region));
 	}
 
-	/** 
+	/**
 	 * @return the number of horizontal direction bands negative if the ownship has not been set
 	 */
 	public int horizontalDirectionBandsLength() {
 		return hdir_band_.length(core_);
 	}
 
-	/** 
+	/**
 	 * Force computation of direction bands. Usually, bands are only computed when needed. This method
-	 * forces the computation of direction bands (this method is included mainly for debugging purposes). 
+	 * forces the computation of direction bands (this method is included mainly for debugging purposes).
 	 */
 	public void forceHorizontalDirectionBandsComputation() {
 		hdir_band_.force_compute(core_);
@@ -3050,7 +3050,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to direction maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within 
+	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within
 	 * lookahead time. Return negative infinity if there is no time to maneuver.
 	 */
 	public double lastTimeToHorizontalDirectionManeuver(TrafficState ac) {
@@ -3059,7 +3059,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to horizontal direction maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3073,12 +3073,12 @@ public class Daidalus {
 		} else {
 			error.addError("lastTimeToHorizontalDirectionManeuver: aircraft index "+ac_idx+" is out of bounds");
 			return Double.NaN;
-		} 
+		}
 	}
 
 	/**
 	 * Return last time to horizontal direction maneuver, in given units, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3099,7 +3099,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands
 	 * for given conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
@@ -3113,7 +3113,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal direction bands
 	 * for given conflict bands region.
 	 */
 	public void peripheralHorizontalDirectionBandsAircraft(List<String> acs, BandsRegion region) {
@@ -3124,8 +3124,8 @@ public class Daidalus {
 	 * Compute horizontal direction resolution maneuver for a given direction.
 	 * @param dir is right (true)/left (false) of ownship current direction
 	 * @return direction resolution in internal units [rad] in specified direction.
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no resolution to the right, and negative infinity if there 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no resolution to the right, and negative infinity if there
 	 * is no resolution to the left.
 	 */
 	public double horizontalDirectionResolution(boolean dir) {
@@ -3136,9 +3136,9 @@ public class Daidalus {
 	 * Compute horizontal direction resolution maneuver for a given direction.
 	 * @param dir is right (true)/left (false) of ownship current direction
 	 * @param u units
-	 * @return direction resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no resolution to the right, and negative infinity if there 
+	 * @return direction resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no resolution to the right, and negative infinity if there
 	 * is no resolution to the left.
 	 */
 	public double horizontalDirectionResolution(boolean dir, String u) {
@@ -3150,8 +3150,8 @@ public class Daidalus {
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is right (true)/left (false) of ownship current direction
 	 * @return direction resolution in internal units [rad] in specified direction.
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no resolution to the right, and negative infinity if there 
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no resolution to the right, and negative infinity if there
 	 * is no resolution to the left.
 	 */
 	public double horizontalDirectionRawResolution(boolean dir) {
@@ -3163,9 +3163,9 @@ public class Daidalus {
 	 * Raw resolution is the resolution without hysteresis or persistence
 	 * @param dir is right (true)/left (false) of ownship current direction
 	 * @param u units
-	 * @return direction resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in time seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no resolution to the right, and negative infinity if there 
+	 * @return direction resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in time seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no resolution to the right, and negative infinity if there
 	 * is no resolution to the left.
 	 */
 	public double horizontalDirectionRawResolution(boolean dir, String u) {
@@ -3174,7 +3174,7 @@ public class Daidalus {
 
 	/**
 	 * Compute preferred horizontal direction based on resolution that is closer to current direction.
-	 * @return True: Right. False: Left. 
+	 * @return True: Right. False: Left.
 	 */
 	public boolean preferredHorizontalDirectionRightOrLeft() {
 		return hdir_band_.preferred_direction(core_);
@@ -3187,9 +3187,9 @@ public class Daidalus {
 		return hs_band_.length(core_);
 	}
 
-	/** 
+	/**
 	 * Force computation of horizontal speed bands. Usually, bands are only computed when needed. This method
-	 * forces the computation of horizontal speed bands (this method is included mainly for debugging purposes). 
+	 * forces the computation of horizontal speed bands (this method is included mainly for debugging purposes).
 	 */
 	public void forceHorizontalSpeedBandsComputation() {
 		hs_band_.force_compute(core_);
@@ -3260,7 +3260,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to horizontal speed maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within 
+	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within
 	 * lookahead time. Return negative infinity if there is no time to maneuver.
 	 */
 	public double lastTimeToHorizontalSpeedManeuver(TrafficState ac) {
@@ -3269,7 +3269,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to horizontal speed maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3283,12 +3283,12 @@ public class Daidalus {
 		} else {
 			error.addError("lastTimeToHorizontalSpeedManeuver: aircraft index "+ac_idx+" is out of bounds");
 			return Double.NaN;
-		} 
+		}
 	}
 
 	/**
 	 * Return last time to horizontal speed maneuver, in given units, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3309,7 +3309,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands
 	 * for given conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
@@ -3323,7 +3323,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral horizontal speed bands
 	 * for given conflict bands region.
 	 */
 	public void peripheralHorizontalSpeedBandsAircraft(List<String> acs, BandsRegion region) {
@@ -3333,9 +3333,9 @@ public class Daidalus {
 	/**
 	 * Compute horizontal speed resolution maneuver.
 	 * @param dir is up (true)/down (false) of ownship current horizontal speed
-	 * @return horizontal speed resolution in internal units [m/s] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return horizontal speed resolution in internal units [m/s] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double horizontalSpeedResolution(boolean dir) {
@@ -3346,9 +3346,9 @@ public class Daidalus {
 	 * Compute horizontal speed resolution maneuver for corrective region.
 	 * @param dir is up (true)/down (false) of ownship current horizontal speed
 	 * @param u units
-	 * @return horizontal speed resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return horizontal speed resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double horizontalSpeedResolution(boolean dir, String u) {
@@ -3359,9 +3359,9 @@ public class Daidalus {
 	 * Compute horizontal speed *raw* resolution maneuver.
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is up (true)/down (false) of ownship current horizontal speed
-	 * @return horizontal speed resolution in internal units [m/s] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return horizontal speed resolution in internal units [m/s] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double horizontalSpeedRawResolution(boolean dir) {
@@ -3373,9 +3373,9 @@ public class Daidalus {
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is up (true)/down (false) of ownship current horizontal speed
 	 * @param u units
-	 * @return horizontal speed resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return horizontal speed resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double horizontalSpeedRawResolution(boolean dir, String u) {
@@ -3397,9 +3397,9 @@ public class Daidalus {
 		return vs_band_.length(core_);
 	}
 
-	/** 
+	/**
 	 * Force computation of vertical speed bands. Usually, bands are only computed when needed. This method
-	 * forces the computation of vertical speed bands (this method is included mainly for debugging purposes). 
+	 * forces the computation of vertical speed bands (this method is included mainly for debugging purposes).
 	 */
 	public void forceVerticalSpeedBandsComputation() {
 		vs_band_.force_compute(core_);
@@ -3470,7 +3470,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to vertical speed maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within 
+	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within
 	 * lookahead time. Return negative infinity if there is no time to maneuver.
 	 */
 	public double lastTimeToVerticalSpeedManeuver(TrafficState ac) {
@@ -3479,7 +3479,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to vertical speed maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3493,12 +3493,12 @@ public class Daidalus {
 		} else {
 			error.addError("lastTimeToVerticalSpeedManeuver: aircraft index "+ac_idx+" is out of bounds");
 			return Double.NaN;
-		} 
+		}
 	}
 
 	/**
 	 * Return last time to vertical speed maneuver, in given units, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3519,7 +3519,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands
 	 * for conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
@@ -3533,7 +3533,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral vertical speed bands
 	 * for conflict bands region.
 	 */
 	public void peripheralVerticalSpeedBandsAircraft(List<String> acs, BandsRegion region) {
@@ -3543,9 +3543,9 @@ public class Daidalus {
 	/**
 	 * Compute vertical speed resolution maneuver for given direction.
 	 * @param dir is up (true)/down (false) of ownship current vertical speed
-	 * @return vertical speed resolution in internal units [m/s] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return vertical speed resolution in internal units [m/s] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double verticalSpeedResolution(boolean dir) {
@@ -3556,9 +3556,9 @@ public class Daidalus {
 	 * Compute vertical speed resolution maneuver for given direction.
 	 * @param dir is up (true)/down (false) of ownship current vertical speed
 	 * @param u units
-	 * @return vertical speed resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return vertical speed resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double verticalSpeedResolution(boolean dir, String u) {
@@ -3569,9 +3569,9 @@ public class Daidalus {
 	 * Compute vertical speed *raw* resolution maneuver for given direction.
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is up (true)/down (false) of ownship current vertical speed
-	 * @return vertical speed resolution in internal units [m/s] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return vertical speed resolution in internal units [m/s] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double verticalSpeedRawResolution(boolean dir) {
@@ -3583,9 +3583,9 @@ public class Daidalus {
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is up (true)/down (false) of ownship current vertical speed
 	 * @param u units
-	 * @return vertical speed resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return vertical speed resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double verticalSpeedRawResolution(boolean dir, String u) {
@@ -3607,9 +3607,9 @@ public class Daidalus {
 		return alt_band_.length(core_);
 	}
 
-	/** 
+	/**
 	 * Force computation of altitude bands. Usually, bands are only computed when needed. This method
-	 * forces the computation of altitude bands (this method is included mainly for debugging purposes). 
+	 * forces the computation of altitude bands (this method is included mainly for debugging purposes).
 	 */
 	public void forceAltitudeBandsComputation() {
 		alt_band_.force_compute(core_);
@@ -3680,7 +3680,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to altitude maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within 
+	 * aircraft ac. Return NaN if the ownship is not in conflict with aircraft ac within
 	 * lookahead time. Return negative infinity if there is no time to maneuver.
 	 */
 	public double lastTimeToAltitudeManeuver(TrafficState ac) {
@@ -3689,7 +3689,7 @@ public class Daidalus {
 
 	/**
 	 * Return last time to altitude maneuver, in seconds, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3703,12 +3703,12 @@ public class Daidalus {
 		} else {
 			error.addError("lastTimeToAltitudeManeuver: aircraft index "+ac_idx+" is out of bounds");
 			return Double.NaN;
-		} 
+		}
 	}
 
 	/**
 	 * Return last time to altitude maneuver, in given units, for ownship with respect to traffic
-	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with 
+	 * aircraft at index ac_idx. Return positive infinity if the ownship is not in conflict with
 	 * aircraft within lookahead time. Return negative infinity if there is no time to maneuver.
 	 * Return NaN if ac_idx is not a valid index.
 	 */
@@ -3729,7 +3729,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands
 	 * for conflict bands region.
 	 * 1 = FAR, 2 = MID, 3 = NEAR
 	 */
@@ -3743,7 +3743,7 @@ public class Daidalus {
 	}
 
 	/**
-	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands 
+	 * Compute in acs list of aircraft identifiers contributing to peripheral altitude bands
 	 * for conflict bands region.
 	 */
 	public void peripheralAltitudeBandsAircraft(List<String> acs, BandsRegion region) {
@@ -3753,9 +3753,9 @@ public class Daidalus {
 	/**
 	 * Compute altitude resolution maneuver for given direction.
 	 * @param dir is up (true)/down (false) of ownship current altitude
-	 * @return altitude resolution in internal units [m] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return altitude resolution in internal units [m] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double altitudeResolution(boolean dir) {
@@ -3766,9 +3766,9 @@ public class Daidalus {
 	 * Compute altitude resolution maneuver for given direction.
 	 * @param dir is up (true)/down (false) of ownship current altitude
 	 * @param u units
-	 * @return altitude resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return altitude resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double altitudeResolution(boolean dir, String u) {
@@ -3779,9 +3779,9 @@ public class Daidalus {
 	 * Compute altitude *raw* resolution maneuver for given direction.
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is up (true)/down (false) of ownship current altitude
-	 * @return altitude resolution in internal units [m] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return altitude resolution in internal units [m] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double altitudeRawResolution(boolean dir) {
@@ -3793,9 +3793,9 @@ public class Daidalus {
 	 * Raw resolution is the resolution without persistence
 	 * @param dir is up (true)/down (false) of ownship current altitude
 	 * @param u units
-	 * @return altitude resolution in specified units [u] in specified direction. 
-	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict, 
-	 * positive infinity if there is no up resolution, and negative infinity if there 
+	 * @return altitude resolution in specified units [u] in specified direction.
+	 * Resolution maneuver is valid for lookahead time in seconds. Return NaN if there is no conflict,
+	 * positive infinity if there is no up resolution, and negative infinity if there
 	 * is no down resolution.
 	 */
 	public double altitudeRawResolution(boolean dir, String u) {
@@ -3814,16 +3814,16 @@ public class Daidalus {
 	 * Alerting logic
 	 */
 
-	/** 
-	 * Computes alerting type of ownship and aircraft at index ac_idx for current 
+	/**
+	 * Computes alerting type of ownship and aircraft at index ac_idx for current
 	 * aircraft states.  The number 0 means no alert. A negative number means
 	 * that aircraft index is not valid.
 	 * When the alerter object has been configured to consider ownship maneuvers, i.e.,
 	 * using spread values, the alerting logic could also use information about the ownship
 	 * turning, accelerating, and climbing status as follows:
-	 * - {@code turning < 0}: ownship is turning left, {@code turning > 0}: ownship is turning right, turning = 0: 
+	 * - {@code turning < 0}: ownship is turning left, {@code turning > 0}: ownship is turning right, turning = 0:
 	 * do not make any turning assumption about the ownship.
-	 * - {@code accelerating < 0}: ownship is decelerating, {@code accelerating > 0}: ownship is accelerating, 
+	 * - {@code accelerating < 0}: ownship is decelerating, {@code accelerating > 0}: ownship is accelerating,
 	 * accelerating = 0: do not make any accelerating assumption about the ownship.
 	 * - {@code climbing < 0}: ownship is descending, {@code climbing > 0}: ownship is climbing, climbing = 0:
 	 * do not make any climbing assumption about the ownship.
@@ -3834,11 +3834,11 @@ public class Daidalus {
 		} else {
 			error.addError("alertLevel: aircraft index "+ac_idx+" is out of bounds");
 			return -1;
-		} 
+		}
 	}
 
-	/** 
-	 * Computes alert level of ownship and aircraft at index ac_idx. 
+	/**
+	 * Computes alert level of ownship and aircraft at index ac_idx.
 	 * The number 0 means no alert. A negative number means
 	 * that aircraft index is not valid.
 	 */
@@ -3887,9 +3887,9 @@ public class Daidalus {
 	/**
 	 * Detects violation of alert thresholds for a given alert level with an
 	 * aircraft at index ac_idx.
-	 * Conflict data provides time to violation and time to end of violation 
-	 * of alert thresholds of given alert level. 
-	 * @param ac_idx is the index of the traffic aircraft 
+	 * Conflict data provides time to violation and time to end of violation
+	 * of alert thresholds of given alert level.
+	 * @param ac_idx is the index of the traffic aircraft
 	 * @param alert_level alert level used to compute detection. The value 0
 	 * indicate the alert volume of the corrective region.
 	 */
@@ -3918,15 +3918,15 @@ public class Daidalus {
 		} else {
 			error.addError("violationOfAlertThresholds: aircraft index "+ac_idx+" is out of bounds");
 		}
-		return ConflictData.EMPTY;	
+		return ConflictData.EMPTY;
 	}
 
 	/**
 	 * Detects violation of alert thresholds for a given region with an
 	 * aircraft at index ac_idx.
-	 * Conflict data provides time to violation and time to end of violation 
-	 * of alert thresholds of given alert level. 
-	 * @param ac_idx is the index of the traffic aircraft 
+	 * Conflict data provides time to violation and time to end of violation
+	 * of alert thresholds of given alert level.
+	 * @param ac_idx is the index of the traffic aircraft
 	 * @param region region used to compute detection.
 	 */
 	public ConflictData violationOfAlertThresholds(int ac_idx, BandsRegion region) {
@@ -3935,8 +3935,8 @@ public class Daidalus {
 
 	/**
 	 * Detects violation of corrective thresholds with an aircraft at index ac_idx.
-	 * Conflict data provides time to violation and time to end of violation 
-	 * @param ac_idx is the index of the traffic aircraft 
+	 * Conflict data provides time to violation and time to end of violation
+	 * @param ac_idx is the index of the traffic aircraft
 	 */
 	public ConflictData violationOfCorrectiveThresholds(int ac_idx) {
 		return violationOfAlertThresholds(ac_idx,0);
@@ -3961,9 +3961,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
+	/**
 	 * @return region corresponding to a given alert level for a particular aircraft.
-	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric 
+	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric
 	 * logic, then returns the configured region for the alerter level. It returns
 	 * UNKNOWN if the aircraft or the alert level are invalid.
 	 */
@@ -3987,10 +3987,10 @@ public class Daidalus {
 		} else {
 			error.addError("regionOfAlertLevel: aircraft index "+ac_idx+" is out of bounds");
 		}
-		return BandsRegion.UNKNOWN;	
+		return BandsRegion.UNKNOWN;
 	}
 
-	/** 
+	/**
 	 * @return alert_level corresponding to a given region for a particular aircraft.
 	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric
 	 * logic, then returns the configured region for the region. It returns -1
@@ -3998,14 +3998,14 @@ public class Daidalus {
 	 * 0 = NONE, 1 = FAR, 2 = MID, 3 = NEAR.
 	 */
 	public int alertLevelOfRegion(int ac_idx, int region) {
-		return alertLevelOfRegion(ac_idx,BandsRegion.regionFromOrder(region));		
+		return alertLevelOfRegion(ac_idx,BandsRegion.regionFromOrder(region));
 	}
 
-	/** 
+	/**
 	 * @return alert_level corresponding to a given region for a particular aircraft.
 	 * This function first finds the alerter for this aircraft, based on ownship/intruder-centric
 	 * logic, then returns the configured region for the region. It returns -1
-	 * if the aircraft or its alerter are invalid. 
+	 * if the aircraft or its alerter are invalid.
 	 */
 	public int alertLevelOfRegion(int ac_idx, BandsRegion region) {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
@@ -4020,12 +4020,12 @@ public class Daidalus {
 		} else {
 			error.addError("alertLevelOfRegion: aircraft index "+ac_idx+" is out of bounds");
 		}
-		return -1;	
+		return -1;
 	}
 
 	/* DAA Performance Metrics */
 
-	/** 
+	/**
 	 * Returns current horizontal separation, in internal units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
@@ -4038,8 +4038,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns current horizontal separation, in given units, with aircraft at index ac_idx. 
+	/**
+	 * Returns current horizontal separation, in given units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double currentHorizontalSeparation(int ac_idx,String u) {
@@ -4050,7 +4050,7 @@ public class Daidalus {
 		}
 	}
 
-	/** 
+	/**
 	 * Returns current vertical separation, in internal units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
@@ -4063,8 +4063,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns current vertical separation, in given units, with aircraft at index ac_idx. 
+	/**
+	 * Returns current vertical separation, in given units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double currentVerticalSeparation(int ac_idx,String u) {
@@ -4075,8 +4075,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns horizontal relative speed, in internal units, with aircraft at index ac_idx.
+	/**
+	 * Returns horizontal relative speed (ownship wrt intruder), in internal units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double horizontalRelativeSpeed(int ac_idx) {
@@ -4088,8 +4088,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns current relative speed, in given units, with aircraft at index ac_idx. 
+	/**
+	 * Returns horizontal relative speed (ownship wrt intruder), in given units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double horizontalRelativeSpeed(int ac_idx,String u) {
@@ -4100,21 +4100,53 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns vertical relative speed, in internal units, with aircraft at index ac_idx.
-	 * Returns NaN if aircraft index is not valid
+	/**
+	 * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+	 * If positive, aircraft are horizontally converging.
+	 * Returns NaN if aircraft index is not valid.
 	 */
-	public double verticalRelativeSpeed(int ac_idx) {
+	public double horizontalClosureRate(int ac_idx) {
 		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-			double  vz = core_.ownship.get_v().z - core_.traffic.get(ac_idx-1).get_v().z;
-			return Math.abs(vz);
+			Vect2 s = core_.ownship.get_s().vect2().Sub(core_.traffic.get(ac_idx-1).get_s().vect2());
+			Vect2 v = core_.ownship.get_v().vect2().Sub(core_.traffic.get(ac_idx-1).get_v().vect2());
+			double sdotv = s.dot(v);
+			if (Util.almost_equals(sdotv,0.0)) {
+				return 0.0;
+			}
+			return -sdotv/s.norm();
 		} else {
 			return Double.NaN;
 		}
 	}
 
-	/** 
-	 * Returns vertical relative speed, in given units, with aircraft at index ac_idx. 
+	/**
+	 * Returns horizontal closure rate, in given units, with aircraft at index ac_idx.
+	 * If positive, aircraft are horizontally converging.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double horizontalClosureRate(int ac_idx,String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,horizontalClosureRate(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * Returns vertical relative speed (ownship wrt intruder), in internal units, with aircraft at index ac_idx.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double verticalRelativeSpeed(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  vz = core_.ownship.get_v().z - core_.traffic.get(ac_idx-1).get_v().z;
+			return vz;
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * Returns vertical relative speed (ownship wrt intruder), in given units, with aircraft at index ac_idx.
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double verticalRelativeSpeed(int ac_idx,String u) {
@@ -4125,8 +4157,39 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time), 
+	/**
+	 * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+	 * If positive, aircraft are vertically converging.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double verticalClosureRate(int ac_idx) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			double  sz = core_.ownship.get_s().z - core_.traffic.get(ac_idx-1).get_s().z;
+			double  vz = core_.ownship.get_v().z - core_.traffic.get(ac_idx-1).get_v().z;
+			if (Util.almost_equals(sz*vz,0.0)) {
+				return 0.0;
+			}
+			return -Util.sign(sz)*vz;
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * Returns vertical closure, in given units, with aircraft at index ac_idx.
+	 * If positive, aircraft are vertically converging.
+	 * Returns NaN if aircraft index is not valid
+	 */
+	public double verticalClosureRate(int ac_idx,String u) {
+		if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
+			return Units.to(u,verticalClosureRate(ac_idx));
+		} else {
+			return Double.NaN;
+		}
+	}
+
+	/**
+	 * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time),
 	 * assuming straight line trajectory. Returns NaN if aircraft index is not valid
 	 */
 	public double predictedHorizontalMissDistance(int ac_idx) {
@@ -4139,8 +4202,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns predicted HMD, in provided units, with aircraft at index ac_idx (up to lookahead time), 
+	/**
+	 * Returns predicted HMD, in provided units, with aircraft at index ac_idx (up to lookahead time),
 	 * assuming straight line trajectory. Returns NaN if aircraft index is not valid
 	 */
 	public double predictedHorizontalMissDistance(int ac_idx, String u) {
@@ -4151,8 +4214,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns predicted VMD, in internal units, with aircraft at index ac_idx (up to lookahead time), 
+	/**
+	 * Returns predicted VMD, in internal units, with aircraft at index ac_idx (up to lookahead time),
 	 * assuming straight line trajectory. Returns NaN if aircraft index is not valid
 	 */
 	public double predictedVerticalMissDistance(int ac_idx) {
@@ -4165,8 +4228,8 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns predicted VMD, in provided units, with aircraft at index ac_idx (up to lookahead time), 
+	/**
+	 * Returns predicted VMD, in provided units, with aircraft at index ac_idx (up to lookahead time),
 	 * assuming straight line trajectory. Return NaN if aircraft index is not valid
 	 */
 	public double predictedVerticalMissDistance(int ac_idx, String u) {
@@ -4177,9 +4240,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns time, in seconds, to horizontal closest point of approach with aircraft 
-	 * at index ac_idx, assuming straight line trajectory. 
+	/**
+	 * Returns time, in seconds, to horizontal closest point of approach with aircraft
+	 * at index ac_idx, assuming straight line trajectory.
 	 * If aircraft are diverging, the returned time is 0.
 	 * Returns NaN if aircraft index is not valid
 	 */
@@ -4193,9 +4256,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns time, in given units, to horizontal closest point of approach with aircraft 
-	 * at index ac_idx, assuming straight line trajectory. 
+	/**
+	 * Returns time, in given units, to horizontal closest point of approach with aircraft
+	 * at index ac_idx, assuming straight line trajectory.
 	 * If aircraft are diverging, the returned time is 0.
 	 * Returns NaN if aircraft index is not valid
 	 */
@@ -4207,9 +4270,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns distance, in internal units, at horizontal closest point of approach with aircraft 
-	 * at index ac_idx, assuming straight line trajectory. 
+	/**
+	 * Returns distance, in internal units, at horizontal closest point of approach with aircraft
+	 * at index ac_idx, assuming straight line trajectory.
 	 * If aircraft are diverging, the returned distance is current horizontal separation.
 	 * Returns NaN if aircraft index is not valid
 	 */
@@ -4228,9 +4291,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns distance, in given units, at horizontal closest point of approach with aircraft 
-	 * at index ac_idx, assuming straight line trajectory. 
+	/**
+	 * Returns distance, in given units, at horizontal closest point of approach with aircraft
+	 * at index ac_idx, assuming straight line trajectory.
 	 * If aircraft are diverging, the returned distance is current horizontal separation.
 	 * Returns NaN if aircraft index is not valid
 	 */
@@ -4242,10 +4305,10 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns time, in seconds, to co-altitude with aircraft 
-	 * at index ac_idx, assuming straight line trajectory. 
-	 * If aircraft are diverging, returns negative time. If 
+	/**
+	 * Returns time, in seconds, to co-altitude with aircraft
+	 * at index ac_idx, assuming straight line trajectory.
+	 * If aircraft are diverging, returns negative time. If
 	 * vertical closure is 0, returns negative infinite.
 	 * Returns NaN if aircraft index is not valid or if vertical closure is 0.
 	 */
@@ -4265,9 +4328,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns time, in given units, to co-altitude with aircraft 
-	 * at index ac_idx, assuming straight line trajectory. 
+	/**
+	 * Returns time, in given units, to co-altitude with aircraft
+	 * at index ac_idx, assuming straight line trajectory.
 	 * If aircraft are diverging, returns negative value.
 	 * Returns NaN if aircraft index is not valid or if vertical closure is 0
 	 */
@@ -4279,9 +4342,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns modified tau time, in seconds, for distance DMOD (given in internal units), 
-	 * with respect to aircraft at index ac_idx. 
+	/**
+	 * Returns modified tau time, in seconds, for distance DMOD (given in internal units),
+	 * with respect to aircraft at index ac_idx.
 	 * If aircraft are diverging or DMOD is greater than current range, returns -1.
 	 * Returns NaN if aircraft index is not valid or if vertical closure is 0
 	 */
@@ -4300,9 +4363,9 @@ public class Daidalus {
 		}
 	}
 
-	/** 
-	 * Returns modified tau time, in given units, for distance DMOD (given in DMODu units), 
-	 * with respect to aircraft at index ac_idx. 
+	/**
+	 * Returns modified tau time, in given units, for distance DMOD (given in DMODu units),
+	 * with respect to aircraft at index ac_idx.
 	 * If aircraft are diverging or DMOD is greater than current range, returns -1.
 	 * Returns NaN if aircraft index is not valid or if vertical closure is 0
 	 */
@@ -4386,12 +4449,12 @@ public class Daidalus {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			conflictBandsAircraft(acs,region);
 			s+="Conflict Bands Aircraft ("+region.toString()+"): "+TrafficState.listToString(acs)+"\n";
-		}	
+		}
 		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			s+="Time Interval of Conflict ("+region.toString()+"): "+
 					timeIntervalOfConflict(region).toStringUnits("s")+"\n";
-		}	
+		}
 		return s;
 	}
 
@@ -4419,10 +4482,10 @@ public class Daidalus {
 		double val = core_.ownship.horizontalDirection();
 		s+="Ownship Horizontal Direction: "+Units.str(u,val)+"\n";
 		s+="Region of Current Horizontal Direction: "+regionOfHorizontalDirection(val).toString()+"\n";
-		s+="Horizontal Direction Bands:\n"; 
+		s+="Horizontal Direction Bands:\n";
 		for (int i=0; i < horizontalDirectionBandsLength(); ++i) {
 			s+="  "+horizontalDirectionIntervalAt(i).toStringUnits(u)+" "+horizontalDirectionRegionAt(i).toString()+"\n";
-		} 
+		}
 		List<String> acs = new ArrayList<String>();
 		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
@@ -4433,7 +4496,7 @@ public class Daidalus {
 		s+="Horizontal Direction Resolution (right): "+Units.str(u,horizontalDirectionResolution(true))+"\n";
 		s+="Horizontal Direction Resolution (left): "+Units.str(u,horizontalDirectionResolution(false))+"\n";
 		s+="Preferred Horizontal Direction: ";
-		if (preferredHorizontalDirectionRightOrLeft()) { 
+		if (preferredHorizontalDirectionRightOrLeft()) {
 			s+="right\n";
 		} else {
 			s+="left\n";
@@ -4458,10 +4521,10 @@ public class Daidalus {
 		double val = core_.ownship.horizontalSpeed();
 		s+="Ownship Horizontal Speed: "+Units.str(u,val)+"\n";
 		s+="Region of Current Horizontal Speed: "+regionOfHorizontalSpeed(val).toString()+"\n";
-		s+="Horizontal Speed Bands:\n"; 
+		s+="Horizontal Speed Bands:\n";
 		for (int i=0; i < horizontalSpeedBandsLength(); ++i) {
 			s+="  "+horizontalSpeedIntervalAt(i).toStringUnits(u)+" "+horizontalSpeedRegionAt(i).toString()+"\n";
-		} 
+		}
 		List<String> acs = new ArrayList<String>();
 		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
@@ -4500,7 +4563,7 @@ public class Daidalus {
 		s+="Vertical Speed Bands:\n";
 		for (int i=0; i < verticalSpeedBandsLength(); ++i) {
 			s+="  "+verticalSpeedIntervalAt(i).toStringUnits(u)+" "+ verticalSpeedRegionAt(i).toString()+"\n";
-		} 
+		}
 		List<String> acs = new ArrayList<String>();
 		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
@@ -4539,7 +4602,7 @@ public class Daidalus {
 		s+="Altitude Bands:\n";
 		for (int i=0; i < altitudeBandsLength(); ++i) {
 			s+="  "+altitudeIntervalAt(i).toStringUnits(u)+" "+ altitudeRegionAt(i).toString()+"\n";
-		} 
+		}
 		List<String> acs = new ArrayList<String>();
 		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
@@ -4596,7 +4659,7 @@ public class Daidalus {
 	}
 
 	public String toPVS(boolean parameters) {
-		boolean comma;	
+		boolean comma;
 		String s="%%% INPUTS %%%\n";
 		if (parameters) {
 			s += "%%% Parameters:\n"+core_.parameters.toPVS()+"\n";
@@ -4623,7 +4686,7 @@ public class Daidalus {
 		s += "%%% Conflict Bands Aircraft (FAR,MID,NEAR):\n";
 		s += "( ";
 		List<String> acs = new ArrayList<String>();
-		comma = false;	
+		comma = false;
 		for (int regidx=1; regidx <= BandsRegion.NUMBER_OF_CONFLICT_BANDS; ++regidx) {
 			BandsRegion region = BandsRegion.regionFromOrder(regidx);
 			if (comma) {
@@ -4659,7 +4722,7 @@ public class Daidalus {
 				","+preferredHorizontalDirectionRightOrLeft()+")\n";
 		RecoveryInformation recovery = horizontalDirectionRecoveryInformation();
 		s += "%%% Horizontal Recovery Information:\n"+recovery.toPVS()+"\n";
-		s += "%%% Last Times to Direction Maneuver wrt Traffic Aircraft:\n(:"; 
+		s += "%%% Last Times to Direction Maneuver wrt Traffic Aircraft:\n(:";
 		comma = false;
 		for (int ac_idx = 0; ac_idx < core_.traffic.size(); ++ac_idx) {
 			if (comma) {
@@ -4695,7 +4758,7 @@ public class Daidalus {
 				","+preferredHorizontalSpeedUpOrDown()+")\n";
 		recovery = horizontalSpeedRecoveryInformation();
 		s += "%%% Horizontal Speed Information:\n"+recovery.toPVS()+"\n";
-		s += "%%% Last Times to Horizontal Speed Maneuver wrt Traffic Aircraft:\n(:"; 
+		s += "%%% Last Times to Horizontal Speed Maneuver wrt Traffic Aircraft:\n(:";
 		comma = false;
 		for (int ac_idx = 0; ac_idx < core_.traffic.size(); ++ac_idx) {
 			if (comma) {
@@ -4731,7 +4794,7 @@ public class Daidalus {
 				","+preferredVerticalSpeedUpOrDown()+")\n";
 		recovery = verticalSpeedRecoveryInformation();
 		s += "%%% Vertical Speed Information:\n"+recovery.toPVS()+"\n";
-		s += "%%% Last Times to Vertical Speed Maneuver wrt Traffic Aircraft:\n(:"; 
+		s += "%%% Last Times to Vertical Speed Maneuver wrt Traffic Aircraft:\n(:";
 		comma = false;
 		for (int ac_idx = 0; ac_idx < core_.traffic.size(); ++ac_idx) {
 			if (comma) {
@@ -4767,7 +4830,7 @@ public class Daidalus {
 				","+preferredAltitudeUpOrDown()+")\n";
 		recovery = altitudeRecoveryInformation();
 		s += "%%% Altitude Information:\n"+recovery.toPVS()+"\n";
-		s += "%%% Last Times to Altitude Maneuver wrt Traffic Aircraft:\n(:"; 
+		s += "%%% Last Times to Altitude Maneuver wrt Traffic Aircraft:\n(:";
 		comma = false;
 		for (int ac_idx = 0; ac_idx < core_.traffic.size(); ++ac_idx) {
 			if (comma) {
@@ -4779,7 +4842,7 @@ public class Daidalus {
 		}
 		s += " :)\n";
 
-		s += "%%% Time to Corrective Volume:\n"; 
+		s += "%%% Time to Corrective Volume:\n";
 		s += "(: ";
 		comma = false;
 		for (int ac=1; ac <= lastTrafficIndex(); ++ac) {
@@ -4798,7 +4861,7 @@ public class Daidalus {
 		comma = false;
 		for (int ac=1; ac <= lastTrafficIndex(); ++ac) {
 			if (comma) {
-				s += ", ";          
+				s += ", ";
 			} else {
 				comma = true;
 			}
@@ -4841,7 +4904,7 @@ public class Daidalus {
 	 * Use setMaxHorizontalSpeed instead
 	 */
 	public void setMaxGroundSpeed(double gs, String unit) {
-		setMaxHorizontalSpeed(gs,unit);		
+		setMaxHorizontalSpeed(gs,unit);
 	}
 
 	@Deprecated
@@ -4950,4 +5013,3 @@ public class Daidalus {
 
 
 }
-

@@ -156,42 +156,72 @@ public:
   double tcoa() const;
 
   /**
-   * Horizontal relative speed
+   * Horizontal relative speed (ownship wrt intruder)
    * @return Horizontal relative speed in internal units at current time
    */
   double horizontalRelativeSpeed() const;
 
   /**
-   * Horizontal relative speed
+   * Horizontal relative speed (ownship wrt intruder)
    * @param u units
    * @return Horizontal relative speed in specified units u at current time
    */
   double horizontalRelativeSpeed(const std::string& u) const;
 
   /**
-   * Vertical relative speed
+   * Horizontal closure rate
+   * @return Horizontal closure rate in internal units at current time
+   * If positive, aircraft are horizontally converging.
+   */
+  double horizontalClosureRate() const;
+
+  /**
+   * Horizontal closure rate
+   * @param u units
+   * @return Horizontal closure rate in specified units u at current time
+   * If positive, aircraft are horizontally converging.
+   */
+  double horizontalClosureRate(const std::string& u) const;
+
+  /**
+   * Vertical relative speed (ownship wrt intruder)
    * @return Vertical relative speed in internal units at current time
    */
   double verticalRelativeSpeed() const;
 
   /**
-   * Vertical relative speed
+   * Vertical relative speed (ownship wrt intruder)
    * @param u units
    * @return Vertical relative speed in specified units at current time
    */
   double verticalRelativeSpeed(const std::string& u) const;
 
-  /** 
-   * return SLoWC classification for SC-228 SLoWC value 
+  /**
+   * Vertical closure rate
+   * @return Vertical closure rate in internal units at current time
+   * If positive, aircraft are vertically converging.
+   */
+  double verticalClosureRate() const;
+
+  /**
+   * Vertical closure rate
+   * @param u units
+   * @return Vertical closure rate in specified units at current time
+   * If positive, aircraft are vertically converging.
+   */
+  double verticalClosureRate(const std::string& u) const;
+
+  /**
+   * return SLoWC classification for SC-228 SLoWC value
    **/
   static SLoWCClassification classifySLoWC(double slowc);
 
   static std::string SLoWCClassificationToString(SLoWCClassification slowc_class);
 
   /**
-	 * Severity of Loss of Well Clear calculation for one time instant, 0.0 (minimal) - 100.0 (catastrophic). 
+	 * Severity of Loss of Well Clear calculation for one time instant, 0.0 (minimal) - 100.0 (catastrophic).
 	 * For an encounter, it should take max of every instance (SC-228)
-	 **/ 
+	 **/
 	double SLoWC(double DMOD, double TAUMOD, double ZTHR) const;
 
   /**

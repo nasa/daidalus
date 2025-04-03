@@ -86,8 +86,8 @@ public:
     }
     *out << ", Conflict?, LoWC?, SLoWC, Severity";
 		line_units += ",,,%,";
-    *out << ", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
-    line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
+    *out << ", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
+    line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
     *out << ", Type of Detector";
     line_units += ",";
 		*out << ", Projected TimeVar";
@@ -148,7 +148,7 @@ public:
 			}
 			if (slowc >= 0) {
   			*out << ", " << Fm2(slowc); // SLoWC
-				*out << ", " << ConflictData::SLoWCClassificationToString(ConflictData::classifySLoWC(slowc)); 
+				*out << ", " << ConflictData::SLoWCClassificationToString(ConflictData::classifySLoWC(slowc));
 			} else {
 				*out << ",,";
 			}
@@ -156,6 +156,8 @@ public:
       *out << ", " << FmPrecision(daa.currentVerticalSeparation(ac,uver));
       *out << ", " << FmPrecision(daa.horizontalRelativeSpeed(ac,uhs));
       *out << ", " << FmPrecision(daa.verticalRelativeSpeed(ac,uvs));
+      *out << ", " << FmPrecision(daa.horizontalClosureRate(ac,uhs));
+      *out << ", " << FmPrecision(daa.verticalClosureRate(ac,uvs));
       *out << ", " << FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor));
       *out << ", " << FmPrecision(daa.predictedVerticalMissDistance(ac,uver));
       *out << ", " << FmPrecision(daa.timeToHorizontalClosestPointOfApproach(ac));
@@ -169,7 +171,7 @@ public:
       *out << ",";
       if (detector.getSimpleSuperClassName() == "WCV_tvar") {
         // tvar is either taumod, tcpa, or tep depending on the type of detector
-        double tvar  = ((WCV_tvar&)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());	
+        double tvar  = ((WCV_tvar&)detector).horizontal_tvar(det.get_s().vect2(),det.get_v().vect2());
         if (tvar >= 0) {
           *out << " " << FmPrecision(tvar);
         }
@@ -193,7 +195,7 @@ int main(int argc, const char* argv[]) {
 				if (startsWith(arga,"-")){
 					std::cerr << "** Error: Unknown option (" << arga << ")" << std::endl;
 					exit(1);
-				} 			
+				}
 			}
 		}
 		if (processor.getConfigurationName().empty()) {
@@ -218,7 +220,7 @@ int main(int argc, const char* argv[]) {
 		  processor.out = &fout;
       std::cerr << "Processing DAIDALUS file " << input_file << std::endl;
       std::cerr << "Generating CSV file " << output_file << std::endl;
-    } 
+    }
     processor.processFile(input_file);
     if (fout.is_open()) {
       fout.close();
