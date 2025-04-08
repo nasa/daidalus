@@ -84,8 +84,8 @@ public:
       *out << ", Time to Volume of Alert(" << level << ")";
       line_units += ", [s]";
     }
-    *out << ", Conflict?, LoWC?, SLoWC, Severity";
-		line_units += ",,,%,";
+    *out << ", Conflict?, LoWC?, SLoWC, Severity, NMAC?";
+		line_units += ",,,%,,";
     *out << ", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
     line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
     *out << ", Type of Detector";
@@ -152,6 +152,9 @@ public:
 			} else {
 				*out << ",,";
 			}
+      bool nmac = daa.currentHorizontalSeparation(ac) <= daa.getHorizontalNMAC() &&
+        daa.currentVerticalSeparation(ac) <= daa.getVerticalNMAC();
+      *out << ", " << Fmb(nmac);
       *out << ", " << FmPrecision(daa.currentHorizontalSeparation(ac,uhor));
       *out << ", " << FmPrecision(daa.currentVerticalSeparation(ac,uver));
       *out << ", " << FmPrecision(daa.horizontalRelativeSpeed(ac,uhs));
