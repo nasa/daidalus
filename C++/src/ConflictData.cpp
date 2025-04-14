@@ -264,7 +264,7 @@ double ConflictData::verticalClosureRate(const std::string& u) const {
  * return SLoWC classification for SC-228 SLoWC value
  **/
 ConflictData::SLoWCClassification ConflictData::classifySLoWC(double slowc) {
-  if (Util::almost_equals(slowc,0.0)) return ConflictData::SLoWC_None;
+  if (slowc <= 0.0) return ConflictData::SLoWC_None;
   else if (slowc <= 17) return ConflictData::SLoWC_Minimal;
   else if (slowc <= 33) return ConflictData::SLoWC_Minor;
   else if (slowc <= 47) return ConflictData::SLoWC_Major;
@@ -274,12 +274,12 @@ ConflictData::SLoWCClassification ConflictData::classifySLoWC(double slowc) {
 
 std::string ConflictData::SLoWCClassificationToString(ConflictData::SLoWCClassification slowc_class) {
   switch (slowc_class) {
-    case 0: return "SLoWC_None";
-    case 1: return "SLoWC_Minimal";
-    case 2: return "SLoWC_Minor";
-    case 3: return "SLoWC_Major";
-    case 4: return "SLoWC_Hazardous";
-    default: return "SLoWC_Catastrophic";
+    case 0: return "SLoWC_Catastrophic";
+    case 1: return "SLoWC_Hazardous";
+    case 2: return "SLoWC_Major";
+    case 3: return "SLoWC_Minor";
+    case 4: return "SLoWC_Minimal";
+    default: return "SLoWC_None";
   }
 }
 

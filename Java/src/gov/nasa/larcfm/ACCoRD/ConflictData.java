@@ -271,15 +271,16 @@ public class ConflictData extends LossData {
 		return Units.to(u,verticalClosureRate());
 	}
 
+	// numeric value can be gotten via ordinal()+1, with 6 being "none"
 	enum SLoWCClassification {
-		SLoWC_None, SLoWC_Minimal,SLoWC_Minor, SLoWC_Major, SLoWC_Hazardous, SLoWC_Catastrophic
+		SLoWC_Catastrophic, SLoWC_Hazardous, SLoWC_Major, SLoWC_Minor, SLoWC_Minimal, SLoWC_None
 	}
 
 	/**
 	 * return SLoWC classification for SC-228 SLoWC value
 	 **/
 	public static SLoWCClassification classifySLoWC(double slowc) {
-		if (Util.almost_equals(slowc,0.0)) return SLoWCClassification.SLoWC_None;
+		if (slowc <= 0.0) return SLoWCClassification.SLoWC_None;
 		else if (slowc <= 17) return SLoWCClassification.SLoWC_Minimal;
 		else if (slowc <= 33) return SLoWCClassification.SLoWC_Minor;
 		else if (slowc <= 47) return SLoWCClassification.SLoWC_Major;

@@ -40,7 +40,7 @@ private:
 public:
 
 	enum SLoWCClassification {
-    SLoWC_None, SLoWC_Minimal,SLoWC_Minor, SLoWC_Major, SLoWC_Hazardous, SLoWC_Catastrophic
+    SLoWC_Catastrophic, SLoWC_Hazardous, SLoWC_Major, SLoWC_Minor, SLoWC_Minimal, SLoWC_None
 	};
 
   std::string toString() const;
