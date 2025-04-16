@@ -145,8 +145,8 @@ public class DaidalusAlerting extends DAABatchProcessor {
 		}
 		out.print(", Conflict?, LoWC?, SLoWC, Severity, NMAC?");
 		line_units += ",,,%,,";
-		out.print(", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA");
-		line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
+		out.print(", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Horizontal Relative Angle, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA");
+		line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], [deg], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
 		out.print(", Type of Detector");
 		line_units += ",";
 		out.print(", Projected TimeVar");
@@ -216,7 +216,7 @@ public class DaidalusAlerting extends DAABatchProcessor {
 			out.print(", "+f.FmPrecision(daa.currentHorizontalSeparation(ac,uhor)));
 			out.print(", "+f.FmPrecision(daa.currentVerticalSeparation(ac,uver)));
 			out.print(", "+f.FmPrecision(daa.horizontalRelativeSpeed(ac,uhs)));
-			out.print(", "+f.FmPrecision(daa.verticalRelativeSpeed(ac,uvs)));
+			out.print(", "+f.FmPrecision(daa.horizontalRelativeAngle(ac,"deg")));
 			out.print(", "+f.FmPrecision(daa.horizontalClosureRate(ac,uhs)));
 			out.print(", "+f.FmPrecision(daa.verticalClosureRate(ac,uvs)));
 			out.print(", "+f.FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor)));

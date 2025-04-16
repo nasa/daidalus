@@ -86,8 +86,8 @@ public:
     }
     *out << ", Conflict?, LoWC?, SLoWC, Severity, NMAC?";
 		line_units += ",,,%,,";
-    *out << ", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Vertical Relative Speed, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
-    line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], ["+uvs+"], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
+    *out << ", Horizontal Separation, Vertical Separation, Horizontal Relative Speed, Horizontal Relative Angle, Horizontal Closure Rate, Vertical Closure Rate, Projected HMD, Projected VMD, Projected TCPA, Projected DCPA, Projected TCOA";
+    line_units += ", ["+uhor+"], ["+uver+"], ["+uhs+"], [deg], ["+uhs+"], ["+uvs+"], ["+uhor+"], ["+uver+"], [s], ["+uhor+"], [s]";
     *out << ", Type of Detector";
     line_units += ",";
 		*out << ", Projected TimeVar";
@@ -158,7 +158,7 @@ public:
       *out << ", " << FmPrecision(daa.currentHorizontalSeparation(ac,uhor));
       *out << ", " << FmPrecision(daa.currentVerticalSeparation(ac,uver));
       *out << ", " << FmPrecision(daa.horizontalRelativeSpeed(ac,uhs));
-      *out << ", " << FmPrecision(daa.verticalRelativeSpeed(ac,uvs));
+      *out << ", " << FmPrecision(daa.horizontalRelativeAngle(ac,"deg"));
       *out << ", " << FmPrecision(daa.horizontalClosureRate(ac,uhs));
       *out << ", " << FmPrecision(daa.verticalClosureRate(ac,uvs));
       *out << ", " << FmPrecision(daa.predictedHorizontalMissDistance(ac,uhor));

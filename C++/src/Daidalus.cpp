@@ -3920,7 +3920,7 @@ int Daidalus::alertLevelOfRegion(int ac_idx, BandsRegion::Region region) {
 /* DAA Performance Metrics */
 
 /**
- * Returns current horizontal separation, in internal units, with aircraft at index ac_idx.
+ * Returns current horizontal separation, in internal units, between ownship and aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
 double Daidalus::currentHorizontalSeparation(int ac_idx) const {
@@ -3933,7 +3933,7 @@ double Daidalus::currentHorizontalSeparation(int ac_idx) const {
 }
 
 /**
- * Returns current horizontal separation, in given units, with aircraft at index ac_idx.
+ * Returns current horizontal separation, in given units, between ownship and aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
 double Daidalus::currentHorizontalSeparation(int ac_idx,const std::string& u) const {
@@ -3945,7 +3945,7 @@ double Daidalus::currentHorizontalSeparation(int ac_idx,const std::string& u) co
 }
 
 /**
- * Returns current vertical separation, in internal units, with aircraft at index ac_idx.
+ * Returns current vertical separation, in internal units, between ownship and aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
 double Daidalus::currentVerticalSeparation(int ac_idx) const {
@@ -3958,7 +3958,7 @@ double Daidalus::currentVerticalSeparation(int ac_idx) const {
 }
 
 /**
- * Returns current vertical separation, in given units, with aircraft at index ac_idx.
+ * Returns current vertical separation, in given units, between ownship and aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
 double Daidalus::currentVerticalSeparation(int ac_idx,const std::string& u) const {
@@ -3970,7 +3970,7 @@ double Daidalus::currentVerticalSeparation(int ac_idx,const std::string& u) cons
 }
 
 /**
- * Returns horizontal relative speed (ownship wrt intruder), in internal units, with aircraft at index ac_idx.
+ * Returns norm of horizontal relative velocity, in internal units, between ownship and aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
 double Daidalus::horizontalRelativeSpeed(int ac_idx) const {
@@ -3983,7 +3983,7 @@ double Daidalus::horizontalRelativeSpeed(int ac_idx) const {
 }
 
 /**
- * Returns horizontal relative speed (ownship wrt intruder), in given units, with aircraft at index ac_idx.
+ * Returns norm of horizontal relative velocity, in given units, between ownship and aircraft at index ac_idx.
  * Returns NaN if aircraft index is not valid
  */
 double Daidalus::horizontalRelativeSpeed(int ac_idx,const std::string& u) const {
@@ -3995,7 +3995,7 @@ double Daidalus::horizontalRelativeSpeed(int ac_idx,const std::string& u) const 
 }
 
 /**
- * Returns horizontal closure rate, in internal units, with aircraft at index ac_idx.
+ * Returns horizontal closure rate, in internal units, betwen ownship and aircraft at index ac_idx.
  * If positive, aircraft are horizontally converging.
  * Returns NaN if aircraft index is not valid
  */
@@ -4014,7 +4014,7 @@ double Daidalus::horizontalClosureRate(int ac_idx) const {
 }
 
 /**
- * Returns horizontal closure rate, in given units, with aircraft at index ac_idx.
+ * Returns horizontal closure rate, in given units, between ownship and aircraft at index ac_idx.
  * If positive, aircraft are horizontally converging.
  * Returns NaN if aircraft index is not valid
  */
@@ -4027,32 +4027,45 @@ double Daidalus::horizontalClosureRate(int ac_idx,const std::string& u) const {
 }
 
 /**
- * Returns vertical relative speed (ownship wrt intruder), in internal units, with aircraft at index ac_idx.
+ * Returns angle, in [0-pi] radians, between the horizontal velocity vectors of the
+ * ownship and aircraft at index ac_idx. This angle can be used to classify encounters
+ * per ICAO Procedures for Air Navigation Services - Air Traffic Management (PANS-ATM) Document 4444
+ * as follows:
+ * [0,pi/4) : same tracks
+ * [pi/4,3pi/4) : crossing tracks
+ * [3pi/4,pi]  : reciprocal traks
  * Returns NaN if aircraft index is not valid
  */
-double Daidalus::verticalRelativeSpeed(int ac_idx) const {
+double Daidalus::horizontalRelativeAngle(int ac_idx) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-    double  vz = core_.ownship.get_v().z() - core_.traffic[ac_idx-1].get_v().z();
-    return vz;
+    double trko = core_.ownship.get_v().vect2().angle();
+    double trki = core_.traffic[ac_idx-1].get_v().vect2().angle();
+    return std::abs(Util::to_pi(trko-trki));
   } else {
     return NaN;
   }
 }
 
 /**
- * Returns vertical relative speed (ownship wrt intruder), in given units, with aircraft at index ac_idx.
+ * Returns angle, in [0-180] degrees, between the horizontal velocity vectors of the
+ * ownship and aircraft at index ac_idx. This angle can be used to classify encounters
+ * per ICAO Procedures for Air Navigation Services - Air Traffic Management (PANS-ATM) Document 4444
+ * as follows:
+ * [0,45) : same tracks
+ * [45,135) : crossing tracks
+ * [135,180]  : reciprocal traks
  * Returns NaN if aircraft index is not valid
  */
-double Daidalus::verticalRelativeSpeed(int ac_idx,const std::string& u) const {
+double Daidalus::horizontalRelativeAngle(int ac_idx,const std::string& u) const {
   if (1 <= ac_idx && ac_idx <= lastTrafficIndex()) {
-    return Units::to(u,verticalRelativeSpeed(ac_idx));
+    return Units::to(u,horizontalRelativeAngle(ac_idx));
   } else {
     return NaN;
   }
 }
 
 /**
-  * Returns vertical closure rate, in internal units, with aircraft at index ac_idx.
+  * Returns vertical closure rate, in internal units, between ownship and aircraft at index ac_idx.
   * If positive, aircraft are vertically converging.
   * Returns NaN if aircraft index is not valid
 */
@@ -4070,7 +4083,7 @@ double Daidalus::verticalClosureRate(int ac_idx) const {
 }
 
 /**
- * Returns vertical closure rate, in given units, with aircraft at index ac_idx.
+ * Returns vertical closure rate, in given units, between ownship and aircraft at index ac_idx.
  * If positive, aircraft are vertically converging.
  * Returns NaN if aircraft index is not valid
 */
@@ -4083,7 +4096,7 @@ double Daidalus::verticalClosureRate(int ac_idx,const std::string& u) const {
 }
 
 /**
- * Returns predicted HMD, in internal units, with aircraft at index ac_idx (up to lookahead time),
+ * Returns predicted HMD, in internal units, between ownship and aircraft at index ac_idx (up to lookahead time),
  * assuming straight line trajectory. Returns NaN if aircraft index is not valid
  */
 double Daidalus::predictedHorizontalMissDistance(int ac_idx) const {
@@ -4096,7 +4109,7 @@ double Daidalus::predictedHorizontalMissDistance(int ac_idx) const {
   }
 }
 /**
- * Returns predicted HMD, in provided units, with aircraft at index ac_idx (up to lookahead time),
+ * Returns predicted HMD, in provided units, between ownship and aircraft at index ac_idx (up to lookahead time),
  * assuming straight line trajectory. Returns NaN if aircraft index is not valid
  */
 double Daidalus::predictedHorizontalMissDistance(int ac_idx, const std::string& u) const {
@@ -4108,7 +4121,7 @@ double Daidalus::predictedHorizontalMissDistance(int ac_idx, const std::string& 
 }
 
 /**
- * Returns predicted VMD, in internal units, with aircraft at index ac_idx (up to lookahead time),
+ * Returns predicted VMD, in internal units, between ownship and aircraft at index ac_idx (up to lookahead time),
  * assuming straight line trajectory. Returns NaN if aircraft index is not valid
  */
 double Daidalus::predictedVerticalMissDistance(int ac_idx) const {
@@ -4122,7 +4135,7 @@ double Daidalus::predictedVerticalMissDistance(int ac_idx) const {
 }
 
 /**
- * Returns predicted VMD, in provided units, with aircraft at index ac_idx (up to lookahead time),
+ * Returns predicted VMD, in provided units, between ownship and aircraft at index ac_idx (up to lookahead time),
  * assuming straight line trajectory. Return NaN if aircraft index is not valid
  */
 double Daidalus::predictedVerticalMissDistance(int ac_idx, const std::string& u) const {
@@ -4134,7 +4147,7 @@ double Daidalus::predictedVerticalMissDistance(int ac_idx, const std::string& u)
 }
 
 /**
- * Returns time, in seconds, to horizontal closest point of approach with aircraft
+ * Returns time, in seconds, to horizontal closest point of approach between ownship and aircraft
  * at index ac_idx, assuming straight line trajectory.
  * If aircraft are diverging, the returned time is 0.
  * Returns NaN if aircraft index is not valid
@@ -4151,7 +4164,7 @@ double Daidalus::timeToHorizontalClosestPointOfApproach(int ac_idx) const {
 
 
 /**
- * Returns time, in given units, to horizontal closest point of approach with aircraft
+ * Returns time, in given units, to horizontal closest point of approach between ownship and aircraft
  * at index ac_idx, assuming straight line trajectory.
  * If aircraft are diverging, the returned time is 0.
  * Returns NaN if aircraft index is not valid
@@ -4165,7 +4178,7 @@ double Daidalus::timeToHorizontalClosestPointOfApproach(int ac_idx, const std::s
 }
 
 /**
- * Returns distance, in internal units, at horizontal closest point of approach with aircraft
+ * Returns distance, in internal units, at horizontal closest point of approach between ownship and aircraft
  * at index ac_idx, assuming straight line trajectory.
  * If aircraft are diverging, the returned distance is current horizontal separation.
  * Returns NaN if aircraft index is not valid
@@ -4186,7 +4199,7 @@ double Daidalus::distanceAtHorizontalClosestPointOfApproach(int ac_idx) const {
 }
 
 /**
- * Returns distance, in given units, at horizontal closest point of approach with aircraft
+ * Returns distance, in given units, at horizontal closest point of approach between ownship and aircraft
  * at index ac_idx, assuming straight line trajectory.
  * If aircraft are diverging, the returned distance is current horizontal separation.
  * Returns NaN if aircraft index is not valid
@@ -4200,7 +4213,7 @@ double Daidalus::distanceAtHorizontalClosestPointOfApproach(int ac_idx, const st
 }
 
 /**
- * Returns time, in seconds, to co-altitude with aircraft
+ * Returns time, in seconds, to co-altitude between ownship and aircraft
  * at index ac_idx, assuming straight line trajectory.
  * If aircraft are diverging, returns negative time. If
  * vertical closure is 0, returns negative infinite.
@@ -4224,7 +4237,7 @@ double Daidalus::timeToCoAltitude(int ac_idx) const {
 
 
 /**
- * Returns time, in given units, to co-altitude with aircraft
+ * Returns time, in given units, to co-altitude between ownship and aircraft
  * at index ac_idx, assuming straight line trajectory.
  * If aircraft are diverging, returns negative value.
  * Returns NaN if aircraft index is not valid or if vertical closure is 0
@@ -4239,7 +4252,7 @@ double Daidalus::timeToCoAltitude(int ac_idx, const std::string& u) const {
 
 /**
  * Returns modified tau time, in seconds, for distance DMOD (given in internal units),
- * with respect to aircraft at index ac_idx.
+ * between ownship and aircraft at index ac_idx.
  * If aircraft are diverging or DMOD is greater than current range, returns -1.
  * Returns NaN if aircraft index is not valid or if vertical closure is 0
  */
@@ -4260,7 +4273,7 @@ double Daidalus::modifiedTau(int ac_idx, double DMOD) const {
 
 /**
  * Returns modified tau time, in given units, for distance DMOD (given in DMODu units),
- * with respect to aircraft at index ac_idx.
+ * between ownship and aircraft at index ac_idx.
  * If aircraft are diverging or DMOD is greater than current range, returns -1.
  * Returns NaN if aircraft index is not valid or if vertical closure is 0
  */
