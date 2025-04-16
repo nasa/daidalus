@@ -4139,7 +4139,7 @@ public class Daidalus {
 	 * as follows:
 	 * [0,pi/4) : same tracks
 	 * [pi/4,3pi/4) : crossing tracks
-	 * [3pi/4,pi]  : reciprocal traks
+	 * [3pi/4,pi]  : reciprocal tracks (head-on)
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double horizontalRelativeAngle(int ac_idx) {
@@ -4159,7 +4159,7 @@ public class Daidalus {
 	 * as follows:
 	 * [0,45) : same tracks
 	 * [45,135) : crossing tracks
-	 * [135,180]  : reciprocal traks
+	 * [135,180]  : reciprocal tracks (head-on)
 	 * Returns NaN if aircraft index is not valid
 	 */
 	public double horizontalRelativeAngle(int ac_idx,String u) {
