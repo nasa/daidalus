@@ -1,5 +1,5 @@
 /* A Lat/Lon/Alt position
- * 
+ *
  *  Authors:  George Hagen              NASA Langley Research Center
  *           Ricky Butler              NASA Langley Research Center
  *           Jeff Maddalon             NASA Langley Research Center
@@ -18,14 +18,14 @@ import java.util.ArrayList;
 
 /**
  * Container to hold a latitude/longitude/altitude position.
- * 
- * <p>Programmer's note: There has been a tendency to have methods in LatLonAlt rely on functions in GreatCircle.  But GreatCircle 
+ *
+ * <p>Programmer's note: There has been a tendency to have methods in LatLonAlt rely on functions in GreatCircle.  But GreatCircle
  * depends on LatLonAlt in a fundamental way.  Although Java handles circular dependencies in a reasonable manner, they
  * can be confusing and error-prone in many contexts.  At best, circular references are dangerous.  So to avoid the danger, should
  * GreatCircle depend on LatLonAlt or the other way around?  The choice has been made that GreatCircle will depend on
  * LatLonAlt.  Therefore, please do not add any references to GreatCircle in this class.  Over time we will remove
  * any remaining GreatCircle references here.  One important reason for the dependences being setup the way they are
- * is that LatLonAlt can be used with other Earth models besides the spherical, non-rotating model used in GreatCircle.</p>  
+ * is that LatLonAlt can be used with other Earth models besides the spherical, non-rotating model used in GreatCircle.</p>
  */
 public final class LatLonAlt {
 
@@ -39,7 +39,7 @@ public final class LatLonAlt {
 	private final double alt_;
 
 	/**
-	 * Creates a new position 
+	 * Creates a new position
 	 */
 	private LatLonAlt(double lat, double lon, double alt) {
 		lat_ = lat;
@@ -57,7 +57,7 @@ public final class LatLonAlt {
 
 	/**
 	 * Creates a new position that is a copy of <code>v</code>.
-	 * 
+	 *
 	 * @param v position object
 	 * @return new LatLonAlt object
 	 */
@@ -67,7 +67,7 @@ public final class LatLonAlt {
 
 	/**
 	 * Creates a new position with coordinates (<code>lat</code>,<code>lon</code>,<code>alt</code>).
-	 * 
+	 *
 	 * @param lat latitude [deg north latitude]
 	 * @param lon longitude [deg east longitude]
 	 * @param alt altitude [ft]
@@ -83,7 +83,7 @@ public final class LatLonAlt {
 		double latitude = Units.from("deg", lat);
 		double longitude = Units.from("deg", lon);
 		double altitude = Units.from("ft", alt);
-		
+
 		return normalize(latitude, longitude, altitude);
 	}
 
@@ -91,13 +91,13 @@ public final class LatLonAlt {
 		double latitude = Util.to_pi2(Units.from("deg", lat));
 		double longitude = Util.to_2pi(Units.from("deg", lon));
 		double altitude = Units.from("ft", alt);
-		
+
 		return mk(latitude,longitude,altitude);
 	}
 
 	/**
 	 * Creates a new position with coordinates (<code>lat</code>,<code>lon</code>,<code>alt</code>).
-	 * 
+	 *
 	 * @param lat latitude [lat_unit north latitude]
 	 * @param lat_unit units of latitude
 	 * @param lon longitude [lon_unit east longitude]
@@ -111,11 +111,11 @@ public final class LatLonAlt {
 				Units.from(lon_unit, lon),
 				Units.from(alt_unit, alt));
 	}
-	
+
 
 	/**
 	 * Creates a new position with given values
-	 * 
+	 *
 	 * @param lat latitude [internal]
 	 * @param lon longitude [internal]
 	 * @param alt altitude [internal]
@@ -127,7 +127,7 @@ public final class LatLonAlt {
 
 	/**
 	 * Creates a new LatLonAlt with only altitude changed
-	 * 
+	 *
 	 * @param alt altitude [internal]
 	 * @return new LatLonAlt object with modified altitude
 	 */
@@ -137,7 +137,7 @@ public final class LatLonAlt {
 
 	/**
 	 * Creates a new LatLonAlt with only altitude changed
-	 * 
+	 *
 	 * @param alt altitude [feet]
 	 * @return new LatLonAlt object with modified altitude
 	 */
@@ -188,16 +188,16 @@ public final class LatLonAlt {
 
 
 	/**
-	 * Return a copy of the current LatLonAlt with a zero altitude.  This is useful for 
-	 * creating projections that need to preserve altitude 
-	 * 
+	 * Return a copy of the current LatLonAlt with a zero altitude.  This is useful for
+	 * creating projections that need to preserve altitude
+	 *
 	 * @return a LatLonAlt copy with a zero altitude
 	 */
 	public LatLonAlt zeroAlt() {
 		return new LatLonAlt(lat_,lon_,0.0);
 	}
 
-	/** Return latitude in the given units in a northerly direction 
+	/** Return latitude in the given units in a northerly direction
 	 * @param units to return a value in
 	 * @return latitude altitude
 	 */
@@ -205,7 +205,7 @@ public final class LatLonAlt {
 		return Units.to(units, lat_);
 	}
 
-	/** Return longitude in the given units in an easterly direction 
+	/** Return longitude in the given units in an easterly direction
 	 * @param units to return a value in
 	 * @return longitude in [units]
 	 */
@@ -213,17 +213,17 @@ public final class LatLonAlt {
 		return Units.to(units, lon_);
 	}
 
-	/** Return altitude in the given units 
+	/** Return altitude in the given units
 	 * @param units to return a value in
 	 * @return altitude
 	 */
 	public double altitude(String units) {
 		return Units.to(units, alt_);
-	}	
+	}
 
 	/** Compute a new lat/lon that is offset by dn meters north and de meters east.
 	 * This is a computationally fast estimate, and only should be used for relatively short distances.
-	 * 
+	 *
 	 * @param dn  offset in north direction (m)
 	 * @param de  offset in east direction  (m)
 	 * @return new position
@@ -237,7 +237,7 @@ public final class LatLonAlt {
 
 	/** Compute a new lat/lon that is obtained by moving with velocity vo for tm secs
 	 * This is a computationally fast estimate, and only should be used for relatively short distances.
-	 * 
+	 *
 	 * @param vo   velocity away from original position
 	 * @param tm   time of relocation
 	 * @return new lat/lon position in direction v0
@@ -246,7 +246,7 @@ public final class LatLonAlt {
 		double dn = vo.vect3().Scal(tm).y;
 		double de = vo.vect3().Scal(tm).x;
 		double nAlt = alt_ + vo.z()*tm;
-		return linearEst(dn,de).mkAlt(nAlt);   
+		return linearEst(dn,de).mkAlt(nAlt);
 	}
 
 	public double distanceH(LatLonAlt lla2) {
@@ -261,26 +261,26 @@ public final class LatLonAlt {
 		return Double.isNaN(lat_) || Double.isNaN(lon_) || Double.isNaN(alt_);
 	}
 
-	/** return the antipodal point corresponding to this LatLonAlt 
+	/** return the antipodal point corresponding to this LatLonAlt
 	 * @return the antipode point to this object
 	 * */
 	public LatLonAlt antipode() {
 		return LatLonAlt.mk(-lat_, Util.to_pi(lon_+Math.PI), alt_);
 	}
 
-	/** Return latitude in internal units 
+	/** Return latitude in internal units
 	 * @return latitude value
 	 * */
 	public double lat() {
 		return lat_;
 	}
-	/** Return longitude in internal units 
+	/** Return longitude in internal units
 	 * @return longitude value
 	 * */
 	public double lon() {
 		return lon_;
 	}
-	/** Return altitude in internal units 
+	/** Return altitude in internal units
 	 * @return altitude value
 	 * */
 	public double alt() {
@@ -292,14 +292,14 @@ public final class LatLonAlt {
 		return toString("deg","deg","ft",Constants.get_output_precision());
 	}
 
-	/** Return a string representation in units of [deg,deg,ft] with user-specified precision 
+	/** Return a string representation in units of [deg,deg,ft] with user-specified precision
 	 * @param p number of digits of precision for output
 	 * @return a string representation
 	 * */
 	public String toString(int p) {
 		return toString("deg","deg","ft",p);
 	}
-	
+
 	/** Return a string representation consistent with StateReader or PlanReader
 	 * with user-specified units and precision
 	 *
@@ -312,9 +312,9 @@ public final class LatLonAlt {
 		return toString(latunit,lonunit,zunit,Constants.get_output_precision());
 	}
 
-	/** Return a string representation  
-	 * with user-specified units and precision 
-	 * 
+	/** Return a string representation
+	 * with user-specified units and precision
+	 *
 	 * @param latunit units for latitude
 	 * @param lonunit units for longitude
 	 * @param zunit units for altitude
@@ -332,7 +332,7 @@ public final class LatLonAlt {
 	}
 
 	/**
-	 * Present the LatLonAlt object in a a format like 39°20.01'N, 85°10.53'W, 1000.00 [ft]
+	 * Present the LatLonAlt object in a a format like 39.20.01'N, 85.10.53'W, 1000.00 [ft]
 	 * @param precision number of digits of precision for the minutes and altitude.
 	 * @return a string
 	 */
@@ -344,7 +344,7 @@ public final class LatLonAlt {
 		} else {
 			sb.append("S, ");
 		}
-		
+
 		sb.append(decimal_minutes_string(lon(), precision));
 		if (longitude("deg") > 0) {
 			sb.append("E, ");
@@ -354,10 +354,10 @@ public final class LatLonAlt {
 		sb.append(Units.str("ft", alt(), precision));
 		return sb.toString();
 	}
-	
 
-	
-	/** String representation 
+
+
+	/** String representation
 	 * @param precision number of digits of precision for output
 	 * @return string representation
 	 * */
@@ -373,7 +373,7 @@ public final class LatLonAlt {
 
 	/**
 	 * Produce a string representation in decimal degrees, using the unicode degree symbol.
-	 * The units of the output are [deg of latitude, deg of longitude, ft of altitude] 
+	 * The units of the output are [deg of latitude, deg of longitude, ft of altitude]
 	 * @param precision number of digits of precision
 	 * @return a string
 	 */
@@ -399,8 +399,8 @@ public final class LatLonAlt {
 
 	/**
 	 * Given an angle in radians, produce a string representation of this
-	 * angle in degrees with decimal minutes, in the format like DD°MM.MMM'
-	 * @param angle angle to convert into a 
+	 * angle in degrees with decimal minutes, in the format like DD.MM.MMM'
+	 * @param angle angle to convert into a
 	 * @param precision number of digits of precision for the minutes
 	 * @return string
 	 */
@@ -425,8 +425,8 @@ public final class LatLonAlt {
 	/**
 	 * Provide a string representation of this object in the 'Degree, Decimal Minutes' convention.
 	 * Example: 39 degrees, 20.01 minutes north latitude, 85 degrees, 10.53 minutes west longitude is represented as N392001W0851053 (with a precision = 2)
-	 * 
-	 * @param precision number of digits of precision for the decimal minutes. 
+	 *
+	 * @param precision number of digits of precision for the decimal minutes.
 	 * @return the string representation
 	 */
 	public String toStringDecimalMinutes(int precision) {
@@ -473,10 +473,10 @@ public final class LatLonAlt {
 	 * (radians). The flag indicates if this angle is north (latitude) or east
 	 * (longitude).  If the angle does not represent a latitude/longitude (it
 	 * is only an angle), then set the north_east flag tbo true.<p>
-	 * 
-	 * If the degrees is negative (representing 
+	 *
+	 * If the degrees is negative (representing
 	 * south or west), then the flag is ignored.
-	 * 
+	 *
 	 * @param degrees value of degrees
 	 * @param minutes value of minutes
 	 * @param seconds value of seconds
@@ -495,11 +495,11 @@ public final class LatLonAlt {
 						(degrees + minutes / 60.0 + seconds / 3600.0));
 	}
 
-	/** Convert a string in the form "dd:mm:ss" into a decimal angle, where dd represent degrees, 
+	/** Convert a string in the form "dd:mm:ss" into a decimal angle, where dd represent degrees,
 	 * mm represents minutes, and ss represents seconds.  Examples include
 	 * "46:55:00"  and "-111:57:00".
-	 * 
-	 * @param degMinSec  Lat/Lon string 
+	 *
+	 * @param degMinSec  Lat/Lon string
 	 * @return numbers of degrees in decimal form
 	 */
 	public static double parse_degrees(String degMinSec) {
@@ -512,7 +512,7 @@ public final class LatLonAlt {
 		if (dms.length >= 1) {
 			degrees = Util.parse_double(dms[0]);
 			sgn = Util.sign(degrees);
-			if (dms.length >= 2) {				
+			if (dms.length >= 2) {
 				minutes = Util.parse_double(dms[1]);
 				if (dms.length >= 3) {
 					seconds = Util.parse_double(dms[2]);
@@ -524,7 +524,7 @@ public final class LatLonAlt {
 
 	/**
 	 * Parse strings like "40-51-35.490N" or "115-37-17.070W" into a double
-	 * 
+	 *
 	 * @param degMinSec string representing the angle
 	 * @return a floating point representation of the angle.
 	 */
@@ -539,21 +539,21 @@ public final class LatLonAlt {
 		return decimal;
 	}
 
-	/** Convert a "structured" double in the form "[-][d]ddmmss.ss" into a standard decimal angle, where [d]dd represent degrees, 
+	/** Convert a "structured" double in the form "[-][d]ddmmss.ss" into a standard decimal angle, where [d]dd represent degrees,
 	 * mm represents minutes, and ss.ss represents seconds.  Examples include
-	 * "0465500.00"  and "-115701.15".  
-	 * 
+	 * "0465500.00"  and "-115701.15".
+	 *
 	 * @param degMinSec  Lat/Lon "structured" double
 	 * @return numbers of degrees in decimal form
 	 */
-	public static double parse_degrees(double degMinSec) {		
+	public static double parse_degrees(double degMinSec) {
 		boolean north_east = true;
 		if (degMinSec < 0.0) {
 			degMinSec = Math.abs(degMinSec);
 			north_east = false;
 		}
 
-		double degrees = ((long)(degMinSec / 10000.0)); 
+		double degrees = ((long)(degMinSec / 10000.0));
 		double minutes = (double)((long)(degMinSec / 100.0)) - 100*degrees;
 		double seconds = degMinSec - 10000.0*degrees - 100.0*minutes;
 
@@ -581,7 +581,7 @@ public final class LatLonAlt {
 
 		// return invalid LatLon if the input is not in the expected form (latitude first, both lat and lon, minimum degrees defined)
 		if ( (name.charAt(0)!='N' && name.charAt(0)!='S') || (name.indexOf('W')==-1 && name.indexOf('E')==-1) || name.length()<7 ) {
-			//	f.pln(" $$$$$$$$$$$ "+name.charAt(0)+" index = "+name.indexOf('W')); 
+			//	f.pln(" $$$$$$$$$$$ "+name.charAt(0)+" index = "+name.indexOf('W'));
 			return LatLonAlt.INVALID;
 		}
 
@@ -623,9 +623,9 @@ public final class LatLonAlt {
 	/**
 	 * This parses a string in degree, minutes, seconds format into a decimal degree value.
 	 * @param name this must be one or more groups of numbers separated by a direction character (NSEW), a space, the degree sign (\u00B0), ' (min), or " (sec).  The values are read in degrees, minutes, seconds order regardless of the separations used.
-	 * A value containing S or W will return a negative value, as will values that explicitly contain a negative sign (e.g. -5N returns -5, as does 5W or -5W) 
+	 * A value containing S or W will return a negative value, as will values that explicitly contain a negative sign (e.g. -5N returns -5, as does 5W or -5W)
 	 * @return decimal degree value, or NaN if an error is encountered (unexpected character or a degree or second value outside the (0-60] range).
-	 * The following strings evaluate to the same value: 
+	 * The following strings evaluate to the same value:
 	 * -37\u00B022'5.3"
 	 * 37W22'5.3"
 	 * 37 22 5.3
@@ -660,13 +660,13 @@ public final class LatLonAlt {
 
 
 
-	/** 
-	 * This parses a space or comma-separated string as a LatLonAlt (an inverse 
+	/**
+	 * This parses a space or comma-separated string as a LatLonAlt (an inverse
 	 * to the toString method).  If three bare values are present, then it is interpreted as deg/deg/ft.
-	 * If there are 3 value/unit pairs then each values is interpreted with regard 
+	 * If there are 3 value/unit pairs then each values is interpreted with regard
 	 * to the appropriate unit.  If the string cannot be parsed, an INVALID value is
 	 * returned.
-	 * 
+	 *
 	 * @param str string representing a latitude and longitude
 	 *  @return a LatLonAlt that corresponds to the given string
 	 * */
@@ -690,9 +690,9 @@ public final class LatLonAlt {
 
 	/**
 	 * Normalizes the given latitude and longitude values to conventional spherical angles.  Thus
-	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees 
+	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees
 	 * of latitude converts to 85 degrees and 190 degrees west longitude map to 170 of east longitude.
-	 * 
+	 *
 	 * @param lat latitude in radians
 	 * @param lon longitude in radians
 	 * @param alt altitude
@@ -712,10 +712,10 @@ public final class LatLonAlt {
 
 	/**
 	 * Normalizes the given latitude and longitude values to conventional spherical angles. Thus
-	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees 
-	 * of latitude converts to 85 degrees and 190 degrees west longitude map to 170 of east longitude. 
+	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees
+	 * of latitude converts to 85 degrees and 190 degrees west longitude map to 170 of east longitude.
 	 * The altitude is assumed to be zero.
-	 * 
+	 *
 	 * @param lat latitude
 	 * @param lon longitude
 	 * @return normalized LatLonAlt value
@@ -725,11 +725,11 @@ public final class LatLonAlt {
 	}
 
 	/**
-	 * Creates a new LatLonAlt object from the current LatLonAlt object so that latitude and longitude values are 
+	 * Creates a new LatLonAlt object from the current LatLonAlt object so that latitude and longitude values are
 	 * conventional spherical angles.  Thus
-	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees 
+	 * values over the pole will map to the other side of the pole or merdian.  For example 95 degrees
 	 * of latitude converts to 85 degrees and 190 degrees west longitude map to 170 of east longitude.
-	 * 
+	 *
 	 * @return normalized LatLonAlt value
 	 */
 	public LatLonAlt normalize() {
@@ -744,5 +744,5 @@ public final class LatLonAlt {
 	public boolean isWest(LatLonAlt a) {
 		return Util.clockwise(a.lon(), lon());
 	}
-	
+
 }
