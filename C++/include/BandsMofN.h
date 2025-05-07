@@ -28,7 +28,7 @@ public:
   BandsRegion::Region left_m_of_n(BandsRegion::Region region);
   BandsRegion::Region right_m_of_n(BandsRegion::Region region);
   bool same_colors() const;
-  std::string toString() const;
+  std::string toString(const std::string& u="unitless") const;
   static std::string listToString(const std::vector<BandsMofN>& l);
 
   virtual ~BandsMofN() {}

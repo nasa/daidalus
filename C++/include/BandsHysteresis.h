@@ -78,7 +78,7 @@ public:
       BandsRegion::Region corrective_region,
       double delta, int nfactor, double val, int idx);
 
-  std::string toString() const;
+  std::string toString(const std::string& u="unitless") const;
 
   virtual ~BandsHysteresis() {}
 

@@ -463,7 +463,7 @@ void BandsHysteresis::bandsHysteresis(const std::vector<BandsRange>& ranges,
   preferredDirectionHysteresis(delta,nfactor,val);
 }
 
-std::string BandsHysteresis::toString() const {
+std::string BandsHysteresis::toString(const std::string& u) const {
   std::string s = "# Hysteresis variables\n";
   s += "hysteresis_time_ = "+FmPrecision(hysteresis_time_)+"\n";
   s += "persistence_time_ = "+FmPrecision(persistence_time_)+"\n";
@@ -473,14 +473,14 @@ std::string BandsHysteresis::toString() const {
   s += "n_ = "+Fmi(n_)+"\n";
   for (int i = 0; i < static_cast<int>(bands_mofn_.size()); ++i) {
     s+="bands_mofn_["+Fmi(i)+"] = ";
-    s+=bands_mofn_[i].toString()+"\n";
+    s+=bands_mofn_[i].toString(u)+"\n";
   }
   s += "preferred_dir_ = "+Fmb(preferred_dir_)+"\n";
   s += "time_of_dir_ = "+FmPrecision(time_of_dir_)+"\n";
-  s += "resolution_low_ = "+FmPrecision(resolution_low_)+"\n";
-  s += "resolution_up_ = "+FmPrecision(resolution_up_)+"\n";
-  s += "raw_low_ = "+FmPrecision(raw_low_)+"\n";
-  s += "raw_up_ = "+FmPrecision(raw_up_)+"\n";
+  s += "resolution_low_ = "+FmPrecision(Units::to(u,resolution_low_))+"\n";
+  s += "resolution_up_ = "+FmPrecision(Units::to(u,resolution_up_))+"\n";
+  s += "raw_low_ = "+FmPrecision(Units::to(u,raw_low_))+"\n";
+  s += "raw_up_ = "+FmPrecision(Units::to(u,raw_up_))+"\n";
   s += "nfactor_low_ = "+Fmi(nfactor_low_)+"\n";
   s += "nfactor_up_ = "+Fmi(nfactor_up_)+"\n";
   s += "conflict_region_ = "+BandsRegion::to_string(conflict_region_)+"\n";
@@ -491,4 +491,3 @@ std::string BandsHysteresis::toString() const {
 }
 
 } /* namespace larcfm */
-

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
@@ -19,8 +19,8 @@ ColorValue::ColorValue(BandsRegion::Region l, double v, BandsRegion::Region r) {
   color_right = r;
 }
 
-std::string ColorValue::toString() const {
-  std::string s = "<"+BandsRegion::to_string(color_left)+", "+FmPrecision(val)+", "+BandsRegion::to_string(color_right)+">";
+std::string ColorValue::toString(const std::string& u) const {
+  std::string s = "<"+BandsRegion::to_string(color_left)+", "+FmPrecision(Units::to(u,val))+", "+BandsRegion::to_string(color_right)+">";
   return s;
 }
 

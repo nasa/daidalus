@@ -45,8 +45,12 @@ MofN::MofN(const MofN& mofn) : m_(mofn.m_), n_(mofn.n_), max_(mofn.max_),
 void MofN::reset(int val) {
   queue_.clear();
   max_ = val;
-  for (int i=0;i<n_;++i) {
-    queue_.push_back(i < m_ ? val : -1);
+  int i=0;
+  for (;i<n_-m_;++i) {
+    queue_.push_back(-1);
+  }
+  for (;i<n_;++i) {
+    queue_.push_back(val);
   }
 }
 
@@ -64,7 +68,11 @@ bool MofN::isValid() const {
  * M of N logic.
  */
 int MofN::m_of_n(int value) {
-  if (!isValid()) {
+  if (!isValid()) {  // m_of_n is not configured, just return value
+    return value;
+  }
+  if (max_ < 0 || value < 0) { // Overriding an undefined value
+    reset(value);
     return value;
   }
   if (value > max_) {
@@ -72,9 +80,6 @@ int MofN::m_of_n(int value) {
   }
   queue_.pop_front();
   queue_.push_back(value);
-  if (max_ < 0) {
-    return max_;
-  }
   std::vector<int> count(max_+1,0);
   for (std::deque<int>::const_iterator val_ptr = queue_.begin(); val_ptr != queue_.end(); ++val_ptr) {
     for (int i=*val_ptr;i >= 0;--i) {

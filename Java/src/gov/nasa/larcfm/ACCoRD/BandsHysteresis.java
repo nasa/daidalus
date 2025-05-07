@@ -14,6 +14,7 @@ package gov.nasa.larcfm.ACCoRD;
 import java.util.ArrayList;
 import java.util.List;
 
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.Util;
 import gov.nasa.larcfm.Util.f;
 
@@ -27,7 +28,7 @@ public class BandsHysteresis {
 	private double  last_time_;
 	private int     m_;
 	private int     n_;
-	private List<BandsMofN> bands_mofn_; // Color values for computation of MofN bands logic	
+	private List<BandsMofN> bands_mofn_; // Color values for computation of MofN bands logic
 
 	/* Parameters for hysteresis of preferred direction */
 	private boolean preferred_dir_; // Returned preferred direction after hysteresis
@@ -40,7 +41,7 @@ public class BandsHysteresis {
 	private double time_of_conflict_region_; // Time of last region
 
 	/*
-	 * resolution_up_,resolution_low_ are the resolution interval computed from all regions that are at least 
+	 * resolution_up_,resolution_low_ are the resolution interval computed from all regions that are at least
 	 * as severe as the corrective region. Negative/positive infinity means no possible resolutions
 	 * NaN means no resolutions are computed (either because there is no conflict or
 	 * because of invalid inputs)
@@ -50,10 +51,10 @@ public class BandsHysteresis {
 	private double raw_up_; // Resolution up without hysteresis
 	private double raw_low_; // Resolution low without hysteresis
 	// nfactor >= 0 means recovery bands. It's the reduction factor for the internal cylinder
-	private int    nfactor_up_; 
-	private int    nfactor_low_; 
+	private int    nfactor_up_;
+	private int    nfactor_low_;
 
-	/* 
+	/*
 	 * Creates an empty object
 	 */
 	public BandsHysteresis() {
@@ -76,7 +77,7 @@ public class BandsHysteresis {
 	/*
 	 * Sets hysteresis and persistence time
 	 */
-	public void initialize(double hysteresis_time, 
+	public void initialize(double hysteresis_time,
 			double persistence_time, boolean bands_persistence,
 			int m, int n) {
 		hysteresis_time_ = hysteresis_time;
@@ -123,7 +124,7 @@ public class BandsHysteresis {
 	}
 
 	/*
-	 * Reset object 
+	 * Reset object
 	 */
 	public void reset() {
 		bands_mofn_.clear();
@@ -139,10 +140,10 @@ public class BandsHysteresis {
 
 		resolution_up_ = Double.NaN;
 		resolution_low_ = Double.NaN;
-		
+
 		raw_up_ = Double.NaN;
 		raw_low_ = Double.NaN;
-		
+
 		nfactor_up_ = 0;
 		nfactor_low_ = 0;
 	}
@@ -154,8 +155,8 @@ public class BandsHysteresis {
 	public void resetIfCurrentTime(double current_time) {
 		if (Double.isNaN(last_time_) ||
 				current_time <= last_time_ ||
-				current_time-last_time_ > hysteresis_time_) { 	
-			reset();	
+				current_time-last_time_ > hysteresis_time_) {
+			reset();
 		}
 		last_time_ = current_time;
 	}
@@ -168,7 +169,7 @@ public class BandsHysteresis {
 				for(int j=0; j < lcvs.size(); ++j) {
 					bands_mofn_.add(new BandsMofN(lcvs.get(j),m_,n_));
 				}
-			} 
+			}
 			// Produce new list of color values in place
 			int i = 0; // Index in bands_mofn_
 			int j = 0; // Index in lcvs
@@ -183,7 +184,7 @@ public class BandsHysteresis {
 							lcvs.get(j).color_left));
 				} else {
 					bands_mofn_.add(i,new BandsMofN(lcvs.get(j).val,
-							bands_mofn_.get(i).colors_left));	
+							bands_mofn_.get(i).colors_left));
 				}
 			}
 			// Remove values whose of mofns queues are the same both sides, except
@@ -229,7 +230,7 @@ public class BandsHysteresis {
 			conflict_region_ = BandsRegion.UNKNOWN;
 			conflict_region_low_ = Double.NaN;
 			conflict_region_up_ = Double.NaN;
-		}		
+		}
 	}
 
 	// Implement persistence logic for bands. Return index in ranges of current value
@@ -237,14 +238,14 @@ public class BandsHysteresis {
 			double val) {
 		if (hysteresis_time_ > 0 && persistence_time_ > 0 && bands_persistence_) {
 			// last_time is never NaN
-			if (Double.isFinite(conflict_region_low_) && Double.isFinite(conflict_region_up_)) { 
+			if (Double.isFinite(conflict_region_low_) && Double.isFinite(conflict_region_up_)) {
 				// current val is still between conflict_region_low and conflict_region_up
 				BandsRegion current_region = ColorValue.region_of(lcvs,val);
-				// In the following condition is important that RECOVERY is the higher value, 
-				// since it overwrites all other colors. 
+				// In the following condition is important that RECOVERY is the higher value,
+				// since it overwrites all other colors.
 				// Therefore, orderOfRegion is used instead of orderOfConflictRegion.
 				if (current_region.isValidBand() && conflict_region_.isConflictBand()) {
-					if (!Double.isNaN(time_of_conflict_region_) && 
+					if (!Double.isNaN(time_of_conflict_region_) &&
 							BandsRegion.orderOfRegion(current_region) < BandsRegion.orderOfRegion(conflict_region_) &&
 							last_time_ >= time_of_conflict_region_ &&
 							last_time_-time_of_conflict_region_ < persistence_time_) {
@@ -254,14 +255,14 @@ public class BandsHysteresis {
 						if (current_region.isConflictBand() &&
 								BandsRegion.orderOfRegion(current_region) > BandsRegion.orderOfRegion(conflict_region_)) {
 							time_of_conflict_region_ = last_time_;
-						} 
+						}
 					}
 				}
 			} else {
 				time_of_conflict_region_ = last_time_;
 			}
 		}
-		// Compute Color bands 
+		// Compute Color bands
 		BandsRange.makeRangesFromColorValues(ranges,lcvs,recovery);
 		int idx = BandsRange.index_of(ranges,val,mod_);
 		if (!Double.isNaN(time_of_conflict_region_)) {
@@ -271,20 +272,20 @@ public class BandsHysteresis {
 		return idx;
 	}
 
-	// check if region is below corrective region  
+	// check if region is below corrective region
 	private static boolean is_below_corrective_region(BandsRegion corrective_region, BandsRegion region) {
-		// In the following core is important that RECOVERY and NONE both have the order 0, 
+		// In the following core is important that RECOVERY and NONE both have the order 0,
 		// since this function is used to find a resolution.
 		// For that reason, orderOfConflictRegion is used instead of orderOfRegion
-		return region.isValidBand() && 
-				region.orderOfConflictRegion() < 
+		return region.isValidBand() &&
+				region.orderOfConflictRegion() <
 				corrective_region.orderOfConflictRegion();
 	}
 
 	// check if regions from idx_from to idx_to are resolutions
-	private boolean contiguous_resolution_region(List<BandsRange> ranges, 
+	private boolean contiguous_resolution_region(List<BandsRange> ranges,
 			BandsRegion corrective_region, boolean dir, int idx_from, int idx_to) {
-		int idx=idx_from; 
+		int idx=idx_from;
 		while (idx != idx_to && 0 <= idx && idx < ranges.size() &&
 				is_below_corrective_region(corrective_region,ranges.get(idx).region)) {
 			if (dir) {
@@ -313,14 +314,14 @@ public class BandsHysteresis {
 			return Util.almost_less(a,b,DaidalusParameters.ALMOST_);
 		} else {
 			return Util.almost_less(Util.modulo(b-a,mod_),mod2_,DaidalusParameters.ALMOST_);
-		}	
+		}
 	}
 
-	public void resolutionsHysteresis(List<BandsRange> ranges, 
-			BandsRegion corrective_region, double delta, int nfactor, 
+	public void resolutionsHysteresis(List<BandsRange> ranges,
+			BandsRegion corrective_region, double delta, int nfactor,
 			double val, int idx_l, int idx_u) {
 		// last_time is never NaN
-		if (hysteresis_time_ <= 0 || Double.isNaN(time_of_dir_) || 
+		if (hysteresis_time_ <= 0 || Double.isNaN(time_of_dir_) ||
 				last_time_ <= time_of_dir_ || delta <= 0) {
 			// No hysteresis at this time
 			resolution_low_ = raw_low_;
@@ -333,17 +334,17 @@ public class BandsHysteresis {
 			// persistence of up/right resolutions
 			int idx = -1;
 			if (Double.isFinite(raw_up_) && // Exists a current resolution
-					Double.isFinite(resolution_up_) && // Previous resolution exists 
+					Double.isFinite(resolution_up_) && // Previous resolution exists
 					// Previous resolution is in the same direction as new one
 					to_the_left(val,resolution_up_) &&
 					// Before persistence time or nfactor is greater or within delta of new resolution
-					(last_time_-time_of_dir_ < persistence_time_ || 
+					(last_time_-time_of_dir_ < persistence_time_ ||
 							nfactor_up_ < nfactor ||
 							Util.almost_less(Util.safe_modulo(resolution_up_-raw_up_,mod_),delta,
-									DaidalusParameters.ALMOST_))) {				
+									DaidalusParameters.ALMOST_))) {
 				idx=BandsRange.index_of(ranges,resolution_up_,mod_);
-			}	
-			if (0 <= idx && idx < ranges.size() && 
+			}
+			if (0 <= idx && idx < ranges.size() &&
 					contiguous_resolution_region(ranges,corrective_region,preferred_dir_,
 							idx_u,idx)) {
 				// Do nothing: keep old up/right resolution
@@ -354,17 +355,17 @@ public class BandsHysteresis {
 			// persistence of low/left resolutions
 			idx = -1;
 			if (Double.isFinite(raw_low_) && // Exists a current resolution
-					Double.isFinite(resolution_low_) && // Previous resolution exists 
+					Double.isFinite(resolution_low_) && // Previous resolution exists
 					// Previous resolution is in the same direction as new one
 					to_the_left(resolution_low_,val) &&
 					// Before persistence time or nfactor is greater or within delta of new resolution
 					(last_time_-time_of_dir_ < persistence_time_ ||
 							nfactor_low_ < nfactor ||
 							Util.almost_less(Util.safe_modulo(raw_low_-resolution_low_,mod_),delta,
-									DaidalusParameters.ALMOST_))) {				
+									DaidalusParameters.ALMOST_))) {
 				idx=BandsRange.index_of(ranges,resolution_low_,mod_);
-			}	
-			if (0 <= idx && idx < ranges.size() && 
+			}
+			if (0 <= idx && idx < ranges.size() &&
 					contiguous_resolution_region(ranges,corrective_region,preferred_dir_,
 							idx_l,idx)) {
 				// Do nothing: keep old low/left resolution
@@ -383,7 +384,7 @@ public class BandsHysteresis {
 		}
 		if (nfactor <= nfactor_up_) {
 			resolution_up_ = raw_up_;
-		}		
+		}
 	}
 
 	public void preferredDirectionHysteresis(double delta, double nfactor, double val) {
@@ -402,9 +403,9 @@ public class BandsHysteresis {
 			double mod_up = Util.safe_modulo(raw_up_-val,mod_);
 			double mod_down = Util.safe_modulo(val-raw_low_,mod_);
 			boolean actual_dir = Util.almost_leq(mod_up,mod_down,DaidalusParameters.ALMOST_);
-			if (hysteresis_time_ <= 0 || Double.isNaN(time_of_dir_) || 
+			if (hysteresis_time_ <= 0 || Double.isNaN(time_of_dir_) ||
 					last_time_ < time_of_dir_ || delta <= 0) {
-				preferred_dir_ = actual_dir;			
+				preferred_dir_ = actual_dir;
 				time_of_dir_ = last_time_;
 			} else if (last_time_-time_of_dir_ < persistence_time_ ||
 					Math.abs(mod_up-mod_down) < delta) {
@@ -416,20 +417,20 @@ public class BandsHysteresis {
 				// Change direction, update time_of_dir
 				switch_dir(actual_dir,nfactor);
 			}
-		} 
+		}
 	}
 
 	// check if region is above corrective region (corrective or above)
 	private static boolean is_up_from_corrective_region(BandsRegion corrective_region, BandsRegion region) {
-		// In the following core is important that RECOVERY and NONE both have the order 0, 
+		// In the following core is important that RECOVERY and NONE both have the order 0,
 		// since this function is used to find a resolution.
 		// For that reason, orderOfConflictRegion is used instead of orderOfRegion
-		return region.isConflictBand() && 
-				region.orderOfConflictRegion() >= 
+		return region.isConflictBand() &&
+				region.orderOfConflictRegion() >=
 				corrective_region.orderOfConflictRegion();
 	}
 
-	public void bandsHysteresis(List<BandsRange> ranges, 
+	public void bandsHysteresis(List<BandsRange> ranges,
 			BandsRegion corrective_region,
 			double delta, int nfactor, double val, int idx) {
 		raw_low_ = Double.NaN;
@@ -440,7 +441,7 @@ public class BandsHysteresis {
 		if (0 <= idx && idx < ranges.size() && is_up_from_corrective_region(corrective_region,ranges.get(idx).region)) {
 			// There is a conflict
 			int last_index = ranges.size()-1;
-			// Find low/left resolution 
+			// Find low/left resolution
 			raw_low_ = Double.NEGATIVE_INFINITY;
 			while (idx_l >= 0 && is_up_from_corrective_region(corrective_region,ranges.get(idx_l).region)) {
 				if (to_the_left(ranges.get(idx_l).interval.low,val)) {
@@ -464,9 +465,9 @@ public class BandsHysteresis {
 					raw_low_ = 0;
 				} else {
 					raw_low_ = ranges.get(idx_l).interval.up;
-				}	
-			} 
-			// Find up/right resolution 
+				}
+			}
+			// Find up/right resolution
 			raw_up_ = Double.POSITIVE_INFINITY;
 			while (idx_u <= last_index && is_up_from_corrective_region(corrective_region,ranges.get(idx_u).region)) {
 				if (to_the_left(val,ranges.get(idx_u).interval.up)) {
@@ -494,6 +495,10 @@ public class BandsHysteresis {
 	}
 
 	public String toString() {
+		return toString("unitless");
+	}
+
+	public String toString(String u) {
 		String s = "# Hysteresis variables\n";
 		s += "hysteresis_time_ = "+f.FmPrecision(hysteresis_time_)+"\n";
 		s += "persistence_time_ = "+f.FmPrecision(persistence_time_)+"\n";
@@ -503,14 +508,14 @@ public class BandsHysteresis {
 		s += "n_ = "+f.Fmi(n_)+"\n";
 		for (int i = 0; i < bands_mofn_.size(); ++i) {
 			s+="bands_mofn_["+f.Fmi(i)+"] = ";
-			s+=bands_mofn_.get(i).toString()+"\n";
-		} 
+			s+=bands_mofn_.get(i).toString(u)+"\n";
+		}
 		s += "preferred_dir_ = "+preferred_dir_+"\n";
 		s += "time_of_dir_ = "+f.FmPrecision(time_of_dir_)+"\n";
-		s += "resolution_low_ = "+f.FmPrecision(resolution_low_)+"\n";
-		s += "resolution_up_ = "+f.FmPrecision(resolution_up_)+"\n";
-		s += "raw_low_ = "+f.FmPrecision(raw_low_)+"\n";
-		s += "raw_up_ = "+f.FmPrecision(raw_up_)+"\n";
+		s += "resolution_low_ = "+f.FmPrecision(Units.to(u,resolution_low_))+"\n";
+		s += "resolution_up_ = "+f.FmPrecision(Units.to(u,resolution_up_))+"\n";
+		s += "raw_low_ = "+f.FmPrecision(Units.to(u,raw_low_))+"\n";
+		s += "raw_up_ = "+f.FmPrecision(Units.to(u,raw_up_))+"\n";
 		s += "nfactor_low_ = "+f.Fmi(nfactor_low_)+"\n";
 		s += "nfactor_up_ = "+f.Fmi(nfactor_up_)+"\n";
 		s += "conflict_region_ = "+conflict_region_.toString()+"\n";

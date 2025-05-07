@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2011-2021 United States Government as represented by
  * the National Aeronautics and Space Administration.  No copyright
  * is claimed in the United States under Title 17, U.S.Code. All Other
@@ -22,7 +22,7 @@ public:
   BandsRegion::Region color_right;
 
   ColorValue(BandsRegion::Region l, double v, BandsRegion::Region r);
-  std::string toString() const;
+  std::string toString(const std::string& u="unitless") const;
   static std::string listToString(const std::vector<ColorValue>& l);
   static void init(std::vector<ColorValue>& l, double min, double max, BandsRegion::Region int_color);
   static void init(std::vector<ColorValue>& l, double min, double max, double min_val, double max_val, BandsRegion::Region int_color);

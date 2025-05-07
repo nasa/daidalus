@@ -7,6 +7,7 @@
 
 package gov.nasa.larcfm.ACCoRD;
 
+import gov.nasa.larcfm.Util.Units;
 import gov.nasa.larcfm.Util.f;
 
 /*
@@ -48,9 +49,13 @@ public class BandsMofN {
 	public boolean same_colors() {
 		return colors_left.sameAs(colors_right);
 	}
-	
+
 	public String toString() {
-		String s = "<"+colors_left.toString()+", "+f.FmPrecision(val)+", "+colors_right.toString()+">";
+		return toString("unitless");
+	}
+
+	public String toString(String u) {
+		String s = "<"+colors_left.toString()+", "+f.FmPrecision(Units.to(u,val))+", "+colors_right.toString()+">";
 		return s;
 	}
 

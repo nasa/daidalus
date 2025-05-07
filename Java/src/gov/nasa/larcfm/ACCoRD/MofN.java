@@ -39,11 +39,11 @@ public class MofN {
 	public void setMofN(int m, int n) {
 		setMofN(m,n,-1);
 	}
-	
-	/* 
-	 * Creates an empty M of N object, with no parameter initialization. 
+
+	/*
+	 * Creates an empty M of N object, with no parameter initialization.
 	 * Without further use of setMofN on this object, it's considered invalid and
-	 * doesn't perform M of N logic. 
+	 * doesn't perform M of N logic.
 	 */
 	public MofN() {
 		queue_ = new LinkedList<Integer>();
@@ -59,17 +59,21 @@ public class MofN {
 		m_ = mofn.m_;
 		n_ = mofn.n_;
 		max_ = mofn.max_;
-		queue_ = new LinkedList<Integer>(mofn.queue_); 
+		queue_ = new LinkedList<Integer>(mofn.queue_);
 	}
 
 	/*
-	 * Reset M of N object with a given initial value 
+	 * Reset M of N object with a given initial value
 	 */
 	public void reset(int val) {
 		queue_.clear();
 		max_ = val;
-		for (int i=0;i<n_;++i) {
-			queue_.add(i < m_ ? val : -1);
+		int i=0;
+		for (;i<n_-m_;++i) {
+			queue_.add(-1);
+		}
+		for (;i<n_;++i) {
+			queue_.add(val);
 		}
 	}
 
@@ -84,28 +88,29 @@ public class MofN {
 	 * Returns true if this object is able to perform M of N logic.
 	 */
 	public boolean isValid() {
-		return !queue_.isEmpty() && m_ > 0 && m_ <= n_; 
+		return !queue_.isEmpty() && m_ > 0 && m_ <= n_;
 	}
 
-	/* 
-	 * Return M of N value for a given value. 
+	/*
+	 * Return M of N value for a given value.
 	 * Counts maximum occurrences of value assuming that that value represents all the
 	 * values val such that 0 <= val <= value. Return -1 if none of the values satisfies
 	 * M of N logic.
 	 */
 	public int m_of_n(int value) {
-		if (!isValid()) {
+		if (!isValid()) { // m_of_n is not configured, just return value
 			return value;
-		} 
+		}
+		if (max_ < 0 || value < 0) { // Overriding an undefined value
+			reset(value);
+			return value;
+		}
 		if (value > max_) {
 			max_ = value;
 		}
 		queue_.poll();
 		queue_.add(value);
-		if (max_ < 0) {
-			return max_;
-		}
-		int[] count = new int[max_+1]; 
+		int[] count = new int[max_+1];
 		for (int i=0; i <= max_; ++i) {
 			count[i] = 0;
 		}
@@ -113,7 +118,7 @@ public class MofN {
 			for (int i=val;i >= 0;--i) {
 				count[i]++;
 			}
-		}	
+		}
 		for (int i=max_; i >= 0; --i) {
 			if (count[i] >= m_) {
 				return i;
@@ -121,7 +126,7 @@ public class MofN {
 		}
 		return -1;
 	}
-	
+
 	public boolean sameAs(MofN mofn) {
 		if (max_ != mofn.max_  && queue_.size() != mofn.queue_.size()) {
 			return false;

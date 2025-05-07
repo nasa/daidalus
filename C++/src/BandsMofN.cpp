@@ -38,8 +38,8 @@ bool BandsMofN::same_colors() const {
   return colors_left.sameAs(colors_right);
 }
 
-std::string BandsMofN::toString() const {
-  std::string s = "<"+colors_left.toString()+", "+FmPrecision(val)+", "+colors_right.toString()+">";
+std::string BandsMofN::toString(const std::string& u) const {
+  std::string s = "<"+colors_left.toString()+", "+FmPrecision(Units::to(u,val))+", "+colors_right.toString()+">";
   return s;
 }
 
@@ -59,5 +59,3 @@ std::string BandsMofN::listToString(const std::vector<BandsMofN>& l) {
 }
 
 } /* namespace larcfm */
-
-
